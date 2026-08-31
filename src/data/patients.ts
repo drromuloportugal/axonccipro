@@ -1062,8 +1062,8 @@ export const patients: Patient[] = [
     allergies: ["Sulfa"],
     legalRepresentative: { name: "Marta Lima", relation: "Esposa", phone: "(22) 99999-0001" },
     pastMedications: [
-      { name: "Losartana", dose: "50 mg", route: "VO", freq: "12/12h" },
-      { name: "Metformina", dose: "850 mg", route: "VO", freq: "12/12h" },
+      { id: "pm4a", name: "Losartana", dose: "50 mg", route: "VO", freq: "12/12h", status: "suspenso" },
+      { id: "pm4b", name: "Metformina", dose: "850 mg", route: "VO", freq: "12/12h", status: "suspenso" },
     ],
     procedures: [
       { date: "09/08 03:10", label: "Laparotomia exploradora com colostomia", detail: "Cirurgia Geral", kind: "critical" },
@@ -1076,7 +1076,7 @@ export const patients: Patient[] = [
     devices: [
       { id: "d4a", category: "airway", typeCode: "TQT", site: "Traqueal", size: "8.0", cannulaType: "plástica", insertedAt: daysAgoISO(9, 9, 0), recommendedMaxDays: 30 },
       { id: "d4b", category: "venous_central", typeCode: "CVC_JUG", site: "Jugular interna D", lumens: 3, insertedAt: daysAgoISO(6, 10, 0), recommendedMaxDays: 7 },
-      { id: "d4c", category: "dialysis", typeCode: "CDL", site: "Femoral E", insertedAt: daysAgoISO(19, 14, 0), recommendedMaxDays: 14 },
+      { id: "d4c", category: "venous_central", typeCode: "HD_CAT", site: "Femoral E", insertedAt: daysAgoISO(19, 14, 0), recommendedMaxDays: 14 },
       { id: "d4d", category: "arterial", typeCode: "PAI_RAD", site: "Radial E", insertedAt: daysAgoISO(4, 8, 0), recommendedMaxDays: 7 },
       { id: "d4e", category: "urinary", typeCode: "SVD", site: "Uretral", size: "3 vias", insertedAt: daysAgoISO(22, 7, 0), recommendedMaxDays: 14 },
       { id: "d4f", category: "enteral", typeCode: "SNE", site: "Nasal E", size: "12 Fr", insertedAt: daysAgoISO(20, 8, 0), recommendedMaxDays: 30 },
@@ -1150,11 +1150,11 @@ export const patients: Patient[] = [
       { id: "ht4c", date: daysAgoISO(4, 16, 0), component: "Concentrado de hemácias", volume: "1 bolsa · 250 mL", note: "Hb 7,2 g/dL." },
     ],
     infections: [
-      { id: "inf4a", site: "IIA", status: "confirmado", startedAt: daysAgoISO(22, 3, 0), resolvedAt: daysAgoISO(8, 8, 0), cultureIds: ["c4a"], antimicrobials: ["Meropenem"], notes: "Peritonite fecal — controle de foco cirúrgico." },
+      { id: "inf4a", site: "PERITONITE", status: "confirmado", startedAt: daysAgoISO(22, 3, 0), resolvedAt: daysAgoISO(8, 8, 0), cultureIds: ["c4a"], antimicrobials: ["Meropenem"], notes: "Peritonite fecal — controle de foco cirúrgico." },
       { id: "inf4b", site: "PAV", status: "confirmado", unstable: true, startedAt: daysAgoISO(8, 5, 0), relatedDeviceIds: ["d4a"], cultureIds: ["c4b"], antimicrobials: ["Polimixina B"], notes: "Acinetobacter baumannii XDR." },
     ],
     cultures: [
-      { id: "c4a", source: "Líquido peritoneal", collectedAt: daysAgoISO(22, 4, 0), organism: "Escherichia coli", resistanceProfile: "ESBL", sensitivities: ["Meropenem", "Amicacina"], resistances: ["Ceftriaxona"], linkedFocusId: "inf4a" },
+      { id: "c4a", source: "Líquido peritoneal", collectedAt: daysAgoISO(22, 4, 0), organism: "Escherichia coli", resistanceProfile: "MDR", sensitivities: ["Meropenem", "Amicacina"], resistances: ["Ceftriaxona"], linkedFocusId: "inf4a" },
       { id: "c4b", source: "Aspirado traqueal", collectedAt: daysAgoISO(8, 6, 0), organism: "Acinetobacter baumannii", resistanceProfile: "XDR", sensitivities: ["Polimixina B"], resistances: ["Meropenem", "Ampicilina-sulbactam"], linkedFocusId: "inf4b" },
       { id: "c4c", source: "Hemocultura periférica", collectedAt: daysAgoISO(3, 6, 0), resistanceProfile: "pendente", linkedFocusId: "inf4b" },
     ],
@@ -1291,7 +1291,7 @@ export const patients: Patient[] = [
       { id: "d5c", category: "arterial", typeCode: "PAI_RAD", site: "Radial D", insertedAt: daysAgoISO(5, 9, 30), recommendedMaxDays: 7 },
       { id: "d5d", category: "urinary", typeCode: "SVD", site: "Uretral", size: "2 vias", insertedAt: daysAgoISO(19, 22, 0), recommendedMaxDays: 14 },
       { id: "d5e", category: "enteral", typeCode: "SNE", site: "Nasal D", size: "12 Fr", insertedAt: daysAgoISO(18, 8, 0), recommendedMaxDays: 30 },
-      { id: "d5f", category: "drain", typeCode: "DRENO_TX", site: "Hemitórax direito", side: "D", insertedAt: daysAgoISO(11, 8, 20), recommendedMaxDays: 10, notes: "Selo d'água, sem escape aéreo há 48 h." },
+      { id: "d5f", category: "drain", typeCode: "DRT", site: "Hemitórax direito", side: "D", insertedAt: daysAgoISO(11, 8, 20), recommendedMaxDays: 10, notes: "Selo d'água, sem escape aéreo há 48 h." },
     ],
     medications: [
       { name: "Oseltamivir", dose: "75 mg", route: "SNE", freq: "12/12h", start: "12/08", end: "22/08", kind: "attention", active: false, isAntibiotic: false, category: "antimicrobiano" },
@@ -1348,8 +1348,8 @@ export const patients: Patient[] = [
       { id: "inf5b", site: "PAV", status: "provavel", startedAt: daysAgoISO(10, 8, 0), relatedDeviceIds: ["d5a"], cultureIds: ["c5a"], antimicrobials: ["Piperacilina-tazobactam"], notes: "Piora de secreção e febre no D9." },
     ],
     cultures: [
-      { id: "c5a", source: "Aspirado traqueal", collectedAt: daysAgoISO(10, 7, 0), organism: "Klebsiella pneumoniae", resistanceProfile: "sensível", sensitivities: ["Piperacilina-tazobactam", "Meropenem"], linkedFocusId: "inf5b" },
-      { id: "c5b", source: "Hemocultura periférica", collectedAt: daysAgoISO(10, 7, 10), resistanceProfile: "negativa", linkedFocusId: "inf5b" },
+      { id: "c5a", source: "Aspirado traqueal", collectedAt: daysAgoISO(10, 7, 0), organism: "Klebsiella pneumoniae", resistanceProfile: "sensivel", sensitivities: ["Piperacilina-tazobactam", "Meropenem"], linkedFocusId: "inf5b" },
+      { id: "c5b", source: "Hemocultura periférica", collectedAt: daysAgoISO(10, 7, 10), result: "negativa", linkedFocusId: "inf5b" },
     ],
     infectionTimeline: [
       { at: daysAgoISO(19, 21, 0), kind: "atb_inicio", label: "Oseltamivir iniciado", focusId: "inf5a" },
@@ -1464,7 +1464,7 @@ export const patients: Patient[] = [
       { id: "d6a", category: "airway", typeCode: "TQT", site: "Traqueal", size: "8.0", cannulaType: "plástica", insertedAt: daysAgoISO(8, 9, 30), lastCannulaChangeAt: daysAgoISO(1, 9, 0), recommendedMaxDays: 30 },
       { id: "d6b", category: "enteral", typeCode: "GTT", site: "Epigástrio", insertedAt: daysAgoISO(2, 10, 0), recommendedMaxDays: 90 },
       { id: "d6c", category: "urinary", typeCode: "SVD", site: "Uretral", size: "2 vias", insertedAt: daysAgoISO(3, 8, 0), recommendedMaxDays: 14 },
-      { id: "d6d", category: "venous_peripheral", typeCode: "AVP", site: "Antebraço E", insertedAt: daysAgoISO(1, 8, 0), recommendedMaxDays: 4 },
+      { id: "d6d", category: "venous_peripheral", typeCode: "PVP", site: "Antebraço E", insertedAt: daysAgoISO(1, 8, 0), recommendedMaxDays: 4 },
     ],
     medications: [
       { name: "Levetiracetam", dose: "1g", route: "EV", freq: "12/12h", start: "05/08", kind: "neuro", active: true, category: "outro", therapeuticClass: "Anticonvulsivante" },
@@ -1517,8 +1517,8 @@ export const patients: Patient[] = [
       { id: "inf6a", site: "ITU", status: "resolvido", startedAt: daysAgoISO(16, 8, 0), resolvedAt: daysAgoISO(9, 8, 0), relatedDeviceIds: ["d6c"], notes: "Tratada com curso curto, urocultura de controle negativa." },
     ],
     cultures: [
-      { id: "c6a", source: "Urocultura", collectedAt: daysAgoISO(16, 7, 0), organism: "Escherichia coli", resistanceProfile: "sensível", sensitivities: ["Ceftriaxona", "Amicacina"], linkedFocusId: "inf6a" },
-      { id: "c6b", source: "Urocultura de controle", collectedAt: daysAgoISO(8, 7, 0), resistanceProfile: "negativa", linkedFocusId: "inf6a" },
+      { id: "c6a", source: "Urocultura", collectedAt: daysAgoISO(16, 7, 0), organism: "Escherichia coli", resistanceProfile: "sensivel", sensitivities: ["Ceftriaxona", "Amicacina"], linkedFocusId: "inf6a" },
+      { id: "c6b", source: "Urocultura de controle", collectedAt: daysAgoISO(8, 7, 0), result: "negativa", linkedFocusId: "inf6a" },
     ],
     lpp: [
       {
