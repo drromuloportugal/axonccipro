@@ -232,6 +232,60 @@ export function SerialMatrix({
                 ))}
               </tr>
             ))}
+            {custom.map((c) => (
+              <tr key={c.id} className="border-t border-border/60">
+                <td className="sticky left-0 z-10 bg-card px-2 py-1 font-semibold">
+                  <span className="flex items-center gap-1">
+                    {c.label}
+                    <button
+                      type="button"
+                      onClick={() => removeCustom(c.id)}
+                      className="text-[10px] text-muted-foreground hover:text-clinical-critical"
+                      title="Remover índice"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                </td>
+                <td className="px-1 py-1 text-[10px] text-muted-foreground">{c.unit ?? ""}</td>
+                {dates.map((d) => (
+                  <td key={d} className="px-1 py-1">
+                    <input
+                      type="number"
+                      step="any"
+                      className={cellCls}
+                      value={(c.readings ?? []).find((r) => dayKey(r.at) === d)?.value ?? ""}
+                      onChange={(e) => setCustom(c.id, d, e.target.value)}
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+            <tr className="border-t border-border/60">
+              <td colSpan={dates.length + 2} className="px-2 py-1.5">
+                <span className="flex flex-wrap items-center gap-1.5">
+                  <input
+                    className="h-7 w-40 rounded border border-border bg-background px-2 text-[11px]"
+                    placeholder="Novo índice vital"
+                    value={newVital.label}
+                    onChange={(e) => setNewVital((s) => ({ ...s, label: e.target.value }))}
+                  />
+                  <input
+                    className="h-7 w-20 rounded border border-border bg-background px-2 text-[11px]"
+                    placeholder="Unidade"
+                    value={newVital.unit}
+                    onChange={(e) => setNewVital((s) => ({ ...s, unit: e.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustom}
+                    className="h-7 rounded border border-border bg-surface px-2 text-[11px] font-semibold hover:bg-surface-3"
+                  >
+                    + Adicionar índice
+                  </button>
+                </span>
+              </td>
+            </tr>
 
             <tr className="bg-clinical-neutral/10">
               <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
@@ -241,7 +295,7 @@ export function SerialMatrix({
             {exams.length === 0 && (
               <tr>
                 <td colSpan={dates.length + 2} className="px-2 py-2 text-[11px] italic text-muted-foreground">
-                  Nenhum exame cadastrado — adicione exames na lista abaixo.
+                  Nenhum exame cadastrado — adicione abaixo.
                 </td>
               </tr>
             )}
@@ -249,7 +303,19 @@ export function SerialMatrix({
               const map = examPoints(e);
               return (
                 <tr key={`${e.code ?? e.label}-${i}`} className="border-t border-border/60">
-                  <td className="sticky left-0 z-10 bg-card px-2 py-1 font-semibold">{e.label}</td>
+                  <td className="sticky left-0 z-10 bg-card px-2 py-1 font-semibold">
+                    <span className="flex items-center gap-1">
+                      {e.label}
+                      <button
+                        type="button"
+                        onClick={() => removeExam(i)}
+                        className="text-[10px] text-muted-foreground hover:text-clinical-critical"
+                        title="Remover exame"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  </td>
                   <td className="px-1 py-1 text-[10px] text-muted-foreground">{e.unit ?? ""}</td>
                   {dates.map((d) => (
                     <td key={d} className="px-1 py-1">
@@ -265,9 +331,35 @@ export function SerialMatrix({
                 </tr>
               );
             })}
+            <tr className="border-t border-border/60">
+              <td colSpan={dates.length + 2} className="px-2 py-1.5">
+                <span className="flex flex-wrap items-center gap-1.5">
+                  <input
+                    className="h-7 w-44 rounded border border-border bg-background px-2 text-[11px]"
+                    placeholder="Novo exame laboratorial"
+                    value={newExam.label}
+                    onChange={(e) => setNewExam((s) => ({ ...s, label: e.target.value }))}
+                  />
+                  <input
+                    className="h-7 w-20 rounded border border-border bg-background px-2 text-[11px]"
+                    placeholder="Unidade"
+                    value={newExam.unit}
+                    onChange={(e) => setNewExam((s) => ({ ...s, unit: e.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    onClick={addExam}
+                    className="h-7 rounded border border-border bg-surface px-2 text-[11px] font-semibold hover:bg-surface-3"
+                  >
+                    + Adicionar exame
+                  </button>
+                </span>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
+
   );
 }
