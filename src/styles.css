@@ -43,7 +43,7 @@
   --color-clinical-neuro: var(--clinical-neuro);
   --color-clinical-nutri: var(--clinical-nutri);
 
-  --font-sans: "Archivo", "SF Pro Display", system-ui, sans-serif;
+  --font-sans: "Inter", "Archivo", "SF Pro Display", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -210,24 +210,25 @@
   font-weight: 700;
 }
 
-/* Caixas de título sólidas em grafite/acentos (referência ESCUDO) */
+/* Cabeçalhos de seção no padrão ESCUDO: texto escuro compacto com sublinhado grosso */
 @utility title-box {
-  display: inline-flex;
-  align-items: center;
+  display: block;
   max-width: 100%;
   border-radius: 0;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.8125rem;
-  font-weight: 800;
+  padding: 0 0 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: oklch(0.98 0 0);
+  letter-spacing: 0.07em;
+  color: var(--color-foreground);
+  background: transparent;
+  border-bottom: 2px solid var(--color-foreground);
 }
-@utility title-green-1 { background: oklch(0.27 0.012 260); }
-@utility title-green-2 { background: oklch(0.32 0.015 260); }
-@utility title-green-3 { background: oklch(0.27 0.012 260); }
-@utility title-green-4 { background: oklch(0.35 0.03 230); }
-@utility title-green-5 { background: oklch(0.27 0.012 260); }
-@utility title-green-6 { background: oklch(0.32 0.02 250); }
-@utility title-green-7 { background: oklch(0.27 0.012 260); }
+@utility title-green-1 { background: transparent; }
+@utility title-green-2 { background: transparent; }
+@utility title-green-3 { background: transparent; }
+@utility title-green-4 { background: transparent; }
+@utility title-green-5 { background: transparent; }
+@utility title-green-6 { background: transparent; }
+@utility title-green-7 { background: transparent; }
 

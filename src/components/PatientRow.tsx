@@ -302,9 +302,9 @@ export function PatientRow({
  <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
-        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-none [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong"
+        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-2.5 px-4 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-md [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-2.5 [&>div]:shadow-sm [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-foreground/30"
       > {/* 1 - Identificação */}
- <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
+ <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0">
 
  <div className="mb-1.5 flex items-center justify-between gap-1.5">
  <span className="title-box title-green-1 min-w-0 !text-[11px] leading-tight"> Identificação
@@ -347,10 +347,10 @@ export function PatientRow({
  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
  </div>
 
- <div className="flex min-w-0 items-center gap-2">
- <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
- <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
- </div>
+  <div className="flex min-w-0 items-center gap-2 border-b-2 border-clinical-critical/70 pb-1.5">
+  <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
+  <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
+  </div>
 
 
  <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground">
@@ -384,7 +384,7 @@ export function PatientRow({
  </div>
  </div> )}
  </div> {/* 2 - História */}
- <div onClick={colClick("hist")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
+ <div onClick={colClick("hist")} className="flex min-w-0 flex-col">
 
  <ColHead label="História" tab="hist" title="Editar história" tone={1} />
  <div className="flex flex-wrap gap-1"> {patient.diagnoses.slice(-3).map((d, i) => (
@@ -393,7 +393,7 @@ export function PatientRow({
  <span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span> )}
  </div>
  </div> {/* 3 - Invasões / Dispositivos */}
- <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5 px-3 border-l-2 border-border-strong">
+ <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5">
 
  <ColHead
             label="Invasões"
@@ -418,7 +418,7 @@ export function PatientRow({
  <span className="text-[11px] italic text-muted-foreground/60">Sem dispositivos</span> )}
  </div>
  </div> {/* 4 - Medicações com dashboard de bombas */}
- <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5 px-3 border-l-2 border-border-strong">
+ <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5">
  <ColHead
             label="Medicações"
             tab="med"
@@ -481,7 +481,7 @@ export function PatientRow({
  <span className="text-[11px] italic text-muted-foreground/60">Sem medicações ativas</span> )}
  </div>
  </div> {/* 5 - Culturas → Lab → Gasometria → Imagem */}
- <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
+ <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1">
 
  <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" tone={4} /> {/* 1) Culturas */}
           {(patient.cultures?.length ?? 0) > 0 && (
@@ -513,7 +513,7 @@ export function PatientRow({
  </div> ))}
  </div> )}
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
- <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
+ <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1">
  <ColHead label="Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="rounded border border-border bg-surface px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
@@ -605,7 +605,7 @@ export function PatientRow({
  <div className="mt-1 text-[10px] italic text-muted-foreground line-clamp-3"> {patient.state.notes}
  </div> )}
  </div> {/* 7 - Plano · Tarefas */}
- <div onClick={colClick("plan")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
+ <div onClick={colClick("plan")} className="flex min-w-0 flex-col">
  <ColHead
             label="Plano · Condutas"
             tab="plan"
@@ -713,7 +713,7 @@ export function PatientRow({
  </button>
  </div>
  </div>
- <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-none [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-2.5 px-4 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-md [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-2.5 [&>div]:shadow-sm"> {/* 1 */}
  <div onClick={colClick("id")}>
  <ColTitle tone={0}>Identificação</ColTitle>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
