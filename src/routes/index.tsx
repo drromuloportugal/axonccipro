@@ -514,32 +514,76 @@ function Passometro() {
  </div>
 
         {/* Filters strip with counts inline */}
- <div className="flex items-center justify-center gap-2 border-t border-border/60 bg-surface/50 px-6 py-2">
-          {(
-            [
-              { v: "all", label: "Todos", count: counts.total, c: "text-foreground" },
-              { v: "critical", label: "Críticos", count: counts.critical, c: "text-clinical-critical" },
-              { v: "attention", label: "Atenção", count: counts.attention, c: "text-clinical-attention" },
-              { v: "stable", label: "Estáveis", count: counts.stable, c: "text-clinical-stable" },
-            ] as { v: Filter; label: string; count: number; c: string }[]
-          ).map((f) => (
- <button
-              key={f.v}
-              onClick={() => setFilter(f.v)}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[11px] font-semibold transition-colors ${
-                filter === f.v
-                  ? "bg-surface-3 text-foreground"
-                  : "text-muted-foreground hover:bg-surface-3/60 hover:text-foreground"
-              }`}
-            >
- <span>{f.label}</span>
- <span className={`font-mono tabular-nums ${filter === f.v ? "text-foreground" : f.c}`}>
-                {f.count}
- </span>
- </button>
-          ))}
- </div>
- </header>
+  <div className="flex items-center justify-center gap-2 border-t border-border/60 bg-surface/50 px-6 py-2">
+           {(
+             [
+               { v: "all", label: "Todos", count: counts.total, c: "text-foreground" },
+               { v: "critical", label: "Críticos", count: counts.critical, c: "text-clinical-critical" },
+               { v: "attention", label: "Atenção", count: counts.attention, c: "text-clinical-attention" },
+               { v: "stable", label: "Estáveis", count: counts.stable, c: "text-clinical-stable" },
+             ] as { v: Filter; label: string; count: number; c: string }[]
+           ).map((f) => (
+  <button
+               key={f.v}
+               onClick={() => setFilter(f.v)}
+               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[11px] font-semibold transition-colors ${
+                 filter === f.v
+                   ? "bg-surface-3 text-foreground"
+                   : "text-muted-foreground hover:bg-surface-3/60 hover:text-foreground"
+               }`}
+             >
+  <span>{f.label}</span>
+  <span className={`font-mono tabular-nums ${filter === f.v ? "text-foreground" : f.c}`}>
+                 {f.count}
+  </span>
+  </button>
+           ))}
+  </div>
+
+        {/* Bed navigation — hides together with the header on scroll down */}
+        {filtered.length > 0 && (
+  <div className="flex items-center gap-3 border-t border-border bg-background/95 px-5 py-2 backdrop-blur">
+             <button
+               type="button"
+               onClick={() => goTo(current - 1)}
+               disabled={current <= 0}
+               className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
+               aria-label="Paciente anterior"
+             >
+               <ChevronLeft className="h-3.5 w-3.5" /> Anterior
+             </button>
+             <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+               {filtered.map((p, i) => (
+                 <button
+                   key={p.id}
+                   type="button"
+                   onClick={() => goTo(i)}
+                   className={`shrink-0 rounded-md border px-2 py-1 font-mono text-[10px] tracking-wider transition-colors ${
+                     i === current
+                       ? "border-primary bg-primary/10 text-primary"
+                       : "border-border bg-card text-muted-foreground hover:text-foreground"
+                   }`}
+                   title={p.name}
+                 >
+                   {p.bed}
+                 </button>
+               ))}
+             </div>
+             <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
+               {current + 1}/{filtered.length}
+             </span>
+             <button
+               type="button"
+               onClick={() => goTo(current + 1)}
+               disabled={current >= filtered.length - 1}
+               className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
+               aria-label="Próximo paciente"
+             >
+               Próximo <ChevronRight className="h-3.5 w-3.5" />
+             </button>
+  </div>
+        )}
+  </header>
 
       {/* Patient deck — one patient per screen, slide sideways to walk between them */}
       <main className="no-print" style={{ paddingTop: headerHeight || undefined }}>
@@ -547,48 +591,6 @@ function Passometro() {
           <div className="px-6 py-12 text-center text-sm text-muted-foreground">Nenhum paciente encontrado.</div>
         ) : (
           <>
-            {/* Navegação lateral */}
-            <div className="sticky z-20 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur" style={{ top: headerHeight || 0 }}>
-              <button
-                type="button"
-                onClick={() => goTo(current - 1)}
-                disabled={current <= 0}
-                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
-                aria-label="Paciente anterior"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" /> Anterior
-              </button>
-              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
-                {filtered.map((p, i) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => goTo(i)}
-                    className={`shrink-0 rounded-md border px-2 py-1 font-mono text-[10px] tracking-wider transition-colors ${
-                      i === current
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:text-foreground"
-                    }`}
-                    title={p.name}
-                  >
-                    {p.bed}
-                  </button>
-                ))}
-              </div>
-              <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
-                {current + 1}/{filtered.length}
-              </span>
-              <button
-                type="button"
-                onClick={() => goTo(current + 1)}
-                disabled={current >= filtered.length - 1}
-                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
-                aria-label="Próximo paciente"
-              >
-                Próximo <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
             <div
               ref={deckRef}
               onScroll={handleDeckScroll}
