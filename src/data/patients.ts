@@ -457,6 +457,8 @@ export interface Patient {
   medications: Medication[];
   exams: ExamRow[];
   imaging?: ImagingExam[];
+  eeg?: EegRecord[];
+  hemotransfusions?: Hemotransfusion[];
   devices?: InvasiveDevice[];
 
   conducts: Conduct[];
