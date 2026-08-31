@@ -391,7 +391,7 @@ export function ExamsMatrix({
  <thead className="sticky top-0 z-10 bg-surface">
  <tr>
  <th className="sticky left-0 z-20 min-w-[170px] max-w-[170px] border-b border-r-2 border-border-strong bg-surface px-2 py-2 text-left text-[10px] font-bold uppercase tracking-[0.14em] text-foreground"> Exame
- </th> {beds.map((b) => (
+ </th>{beds.map((b) => (
  <th
                   key={b.id}
                   className="min-w-[76px] border-b border-l border-border bg-surface px-1.5 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-foreground"
@@ -402,7 +402,7 @@ export function ExamsMatrix({
  </th> ))}
  </tr>
  </thead>
- <tbody> {examsBySection.map(([section, exams]) => (
+ <tbody>{examsBySection.map(([section, exams]) => (
  <>
  <tr key={`s-${section}`}>
  <td
@@ -411,11 +411,11 @@ export function ExamsMatrix({
                   >
  <span className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${GROUP_META[exams[0].group].dot}`} /> {section}
  </td>
- </tr> {exams.map((e) => (
+ </tr>{exams.map((e) => (
  <tr key={e.code} className="group">
  <td className={`sticky left-0 z-[5] min-w-[170px] max-w-[170px] border-b border-r-2 border-border-strong border-l-4 bg-background px-2 py-1.5 text-left ${GROUP_META[e.group].ring}`}>
  <span className="truncate text-foreground" title={e.label}>{e.label}</span>
- </td> {beds.map((b) => {
+ </td>{beds.map((b) => {
                       const key = cellKey(e.code, b.bed);
                       const checked = !!store.requested[key];
                       return (

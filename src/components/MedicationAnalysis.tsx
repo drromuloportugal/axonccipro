@@ -310,7 +310,7 @@ export function MedicationAnalysisModal({
  <thead className="bg-surface-hover text-left uppercase text-muted-foreground">
  <tr><th className="p-1.5">Medicamento</th><th className="p-1.5">Dose atual</th><th className="p-1.5">Dose sugerida</th><th className="p-1.5">Fator</th><th className="p-1.5">Justificativa</th></tr>
  </thead>
- <tbody> {data.ajusteDose!.map((a, i) => (
+ <tbody>{data.ajusteDose!.map((a, i) => (
  <tr key={i} className="border-t border-border">
  <td className="p-1.5 font-semibold">{a.medicamento}</td>
  <td className="p-1.5">{a.doseAtual}</td>

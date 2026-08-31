@@ -211,7 +211,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <div className="mb-1.5">
  <div className="text-[9px] font-bold uppercase tracking-wider text-gray-700"> Laboratoriais</div>
  <table className="w-full">
- <tbody> {labExams.map((e, i) => {
+ <tbody>{labExams.map((e, i) => {
                     const ins = examInsight(e, patient.sex);
                     const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                     const t = trendBadge(ins.trend);
@@ -230,7 +230,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <div className="mb-1.5">
  <div className="text-[9px] font-bold uppercase tracking-wider text-gray-700"> Gasometria</div>
  <table className="w-full">
- <tbody> {gasoExams.map((e, i) => {
+ <tbody>{gasoExams.map((e, i) => {
                     const ins = examInsight(e, patient.sex);
                     const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                     return (
@@ -273,7 +273,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <>
  <div className="mt-2 text-[9px] font-bold uppercase tracking-wider text-gray-700"> Parâmetros vitais</div>
  <table className="w-full">
- <tbody> {vitals.map((v) => {
+ <tbody>{vitals.map((v) => {
                     const cls = v.level === "critical" ? "font-bold text-red-700"
                       : v.level === "attention" ? "font-bold text-amber-700"
                       : "text-gray-800";

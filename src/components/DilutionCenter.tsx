@@ -780,11 +780,11 @@ function HistoryPanel({
  <div className="overflow-x-auto rounded-lg border border-border">
  <table className="w-full text-[11px]">
  <thead className="bg-surface-2 text-left">
- <tr> {["Data/hora", "Medicamento", "Diluição", "Tipo", "Diluente", "Vol. final", "Concentração", "Dose", "Bomba", "Responsável", ""].map((h) => (
+ <tr>{["Data/hora", "Medicamento", "Diluição", "Tipo", "Diluente", "Vol. final", "Concentração", "Dose", "Bomba", "Responsável", ""].map((h) => (
  <th key={h} className="px-2 py-1.5 font-semibold text-muted-foreground">{h}</th> ))}
  </tr>
  </thead>
- <tbody> {history.map((r) => (
+ <tbody>{history.map((r) => (
  <tr key={r.id} className="border-t border-border">
  <td className="px-2 py-1 font-mono">{new Date(r.at).toLocaleString("pt-BR")}</td>
  <td className="px-2 py-1 font-semibold">{r.drugName}</td>
