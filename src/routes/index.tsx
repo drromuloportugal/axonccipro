@@ -350,7 +350,7 @@ function Passometro() {
               className="h-auto w-auto max-w-full object-contain"
               style={{
                 maxHeight: "3.5rem",
-                filter: "drop-shadow(0 6px 18px rgba(0, 60, 28, 0.45))",
+                filter: "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45))",
               }}
             />
  </div>
