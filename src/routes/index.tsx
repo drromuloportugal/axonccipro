@@ -533,7 +533,7 @@ function Passometro() {
                }`}
              >
   <span>{f.label}</span>
-  <span className={`font-mono tabular-ums ${filter === f.v ? "text-foreground" : f.c}`}>
+  <span className={`font-mono tabular-nums ${filter === f.v ? "text-foreground" : f.c}`}>
                  {f.count}
   </span>
   </button>
