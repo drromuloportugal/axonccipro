@@ -536,8 +536,9 @@ function StepNav({ tab, setTab }: { tab: string; setTab: (v: string) => void }) 
 
 
 const DIAGNOSIS_CATEGORIES: { value: NonNullable<TimelineEvent["category"]>; label: string }[] = [
-  { value: "previous", label: "Pregresso" },
   { value: "current", label: "Atual" },
+  { value: "inactive", label: "Inativo" },
+  { value: "previous", label: "Pregresso" },
   { value: "complication", label: "Complicação" },
 ];
 

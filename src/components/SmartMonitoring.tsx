@@ -214,6 +214,39 @@ export interface VitalSummary {
   fc: VitalSummaryEntry;
   bp: VitalSummaryEntry;
   gli: VitalSummaryEntry;
+  fr: VitalSummaryEntry;
+  pas: VitalSummaryEntry;
+  pad: VitalSummaryEntry;
+}
+
+function classifyFR(v?: number): { level: Level; text: string } {
+  if (v == null) return { level: "na", text: "—" };
+  if (v < 8) return { level: "grave", text: `${v} ipm · Bradipneia grave` };
+  if (v < 12) return { level: "leve", text: `${v} ipm · Bradipneia` };
+  if (v <= 20) return { level: "normal", text: `${v} ipm · Normal` };
+  if (v <= 24) return { level: "leve", text: `${v} ipm · Taquipneia leve` };
+  if (v <= 30) return { level: "mod", text: `${v} ipm · Taquipneia` };
+  return { level: "grave", text: `${v} ipm · Taquipneia grave` };
+}
+
+function classifyPAS(v?: number): { level: Level; text: string } {
+  if (v == null) return { level: "na", text: "—" };
+  if (v < 90) return { level: "grave", text: `${v} mmHg · Hipotensão` };
+  if (v < 100) return { level: "mod", text: `${v} mmHg · Limítrofe` };
+  if (v <= 139) return { level: "normal", text: `${v} mmHg · Normal` };
+  if (v <= 159) return { level: "leve", text: `${v} mmHg · HAS leve` };
+  if (v <= 179) return { level: "mod", text: `${v} mmHg · HAS moderada` };
+  return { level: "grave", text: `${v} mmHg · HAS grave` };
+}
+
+function classifyPAD(v?: number): { level: Level; text: string } {
+  if (v == null) return { level: "na", text: "—" };
+  if (v < 50) return { level: "grave", text: `${v} mmHg · Hipotensão` };
+  if (v < 60) return { level: "mod", text: `${v} mmHg · Limítrofe` };
+  if (v <= 89) return { level: "normal", text: `${v} mmHg · Normal` };
+  if (v <= 99) return { level: "leve", text: `${v} mmHg · Elevada` };
+  if (v <= 119) return { level: "mod", text: `${v} mmHg · HAS moderada` };
+  return { level: "grave", text: `${v} mmHg · HAS grave` };
 }
 
 export function currentVitalsSummary(patient: Patient): VitalSummary {
@@ -246,6 +279,9 @@ export function currentVitalsSummary(patient: Patient): VitalSummary {
   const fcR   = mm(series.fc, s.fcMin, s.fcMax);
   const pamR  = mm(series.pam, s.pam, s.pam);
   const gliR  = mm(series.glicemia, s.glicemia, s.glicemia);
+  const frR   = mm(series.fr, s.fr, s.fr);
+  const pasR  = mm(series.pas, s.pas, s.pas);
+  const padR  = mm(series.pad, s.pad, s.pad);
 
   return {
     temp: range(tempR, classifyTemp, "°C", 1),
@@ -254,6 +290,9 @@ export function currentVitalsSummary(patient: Patient): VitalSummary {
     fc: classifyFC(fcR.min, fcR.max),
     bp: range(pamR, classifyPAM, "mmHg"),
     gli: range(gliR, classifyGlicemia, "mg/dL"),
+    fr: range(frR, classifyFR, "ipm"),
+    pas: range(pasR, classifyPAS, "mmHg"),
+    pad: range(padR, classifyPAD, "mmHg"),
   };
 }
 
@@ -396,6 +435,42 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               setSeries("glicemia", v);
               const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
               if (n.length) onChange("glicemia", Math.max(...n));
+            }}
+          />
+ </Card> {/* 6. FR — múltiplos registros */}
+ <Card n={6} title="Frequência respiratória (mín / máx)" level={vs.fr.level} detail={vs.fr.text}>
+ <ReadingList
+            items={series.fr ?? []}
+            unit="ipm" placeholder="18"
+            legacy={s.fr}
+            onChange={(v) => {
+              setSeries("fr", v);
+              const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
+              if (n.length) onChange("fr", Math.max(...n));
+            }}
+          />
+ </Card> {/* 7. PAS — múltiplos registros */}
+ <Card n={7} title="PAS — sistólica (mín / máx)" level={vs.pas.level} detail={vs.pas.text}>
+ <ReadingList
+            items={series.pas ?? []}
+            unit="mmHg" placeholder="120"
+            legacy={s.pas}
+            onChange={(v) => {
+              setSeries("pas", v);
+              const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
+              if (n.length) onChange("pas", Math.min(...n));
+            }}
+          />
+ </Card> {/* 8. PAD — múltiplos registros */}
+ <Card n={8} title="PAD — diastólica (mín / máx)" level={vs.pad.level} detail={vs.pad.text}>
+ <ReadingList
+            items={series.pad ?? []}
+            unit="mmHg" placeholder="70"
+            legacy={s.pad}
+            onChange={(v) => {
+              setSeries("pad", v);
+              const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
+              if (n.length) onChange("pad", Math.min(...n));
             }}
           />
  </Card>

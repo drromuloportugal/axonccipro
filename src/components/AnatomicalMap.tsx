@@ -99,16 +99,52 @@ const POST_HALF =
  "L 100,300 " +
  "Z";
 
+/** Maca verde de fundo — colchão, trilhos laterais e sombra do corpo. */
+function StretcherBackground() {
+  return (
+ <g pointerEvents="none">
+ <defs>
+ <linearGradient id="stretcherPad" x1="0" y1="0" x2="1" y2="0">
+ <stop offset="0%" stopColor="#0f5132" stopOpacity="0.95" />
+ <stop offset="45%" stopColor="#1f7a4d" stopOpacity="0.9" />
+ <stop offset="100%" stopColor="#0b3d26" stopOpacity="0.95" />
+ </linearGradient>
+ <linearGradient id="stretcherRail" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stopColor="#9ccdb2" stopOpacity="0.85" />
+ <stop offset="100%" stopColor="#3d8f63" stopOpacity="0.85" />
+ </linearGradient>
+ <radialGradient id="bodyShadow" cx="50%" cy="45%" r="60%">
+ <stop offset="0%" stopColor="#04150d" stopOpacity="0.45" />
+ <stop offset="100%" stopColor="#04150d" stopOpacity="0" />
+ </radialGradient>
+ </defs>
+      {/* colchão */}
+ <rect x="26" y="4" width="148" height="502" rx="16" fill="url(#stretcherPad)" />
+      {/* costuras horizontais do colchão */}
+ <g stroke="#eafaf0" strokeOpacity="0.18" strokeWidth="1">
+        {[70, 140, 210, 280, 350, 420].map((y) => (
+ <line key={y} x1="30" y1={y} x2="170" y2={y} /> ))}
+ </g>
+      {/* trilhos laterais */}
+ <rect x="18" y="120" width="8" height="230" rx="4" fill="url(#stretcherRail)" />
+ <rect x="174" y="120" width="8" height="230" rx="4" fill="url(#stretcherRail)" />
+      {/* travesseiro */}
+ <rect x="60" y="10" width="80" height="52" rx="14" fill="#e6f4ec" fillOpacity="0.22" />
+      {/* sombra difusa sob o corpo */}
+ <ellipse cx="100" cy="255" rx="62" ry="230" fill="url(#bodyShadow)" />
+ </g> );
+}
+
 function BodyAnterior() {
-  const stroke = "hsl(var(--border))";
-  const detail = "hsl(var(--border))";
+  const stroke = "#6b7280";
+  const detail = "#9ca3af";
   return (
  <g>
  <defs>
  <radialGradient id="skinAnt" cx="50%" cy="35%" r="75%">
- <stop offset="0%"stopColor="hsl(var(--surface-2))" stopOpacity="1" />
- <stop offset="65%" stopColor="hsl(var(--surface-2))" stopOpacity="0.9" />
- <stop offset="100%" stopColor="hsl(var(--surface-3, var(--surface-2)))" stopOpacity="0.7" />
+ <stop offset="0%" stopColor="#f6ece4" stopOpacity="1" />
+ <stop offset="65%" stopColor="#ecdcd0" stopOpacity="1" />
+ <stop offset="100%" stopColor="#d8bfae" stopOpacity="1" />
  </radialGradient>
  <linearGradient id="muscleShadeAnt" x1="0" y1="0" x2="1" y2="0">
  <stop offset="0%" stopColor="black" stopOpacity="0.08" />
@@ -192,15 +228,15 @@ function BodyAnterior() {
 }
 
 function BodyPosterior() {
-  const stroke = "hsl(var(--border))";
-  const detail = "hsl(var(--border))";
+  const stroke = "#6b7280";
+  const detail = "#9ca3af";
   return (
  <g>
  <defs>
  <radialGradient id="skinPost" cx="50%" cy="35%" r="75%">
- <stop offset="0%"stopColor="hsl(var(--surface-2))" stopOpacity="1" />
- <stop offset="65%" stopColor="hsl(var(--surface-2))" stopOpacity="0.9" />
- <stop offset="100%" stopColor="hsl(var(--surface-3, var(--surface-2)))" stopOpacity="0.7" />
+ <stop offset="0%" stopColor="#f6ece4" stopOpacity="1" />
+ <stop offset="65%" stopColor="#ecdcd0" stopOpacity="1" />
+ <stop offset="100%" stopColor="#d8bfae" stopOpacity="1" />
  </radialGradient>
  </defs>
 
@@ -313,7 +349,7 @@ function BodyPanel({
  <div className="flex flex-col items-center">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
  </div>
- <svg viewBox="0 0 200 510" className="block h-[440px] w-full max-w-[220px]"> {view === "anterior" ? <BodyAnterior /> : <BodyPosterior />}
+ <svg viewBox="0 0 200 510" className="block h-[440px] w-full max-w-[220px]"> <StretcherBackground /> {view === "anterior" ? <BodyAnterior /> : <BodyPosterior />}
 
         {/* Infection halos — concentric rings with intensity scaled per status:
             suspeito (yellow, leve), provavel (laranja, médio), confirmado (vermelho, forte).

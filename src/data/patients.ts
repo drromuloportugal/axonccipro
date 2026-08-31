@@ -12,7 +12,7 @@ export type TimelineKind =
   | "neuro"
   | "nutri";
 
-export type DiagnosisCategory = "previous" | "current" | "complication";
+export type DiagnosisCategory = "previous" | "current" | "inactive" | "complication";
 
 export interface TimelineEvent {
   date: string;
@@ -505,6 +505,12 @@ export interface Patient {
       fc?: VitalReading[];
       pam?: VitalReading[];
       glicemia?: VitalReading[];
+      /** Frequência respiratória (ipm). */
+      fr?: VitalReading[];
+      /** Pressão arterial sistólica (mmHg). */
+      pas?: VitalReading[];
+      /** Pressão arterial diastólica (mmHg). */
+      pad?: VitalReading[];
     };
 
     /** Detailed intake/output ledger; enables real-time balance calculation. */
