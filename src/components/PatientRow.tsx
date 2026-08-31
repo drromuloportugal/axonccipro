@@ -75,7 +75,7 @@ function Chip({ kind, children }: { kind: TimelineKind | "neutral"; children: Re
 
 function ColTitle({ children }: { children: React.ReactNode }) {
   return (
- <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> {children}
+ <div className="mb-2 inline-flex max-w-full items-center rounded-md bg-clinical-neutral px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white"> <span className="truncate">{children}</span>
  </div> );
 }
 
