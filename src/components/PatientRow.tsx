@@ -399,6 +399,7 @@ export function PatientRow({
             label="Invasões"
             tab="proc"
             title="Editar dispositivos invasivos"
+            tone={2}
             right={
  <button
                 type="button"
@@ -422,6 +423,7 @@ export function PatientRow({
             label="Medicações"
             tab="med"
             title="Editar medicações"
+            tone={3}
             right={
  <div className="flex items-center gap-1">
  <button
@@ -481,7 +483,7 @@ export function PatientRow({
  </div> {/* 5 - Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
 
- <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" /> {/* 1) Culturas */}
+ <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" tone={4} /> {/* 1) Culturas */}
           {(patient.cultures?.length ?? 0) > 0 && (
  <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
@@ -512,7 +514,7 @@ export function PatientRow({
  </div> )}
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
  <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
- <ColHead label="Estado atual" tab="sup" title="Editar estado atual" /> {/* Estado atual — sinais vitais (linhas) */}
+ <ColHead label="Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="rounded border border-border bg-surface px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
  <div className="space-y-0.5"> {vitalRows.map((r) => (
