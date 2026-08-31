@@ -591,53 +591,6 @@ function Passometro() {
           <div className="px-6 py-12 text-center text-sm text-muted-foreground">Nenhum paciente encontrado.</div>
         ) : (
           <>
-            {/* Navegação lateral — oculta ao rolar para baixo */}
-            <div
-              className={`sticky z-20 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur transition-transform duration-300 ease-out ${
-                navHidden ? "-translate-y-full" : "translate-y-0"
-              }`}
-              style={{ top: headerHeight || 0 }}
-            >
-              <button
-                type="button"
-                onClick={() => goTo(current - 1)}
-                disabled={current <= 0}
-                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
-                aria-label="Paciente anterior"
-              >
-                <ChevronLeft className="h-3.5 w-3.5" /> Anterior
-              </button>
-              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
-                {filtered.map((p, i) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => goTo(i)}
-                    className={`shrink-0 rounded-md border px-2 py-1 font-mono text-[10px] tracking-wider transition-colors ${
-                      i === current
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:text-foreground"
-                    }`}
-                    title={p.name}
-                  >
-                    {p.bed}
-                  </button>
-                ))}
-              </div>
-              <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
-                {current + 1}/{filtered.length}
-              </span>
-              <button
-                type="button"
-                onClick={() => goTo(current + 1)}
-                disabled={current >= filtered.length - 1}
-                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
-                aria-label="Próximo paciente"
-              >
-                Próximo <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
             <div
               ref={deckRef}
               onScroll={handleDeckScroll}
