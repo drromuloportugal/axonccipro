@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import type { Patient } from "@/data/patients";
-import { computeAbg, ABG_DISCLAIMER, type AbgCourse } from "@/lib/bloodgas";
+import { computeAbg, type AbgCourse } from "@/lib/bloodgas";
 
 function num(s?: string): number | undefined {
   if (s == null) return undefined;
@@ -113,9 +113,6 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
         ))}
       </ul>
 
-      <p className="mt-1.5 border-t border-border/60 pt-1 text-[9.5px] leading-snug text-muted-foreground">
-        {ABG_DISCLAIMER}
-      </p>
     </div>
   );
 }
