@@ -594,7 +594,7 @@ function Passometro() {
               className="flex w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth"
             >
               {filtered.map((p) => (
-                <section key={p.id} className="w-full shrink-0 snap-start">
+                <section key={p.id} className="w-full min-w-0 shrink-0 snap-start overflow-hidden">
                   <PatientRow
                     patient={p}
                     defaultOpen

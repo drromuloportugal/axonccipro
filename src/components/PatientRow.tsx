@@ -282,7 +282,7 @@ export function PatientRow({
  <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
-        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong/40"
+        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong/40"
       > {/* 1 - Identificação */}
  <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
@@ -697,7 +697,7 @@ export function PatientRow({
  </button>
  </div>
  </div>
- <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
  <div onClick={colClick("id")}>
  <ColTitle>Identificação</ColTitle>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
