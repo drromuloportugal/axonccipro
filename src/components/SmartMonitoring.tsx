@@ -214,6 +214,39 @@ export interface VitalSummary {
   fc: VitalSummaryEntry;
   bp: VitalSummaryEntry;
   gli: VitalSummaryEntry;
+  fr: VitalSummaryEntry;
+  pas: VitalSummaryEntry;
+  pad: VitalSummaryEntry;
+}
+
+function classifyFR(v?: number): { level: Level; text: string } {
+  if (v == null) return { level: "na", text: "—" };
+  if (v < 8) return { level: "grave", text: `${v} ipm · Bradipneia grave` };
+  if (v < 12) return { level: "leve", text: `${v} ipm · Bradipneia` };
+  if (v <= 20) return { level: "normal", text: `${v} ipm · Normal` };
+  if (v <= 24) return { level: "leve", text: `${v} ipm · Taquipneia leve` };
+  if (v <= 30) return { level: "mod", text: `${v} ipm · Taquipneia` };
+  return { level: "grave", text: `${v} ipm · Taquipneia grave` };
+}
+
+function classifyPAS(v?: number): { level: Level; text: string } {
+  if (v == null) return { level: "na", text: "—" };
+  if (v < 90) return { level: "grave", text: `${v} mmHg · Hipotensão` };
+  if (v < 100) return { level: "mod", text: `${v} mmHg · Limítrofe` };
+  if (v <= 139) return { level: "normal", text: `${v} mmHg · Normal` };
+  if (v <= 159) return { level: "leve", text: `${v} mmHg · HAS leve` };
+  if (v <= 179) return { level: "mod", text: `${v} mmHg · HAS moderada` };
+  return { level: "grave", text: `${v} mmHg · HAS grave` };
+}
+
+function classifyPAD(v?: number): { level: Level; text: string } {
+  if (v == null) return { level: "na", text: "—" };
+  if (v < 50) return { level: "grave", text: `${v} mmHg · Hipotensão` };
+  if (v < 60) return { level: "mod", text: `${v} mmHg · Limítrofe` };
+  if (v <= 89) return { level: "normal", text: `${v} mmHg · Normal` };
+  if (v <= 99) return { level: "leve", text: `${v} mmHg · Elevada` };
+  if (v <= 119) return { level: "mod", text: `${v} mmHg · HAS moderada` };
+  return { level: "grave", text: `${v} mmHg · HAS grave` };
 }
 
 export function currentVitalsSummary(patient: Patient): VitalSummary {
