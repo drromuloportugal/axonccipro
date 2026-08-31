@@ -315,10 +315,10 @@ export function summarizeSofa(patient: Patient): SofaSummary {
 }
 
 export const TRAJECTORY_META: Record<Trajectory, { icon: string; label: string; className: string }> = {
-  up: { icon: "↑", label: "Piora", className: "text-clinical-critical" },
-  flat: { icon: "→", label: "Estável", className: "text-clinical-attention" },
-  down: { icon: "↓", label: "Melhora", className: "text-clinical-stable" },
-  unknown: { icon: "—", label: "N/D", className: "text-muted-foreground" },
+  up: { icon: "", label: "Piora", className: "text-clinical-critical" },
+  flat: { icon: "", label: "Estável", className: "text-clinical-attention" },
+  down: { icon: "", label: "Melhora", className: "text-clinical-stable" },
+  unknown: { icon: "", label: "N/D", className: "text-muted-foreground" },
 };
 
 export function fmtDelta(v: number | null): string {

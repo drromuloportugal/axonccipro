@@ -123,9 +123,9 @@ export const COMPAT_META: Record<
   CompatLevel,
   { icon: string; label: string; className: string }
 > = {
-  compatible: { icon: "✓", label: "Compatível", className: "text-clinical-stable" },
+  compatible: { icon: "", label: "Compatível", className: "text-clinical-stable" },
   doubtful: { icon: "?", label: "Duvidosa", className: "text-clinical-attention" },
-  incompatible: { icon: "✕", label: "Incompatível", className: "text-clinical-critical" },
+  incompatible: { icon: "", label: "Incompatível", className: "text-clinical-critical" },
 };
 
 // Scan a list of meds sharing the SAME access (and same lumen) for issues.

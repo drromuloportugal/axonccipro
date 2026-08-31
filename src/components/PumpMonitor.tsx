@@ -91,11 +91,10 @@ export function PumpCard({
     >
  <div className="flex items-center justify-between gap-2">
  <div className="flex min-w-0 items-center gap-1.5">
- <span>{meta.icon}</span>
  <span className="truncate font-semibold text-foreground">{med.name}</span>
  </div>
  <span className={`flex items-center gap-1 font-mono text-[10px] uppercase ${stMeta.className}`}>
- <span>{stMeta.icon}</span>{stMeta.label}
+  {stMeta.label}
  </span>
  </div>
  <div className="mt-0.5 font-mono text-[11px] text-muted-foreground"> {doseLabel}{rate != null ? ` · ${rate.toFixed(1)} mL/h` : ""}
@@ -125,7 +124,7 @@ export function PumpCard({
             />
  </div>
  <div className="mt-1 flex items-center justify-between text-[10px]">
- <span className={alert?.className}> {alert?.icon} {bag.remainingMl.toFixed(0)} mL · {fmtRemaining(bag.remainingMin)}
+  <span className={alert?.className}> {bag.remainingMl.toFixed(0)} mL · {fmtRemaining(bag.remainingMin)}
  </span>
  <span className="font-mono text-muted-foreground"> {bag.endsAt ? `troca ${fmtClock(bag.endsAt)}` : "—"}
  </span>
@@ -157,7 +156,7 @@ export function PumpDashboard({ patient, onOpen }: { patient: Patient; onOpen: (
         const meta = PUMP_CATEGORY_META[k as keyof typeof PUMP_CATEGORY_META];
         return (
  <span key={k} className={`flex items-center gap-0.5 ${meta.className}`}>
- <span>{meta.icon}</span><span>{n}</span>
+  <span>{meta.label}: {n}</span>
  </span> );
       })}
  </button> );
@@ -205,7 +204,7 @@ export function PumpMonitor({
  <div className="flex flex-wrap gap-2 text-[10px]"> {PUMP_STATUSES.map((s) => {
           const m = PUMP_STATUS_META[s];
           return (
- <span key={s} className={`flex items-center gap-1 rounded border border-border px-1.5 py-0.5 ${m.className}`}> {m.icon} {m.label}
+  <span key={s} className={`flex items-center gap-1 rounded border border-border px-1.5 py-0.5 ${m.className}`}> {m.label}
  </span> );
         })}
  </div> {/* Compatibility alerts per access */}
@@ -224,7 +223,6 @@ export function PumpMonitor({
                 const cm = COMPAT_META[iss.level];
                 return (
  <li key={i} className={`flex items-center gap-1 ${cm.className}`}>
- <span>{cm.icon}</span>
  <span>{iss.a}  ⇄  {iss.b}</span>
  <span className="text-muted-foreground">— {cm.label}</span>
  </li> );
@@ -342,7 +340,7 @@ function PumpEditor({
                 type="button"
                 onClick={() => setPump({ status: s })}
                 className={`rounded border px-1.5 py-1 text-[10px] ${m.className} ${active ? `${m.borderClass} bg-surface-2 font-semibold` : "border-border"}`}
-              > {m.icon} {m.label}
+              > {m.label}
  </button> );
           })}
  </div>

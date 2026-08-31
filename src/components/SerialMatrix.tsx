@@ -243,7 +243,7 @@ export function SerialMatrix({
                       className="text-[10px] text-muted-foreground hover:text-clinical-critical"
                       title="Remover índice"
                     >
-                      ✕
+                      Remover
                     </button>
                   </span>
                 </td>
@@ -312,7 +312,7 @@ export function SerialMatrix({
                         className="text-[10px] text-muted-foreground hover:text-clinical-critical"
                         title="Remover exame"
                       >
-                        ✕
+                        Remover
                       </button>
                     </span>
                   </td>

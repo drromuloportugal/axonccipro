@@ -151,12 +151,12 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
             if (!list.length) return null;
             return (
  <div key={cat.code} className="mb-1">
- <div className="text-[9px] font-bold text-gray-600">{cat.icon} {cat.label}</div>
+  <div className="text-[9px] font-bold text-gray-600">{cat.label}</div>
  <ul className="ml-2"> {list.map((d) => {
                     const t = deviceTypeByCode(d.typeCode);
                     const r = deviceRisk(d);
                     return (
- <li key={d.id}> {r.icon} {t?.label}
+  <li key={d.id}> {t?.label}
                         {d.site ? ` · ${d.site}` : ""}
                         {d.lumens ? ` · ${d.lumens}L` : ""}
                         {d.size ? ` · ${d.size}` : ""}
@@ -174,7 +174,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
             const meta = MEDICATION_CLASS_META[cls];
             return (
  <div key={cls} className="mb-1">
- <div className={`text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.icon} {meta.label} ({list.length})</div>
+  <div className={`text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.label} ({list.length})</div>
  <ul className="ml-2 space-y-0.5"> {list.map((m, i) => {
                     const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
                     const prog = isAtb ? antibioticProgress(m) : null;
@@ -185,7 +185,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <div className="font-mono text-[9px] text-gray-700">{m.dose} · {m.route} · {m.freq}</div> {m.mlPerHour !== undefined && <div className="font-mono text-[9px] text-gray-700">BIC {m.mlPerHour.toFixed(1)} mL/h</div>}
                         {prog && (
  <div className="text-[9px] text-gray-700"> D{prog.currentDay}/{prog.totalDays}
-                            {alert && <span className="font-bold text-red-700"> · {alert.icon} {alert.label}</span>}
+                            {alert && <span className="font-bold text-red-700"> · {alert.label}</span>}
  </div> )}
  </li> );
                   })}
@@ -218,8 +218,8 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
                     return (
  <tr key={i} className="border-b border-gray-200">
  <td className="py-0.5 text-gray-600">{e.label}</td>
- <td className="py-0.5 text-right font-mono">{b?.icon} {e.value} {e.unit ?? ""}</td>
- <td className="py-0.5 pl-1 text-right text-gray-500">{ins.trend !== "flat" ? t.icon : "→"}</td>
+  <td className="py-0.5 text-right font-mono">{e.value} {e.unit ?? ""}</td>
+  <td className="py-0.5 pl-1 text-right text-gray-500">{t.label}</td>
  </tr> );
                   })}
  </tbody>
@@ -236,7 +236,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
                     return (
  <tr key={i} className="border-b border-gray-200">
  <td className="py-0.5 text-gray-600">{e.label}</td>
- <td className="py-0.5 text-right font-mono">{b?.icon} {e.value} {e.unit ?? ""}</td>
+  <td className="py-0.5 text-right font-mono">{e.value} {e.unit ?? ""}</td>
  </tr> );
                   })}
  </tbody>
@@ -266,7 +266,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <Col title="Estado · Vitais · BH · Bristol" idx={6}>
  <ul className="space-y-1"> {computed.map((c, i) => (
  <li key={i}>
- <div className={`text-[9px] font-bold uppercase tracking-wider ${kindClass[c.kind]}`}>{c.icon} {c.sys}</div>
+  <div className={`text-[9px] font-bold uppercase tracking-wider ${kindClass[c.kind]}`}>{c.sys}</div>
  <div className={c.flag ? "font-bold text-red-700" : ""}>{c.text}</div>
  </li> ))}
  </ul> {vitals.length > 0 && (
@@ -328,14 +328,14 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
               return (
  <li key={i}>
  <div className="flex gap-1">
- <span>{c.done ? "☑" : "☐"}</span>
- <span> {meta && <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.icon} {meta.short}</span>}
+  <span>{c.done ? "Concluída" : "Pendente"}</span>
+  <span> {meta && <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span>}
  <span className="text-[9px] font-bold uppercase tracking-wider text-gray-600">{c.team} </span> {c.text}
  </span>
  </div> {c.subItems && c.subItems.length > 0 && (
  <ul className="ml-4 border-l border-gray-300 pl-2"> {c.subItems.map((sub, si) => (
  <li key={si} className="flex gap-1">
- <span>{sub.done ? "☑" : "☐"}</span>
+  <span>{sub.done ? "Concluída" : "Pendente"}</span>
  <span>{sub.text}</span>
  </li> ))}
  </ul> )}
@@ -345,7 +345,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <div className="mt-2 text-[9px] font-bold uppercase tracking-wider text-gray-700">Metas</div>
  <ul className="space-y-0.5"> {patient.goals.map((g, i) => (
  <li key={i} className="flex gap-1">
- <span>{g.met ? "✔" : "✗"}</span>
+  <span>{g.met ? "Atingida" : "Pendente"}</span>
  <span className={g.met ? "" : "text-red-700"}>{g.text}</span>
  </li> ))}
  </ul>

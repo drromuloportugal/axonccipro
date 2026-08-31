@@ -281,7 +281,7 @@ export function MedicationAnalysisModal({
                     return (
  <li key={i} className={`rounded border p-2 ${g.bg}`}>
  <div className="flex items-center justify-between gap-2">
- <div className="font-semibold">{it.medicamentos.join(" ⇄ ")}</div>
+  <div className="font-semibold">{it.medicamentos.join(" e ")}</div>
  <span className={`shrink-0 text-[10px] font-bold uppercase ${g.cls}`}>{g.icon} {g.label}</span>
  </div>
  <div className="mt-1 grid gap-1 text-[11px] sm:grid-cols-2">

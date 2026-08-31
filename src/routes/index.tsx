@@ -11,6 +11,7 @@ import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Men
 import unimedLogo from "@/assets/unimed-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
+import { stripEmojiDeep } from "@/lib/text";
 
 import { toast } from "sonner";
 import { useRef } from "react";
@@ -109,17 +110,18 @@ function Passometro() {
         const { patients: remote } = await listPatients();
         if (cancelled) return;
         if (remote.length) {
-          setPatients(remote);
+          setPatients(stripEmojiDeep(remote));
         } else if (local.length) {
-          setPatients(local);
-          await savePatients({ data: { patients: local } });
+          const sanitized = stripEmojiDeep(local);
+          setPatients(sanitized);
+          await savePatients({ data: { patients: sanitized } });
           toast.success("Pacientes migrados para o banco de dados");
         } else {
           setPatients(seedPatients);
         }
       } catch {
         if (cancelled) return;
-        if (local.length) setPatients(local);
+        if (local.length) setPatients(stripEmojiDeep(local));
         toast.error("Não foi possível carregar os pacientes do banco");
       } finally {
         if (!cancelled) setPatientsLoaded(true);
@@ -260,7 +262,7 @@ function Passometro() {
     for (const file of Array.from(files)) {
       try {
         const list = await readPatientsFromFile(file);
-        next.push(...list);
+        next.push(...stripEmojiDeep(list));
       } catch (e) {
         failed++;
         console.error("Falha ao ler", file.name, e);
@@ -298,9 +300,10 @@ function Passometro() {
     setEditorOpen(true);
   };
   const handleSave = (p: Patient) => {
+    const sanitized = stripEmojiDeep(p);
     setPatients((prev) => {
-      const exists = prev.some((x) => x.id === p.id);
-      return exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
+      const exists = prev.some((x) => x.id === sanitized.id);
+      return exists ? prev.map((x) => (x.id === sanitized.id ? sanitized : x)) : [...prev, sanitized];
     });
     setEditorOpen(false);
     setEditing(null);
