@@ -437,6 +437,42 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               if (n.length) onChange("glicemia", Math.max(...n));
             }}
           />
+ </Card> {/* 6. FR — múltiplos registros */}
+ <Card n={6} title="Frequência respiratória (mín / máx)" level={vs.fr.level} detail={vs.fr.text}>
+ <ReadingList
+            items={series.fr ?? []}
+            unit="ipm" placeholder="18"
+            legacy={s.fr}
+            onChange={(v) => {
+              setSeries("fr", v);
+              const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
+              if (n.length) onChange("fr", Math.max(...n));
+            }}
+          />
+ </Card> {/* 7. PAS — múltiplos registros */}
+ <Card n={7} title="PAS — sistólica (mín / máx)" level={vs.pas.level} detail={vs.pas.text}>
+ <ReadingList
+            items={series.pas ?? []}
+            unit="mmHg" placeholder="120"
+            legacy={s.pas}
+            onChange={(v) => {
+              setSeries("pas", v);
+              const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
+              if (n.length) onChange("pas", Math.min(...n));
+            }}
+          />
+ </Card> {/* 8. PAD — múltiplos registros */}
+ <Card n={8} title="PAD — diastólica (mín / máx)" level={vs.pad.level} detail={vs.pad.text}>
+ <ReadingList
+            items={series.pad ?? []}
+            unit="mmHg" placeholder="70"
+            legacy={s.pad}
+            onChange={(v) => {
+              setSeries("pad", v);
+              const n = v.map((r) => r.value).filter((x): x is number => typeof x === "number");
+              if (n.length) onChange("pad", Math.min(...n));
+            }}
+          />
  </Card>
  </div>
  </div> {/* ============ ESCALA DE BRISTOL — ELIMINAÇÃO INTESTINAL ============ */}
