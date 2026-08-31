@@ -7,7 +7,8 @@ import { PatientEditor } from "@/components/PatientEditor";
 import { PatientPrintView } from "@/components/PatientPrintView";
 import { ExamsMatrix } from "@/components/ExamsMatrix";
 import { DilutionCenter } from "@/components/DilutionCenter";
-import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
+import { ManagementDashboard } from "@/components/ManagementDashboard";
+import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
 import unimedLogo from "@/assets/unimed-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
@@ -165,6 +166,7 @@ function Passometro() {
   const [printing, setPrinting] = useState<Patient | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [managementOpen, setManagementOpen] = useState(false);
 
   const bedNumber = (bed: string) => {
     const m = String(bed).match(/(\d+)/);
@@ -748,6 +750,16 @@ function Passometro() {
  </div>
  </div>
       )}
+
+ <ManagementDashboard
+        open={managementOpen}
+        onClose={() => setManagementOpen(false)}
+        patients={patients}
+        onSelectPatient={(id) => {
+          const i = active.findIndex((p) => p.id === id);
+          if (i >= 0) goTo(i);
+        }}
+      />
  </div>
   );
 }
