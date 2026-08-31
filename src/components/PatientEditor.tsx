@@ -473,12 +473,12 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  </Section>
  </TabsContent> {/* 6 — Exames */}
  <TabsContent value="exam">
- <Section title="Resultados de exames laboratoriais">
- <ExamsList items={p.exams} sex={p.sex} onChange={(v) => upd("exams", v)} />
- </Section>
  <Section title="Exames de imagem">
  <ImagingList items={p.imaging ?? []} onChange={(v) => upd("imaging", v)} />
  </Section>
+ <p className="mt-2 text-[11px] italic text-muted-foreground">
+              Os resultados de exames laboratoriais agora são preenchidos na aba “6 · Estado atual”, em formato de tabela seriada.
+ </p>
  </TabsContent> {/* 7 — Culturas microbiológicas */}
  <TabsContent value="cult">
  <Section title="Exames laboratoriais de cultura">
