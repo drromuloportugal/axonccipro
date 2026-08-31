@@ -336,9 +336,9 @@ function Passometro() {
         }`}
         style={{
           background:
- "linear-gradient(135deg, rgba(0, 88, 42, 0.92) 0%, rgba(0, 148, 68, 0.85) 100%)",
+ "linear-gradient(135deg, oklch(0.24 0.012 260 / 0.97) 0%, oklch(0.3 0.015 260 / 0.95) 100%)",
           boxShadow:
- "0 20px 60px -16px rgba(0, 88, 42, 0.5), 0 14px 40px -18px rgba(0, 148, 68, 0.45)",
+ "0 20px 60px -16px rgba(15, 23, 42, 0.45), 0 14px 40px -18px rgba(15, 23, 42, 0.4)",
         }}
       >
  <div className="relative flex items-center justify-center px-6 py-4">
@@ -350,7 +350,7 @@ function Passometro() {
               className="h-auto w-auto max-w-full object-contain"
               style={{
                 maxHeight: "3.5rem",
-                filter: "drop-shadow(0 6px 18px rgba(0, 60, 28, 0.45))",
+                filter: "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45))",
               }}
             />
  </div>
