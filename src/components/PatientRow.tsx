@@ -234,6 +234,9 @@ export function PatientRow({
     { label: "Temp", v: vitals.temp },
     { label: "SpO₂", v: vitals.spo2 },
     { label: "FC", v: vitals.fc },
+    { label: "FR", v: vitals.fr },
+    { label: "PAS", v: vitals.pas },
+    { label: "PAD", v: vitals.pad },
     { label: "PAM", v: vitals.bp },
   ];
 
