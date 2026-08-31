@@ -1249,6 +1249,23 @@ export function PatientRow({
  <ClinicalTrendChart patient={patient} />
 
  </div>
+
+ <div className="mt-5 flex flex-col gap-2 rounded-md border border-border bg-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+ <div className="min-w-0">
+ <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Documento para a família</div>
+ <div className="mt-1 text-[11.5px] leading-snug text-muted-foreground">
+              Relatório ilustrado em linguagem simples: jornada desde a chegada, motivos da internação, o que já foi feito, aparelhos e medicamentos em uso, plano de cuidados e glossário.
+ </div>
+ </div>
+ <button
+            type="button"
+            onClick={() => generateFamilyReport(patient)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-clinical-stable px-3 py-2 text-[11.5px] font-semibold text-white transition-opacity hover:opacity-90"
+            title="Gerar PDF ilustrado para a família"
+          >
+ <FileText className="h-3.5 w-3.5" /> Gerar PDF para a família
+ </button>
+ </div>
  </div> )}
 
       {/* Medication Analysis Dialog */}
