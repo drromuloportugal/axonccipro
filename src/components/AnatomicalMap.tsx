@@ -99,6 +99,42 @@ const POST_HALF =
  "L 100,300 " +
  "Z";
 
+/** Maca verde de fundo — colchão, trilhos laterais e sombra do corpo. */
+function StretcherBackground() {
+  return (
+ <g pointerEvents="none">
+ <defs>
+ <linearGradient id="stretcherPad" x1="0" y1="0" x2="1" y2="0">
+ <stop offset="0%" stopColor="#0f5132" stopOpacity="0.95" />
+ <stop offset="45%" stopColor="#1f7a4d" stopOpacity="0.9" />
+ <stop offset="100%" stopColor="#0b3d26" stopOpacity="0.95" />
+ </linearGradient>
+ <linearGradient id="stretcherRail" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stopColor="#9ccdb2" stopOpacity="0.85" />
+ <stop offset="100%" stopColor="#3d8f63" stopOpacity="0.85" />
+ </linearGradient>
+ <radialGradient id="bodyShadow" cx="50%" cy="45%" r="60%">
+ <stop offset="0%" stopColor="#04150d" stopOpacity="0.45" />
+ <stop offset="100%" stopColor="#04150d" stopOpacity="0" />
+ </radialGradient>
+ </defs>
+      {/* colchão */}
+ <rect x="26" y="4" width="148" height="502" rx="16" fill="url(#stretcherPad)" />
+      {/* costuras horizontais do colchão */}
+ <g stroke="#eafaf0" strokeOpacity="0.18" strokeWidth="1">
+        {[70, 140, 210, 280, 350, 420].map((y) => (
+ <line key={y} x1="30" y1={y} x2="170" y2={y} /> ))}
+ </g>
+      {/* trilhos laterais */}
+ <rect x="18" y="120" width="8" height="230" rx="4" fill="url(#stretcherRail)" />
+ <rect x="174" y="120" width="8" height="230" rx="4" fill="url(#stretcherRail)" />
+      {/* travesseiro */}
+ <rect x="60" y="10" width="80" height="52" rx="14" fill="#e6f4ec" fillOpacity="0.22" />
+      {/* sombra difusa sob o corpo */}
+ <ellipse cx="100" cy="255" rx="62" ry="230" fill="url(#bodyShadow)" />
+ </g> );
+}
+
 function BodyAnterior() {
   const stroke = "hsl(var(--border))";
   const detail = "hsl(var(--border))";
