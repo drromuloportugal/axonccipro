@@ -347,10 +347,10 @@ export function PatientRow({
  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
  </div>
 
- <div className="flex min-w-0 items-center gap-2">
- <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
- <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
- </div>
+  <div className="flex min-w-0 items-center gap-2 border-b-2 border-clinical-critical/70 pb-1.5">
+  <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
+  <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
+  </div>
 
 
  <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground">

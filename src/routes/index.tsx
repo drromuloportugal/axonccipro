@@ -331,14 +331,12 @@ function Passometro() {
       {/* Header — centered Unimed logo, tools tucked inside a circular hamburger menu */}
  <header
         ref={headerRef}
-        className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-white/30 backdrop-blur-2xl transition-transform duration-300 ease-out ${
+        className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-black/40 transition-transform duration-300 ease-out ${
           headerHidden ? "-translate-y-full" : "translate-y-0"
         }`}
         style={{
-          background:
- "linear-gradient(135deg, oklch(0.24 0.012 260 / 0.97) 0%, oklch(0.3 0.015 260 / 0.95) 100%)",
-          boxShadow:
- "0 20px 60px -16px rgba(15, 23, 42, 0.45), 0 14px 40px -18px rgba(15, 23, 42, 0.4)",
+          background: "oklch(0.21 0.008 260)",
+          boxShadow: "0 2px 8px rgba(15, 23, 42, 0.25)",
         }}
       >
  <div className="relative flex items-center justify-center px-6 py-4">
