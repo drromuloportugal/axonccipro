@@ -190,6 +190,41 @@ function Passometro() {
     });
   }, [query, filter, active]);
 
+  // Deck horizontal de pacientes — desliza lado a lado
+  const deckRef = useRef<HTMLDivElement | null>(null);
+  const [current, setCurrent] = useState(0);
+
+  const goTo = (i: number) => {
+    const el = deckRef.current;
+    if (!el) return;
+    const idx = Math.max(0, Math.min(filtered.length - 1, i));
+    el.scrollTo({ left: idx * el.clientWidth, behavior: "smooth" });
+    setCurrent(idx);
+  };
+
+  const handleDeckScroll = () => {
+    const el = deckRef.current;
+    if (!el || !el.clientWidth) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    setCurrent((prev) => (prev === idx ? prev : idx));
+  };
+
+  useEffect(() => {
+    setCurrent(0);
+    deckRef.current?.scrollTo({ left: 0 });
+  }, [query, filter]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+      if (e.key === "ArrowRight") goTo(current + 1);
+      if (e.key === "ArrowLeft") goTo(current - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [current, filtered.length]);
+
   const counts = useMemo(() => {
     const patients = active;
     const critical = patients.filter((p) => p.severity === "critical").length;
