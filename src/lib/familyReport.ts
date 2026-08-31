@@ -254,9 +254,8 @@ export function buildFamilyReport(patient: Patient): jsPDF {
     patient.goals.slice(0, 8).forEach((g) => { y = bullet(doc, `${g.met ? "Alcançada" : "Em busca"} — ${g.text}`, y, g.met ? INK : AMBER); });
   }
 
-  /* página 3 */
-  doc.addPage();
-  y = 20;
+  /* termos e próximos passos */
+  y = ensure(doc, y + 8, 60);
   txt(doc, "Entendendo os termos e os próximos passos", M, y, { size: 13, bold: true });
   y += 8;
 
