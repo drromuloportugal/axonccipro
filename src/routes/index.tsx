@@ -107,13 +107,26 @@ function Passometro() {
         if (Array.isArray(parsed) && parsed.length) local = parsed as Patient[];
       } catch { /* ignore */ }
 
+      // Garante que os leitos de demonstração recém-adicionados apareçam
+      // mesmo quando já existem dados salvos (banco ou localStorage).
+      const mergeSeed = (list: Patient[]) => {
+        const ids = new Set(list.map((p) => p.id));
+        const beds = new Set(list.map((p) => p.bed));
+        const missing = seedPatients.filter((s) => !ids.has(s.id) && !beds.has(s.bed));
+        return missing.length ? [...list, ...missing] : list;
+      };
+
       try {
         const { patients: remote } = await listPatients();
         if (cancelled) return;
         if (remote.length) {
-          setPatients(stripEmojiDeep(remote));
+          const merged = mergeSeed(stripEmojiDeep(remote));
+          setPatients(merged);
+          if (merged.length !== remote.length) {
+            await savePatients({ data: { patients: merged } });
+          }
         } else if (local.length) {
-          const sanitized = stripEmojiDeep(local);
+          const sanitized = mergeSeed(stripEmojiDeep(local));
           setPatients(sanitized);
           await savePatients({ data: { patients: sanitized } });
           toast.success("Pacientes migrados para o banco de dados");
@@ -122,7 +135,7 @@ function Passometro() {
         }
       } catch {
         if (cancelled) return;
-        if (local.length) setPatients(stripEmojiDeep(local));
+        if (local.length) setPatients(mergeSeed(stripEmojiDeep(local)));
         toast.error("Não foi possível carregar os pacientes do banco");
       } finally {
         if (!cancelled) setPatientsLoaded(true);

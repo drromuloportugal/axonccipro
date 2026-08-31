@@ -684,7 +684,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                 return (
  <li key={i}>
  <span className="font-semibold">{def?.code ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
- <span className="ml-1 text-muted-foreground">— {h.reasons.join(" · ")}</span>
+ <span className="ml-1 text-muted-foreground" suppressHydrationWarning>— {h.reasons.join(" · ")}</span>
  </li> );
               })}
  <li className="text-[10px] italic text-muted-foreground">Apoio à decisão clínica.</li>
