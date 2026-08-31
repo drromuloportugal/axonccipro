@@ -18,14 +18,14 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
- '/': typeof IndexRoute
+  '/': typeof IndexRoute
 }
 export interface FileRoutesByTo {
- '/': typeof IndexRoute
+  '/': typeof IndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
- '/': typeof IndexRoute
+  '/': typeof IndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -41,7 +41,7 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
- '/': {
+    '/': {
       id: '/'
       path: '/'
       fullPath: '/'
