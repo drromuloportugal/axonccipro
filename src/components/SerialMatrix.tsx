@@ -45,9 +45,13 @@ export function SerialMatrix({
   onChangeExams: (v: ExamRow[]) => void;
 }) {
   const series = patient.state.vitalSeries ?? {};
+  const custom = patient.state.customSeries ?? [];
   const exams = patient.exams ?? [];
   const [extraDates, setExtraDates] = useState<string[]>([]);
   const [newDate, setNewDate] = useState("");
+  const [newVital, setNewVital] = useState({ label: "", unit: "" });
+  const [newExam, setNewExam] = useState({ label: "", unit: "" });
+
 
   const dates = useMemo(() => {
     const set = new Set<string>(extraDates);
