@@ -443,7 +443,23 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  </div>
  </TabsContent> {/* 4 — Suporte / Assistente inteligente */}
  <TabsContent value="sup">
+ <Section title="Preenchimento seriado (itens em linhas · datas em colunas)">
+ <SerialMatrix
+                patient={p}
+                onChangeState={(k, v) => updState(k, v as never)}
+                onChangeExams={(v) => upd("exams", v)}
+              />
+ </Section>
+
+ <div className="mt-3">
+ <Section title="Exames laboratoriais — cadastro e referências">
+ <ExamsList items={p.exams} sex={p.sex} onChange={(v) => upd("exams", v)} />
+ </Section>
+ </div>
+
+ <div className="mt-3">
  <SmartMonitoring patient={p} onChange={(k, v) => updState(k, v as never)} />
+ </div>
 
  <div className="mt-3">
  <Section title="Balanço hídrico (entradas · saídas · drenos · derivações)">
