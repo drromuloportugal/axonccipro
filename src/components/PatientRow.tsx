@@ -488,38 +488,6 @@ export function PatientRow({
               })}
  </div> )}
 
-          {/* 2) Exames laboratoriais (não-gaso) + 3) Gasometria */}
-          {(() => {
-            const isGaso = (code?: string, label?: string) => /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
-
-            const lab = patient.exams.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
-            const gaso = patient.exams.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
-            return (
- <> {lab.length > 0 && (
- <div className="mt-1 space-y-0.5"> {lab.map((e, i) => {
-                      const ins = examInsight(e, patient.sex);
-                      const b = ins.bucket ? bucketBadge(ins.bucket) : null;
-                      return (
- <div key={i} className="flex items-center gap-1 text-[11px] leading-snug"> {b ? <span className="shrink-0">{b.icon}</span> : <span className="w-3 shrink-0" />}
- <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
- <span className={`shrink-0 font-mono font-medium ${b?.className ?? "text-foreground"}`}>{e.value}</span>
- </div> );
-                    })}
- </div> )}
-                {gaso.length > 0 && (
- <div className="mt-1 space-y-0.5 border-l-2 border-clinical-resp/40 pl-1.5">
- <div className="text-[9px] font-bold uppercase tracking-wider text-clinical-resp"> Gaso</div> {gaso.map((e, i) => {
-                      const ins = examInsight(e, patient.sex);
-                      const b = ins.bucket ? bucketBadge(ins.bucket) : null;
-                      return (
- <div key={i} className="flex items-center gap-1 text-[10.5px] leading-snug"> {b ? <span className="shrink-0">{b.icon}</span> : <span className="w-3 shrink-0" />}
- <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
- <span className={`shrink-0 font-mono font-medium ${b?.className ?? "text-foreground"}`}>{e.value}</span>
- </div> );
-                    })}
- </div> )}
- </> );
-          })()}
 
           {/* 4) Imagem */}
           {(patient.imaging?.length ?? 0) > 0 && (
