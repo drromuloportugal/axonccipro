@@ -23,15 +23,15 @@ interface SysDef {
 
 const SYSTEMS: SysDef[] = [
   { key: "cardio", label: "Cardiovascular", icon: "", color: "#ef4444", weight: 1.4 },
-  { key: "resp",   label: "Respiratório",   icon: "", color: "#3b82f6", weight: 1.4 },
-  { key: "neuro",  label: "Neurológico",    icon: "", color: "#8b5cf6", weight: 1.2 },
-  { key: "hemato", label: "Hematológico",   icon: "", color: "#7f1d1d", weight: 1.0 },
-  { key: "infec",  label: "Infeccioso",     icon: "", color: "#f97316", weight: 1.3 },
-  { key: "renal",  label: "Renal",          icon: "", color: "#eab308", weight: 1.1 },
-  { key: "hepato", label: "Hepático",       icon: "", color: "#166534", weight: 0.9 },
-  { key: "gi",     label: "Gastrointestinal", icon: "", color: "#84cc16", weight: 0.7 },
-  { key: "musc",   label: "Musculoesquelético", icon: "", color: "#92400e", weight: 0.6 },
-  { key: "metab",  label: "Metabólico",     icon: "", color: "#14b8a6", weight: 0.9 },
+  { key: "resp", label: "Respiratório", icon: "", color: "#3b82f6", weight: 1.4 },
+  { key: "neuro", label: "Neurológico", icon: "", color: "#8b5cf6", weight: 1.2 },
+  { key: "hemato", label: "Hematológico", icon: "", color: "#7f1d1d", weight: 1.0 },
+  { key: "infec", label: "Infeccioso", icon: "", color: "#f97316", weight: 1.3 },
+  { key: "renal", label: "Renal", icon: "", color: "#eab308", weight: 1.1 },
+  { key: "hepato", label: "Hepático", icon: "", color: "#166534", weight: 0.9 },
+  { key: "gi", label: "Gastrointestinal", icon: "", color: "#84cc16", weight: 0.7 },
+  { key: "musc", label: "Musculoesquelético", icon: "", color: "#92400e", weight: 0.6 },
+  { key: "metab", label: "Metabólico", icon: "", color: "#14b8a6", weight: 0.9 },
 ];
 
 // ---------------------------------------------------------------------------

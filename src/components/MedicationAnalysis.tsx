@@ -59,19 +59,19 @@ interface Analysis {
 
 // ------- Color mapping -------
 const GRAVITY_META: Record<Gravity, { icon: string; label: string; cls: string; bg: string }> = {
-  sem:            { icon: "", label: "Sem relevância",  cls: "text-clinical-stable",    bg: "bg-clinical-stable/10 border-clinical-stable/40" },
-  leve:           { icon: "", label: "Leve",            cls: "text-clinical-attention", bg: "bg-clinical-attention/10 border-clinical-attention/40" },
-  moderada:       { icon: "", label: "Moderada",        cls: "text-clinical-device",    bg: "bg-clinical-device/10 border-clinical-device/40" },
-  grave:          { icon: "", label: "Grave",           cls: "text-clinical-critical",  bg: "bg-clinical-critical/10 border-clinical-critical/40" },
-  contraindicada: { icon: "", label: "Contraindicada",  cls: "text-foreground",         bg: "bg-foreground/10 border-foreground/50" },
+  sem: { icon: "", label: "Sem relevância", cls: "text-clinical-stable", bg: "bg-clinical-stable/10 border-clinical-stable/40" },
+  leve: { icon: "", label: "Leve", cls: "text-clinical-attention", bg: "bg-clinical-attention/10 border-clinical-attention/40" },
+  moderada: { icon: "", label: "Moderada", cls: "text-clinical-device", bg: "bg-clinical-device/10 border-clinical-device/40" },
+  grave: { icon: "", label: "Grave", cls: "text-clinical-critical", bg: "bg-clinical-critical/10 border-clinical-critical/40" },
+  contraindicada: { icon: "", label: "Contraindicada", cls: "text-foreground", bg: "bg-foreground/10 border-foreground/50" },
 };
 const gravityOrder: Record<Gravity, number> = { contraindicada: 4, grave: 3, moderada: 2, leve: 1, sem: 0 };
 
 const RISK_META: Record<RiskLevel, { label: string; cls: string }> = {
-  baixo:      { label: "Baixo",       cls: "text-clinical-stable" },
-  moderado:   { label: "Moderado",    cls: "text-clinical-attention" },
-  alto:       { label: "Alto",        cls: "text-clinical-device" },
-  muito_alto: { label: "Muito Alto",  cls: "text-clinical-critical" },
+  baixo: { label: "Baixo", cls: "text-clinical-stable" },
+  moderado: { label: "Moderado", cls: "text-clinical-attention" },
+  alto: { label: "Alto", cls: "text-clinical-device" },
+  muito_alto: { label: "Muito Alto", cls: "text-clinical-critical" },
 };
 
 // ------- Patient → prompt context -------

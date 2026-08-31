@@ -1306,10 +1306,10 @@ function MedicationsList({
   };
 
   const ENTRY_TYPES: { id: EntryType; label: string; icon: string; cls: string }[] = [
-    { id: "pump",       label: "Medicação em bomba", icon: "", cls: "border-clinical-critical/50 hover:bg-clinical-critical/10" },
-    { id: "antibiotic", label: "Antimicrobiano",     icon: "", cls: "border-clinical-attention/50 hover:bg-clinical-attention/10" },
-    { id: "hydration",  label: "Hidratação",         icon: "", cls: "border-clinical-resp/50 hover:bg-clinical-resp/10" },
-    { id: "other",      label: "Outros medicamentos", icon: "", cls: "border-border hover:bg-surface-2" },
+    { id: "pump", label: "Medicação em bomba", icon: "", cls: "border-clinical-critical/50 hover:bg-clinical-critical/10" },
+    { id: "antibiotic", label: "Antimicrobiano", icon: "", cls: "border-clinical-attention/50 hover:bg-clinical-attention/10" },
+    { id: "hydration", label: "Hidratação", icon: "", cls: "border-clinical-resp/50 hover:bg-clinical-resp/10" },
+    { id: "other", label: "Outros medicamentos", icon: "", cls: "border-border hover:bg-surface-2" },
   ];
 
   const grouped = MEDICATION_CLASS_ORDER
@@ -2108,7 +2108,7 @@ const IMAGING_MODALITIES: { code: ImagingModality; label: string }[] = [
 
 const STATUS_OPTIONS: { code: NonNullable<ImagingExam["status"]>; label: string; icon: string }[] = [
   { code: "solicitado", label: "Solicitado", icon: "" },
-  { code: "concluido",  label: "Concluído",  icon: "✅" },
+  { code: "concluido", label: "Concluído", icon: "✅" },
 ];
 
 
@@ -2237,10 +2237,10 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
 // ============================================================================
 
 const INFECTION_STATUS_OPTIONS: { code: InfectionStatus; label: string; icon: string }[] = [
-  { code: "suspeito",   label: "Suspeito",   icon: "" },
-  { code: "provavel",   label: "Provável",   icon: "" },
+  { code: "suspeito", label: "Suspeito", icon: "" },
+  { code: "provavel", label: "Provável", icon: "" },
   { code: "confirmado", label: "Confirmado", icon: "" },
-  { code: "resolvido",  label: "Resolvido",  icon: "" },
+  { code: "resolvido", label: "Resolvido", icon: "" },
 ];
 
 function InfectionFociList({ items, onChange }: { items: InfectionFocus[]; onChange: (v: InfectionFocus[]) => void }) {

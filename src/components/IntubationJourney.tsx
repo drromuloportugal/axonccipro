@@ -123,8 +123,8 @@ const DRAFT_KEY = (patientId: string, id: string) => `passometro:intub:${patient
 // ============================================================================
 
 const MODE_META: Record<IntubationMode, { icon: string; label: string; color: string; sub: string }> = {
-  ISR:          { icon: "", label: "Sequência Rápida (ISR)", color: "border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical", sub: "Pré-oxig → Sedação → BNM → Intubação" },
-  DSI:          { icon: "", label: "Sequência Retardada (DSI)", color: "border-clinical-attention/40 bg-clinical-attention/10 text-clinical-attention", sub: "Sedação → Pré-oxig → BNM → Intubação" },
+  ISR: { icon: "", label: "Sequência Rápida (ISR)", color: "border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical", sub: "Pré-oxig → Sedação → BNM → Intubação" },
+  DSI: { icon: "", label: "Sequência Retardada (DSI)", color: "border-clinical-attention/40 bg-clinical-attention/10 text-clinical-attention", sub: "Sedação → Pré-oxig → BNM → Intubação" },
   Convencional: { icon: "", label: "Convencional", color: "border-clinical-resp/40 bg-clinical-resp/10 text-clinical-resp", sub: "Sedação titulada + analgesia" },
 };
 

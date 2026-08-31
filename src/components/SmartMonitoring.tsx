@@ -10,10 +10,10 @@ type Level = "normal" | "leve" | "mod" | "grave" | "na";
 
 const LEVEL_META: Record<Level, { emoji: string; label: string; badge: string; ring: string }> = {
   normal: { emoji: "", label: "Normal", badge: "bg-clinical-stable/15 text-clinical-stable border-clinical-stable/40", ring: "ring-clinical-stable/30" },
-  leve:   { emoji: "", label: "Alteração leve", badge: "bg-yellow-500/15 text-yellow-600 border-yellow-500/40", ring: "ring-yellow-500/30" },
-  mod:    { emoji: "", label: "Alteração moderada", badge: "bg-orange-500/15 text-orange-600 border-orange-500/40", ring: "ring-orange-500/30" },
-  grave:  { emoji: "", label: "Alteração grave", badge: "bg-clinical-critical/15 text-clinical-critical border-clinical-critical/40", ring: "ring-clinical-critical/30" },
-  na:     { emoji: "", label: "Não informado", badge: "bg-muted text-muted-foreground border-border", ring: "ring-border" },
+  leve: { emoji: "", label: "Alteração leve", badge: "bg-yellow-500/15 text-yellow-600 border-yellow-500/40", ring: "ring-yellow-500/30" },
+  mod: { emoji: "", label: "Alteração moderada", badge: "bg-orange-500/15 text-orange-600 border-orange-500/40", ring: "ring-orange-500/30" },
+  grave: { emoji: "", label: "Alteração grave", badge: "bg-clinical-critical/15 text-clinical-critical border-clinical-critical/40", ring: "ring-clinical-critical/30" },
+  na: { emoji: "", label: "Não informado", badge: "bg-muted text-muted-foreground border-border", ring: "ring-border" },
 };
 
 const worst = (...ls: Level[]): Level => {
@@ -26,23 +26,23 @@ const worst = (...ls: Level[]): Level => {
 function classifyBristol(b?: number): { level: Level; text: string } {
   if (!b) return { level: "na", text: "—" };
   const map: Record<number, { level: Level; text: string }> = {
-    1: { level: "mod",    text: "B1 · Constipação grave" },
-    2: { level: "leve",   text: "B2 · Constipação moderada" },
+    1: { level: "mod", text: "B1 · Constipação grave" },
+    2: { level: "leve", text: "B2 · Constipação moderada" },
     3: { level: "normal", text: "B3 · Normal" },
     4: { level: "normal", text: "B4 · Normal" },
-    5: { level: "leve",   text: "B5 · Fezes amolecidas" },
-    6: { level: "mod",    text: "B6 · Diarreia moderada" },
-    7: { level: "grave",  text: "B7 · Diarreia intensa" },
+    5: { level: "leve", text: "B5 · Fezes amolecidas" },
+    6: { level: "mod", text: "B6 · Diarreia moderada" },
+    7: { level: "grave", text: "B7 · Diarreia intensa" },
   };
   return map[b];
 }
 function classifyFecalVolume(v?: string): { level: Level; text: string } {
   if (!v) return { level: "na", text: "—" };
   const map: Record<string, { level: Level; text: string }> = {
- "ausente": { level: "na",     text: "Sem evacuação" },
- "+":       { level: "normal", text: "+ · Pequeno volume" },
- "++":      { level: "normal", text: "++ · Volume moderado" },
- "+++":     { level: "leve",   text: "+++ · Grande volume" },
+ "ausente": { level: "na", text: "Sem evacuação" },
+ "+": { level: "normal", text: "+ · Pequeno volume" },
+ "++": { level: "normal", text: "++ · Volume moderado" },
+ "+++": { level: "leve", text: "+++ · Grande volume" },
   };
   return map[v] ?? { level: "na", text: "—" };
 }
@@ -50,10 +50,10 @@ function classifyFecalVolume(v?: string): { level: Level; text: string } {
 function classifyTemp(t?: number): { level: Level; text: string } {
   if (t == null) return { level: "na", text: "—" };
   if (t < 35)   return { level: "grave", text: `${t.toFixed(1)}°C · Hipotermia grave` };
-  if (t < 36)   return { level: "mod",   text: `${t.toFixed(1)}°C · Hipotermia` };
+  if (t < 36)   return { level: "mod", text: `${t.toFixed(1)}°C · Hipotermia` };
   if (t <= 37.5) return { level: "normal", text: `${t.toFixed(1)}°C · Normal` };
-  if (t <= 38)  return { level: "leve",  text: `${t.toFixed(1)}°C · Febrícula` };
-  if (t <= 39)  return { level: "mod",   text: `${t.toFixed(1)}°C · Febre` };
+  if (t <= 38)  return { level: "leve", text: `${t.toFixed(1)}°C · Febrícula` };
+  if (t <= 39)  return { level: "mod", text: `${t.toFixed(1)}°C · Febre` };
   return { level: "grave", text: `${t.toFixed(1)}°C · Hipertermia importante` };
 }
 
@@ -91,10 +91,10 @@ function classifyFC(min?: number, max?: number): { level: Level; text: string } 
 
 const BP_MAP: Record<string, { level: Level; label: string }> = {
   normotensa: { level: "normal", label: "Normotensa" },
-  hip_leve:   { level: "leve",   label: "Hipertensão leve" },
-  hip_mod:    { level: "mod",    label: "Hipertensão moderada" },
-  hip_grave:  { level: "grave",  label: "Hipertensão grave" },
-  hipotensao: { level: "grave",  label: "Hipotensão" },
+  hip_leve: { level: "leve", label: "Hipertensão leve" },
+  hip_mod: { level: "mod", label: "Hipertensão moderada" },
+  hip_grave: { level: "grave", label: "Hipertensão grave" },
+  hipotensao: { level: "grave", label: "Hipotensão" },
 };
 function classifyBP(pas?: number, pad?: number, pam?: number, quali?: string): { level: Level; text: string } {
   if (pas != null && pad != null && !Number.isNaN(pas) && !Number.isNaN(pad)) {
@@ -109,7 +109,7 @@ function classifyBP(pas?: number, pad?: number, pam?: number, quali?: string): {
   }
   if (pam != null && !Number.isNaN(pam)) {
     if (pam < 60)  return { level: "grave", text: `PAM ${pam} mmHg · Hipotensão` };
-    if (pam <= 64) return { level: "mod",   text: `PAM ${pam} mmHg · Limite` };
+    if (pam <= 64) return { level: "mod", text: `PAM ${pam} mmHg · Limite` };
     return { level: "normal", text: `PAM ${pam} mmHg · Adequada` };
   }
   if (quali && BP_MAP[quali]) return { level: BP_MAP[quali].level, text: BP_MAP[quali].label };
@@ -120,42 +120,42 @@ function classifyBP(pas?: number, pad?: number, pam?: number, quali?: string): {
 function classifySpO2(v?: number): { level: Level; text: string } {
   if (v == null) return { level: "na", text: "—" };
   if (v < 85)  return { level: "grave", text: `${v}% · Hipoxemia grave` };
-  if (v < 90)  return { level: "mod",   text: `${v}% · Hipoxemia moderada` };
-  if (v < 94)  return { level: "leve",  text: `${v}% · Hipoxemia leve` };
+  if (v < 90)  return { level: "mod", text: `${v}% · Hipoxemia moderada` };
+  if (v < 94)  return { level: "leve", text: `${v}% · Hipoxemia leve` };
   return { level: "normal", text: `${v}% · Adequada` };
 }
 
 function classifyPAM(v?: number): { level: Level; text: string } {
   if (v == null) return { level: "na", text: "—" };
   if (v < 60)   return { level: "grave", text: `${v} mmHg · Hipotensão` };
-  if (v <= 64)  return { level: "mod",   text: `${v} mmHg · Limítrofe` };
+  if (v <= 64)  return { level: "mod", text: `${v} mmHg · Limítrofe` };
   if (v <= 100) return { level: "normal", text: `${v} mmHg · Adequada` };
-  if (v <= 110) return { level: "leve",  text: `${v} mmHg · Elevada` };
-  if (v <= 130) return { level: "mod",   text: `${v} mmHg · Hipertensão` };
+  if (v <= 110) return { level: "leve", text: `${v} mmHg · Elevada` };
+  if (v <= 130) return { level: "mod", text: `${v} mmHg · Hipertensão` };
   return { level: "grave", text: `${v} mmHg · Hipertensão grave` };
 }
 
 function classifyGlicemia(g?: number): { level: Level; text: string } {
   if (g == null) return { level: "na", text: "—" };
   if (g < 54)   return { level: "grave", text: `${g} mg/dL · Hipoglicemia grave` };
-  if (g < 70)   return { level: "mod",   text: `${g} mg/dL · Hipoglicemia` };
+  if (g < 70)   return { level: "mod", text: `${g} mg/dL · Hipoglicemia` };
   if (g <= 180) return { level: "normal", text: `${g} mg/dL · Adequada` };
-  if (g <= 250) return { level: "leve",  text: `${g} mg/dL · Hiperglicemia leve` };
-  if (g <= 300) return { level: "mod",   text: `${g} mg/dL · Hiperglicemia moderada` };
+  if (g <= 250) return { level: "leve", text: `${g} mg/dL · Hiperglicemia leve` };
+  if (g <= 300) return { level: "mod", text: `${g} mg/dL · Hiperglicemia moderada` };
   return { level: "grave", text: `${g} mg/dL · Hiperglicemia grave` };
 }
 
 function classifyDiurese(vol24?: number, mlkgh?: number): { level: Level; text: string } {
   if (mlkgh != null) {
     if (mlkgh < 0.3)  return { level: "grave", text: `${mlkgh.toFixed(2)} mL/kg/h · Oligúria grave` };
-    if (mlkgh < 0.5)  return { level: "mod",   text: `${mlkgh.toFixed(2)} mL/kg/h · Oligúria` };
+    if (mlkgh < 0.5)  return { level: "mod", text: `${mlkgh.toFixed(2)} mL/kg/h · Oligúria` };
     return { level: "normal", text: `${mlkgh.toFixed(2)} mL/kg/h · Adequada` };
   }
   if (vol24 == null) return { level: "na", text: "—" };
   if (vol24 <= 0)     return { level: "grave", text: "Anúria" };
   if (vol24 < 400)    return { level: "grave", text: `${vol24} mL/24h · Oligúria grave` };
-  if (vol24 < 800)    return { level: "mod",   text: `${vol24} mL/24h · Oligúria` };
-  if (vol24 < 1500)   return { level: "leve",  text: `${vol24} mL/24h · Reduzida` };
+  if (vol24 < 800)    return { level: "mod", text: `${vol24} mL/24h · Oligúria` };
+  if (vol24 < 1500)   return { level: "leve", text: `${vol24} mL/24h · Reduzida` };
   return { level: "normal", text: `${vol24} mL/24h · Adequada` };
 }
 
@@ -165,16 +165,16 @@ function classifyBH(bh?: number): { level: Level; text: string } {
   const sign = bh >= 0 ? "+" : "−";
   const shown = `${sign}${Math.round(a)} mL`;
   if (a <= 500)  return { level: "normal", text: shown };
-  if (a <= 1000) return { level: "leve",   text: shown };
-  if (a <= 2000) return { level: "mod",    text: shown };
+  if (a <= 1000) return { level: "leve", text: shown };
+  if (a <= 2000) return { level: "mod", text: shown };
   return { level: "grave", text: shown };
 }
 
 function classifyResiduo(v?: number): { level: Level; text: string } {
   if (v == null) return { level: "na", text: "—" };
   if (v < 250)  return { level: "normal", text: `${v} mL` };
-  if (v <= 500) return { level: "leve",   text: `${v} mL` };
-  if (v <= 1000) return { level: "mod",   text: `${v} mL` };
+  if (v <= 500) return { level: "leve", text: `${v} mL` };
+  if (v <= 1000) return { level: "mod", text: `${v} mL` };
   return { level: "grave", text: `${v} mL` };
 }
 
@@ -251,9 +251,9 @@ export function currentVitalsSummary(patient: Patient): VitalSummary {
     temp: range(tempR, classifyTemp, "°C", 1),
     spo2: range(spo2R, classifySpO2, "%"),
     resp: classifyResp(s.vent),
-    fc:   classifyFC(fcR.min, fcR.max),
-    bp:   range(pamR, classifyPAM, "mmHg"),
-    gli:  range(gliR, classifyGlicemia, "mg/dL"),
+    fc: classifyFC(fcR.min, fcR.max),
+    bp: range(pamR, classifyPAM, "mmHg"),
+    gli: range(gliR, classifyGlicemia, "mg/dL"),
   };
 }
 

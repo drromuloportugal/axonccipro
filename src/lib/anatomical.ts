@@ -90,54 +90,54 @@ export interface Marker {
 // Anterior view convention: viewer's LEFT = patient's RIGHT (D).
 // So D (direita do paciente) must sit at LOWER x; E at HIGHER x.
 const POS = {
-  jugularD: { x: 85,  y: 78 },
+  jugularD: { x: 85, y: 78 },
   jugularE: { x: 115, y: 78 },
-  subclavD: { x: 72,  y: 108 },
+  subclavD: { x: 72, y: 108 },
   subclavE: { x: 128, y: 108 },
-  femoralD: { x: 83,  y: 312 },
+  femoralD: { x: 83, y: 312 },
   femoralE: { x: 117, y: 312 },
-  radialD:  { x: 32,  y: 252 },
-  radialE:  { x: 168, y: 252 },
-  braquialD:{ x: 42,  y: 195 },
+  radialD: { x: 32, y: 252 },
+  radialE: { x: 168, y: 252 },
+  braquialD:{ x: 42, y: 195 },
   braquialE:{ x: 158, y: 195 },
-  pediosaD: { x: 83,  y: 478 },
+  pediosaD: { x: 83, y: 478 },
   pediosaE: { x: 117, y: 478 },
-  basilicaD:{ x: 38,  y: 215 },
+  basilicaD:{ x: 38, y: 215 },
   basilicaE:{ x: 162, y: 215 },
-  frontalD: { x: 90,  y: 35 },
+  frontalD: { x: 90, y: 35 },
   frontalE: { x: 110, y: 35 },
-  topHead:  { x: 100, y: 28 },
-  noseD:    { x: 96,  y: 56 },
-  noseE:    { x: 104, y: 56 },
-  mouth:    { x: 100, y: 62 },
-  trachea:  { x: 100, y: 140 },
+  topHead: { x: 100, y: 28 },
+  noseD: { x: 96, y: 56 },
+  noseE: { x: 104, y: 56 },
+  mouth: { x: 100, y: 62 },
+  trachea: { x: 100, y: 140 },
   cervical: { x: 100, y: 92 },
-  hemitoraxD:{x: 55,  y: 165 },
+  hemitoraxD:{x: 55, y: 165 },
   hemitoraxE:{x: 145, y: 165 },
-  pelvis:   { x: 100, y: 310 },
+  pelvis: { x: 100, y: 310 },
   belowPelvis:{x:100, y: 360 },
-  stomach:  { x: 105, y: 200 },
+  stomach: { x: 105, y: 200 },
   abdLeftPt:{ x: 125, y: 235 }, // patient left abdomen = viewer right
   abdLowerPt:{x: 110, y: 268 },
-  lombar:   { x: 100, y: 280 }, // posterior
-  vbile:    { x: 130, y: 215 },
-  handD:    { x: 22,  y: 282 },
-  handE:    { x: 178, y: 282 },
-  forearmD: { x: 30,  y: 235 },
+  lombar: { x: 100, y: 280 }, // posterior
+  vbile: { x: 130, y: 215 },
+  handD: { x: 22, y: 282 },
+  handE: { x: 178, y: 282 },
+  forearmD: { x: 30, y: 235 },
   forearmE: { x: 170, y: 235 },
-  cubitalD: { x: 40,  y: 205 },
+  cubitalD: { x: 40, y: 205 },
   cubitalE: { x: 160, y: 205 },
-  jugExtD:  { x: 90,  y: 82 },
-  jugExtE:  { x: 110, y: 82 },
+  jugExtD: { x: 90, y: 82 },
+  jugExtE: { x: 110, y: 82 },
 };
 
 // Generic central-line helper (jugular / subclavian / femoral)
 function centralAt(d: InvasiveDevice, side: "D" | "E" | undefined): Marker {
   const s = d.site ?? "";
-  if (s.startsWith("Jugular interna"))  return { ...(side === "E" ? POS.jugularE : POS.jugularD),  shape: "circle" };
+  if (s.startsWith("Jugular interna"))  return { ...(side === "E" ? POS.jugularE : POS.jugularD), shape: "circle" };
   if (s.startsWith("Subclávia") || s.startsWith("Subclavicular"))
-                                         return { ...(side === "E" ? POS.subclavE : POS.subclavD),  shape: "circle" };
-  if (s.startsWith("Femoral"))           return { ...(side === "E" ? POS.femoralE : POS.femoralD),  shape: "circle" };
+                                         return { ...(side === "E" ? POS.subclavE : POS.subclavD), shape: "circle" };
+  if (s.startsWith("Femoral"))           return { ...(side === "E" ? POS.femoralE : POS.femoralD), shape: "circle" };
   return { ...POS.subclavD, shape: "circle" };
 }
 
@@ -170,24 +170,24 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     case "PICC":
     case "MIDLINE": {
       if (d.site?.startsWith("Basílica"))  return [{ ...(side === "E" ? POS.basilicaE : POS.basilicaD), shape: "circle" }];
-      if (d.site?.startsWith("Cefálica"))  return [{ ...(side === "E" ? POS.forearmE  : POS.forearmD),  shape: "circle" }];
+      if (d.site?.startsWith("Cefálica"))  return [{ ...(side === "E" ? POS.forearmE  : POS.forearmD), shape: "circle" }];
       return [{ ...(side === "E" ? POS.braquialE : POS.braquialD), shape: "circle" }];
     }
 
     // ── Arterial ──────────────────────────────────────────────────────
-    case "PAI_RAD": return [{ ...(side === "E" ? POS.radialE   : POS.radialD),   shape: "triangle" }];
-    case "PAI_FEM": return [{ ...(side === "E" ? POS.femoralE  : POS.femoralD),  shape: "triangle" }];
+    case "PAI_RAD": return [{ ...(side === "E" ? POS.radialE   : POS.radialD), shape: "triangle" }];
+    case "PAI_FEM": return [{ ...(side === "E" ? POS.femoralE  : POS.femoralD), shape: "triangle" }];
     case "PAI_BRA": return [{ ...(side === "E" ? POS.braquialE : POS.braquialD), shape: "triangle" }];
-    case "PAI_PED": return [{ ...(side === "E" ? POS.pediosaE  : POS.pediosaD),  shape: "triangle" }];
+    case "PAI_PED": return [{ ...(side === "E" ? POS.pediosaE  : POS.pediosaD), shape: "triangle" }];
 
     // ── Peripheral venous ─────────────────────────────────────────────
     case "PVP": {
-      if (d.site?.startsWith("Dorso da mão"))   return [{ ...(side === "E" ? POS.handE     : POS.handD),     shape: "triangle" }];
-      if (d.site?.startsWith("Antebraço"))      return [{ ...(side === "E" ? POS.forearmE  : POS.forearmD),  shape: "triangle" }];
-      if (d.site?.startsWith("Fossa cubital"))  return [{ ...(side === "E" ? POS.cubitalE  : POS.cubitalD),  shape: "triangle" }];
+      if (d.site?.startsWith("Dorso da mão"))   return [{ ...(side === "E" ? POS.handE     : POS.handD), shape: "triangle" }];
+      if (d.site?.startsWith("Antebraço"))      return [{ ...(side === "E" ? POS.forearmE  : POS.forearmD), shape: "triangle" }];
+      if (d.site?.startsWith("Fossa cubital"))  return [{ ...(side === "E" ? POS.cubitalE  : POS.cubitalD), shape: "triangle" }];
       if (d.site?.startsWith("Braquial"))       return [{ ...(side === "E" ? POS.braquialE : POS.braquialD), shape: "triangle" }];
-      if (d.site?.startsWith("Jugular externa"))return [{ ...(side === "E" ? POS.jugExtE   : POS.jugExtD),   shape: "triangle" }];
-      if (d.site?.startsWith("Dorso do pé"))    return [{ ...(side === "E" ? POS.pediosaE  : POS.pediosaD),  shape: "triangle" }];
+      if (d.site?.startsWith("Jugular externa"))return [{ ...(side === "E" ? POS.jugExtE   : POS.jugExtD), shape: "triangle" }];
+      if (d.site?.startsWith("Dorso do pé"))    return [{ ...(side === "E" ? POS.pediosaE  : POS.pediosaD), shape: "triangle" }];
       return [{ ...POS.forearmD, shape: "triangle" }];
     }
 
@@ -245,12 +245,12 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     }
     case "MEDIA": return [{ ...POS.trachea, shape: "square" }];
     case "PERIC": return [{ x: 95, y: 175, shape: "square" }];
-    case "KEHR":  return [{ ...POS.vbile, shape: "square" }];
+    case "KEHR": return [{ ...POS.vbile, shape: "square" }];
     case "PVAC":
     case "HVAC":
     case "BLAKE":
     case "PENROSE":
-    case "JP":    return [{ ...POS.abdLowerPt, shape: "square" }];
+    case "JP": return [{ ...POS.abdLowerPt, shape: "square" }];
 
     // ── Advanced therapies ────────────────────────────────────────────
     case "ECMO_VV":

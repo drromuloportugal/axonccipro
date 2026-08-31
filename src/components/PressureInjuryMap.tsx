@@ -113,7 +113,7 @@ function BodyLateral({ facing }: { facing: "right" | "left" }) {
 // ----------------------------------------------------------------------------
 
 const VIEWS: { key: LPPView; label: string }[] = [
-  { key: "anterior",  label: "Anterior" },
+  { key: "anterior", label: "Anterior" },
   { key: "posterior", label: "Posterior" },
   { key: "lateral_d", label: "Lateral D" },
   { key: "lateral_e", label: "Lateral E" },

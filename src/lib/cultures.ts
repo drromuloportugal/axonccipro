@@ -10,32 +10,32 @@ import type { Culture, AntibiogramResult } from "@/data/patients";
 // ----- Fontes -----------------------------------------------------------------
 
 export const CULTURE_SOURCES = [
-  { code: "hemo_perif",  label: "Hemocultura periférica",         group: "Hemoculturas" },
-  { code: "hemo_cvc",    label: "Hemocultura CVC",                 group: "Hemoculturas" },
-  { code: "hemo_pai",    label: "Hemocultura cateter arterial",    group: "Hemoculturas" },
-  { code: "uro",         label: "Urocultura",                      group: "Urocultura" },
-  { code: "trach",       label: "Aspirado traqueal",               group: "Vias aéreas" },
-  { code: "bal",         label: "Lavado broncoalveolar (BAL)",     group: "Vias aéreas" },
-  { code: "escovado",    label: "Escovado protegido (PSB)",        group: "Vias aéreas" },
-  { code: "ferida",      label: "Cultura de ferida",               group: "Pele e partes moles" },
-  { code: "liquor",      label: "Líquor (LCR)",                    group: "Líquidos estéreis" },
-  { code: "pleural",     label: "Líquido pleural",                 group: "Líquidos estéreis" },
-  { code: "peritoneal",  label: "Líquido peritoneal",              group: "Líquidos estéreis" },
-  { code: "pericardico", label: "Líquido pericárdico",             group: "Líquidos estéreis" },
-  { code: "sinovial",    label: "Líquido sinovial",                group: "Líquidos estéreis" },
-  { code: "outro",       label: "Outro material",                  group: "Outros" },
+  { code: "hemo_perif", label: "Hemocultura periférica", group: "Hemoculturas" },
+  { code: "hemo_cvc", label: "Hemocultura CVC", group: "Hemoculturas" },
+  { code: "hemo_pai", label: "Hemocultura cateter arterial", group: "Hemoculturas" },
+  { code: "uro", label: "Urocultura", group: "Urocultura" },
+  { code: "trach", label: "Aspirado traqueal", group: "Vias aéreas" },
+  { code: "bal", label: "Lavado broncoalveolar (BAL)", group: "Vias aéreas" },
+  { code: "escovado", label: "Escovado protegido (PSB)", group: "Vias aéreas" },
+  { code: "ferida", label: "Cultura de ferida", group: "Pele e partes moles" },
+  { code: "liquor", label: "Líquor (LCR)", group: "Líquidos estéreis" },
+  { code: "pleural", label: "Líquido pleural", group: "Líquidos estéreis" },
+  { code: "peritoneal", label: "Líquido peritoneal", group: "Líquidos estéreis" },
+  { code: "pericardico", label: "Líquido pericárdico", group: "Líquidos estéreis" },
+  { code: "sinovial", label: "Líquido sinovial", group: "Líquidos estéreis" },
+  { code: "outro", label: "Outro material", group: "Outros" },
 ] as const;
 
 export type CultureSourceCode = (typeof CULTURE_SOURCES)[number]["code"];
 
 export const COLLECTION_METHODS: Record<string, string[]> = {
-  uro:   ["Jato médio", "Sonda vesical", "Punção suprapúbica", "Cateterização"],
+  uro: ["Jato médio", "Sonda vesical", "Punção suprapúbica", "Cateterização"],
   hemo_perif: ["Punção periférica"],
-  hemo_cvc:   ["Coleta por CVC"],
-  hemo_pai:   ["Coleta por cateter arterial"],
-  bal:      ["Broncoscopia", "BAL às cegas"],
+  hemo_cvc: ["Coleta por CVC"],
+  hemo_pai: ["Coleta por cateter arterial"],
+  bal: ["Broncoscopia", "BAL às cegas"],
   escovado: ["Broncoscopia (escovado protegido)", "PSB às cegas"],
-  trach:    ["Aspirado endotraqueal"],
+  trach: ["Aspirado endotraqueal"],
 };
 
 // ----- Biblioteca de microrganismos -------------------------------------------
@@ -116,9 +116,9 @@ export function cultureResultBadge(c: Culture): CultureResultBadge {
 }
 
 export function abxResultBadge(r: AntibiogramResult) {
-  if (r === "S") return { label: "Sensível",       icon: "", className: "text-clinical-stable" };
-  if (r === "I") return { label: "Intermediária",  icon: "", className: "text-clinical-attention" };
-  return            { label: "Resistente",         icon: "", className: "text-clinical-critical" };
+  if (r === "S") return { label: "Sensível", icon: "", className: "text-clinical-stable" };
+  if (r === "I") return { label: "Intermediária", icon: "", className: "text-clinical-attention" };
+  return            { label: "Resistente", icon: "", className: "text-clinical-critical" };
 }
 
 // ----- Alertas inteligentes ---------------------------------------------------

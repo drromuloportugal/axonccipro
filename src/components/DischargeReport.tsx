@@ -96,14 +96,14 @@ Gerado em ${nowStamp()}
 ===================================================================
 IDENTIFICAÇÃO
 ===================================================================
-Paciente:            ${p.name}
-Idade / Sexo:        ${p.age} anos / ${p.sex === "M" ? "Masculino" : "Feminino"}
-Prontuário:          ${p.id}
-Leito UTI:           ${p.bed}
+Paciente: ${p.name}
+Idade / Sexo: ${p.age} anos / ${p.sex === "M" ? "Masculino" : "Feminino"}
+Prontuário: ${p.id}
+Leito UTI: ${p.bed}
 Admissão hospitalar: ${fmtDate(p.admissionHosp)}  (D${p.daysHosp})
-Admissão UTI:        ${fmtDate(p.admissionICU)}  (D${p.daysICU})
-Transferência:       ${fmtDate(transferDate)} ${transferTime}
-Diagnóstico principal:  ${dxMain}
+Admissão UTI: ${fmtDate(p.admissionICU)}  (D${p.daysICU})
+Transferência: ${fmtDate(transferDate)} ${transferTime}
+Diagnóstico principal: ${dxMain}
 Diagnósticos secundários: ${dxSec.length ? dxSec.join("; ") : "—"}
 
 ===================================================================
