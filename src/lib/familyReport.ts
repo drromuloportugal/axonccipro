@@ -148,7 +148,7 @@ function severityText(p: Patient) {
 
 /* ---------- documento ---------- */
 
-export function generateFamilyReport(patient: Patient) {
+export function buildFamilyReport(patient: Patient): jsPDF {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const today = new Date().toLocaleDateString("pt-BR");
   const sev = severityText(patient);
@@ -287,6 +287,11 @@ export function generateFamilyReport(patient: Patient) {
     txt(doc, `Página ${i} de ${pages}`, W - M, 289, { size: 8, color: SOFT, align: "right" });
   }
 
+  return doc;
+}
+
+export function generateFamilyReport(patient: Patient) {
+  const doc = buildFamilyReport(patient);
   const safe = stripEmoji(patient.name).replace(/[^\p{L}\p{N}]+/gu, "_");
   doc.save(`familia_${safe}_${patient.bed}.pdf`);
 }
