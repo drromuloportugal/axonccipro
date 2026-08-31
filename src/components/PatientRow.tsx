@@ -521,7 +521,33 @@ export function PatientRow({
  </span>
  </div> )}
  </div>
- </div> {/* Escala de Bristol — linhas temporais */}
+ </div> {/* Laboratoriais + Gasometria (compacto) */}
+          {(() => {
+            const isGaso = (code?: string, label?: string) => /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
+            const lab = patient.exams.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
+            const gaso = patient.exams.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
+            const rows = (list: typeof patient.exams) => list.map((e, i) => {
+              const ins = examInsight(e, patient.sex);
+              const b = ins.bucket ? bucketBadge(ins.bucket) : null;
+              return (
+ <div key={i} className="flex items-baseline justify-between gap-1 text-[10px]">
+ <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
+ <span className={`shrink-0 font-mono font-bold ${b?.className ?? "text-foreground"}`}>{e.value}</span>
+ </div> );
+            });
+            return (
+ <> {lab.length > 0 && (
+ <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">Laboratoriais</div>
+ <div className="space-y-0.5">{rows(lab)}</div>
+ </div> )}
+                {gaso.length > 0 && (
+ <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-clinical-resp">Gasometria</div>
+ <div className="space-y-0.5">{rows(gaso)}</div>
+ </div> )}
+ </> );
+          })()} {/* Escala de Bristol — linhas temporais */}
           {(patient.state.stools?.length ?? 0) > 0 && (
  <div className="rounded border border-border bg-surface px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Bristol</div>
