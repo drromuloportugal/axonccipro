@@ -136,15 +136,15 @@ function StretcherBackground() {
 }
 
 function BodyAnterior() {
-  const stroke = "hsl(var(--border))";
-  const detail = "hsl(var(--border))";
+  const stroke = "#6b7280";
+  const detail = "#9ca3af";
   return (
  <g>
  <defs>
  <radialGradient id="skinAnt" cx="50%" cy="35%" r="75%">
- <stop offset="0%"stopColor="hsl(var(--surface-2))" stopOpacity="1" />
- <stop offset="65%" stopColor="hsl(var(--surface-2))" stopOpacity="0.9" />
- <stop offset="100%" stopColor="hsl(var(--surface-3, var(--surface-2)))" stopOpacity="0.7" />
+ <stop offset="0%" stopColor="#f6ece4" stopOpacity="1" />
+ <stop offset="65%" stopColor="#ecdcd0" stopOpacity="1" />
+ <stop offset="100%" stopColor="#d8bfae" stopOpacity="1" />
  </radialGradient>
  <linearGradient id="muscleShadeAnt" x1="0" y1="0" x2="1" y2="0">
  <stop offset="0%" stopColor="black" stopOpacity="0.08" />
@@ -228,15 +228,15 @@ function BodyAnterior() {
 }
 
 function BodyPosterior() {
-  const stroke = "hsl(var(--border))";
-  const detail = "hsl(var(--border))";
+  const stroke = "#6b7280";
+  const detail = "#9ca3af";
   return (
  <g>
  <defs>
  <radialGradient id="skinPost" cx="50%" cy="35%" r="75%">
- <stop offset="0%"stopColor="hsl(var(--surface-2))" stopOpacity="1" />
- <stop offset="65%" stopColor="hsl(var(--surface-2))" stopOpacity="0.9" />
- <stop offset="100%" stopColor="hsl(var(--surface-3, var(--surface-2)))" stopOpacity="0.7" />
+ <stop offset="0%" stopColor="#f6ece4" stopOpacity="1" />
+ <stop offset="65%" stopColor="#ecdcd0" stopOpacity="1" />
+ <stop offset="100%" stopColor="#d8bfae" stopOpacity="1" />
  </radialGradient>
  </defs>
 
