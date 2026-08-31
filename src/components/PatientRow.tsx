@@ -751,26 +751,32 @@ export function PatientRow({
  </div> {/* 2 */}
  <div onClick={colClick("hist")}>
  <ColTitle>História clínica</ColTitle>
- <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.diagnoses.map((d, i) => {
-                const catMeta = d.category === "previous"
-                  ? { label: "Pregresso", box: "border-clinical-resp/50 bg-clinical-resp/10", text: "text-clinical-resp", chip: "border-clinical-resp/50 bg-clinical-resp/15 text-clinical-resp" }
-                  : d.category === "current"
-                    ? { label: "Atual", box: "border-clinical-attention/50 bg-clinical-attention/10", text: "text-clinical-attention", chip: "border-clinical-attention/50 bg-clinical-attention/20 text-clinical-attention" }
-                    : d.category === "complication"
-                      ? { label: "Complicação", box: "border-clinical-critical/50 bg-clinical-critical/10", text: "text-clinical-critical", chip: "border-clinical-critical/50 bg-clinical-critical/20 text-clinical-critical" }
-                      : null;
-                return (
+ <div className="space-y-3"> {([
+                 { cat: "current", label: "Diagnósticos atuais", box: "border-clinical-attention/50 bg-clinical-attention/10", text: "text-clinical-attention", head: "bg-clinical-attention" },
+                 { cat: "inactive", label: "Diagnósticos inativos", box: "border-border bg-surface-2", text: "text-muted-foreground", head: "bg-clinical-neutral" },
+                 { cat: "previous", label: "Diagnósticos pregressos", box: "border-clinical-resp/50 bg-clinical-resp/10", text: "text-clinical-resp", head: "bg-clinical-resp" },
+                 { cat: "complication", label: "Complicações", box: "border-clinical-critical/50 bg-clinical-critical/10", text: "text-clinical-critical", head: "bg-clinical-critical" },
+               ] as const).map((g) => {
+                 const list = patient.diagnoses.filter((d) => (d.category ?? "current") === g.cat);
+                 if (!list.length) return null;
+                 return (
+ <div key={g.cat}>
+ <div className={`mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white ${g.head}`}> {g.label} · {list.length}
+ </div>
+ <ol className="relative ml-2 space-y-1.5 border-l border-border pl-3"> {list.map((d, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
- <div className={`rounded-md border px-2 py-1 ${catMeta?.box ?? "border-border bg-surface-2"}`}>
+ <div className={`rounded-md border px-2 py-1 ${g.box}`}>
  <div className="text-[11px] text-muted-foreground">{d.date}</div>
- <div className={`text-[12px] ${catMeta?.text ?? kindClass[d.kind]}`}>{d.label}</div> {catMeta && (
- <span className={`mt-0.5 inline-flex rounded border px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider ${catMeta.chip}`}> {catMeta.label}
- </span> )}
+ <div className={`text-[12px] ${g.text}`}>{d.label}</div> {d.detail && <div className="text-[10.5px] text-muted-foreground">{d.detail}</div>}
  </div>
- </li> );
-              })}
+ </li> ))}
  </ol>
+ </div> );
+               })}
+               {patient.diagnoses.length === 0 && (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem diagnósticos registrados.</div> )}
+ </div>
  <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
               {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
               {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
