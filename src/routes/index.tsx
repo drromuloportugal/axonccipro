@@ -138,10 +138,6 @@ function Passometro() {
         if (local.length) setPatients(mergeSeed(stripEmojiDeep(local)));
         toast.error("Não foi possível carregar os pacientes do banco");
       } finally {
-        if (cancelled) return;
-        if (local.length) setPatients(stripEmojiDeep(local));
-        toast.error("Não foi possível carregar os pacientes do banco");
-      } finally {
         if (!cancelled) setPatientsLoaded(true);
       }
     })();
