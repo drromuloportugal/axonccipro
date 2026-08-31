@@ -3,9 +3,8 @@ import type { Patient } from "@/data/patients";
 
 /** Lista todos os pacientes salvos no banco, na ordem definida pela equipe. */
 export const listPatients = createServerFn({ method: "GET" }).handler(async () => {
-  const { requireUnlocked } = await import("./gate.server");
-  await requireUnlocked();
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
   const { data, error } = await supabaseAdmin
     .from("patients")
@@ -23,9 +22,8 @@ export const savePatients = createServerFn({ method: "POST" })
     return { patients: data.patients.filter((p) => p && typeof p.id === "string") };
   })
   .handler(async ({ data }) => {
-    const { requireUnlocked } = await import("./gate.server");
-    await requireUnlocked();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
 
     const rows = data.patients.map((p, i) => ({
       id: p.id,

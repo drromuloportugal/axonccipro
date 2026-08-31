@@ -1,5 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { isUnlocked } from "@/lib/gate.functions";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { patients as seedPatients } from "@/data/patients";
 import type { Patient, Severity } from "@/data/patients";
@@ -17,10 +16,7 @@ import { toast } from "sonner";
 import { useRef } from "react";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    const { unlocked } = await isUnlocked();
-    if (!unlocked) throw redirect({ to: "/login" });
-  },
+
   head: () => ({
     meta: [
       { title: "PASSÔMETRO — Painel UTI" },
