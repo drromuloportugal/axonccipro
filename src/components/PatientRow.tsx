@@ -985,7 +985,7 @@ export function PatientRow({
               const gaso = patient.exams.filter((e) => isGaso(e.code, e.label));
               const renderTable = (rows: typeof patient.exams) => (
  <table className="w-full text-[12px]">
- <tbody> {rows.map((e, i) => {
+ <tbody>{rows.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                       const t = trendBadge(ins.trend);
