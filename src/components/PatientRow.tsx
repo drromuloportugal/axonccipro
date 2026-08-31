@@ -1068,6 +1068,42 @@ export function PatientRow({
  </span>
  </div> )}
  </div>
+ </div> {/* Laboratoriais + Gasometria (movidos da coluna 5) */}
+            {(() => {
+              const isGaso = (code?: string, label?: string) => /pH|PaO2|PaCO2|HCO3|SatO2|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
+              const lab = patient.exams.filter((e) => !isGaso(e.code, e.label));
+              const gaso = patient.exams.filter((e) => isGaso(e.code, e.label));
+              const renderTable = (rows: typeof patient.exams) => (
+ <table className="w-full text-[12px]">
+ <tbody>
+                    {rows.map((e, i) => {
+                      const ins = examInsight(e, patient.sex);
+                      const b = ins.bucket ? bucketBadge(ins.bucket) : null;
+                      const t = trendBadge(ins.trend);
+                      return (
+ <tr key={i} className="border-b border-border/50 last:border-0">
+ <td className="py-1 text-muted-foreground">{e.label}</td>
+ <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
+ <td className="py-1 text-right text-[10px]" title={t.label}>{ins.trend !== "flat" ? t.icon : "—"}</td>
+ </tr> );
+                    })}
+ </tbody>
+ </table> );
+              return (
+ <>
+ <div className="mt-4">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames laboratoriais
+ </div> {lab.length ? renderTable(lab) : (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem laboratoriais.</div> )}
+ </div>
+ <div className="mt-4">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial
+ </div> {gaso.length ? renderTable(gaso) : (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem gasometria.</div> )}
+ </div>
+ </> );
+            })()}
+ <div>
  </div> {/* Bristol — linhas temporais */}
  <div className="mt-4">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
