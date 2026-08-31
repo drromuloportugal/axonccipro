@@ -1445,7 +1445,7 @@ export const patients: Patient[] = [
       { date: "05/08", label: "Politrauma por acidente motociclístico", kind: "critical" },
       { date: "05/08", label: "TCE grave com contusão frontal (Glasgow 6)", kind: "neuro" },
       { date: "05/08", label: "Fratura de fêmur direito", kind: "neutral" },
-      { date: "07/08", label: "Choque hemorrágico compensado", kind: "inactive" as TimelineEvent["kind"] },
+      { date: "07/08", label: "Choque hemorrágico compensado", kind: "neutral", category: "inactive" },
       { date: "14/08", label: "Disautonomia paroxística", kind: "neuro" },
       { date: "23/08", label: "Traqueostomia para proteção de via aérea", kind: "resp" },
     ],
