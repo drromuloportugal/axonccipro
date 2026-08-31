@@ -8,7 +8,7 @@ import { PatientPrintView } from "@/components/PatientPrintView";
 import { ExamsMatrix } from "@/components/ExamsMatrix";
 import { DilutionCenter } from "@/components/DilutionCenter";
 import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw } from "lucide-react";
-import axonLogo from "@/assets/axon-logo.png.asset.json";
+import unimedLogo from "@/assets/unimed-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
 
@@ -293,30 +293,29 @@ function Passometro() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header — centered logo, tools tucked inside a circular hamburger menu */}
+      {/* Header — centered Unimed logo, tools tucked inside a circular hamburger menu */}
       <header
         ref={headerRef}
-        className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-white/40 bg-white/80 backdrop-blur-2xl transition-transform duration-300 ease-out ${
+        className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-white/30 backdrop-blur-2xl transition-transform duration-300 ease-out ${
           headerHidden ? "-translate-y-full" : "translate-y-0"
         }`}
         style={{
           background:
-            "linear-gradient(135deg, color-mix(in oklab, var(--clinical-resp) 22%, white) 0%, color-mix(in oklab, var(--clinical-stable) 18%, white) 100%)",
+            "linear-gradient(135deg, rgba(0, 88, 42, 0.92) 0%, rgba(0, 148, 68, 0.85) 100%)",
           boxShadow:
-            "0 20px 60px -16px color-mix(in oklab, var(--clinical-resp) 45%, transparent), 0 14px 40px -18px color-mix(in oklab, var(--clinical-stable) 38%, transparent)",
+            "0 20px 60px -16px rgba(0, 88, 42, 0.5), 0 14px 40px -18px rgba(0, 148, 68, 0.45)",
         }}
       >
         <div className="relative flex items-center justify-center px-6 py-4">
           {/* Logo — centered, spans the header width */}
           <div className="flex min-w-0 flex-1 items-center justify-center">
             <img
-              src={axonLogo.url}
-              alt="AXON — Critical Care Intelligence"
-              className="h-auto w-full object-contain"
+              src={unimedLogo.url}
+              alt="Unimed"
+              className="h-auto w-auto max-w-full object-contain"
               style={{
-                maxHeight: "10rem",
-                filter:
-                  "drop-shadow(0 14px 38px color-mix(in oklab, var(--clinical-resp) 45%, transparent)) drop-shadow(0 8px 24px color-mix(in oklab, var(--clinical-stable) 40%, transparent))",
+                maxHeight: "3.5rem",
+                filter: "drop-shadow(0 6px 18px rgba(0, 60, 28, 0.45))",
               }}
             />
           </div>
