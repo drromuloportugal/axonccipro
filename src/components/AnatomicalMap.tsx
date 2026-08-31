@@ -313,7 +313,7 @@ function BodyPanel({
  <div className="flex flex-col items-center">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
  </div>
- <svg viewBox="0 0 200 510" className="block h-[440px] w-full max-w-[220px]"> {view === "anterior" ? <BodyAnterior /> : <BodyPosterior />}
+ <svg viewBox="0 0 200 510" className="block h-[440px] w-full max-w-[220px]"> <StretcherBackground /> {view === "anterior" ? <BodyAnterior /> : <BodyPosterior />}
 
         {/* Infection halos — concentric rings with intensity scaled per status:
             suspeito (yellow, leve), provavel (laranja, médio), confirmado (vermelho, forte).
