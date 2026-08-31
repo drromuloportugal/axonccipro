@@ -1038,7 +1038,7 @@ function ProceduresList({ items, onChange }: { items: TimelineEvent[]; onChange:
     if (!def) return;
     onChange([
       ...items,
-      { date, label: `${def.icon} ${def.label}`, detail: detail || undefined, kind: def.kind },
+      { date, label: def.label, detail: detail || undefined, kind: def.kind },
     ]);
     setDetail("");
     setDate(nowShort());
@@ -1050,9 +1050,9 @@ function ProceduresList({ items, onChange }: { items: TimelineEvent[]; onChange:
  <div className="rounded-md border border-dashed border-border bg-surface-2/40 p-3">
  <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Adicionar procedimento</div>
  <div className="grid grid-cols-[1.4fr_140px_1.6fr_auto] gap-2">
- <select className={inputCls} value={code} onChange={(e) => setCode(e.target.value)}> {PROCEDURES.map((p) => (
- <option key={p.code} value={p.code}>{p.icon} {p.label}</option> ))}
- </select>
+            <select className={inputCls} value={code} onChange={(e) => setCode(e.target.value)}> {PROCEDURES.map((p) => (
+              <option key={p.code} value={p.code}>{p.label}</option> ))}
+            </select>
  <input className={inputCls} placeholder="DD/MM HH:mm"
             value={date} onChange={(e) => setDate(e.target.value)} />
  <input className={inputCls} placeholder="Detalhe (opcional)"
