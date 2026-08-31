@@ -12,7 +12,7 @@ export type TimelineKind =
   | "neuro"
   | "nutri";
 
-export type DiagnosisCategory = "previous" | "current" | "complication";
+export type DiagnosisCategory = "previous" | "current" | "inactive" | "complication";
 
 export interface TimelineEvent {
   date: string;
