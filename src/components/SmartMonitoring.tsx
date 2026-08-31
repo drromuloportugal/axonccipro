@@ -279,6 +279,9 @@ export function currentVitalsSummary(patient: Patient): VitalSummary {
   const fcR   = mm(series.fc, s.fcMin, s.fcMax);
   const pamR  = mm(series.pam, s.pam, s.pam);
   const gliR  = mm(series.glicemia, s.glicemia, s.glicemia);
+  const frR   = mm(series.fr, s.fr, s.fr);
+  const pasR  = mm(series.pas, s.pas, s.pas);
+  const padR  = mm(series.pad, s.pad, s.pad);
 
   return {
     temp: range(tempR, classifyTemp, "°C", 1),
@@ -287,6 +290,9 @@ export function currentVitalsSummary(patient: Patient): VitalSummary {
     fc: classifyFC(fcR.min, fcR.max),
     bp: range(pamR, classifyPAM, "mmHg"),
     gli: range(gliR, classifyGlicemia, "mg/dL"),
+    fr: range(frR, classifyFR, "ipm"),
+    pas: range(pasR, classifyPAS, "mmHg"),
+    pad: range(padR, classifyPAD, "mmHg"),
   };
 }
 
