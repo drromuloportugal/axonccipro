@@ -697,7 +697,7 @@ export function PatientRow({
  </button>
  </div>
  </div>
- <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] gap-0 px-5 py-5 text-[12px] font-semibold [&>div]:px-3 [&>div]:py-2 [&>div]:rounded-md [&>div+div]:border-l-2 [&>div+div]:border-border-strong [&>div:nth-child(odd)]:bg-surface [&>div:nth-child(even)]:bg-surface-2"> {/* 1 */}
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
  <div onClick={colClick("id")}>
  <ColTitle>Identificação</ColTitle>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
