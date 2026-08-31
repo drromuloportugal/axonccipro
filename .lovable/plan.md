@@ -1,66 +1,47 @@
-# Plano — Refinamentos clínicos do PASSÔMETRO
+# Plano — Aba "Gestão" (Dashboard executivo da UTI)
 
-Escopo grande. Vou dividir por coluna/área, todas alterações concentradas em frontend + modelo de dados local (`patients.ts`), sem novo backend.
+Novo item no menu hamburger que abre um painel em tela cheia (overlay, mesmo padrão de Exames/Farmácia), com o dashboard executivo do coordenador.
 
-## 1. Coluna 1 (Identificação) + Coluna 3 (Intervenções)
-- **Mover** o bloco "Procedimentos e eventos" (timeline procedural) da coluna 3 para o final da coluna 1 (após dados de identificação/CID/alergias), tanto na linha colapsada quanto na expandida.
-- Coluna 3 passa a exibir apenas **dispositivos/invasões** (mantém badges de risco e datas).
-- Ajustar `PatientPrintView` igualmente.
+## Fonte dos dados
+- **Reais (derivados dos pacientes já cadastrados):** leitos ocupados, ventilação mecânica, drogas vasoativas, gravidade/risco, tempo de internação, aguardando transferência, previsão de alta, alertas.
+- **Demonstrativos (séries históricas realistas geradas de forma determinística):** admissões/altas/óbitos por dia, tendências de 24 h / 7 d / 30 d e indicadores de qualidade com meta e período anterior. Total de leitos configurável (padrão 12).
 
-## 2. Modelo anatômico — filtros de visualização
-- Em `AnatomicalMap.tsx` adicionar toolbar com 3 toggles (chips): **Infecções**, **Invasões**, **LPP** (multi-seleção, default: todos ligados).
-- Filtrar `markers` por `type` conforme seleção (`infection`, `device`, `lpp`).
-- Estado local no componente; sem persistência.
+## Estrutura da tela
 
-## 3. Coluna 4 (Medicações) — agrupar por classe
-Novas classes obrigatórias no modelo `Medication`:
-```
-"antibiotic" | "pump" | "iv" | "im" | "sc" | "oral" | "inhaled" | "topical"
-```
-- Adicionar `class` em `Medication` (`patients.ts`); manter compat via `route`/legado como fallback.
-- No editor (`PatientEditor.tsx`), campo select "Classe".
-- Na coluna 4 (colapsada + expandida), renderizar 8 subseções na ordem pedida com título curto (ATB, Bomba, EV, IM, SC, VO/Enteral, Inal., Tópico) — ocultar seções vazias.
-- Bombas continuam sendo puxadas de `pumpInfusions`, mas exibidas dentro do bloco "Bomba".
+**1. Cabeçalho**
+- Título "Dashboard da UTI", data/hora da última atualização.
+- Seletor de período (24 h · 7 d · 30 d), filtro de unidade (quando houver mais de uma), botão Atualizar.
 
-## 4. Exames de imagem — anexar imagens
-- Estender `ImagingStudy` (ou equivalente em `patients.ts`) com `images: { dataUrl: string; caption?: string }[]`.
-- No editor: input `<input type="file" accept="image/*" multiple>` → converter para dataURL (base64, mesmo padrão usado no restante do app), listar thumbs com botão remover.
-- Na coluna 5 e no print, exibir thumbnails clicáveis (abrem em modal / `<dialog>` simples com imagem maior).
+**2. Visão geral de leitos**
+- Cards: total, ocupados, disponíveis, taxa de ocupação com indicador circular.
+- Cores por faixa: verde < 80 %, amarelo 80–90 %, vermelho > 90 % ou sem leitos.
 
-## 5. Coluna 5 — ordem
-Reordenar blocos para: **1) Culturas → 2) Laboratoriais → 3) Gasometria → 4) Imagem** na coluna colapsada, expandida e impressão.
+**3. Fluxo de pacientes**
+- Indicadores: admissões, altas, óbitos, previsão de alta, aguardando transferência.
+- Gráfico combinado (barras admissões/altas + linha de ocupação) no período escolhido, com tooltips.
 
-## 6. Coluna 6 (Estado atual)
-- **Remover** bloco "Focos de infecção".
-- Adicionar **Escala de Bristol** (1–7) por evacuação, com legenda visual (cores e descrição resumida). Novo campo em `state` (ex.: `bristol?: 1|2|3|4|5|6|7`, opcional histórico).
-- Novo módulo **Balanço hídrico**:
-  - Modelo: `state.fluidBalance = { intake: { name; volume; unit }[]; output: { name; volume; unit; type: 'drain'|'diuresis'|'other' }[]; drains: { name; site; volume; date }[] }`.
-  - UI compacta: tabela editável de entradas e saídas + lista de drenos configuráveis (nome + sítio + volume por período).
-  - Cálculo em tempo real: `Σ entradas − Σ saídas` → exibido como "Balanço: +X / −X ml".
-  - Editor completo em `PatientEditor.tsx`, resumo na coluna 6 expandida.
+**4. Situação clínica e pacientes prioritários**
+- Cards: em ventilação mecânica, em droga vasoativa, maior risco, permanência prolongada (> 14 dias).
+- Tabela de prioritários: leito/identificador, motivo principal, badge de risco (alto/moderado/baixo com ícone + texto), tempo de internação, situação atual. Clique abre o paciente correspondente no painel principal.
 
-## 7. Coluna 7 (Plano · Condutas)
-- Estender `PlanItem` com:
-  - `system: "resp"|"cardio"|"neuro"|"renal"|"gi"|"infec"|"metab"|"hemato"|"skin"|"other"`.
-  - `subItems: { text: string; done?: boolean }[]`.
-- Editor: select de sistema + botão "Adicionar sub-conduta".
-- Renderização: cada conduta como caixa colorida por sistema (usar tokens `clinical-*` já existentes; adicionar aliases para sistemas faltantes em `styles.css`). Sub-condutas listadas com bullets internos.
-- Legenda de sistemas no topo da coluna expandida.
+**5. Alertas importantes**
+- Ocupação > 90 %, sem leitos, permanência prolongada, transferência pendente > 24 h, piora de indicadores, recurso crítico indisponível.
+- Ordenados por criticidade, com ação "marcar como visto" (estado local) e link para o contexto.
+
+**6. Indicadores de qualidade**
+- Ocupação, permanência média, mortalidade, reinternação, infecção relacionada à assistência, tempo médio para transferência, % de altas planejadas.
+- Cada card: valor atual, meta, variação vs. período anterior com seta de tendência e sparkline.
+
+**7. Tendências**
+- Gráficos de linha para ocupação, admissões vs. altas, ventilação mecânica, drogas vasoativas, óbitos e permanência média, respeitando o período selecionado.
+
+## Design
+- Fundo claro, cards brancos, bordas finas — mesma linguagem visual atual (Inter, tokens do `styles.css`).
+- Azul como cor primária; verde/amarelo/vermelho apenas para status. Contraste adequado, ícone + rótulo em todo status.
+- Grid responsivo (desktop e tablet), sem emojis em nenhum texto.
 
 ## Detalhes técnicos
-- **Nenhuma dependência nova**. Imagens ficam inline como dataURL no JSON (compatível com o import/export existente).
-- Todas as mudanças de schema em `patients.ts` são aditivas e opcionais → dados seed continuam válidos.
-- Compat: medicações sem `class` caem em "EV" se `route==="IV"`, "VO/Enteral" se `route==="oral"`, etc.; heurística única em `src/lib/clinical.ts`.
-- Impressão (`PatientPrintView`) espelha todas as mudanças visuais (menos filtros do mapa, que serão fixos = tudo).
-- Bristol: helper `bristolMeta(n)` com cor/descrição em `src/lib/clinical.ts`.
-
-## Arquivos afetados
-- `src/data/patients.ts` — schema (medicação, imagem, bristol, balanço, plano).
-- `src/components/PatientEditor.tsx` — novos campos de edição.
-- `src/components/PatientRow.tsx` — reorganização colunas 1/3/4/5/6/7.
-- `src/components/PatientPrintView.tsx` — espelhar mudanças.
-- `src/components/AnatomicalMap.tsx` — filtros infecção/invasão/LPP.
-- `src/lib/clinical.ts` — helpers (classe de medicação, bristol, balanço, sistemas do plano).
-- `src/styles.css` — pequenos tokens de cor de sistema se faltarem.
-
-Ao confirmar, implemento tudo em sequência, verificando build ao final.
+- `src/components/ManagementDashboard.tsx` — painel completo (overlay full-screen com botão fechar).
+- `src/lib/management.ts` — funções puras: cálculo de ocupação, classificação de risco, detecção de alertas, indicadores de qualidade e geração determinística das séries históricas.
+- `src/routes/index.tsx` — novo botão "Gestão" no menu hamburger + estado `managementOpen`; callback de clique em paciente prioritário navega o carrossel até o leito.
+- Gráficos com `recharts` (já instalado). Nenhuma dependência nova, nenhuma mudança de banco.
