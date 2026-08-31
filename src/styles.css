@@ -1,0 +1,219 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-clinical-neutral: var(--clinical-neutral);
+  --color-clinical-resp: var(--clinical-resp);
+  --color-clinical-stable: var(--clinical-stable);
+  --color-clinical-attention: var(--clinical-attention);
+  --color-clinical-device: var(--clinical-device);
+  --color-clinical-critical: var(--clinical-critical);
+  --color-clinical-neuro: var(--clinical-neuro);
+  --color-clinical-nutri: var(--clinical-nutri);
+
+  --font-sans: "Inter", "SF Pro Display", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Light theme — clinical clean */
+  --background: oklch(0.985 0.003 250);
+  --foreground: oklch(0.22 0.02 260);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.965 0.005 250);
+  --surface-3: oklch(0.93 0.008 250);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.02 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.02 260);
+
+  --primary: oklch(0.55 0.14 230);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.94 0.008 250);
+  --secondary-foreground: oklch(0.22 0.02 260);
+
+  --muted: oklch(0.95 0.006 250);
+  --muted-foreground: oklch(0 0 0); /* campos fixos em preto */
+
+
+  --accent: oklch(0.94 0.01 230);
+  --accent-foreground: oklch(0.22 0.02 260);
+
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.9 0.008 250);
+  --border-strong: oklch(0.15 0 0); /* near-black column dividers */
+  --input: oklch(0.9 0.008 250);
+  --ring: oklch(0.55 0.14 230);
+
+  /* Clinical palette — tuned for light backgrounds */
+  --clinical-neutral: oklch(0.48 0.012 260);
+  --clinical-resp: oklch(0.5 0.16 235);
+  --clinical-stable: oklch(0.5 0.16 155);
+  --clinical-attention: oklch(0.58 0.16 75);
+  --clinical-device: oklch(0.58 0.18 50);
+  --clinical-critical: oklch(0.55 0.23 25);
+  --clinical-neuro: oklch(0.5 0.2 305);
+  --clinical-nutri: oklch(0.5 0.14 195);
+}
+
+.dark {
+  --background: oklch(0.16 0.01 260);
+  --foreground: oklch(0.96 0.005 250);
+  --surface: oklch(0.20 0.012 260);
+  --surface-2: oklch(0.235 0.012 260);
+  --surface-3: oklch(0.28 0.012 260);
+
+  --card: oklch(0.20 0.012 260);
+  --card-foreground: oklch(0.96 0.005 250);
+  --popover: oklch(0.20 0.012 260);
+  --popover-foreground: oklch(0.96 0.005 250);
+
+  --primary: oklch(0.72 0.14 230);
+  --primary-foreground: oklch(0.15 0.02 260);
+
+  --secondary: oklch(0.27 0.012 260);
+  --secondary-foreground: oklch(0.96 0.005 250);
+
+  --muted: oklch(0.26 0.012 260);
+  --muted-foreground: oklch(1 0 0); /* campos fixos legíveis no fundo escuro */
+
+
+  --accent: oklch(0.27 0.015 230);
+  --accent-foreground: oklch(0.96 0.005 250);
+
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.32 0.012 260);
+  --border-strong: oklch(0.95 0 0); /* near-white column dividers in dark */
+  --input: oklch(0.32 0.012 260);
+  --ring: oklch(0.72 0.14 230);
+
+  --clinical-neutral: oklch(0.75 0.012 260);
+  --clinical-resp: oklch(0.72 0.14 235);
+  --clinical-stable: oklch(0.72 0.16 155);
+  --clinical-attention: oklch(0.78 0.15 75);
+  --clinical-device: oklch(0.75 0.16 50);
+  --clinical-critical: oklch(0.72 0.2 25);
+  --clinical-neuro: oklch(0.72 0.18 305);
+  --clinical-nutri: oklch(0.72 0.13 195);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  html.fs-sm { font-size: 14px; }
+  html.fs-md { font-size: 16px; }
+  html.fs-lg { font-size: 18px; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Todos os textos em negrito — fonte alterna entre campos fixos e variáveis */
+  body :where(h1,h2,h3,h4,h5,h6,p,span,div,li,td,th,label,button,a,input,select,textarea,strong,em) {
+    font-weight: 700;
+  }
+  /* Todo o texto em caixa alta */
+  body, body :where(h1,h2,h3,h4,h5,h6,p,span,div,li,td,th,label,button,a,input,select,textarea,strong,em,option) {
+    text-transform: uppercase;
+  }
+  input::placeholder, textarea::placeholder { text-transform: uppercase; }
+
+  /* Global font scale via body zoom (affects fixed-pixel classes throughout the app) */
+  body { zoom: var(--app-font-scale, 1); }
+
+}
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  background: color-mix(in oklab, currentColor 10%, transparent);
+  border: 1px solid color-mix(in oklab, currentColor 28%, transparent);
+}
+
+@utility bar-track {
+  position: relative;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-surface-3);
+  overflow: hidden;
+}
+
+/* Print: show only the print-area, hide app chrome */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  body * { visibility: hidden !important; }
+  #print-area, #print-area * { visibility: visible !important; }
+  #print-area {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+  }
+  .no-print { display: none !important; }
+}
+#print-area { display: none; }
+@media print { #print-area { display: block; } }
+
+/* Campos fixos (rótulos) vs campos variáveis (dados) */
+@utility f-fixed {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--color-muted-foreground);
+}
+@utility f-var {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
