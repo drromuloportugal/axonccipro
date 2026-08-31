@@ -1040,6 +1040,45 @@ export function PatientRow({
                   })}
  </ul> )}
  </div>
+
+            {/* 5) Eletroencefalograma — parecer */}
+ <div className="mt-2">
+ <div className="mb-1 flex items-center justify-between">
+ <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Eletroencefalograma</div> {onEdit && (
+ <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ EEG</button> )}
+ </div> {(patient.eeg?.length ?? 0) === 0 ? (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum EEG registrado.</div> ) : (
+ <ul className="space-y-1"> {patient.eeg!.slice().reverse().map((eeg) => (
+ <li key={eeg.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <div className="flex items-center justify-between gap-2">
+ <span className="font-semibold text-foreground">EEG</span>
+ <span className="font-mono text-[10px] text-muted-foreground">{formatDateBR(eeg.performedAt)}</span>
+ </div>
+ <div className="mt-0.5 text-[10.5px] text-muted-foreground">{eeg.report}</div>
+                        {eeg.reportedBy && <div className="mt-0.5 text-[9px] text-muted-foreground">— {eeg.reportedBy}</div>}
+ </li> ))}
+ </ul> )}
+ </div>
+
+            {/* 6) Hemotransfusão */}
+ <div className="mt-2">
+ <div className="mb-1 flex items-center justify-between">
+ <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Hemotransfusão</div> {onEdit && (
+ <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Hemotransfusão</button> )}
+ </div> {(patient.hemotransfusions?.length ?? 0) === 0 ? (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma hemotransfusão registrada.</div> ) : (
+ <ul className="space-y-1"> {patient.hemotransfusions!.slice().reverse().map((h) => (
+ <li key={h.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <div className="flex items-center justify-between gap-2">
+ <span className="font-semibold text-foreground">{h.component}</span>
+ <span className="font-mono text-[10px] text-muted-foreground">{formatDateBR(h.date)}</span>
+ </div> {h.volume && <div className="mt-0.5 font-mono text-[10px] text-foreground">{h.volume}</div>}
+                        {h.note && <div className="mt-0.5 text-[10.5px] text-muted-foreground">{h.note}</div>}
+ </li> ))}
+ </ul> )}
+ </div>
  </div> {/* 6 */}
  <div onClick={colClick("sup")}>
  <ColTitle tone={5}>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
