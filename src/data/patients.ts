@@ -517,6 +517,10 @@ export interface Patient {
       bristol?: VitalReading[];
     };
 
+    /** Índices seriados adicionais criados pelo usuário (sinais vitais extras). */
+    customSeries?: { id: string; label: string; unit?: string; readings: VitalReading[] }[];
+
+
     /** Detailed intake/output ledger; enables real-time balance calculation. */
     fluidBalance?: {
       intake?: FluidEntry[];
