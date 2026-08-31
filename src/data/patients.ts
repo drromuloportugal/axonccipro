@@ -646,6 +646,58 @@ const daysAgoISO = (d: number, hour = 10, minute = 0): string => {
   return dt.toISOString();
 };
 
+// ---------------------------------------------------------------------------
+// Geradores determinísticos para simulação de séries longas (>15 dias de UTI)
+// ---------------------------------------------------------------------------
+
+/** Série vital datada: começa em `from`, termina em `to`, com oscilação suave. */
+const mkVitals = (
+  id: string,
+  days: number,
+  from: number,
+  to: number,
+  amp = 0,
+  decimals = 0,
+): VitalReading[] => {
+  const out: VitalReading[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = days - 1 - i; // dias atrás
+    const t = days === 1 ? 1 : i / (days - 1);
+    const wiggle = amp * Math.sin(i * 1.7);
+    const raw = from + (to - from) * t + wiggle;
+    const f = 10 ** decimals;
+    out.push({ id: `${id}_${i}`, value: Math.round(raw * f) / f, at: daysAgoISO(d, 8, 0) });
+  }
+  return out;
+};
+
+/** Linha de exame com histórico datado (mesma lógica de rampa). */
+const mkExam = (
+  label: string,
+  unit: string | undefined,
+  days: number,
+  from: number,
+  to: number,
+  opts: { amp?: number; decimals?: number; code?: string; critical?: boolean } = {},
+): ExamRow => {
+  const { amp = 0, decimals = 1, code, critical } = opts;
+  const readings = mkVitals(`e_${label}`, days, from, to, amp, decimals);
+  const history = readings.map((r) => ({ takenAt: r.at as string, value: r.value as number }));
+  const last = history[history.length - 1];
+  return {
+    label,
+    code,
+    unit,
+    value: String(last.value).replace(".", ","),
+    valueNum: last.value,
+    takenAt: last.takenAt,
+    history,
+    trend: to > from ? "up" : to < from ? "down" : "flat",
+    critical,
+  };
+};
+
+
 export const patients: Patient[] = [
   {
     id: "p1",
