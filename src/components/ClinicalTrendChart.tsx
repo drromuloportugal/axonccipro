@@ -45,7 +45,7 @@ function buildSeries(patient: Patient): SeriesDef[] {
   const out: SeriesDef[] = [];
   const series = patient.state.vitalSeries ?? {};
 
-  const vitalDefs: { key: keyof typeof series; label: string; unit: string }[] = [
+  const vitalDefs: { key: keyof typeof series; label: string; unit: string; group?: GroupKey }[] = [
     { key: "temp", label: "Temperatura", unit: "°C" },
     { key: "spo2", label: "SpO₂", unit: "%" },
     { key: "fc", label: "FC", unit: "bpm" },
@@ -54,17 +54,26 @@ function buildSeries(patient: Patient): SeriesDef[] {
     { key: "pad", label: "PAD", unit: "mmHg" },
     { key: "fr", label: "FR", unit: "ipm" },
     { key: "glicemia", label: "Glicemia", unit: "mg/dL" },
+    { key: "bristol", label: "Escala de Bristol", unit: "1–7" },
+    { key: "bh", label: "Balanço hídrico", unit: "mL", group: "fluid" },
   ];
 
   for (const d of vitalDefs) {
     const readings = (series[d.key] ?? []) as { value?: number; at?: string }[];
+    const extra: { t: number; v: number }[] = [];
+    if (d.key === "bristol") {
+      for (const st of patient.state.stools ?? []) {
+        if (typeof st.bristol === "number" && st.at) extra.push({ t: new Date(st.at).getTime(), v: st.bristol });
+      }
+    }
     const points = readings
       .filter((r) => typeof r.value === "number" && r.at)
       .map((r) => ({ t: new Date(r.at!).getTime(), v: r.value as number }))
+      .concat(extra)
       .filter((p) => Number.isFinite(p.t))
       .sort((a, b) => a.t - b.t);
     if (points.length) {
-      out.push({ key: `v:${String(d.key)}`, label: d.label, unit: d.unit, group: "vitals", color: "", points });
+      out.push({ key: `v:${String(d.key)}`, label: d.label, unit: d.unit, group: d.group ?? "vitals", color: "", points });
     }
   }
 

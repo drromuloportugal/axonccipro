@@ -65,6 +65,7 @@ import { PressureInjuryMap } from "@/components/PressureInjuryMap";
 import { DRUG_BANK, dilutionStore, mergedDrug, normalize, type DrugOverride } from "@/data/dilutions";
 
 import { SmartMonitoring } from "@/components/SmartMonitoring";
+import { SerialMatrix } from "@/components/SerialMatrix";
 
 type Props = {
   open: boolean;
@@ -181,7 +182,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  <TabsTrigger value="hist">2 · História</TabsTrigger>
  <TabsTrigger value="proc">3 · Intervenções</TabsTrigger>
  <TabsTrigger value="med">4 · Medicações</TabsTrigger>
- <TabsTrigger value="exam">5a · Exames</TabsTrigger>
+ <TabsTrigger value="exam">5a · Imagem</TabsTrigger>
  <TabsTrigger value="cult">5b · Culturas</TabsTrigger>
  <TabsTrigger value="sup">6 · Estado atual</TabsTrigger>
  <TabsTrigger value="plan">7 · Plano</TabsTrigger>
@@ -442,7 +443,23 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  </div>
  </TabsContent> {/* 4 — Suporte / Assistente inteligente */}
  <TabsContent value="sup">
+ <Section title="Preenchimento seriado (itens em linhas · datas em colunas)">
+ <SerialMatrix
+                patient={p}
+                onChangeState={(k, v) => updState(k, v as never)}
+                onChangeExams={(v) => upd("exams", v)}
+              />
+ </Section>
+
+ <div className="mt-3">
+ <Section title="Exames laboratoriais — cadastro e referências">
+ <ExamsList items={p.exams} sex={p.sex} onChange={(v) => upd("exams", v)} />
+ </Section>
+ </div>
+
+ <div className="mt-3">
  <SmartMonitoring patient={p} onChange={(k, v) => updState(k, v as never)} />
+ </div>
 
  <div className="mt-3">
  <Section title="Balanço hídrico (entradas · saídas · drenos · derivações)">
@@ -472,12 +489,12 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  </Section>
  </TabsContent> {/* 6 — Exames */}
  <TabsContent value="exam">
- <Section title="Resultados de exames laboratoriais">
- <ExamsList items={p.exams} sex={p.sex} onChange={(v) => upd("exams", v)} />
- </Section>
  <Section title="Exames de imagem">
  <ImagingList items={p.imaging ?? []} onChange={(v) => upd("imaging", v)} />
  </Section>
+ <p className="mt-2 text-[11px] italic text-muted-foreground">
+              Os resultados de exames laboratoriais agora são preenchidos na aba “6 · Estado atual”, em formato de tabela seriada.
+ </p>
  </TabsContent> {/* 7 — Culturas microbiológicas */}
  <TabsContent value="cult">
  <Section title="Exames laboratoriais de cultura">
