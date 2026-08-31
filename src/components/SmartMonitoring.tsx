@@ -545,7 +545,7 @@ function StoolList({
               onChange={(e) => upd(st.id, { at: e.target.value ? new Date(e.target.value).toISOString() : undefined })} />
  <button type="button" onClick={() => del(st.id)}
               className="rounded border border-border bg-surface px-2 text-[11px] hover:bg-destructive/10 hover:text-destructive"
-              title="Remover">✕</button>
+              title="Remover">Remover</button>
  </li> ))}
  </ul>
  <button type="button" onClick={add}
@@ -598,7 +598,7 @@ function ReadingList({
               onChange={(e) => upd(r.id, { at: e.target.value ? new Date(e.target.value).toISOString() : undefined })} />
  <button type="button" onClick={() => del(r.id)}
               className="rounded border border-border bg-surface px-2 text-[11px] hover:bg-destructive/10 hover:text-destructive"
-              title="Remover">✕</button>
+              title="Remover">Remover</button>
  </li> ))}
  </ul>
  <button type="button" onClick={add}

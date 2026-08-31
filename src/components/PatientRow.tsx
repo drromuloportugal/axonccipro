@@ -118,7 +118,7 @@ function DeviceCompact({ d, mounted }: { d: InvasiveDevice; mounted: boolean }) 
  <div className="rounded-md border border-border bg-surface px-1.5 pb-1 pt-1" title={tip}>
  <div className="flex items-baseline justify-between gap-1">
  <span className="min-w-0 flex-1 truncate f-var text-[11px] leading-snug">{deviceShort(d)}</span> {mounted && (
- <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{r.icon} {days}/{r.max}d</span> )}
+ <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{days}/{r.max}d</span> )}
 
  </div>
  <div className="mt-1 h-[3px] w-full overflow-hidden rounded-full bg-surface-3"> {mounted && (
@@ -456,7 +456,7 @@ export function PatientRow({
               return (
  <div key={cls} className={`rounded border ${meta.borderClass} ${meta.bgClass} px-1.5 py-1`}>
  <div className={`mb-0.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>
- <span>{meta.icon} {meta.short}</span>
+ <span>{meta.short}</span>
  <span className="font-mono">{list.length}</span>
  </div> {list.slice(0, 3).map((m, i) => {
                     const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
@@ -489,7 +489,6 @@ export function PatientRow({
                 const r = cultureResultBadge(c);
                 return (
  <div key={c.id} className="flex items-center gap-1 text-[10.5px] leading-snug" title={c.organism ?? c.source}>
- <span className="shrink-0">{r.icon}</span>
  <span className="min-w-0 flex-1 truncate">
  <span className="font-semibold text-foreground"> {c.source}</span> {c.organism ? <span className="text-muted-foreground"> · {c.organism}</span> : null}
  </span>
@@ -634,7 +633,7 @@ export function PatientRow({
                     className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
                   />
  <span className="min-w-0 flex-1">
- <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.icon} {meta.short}</span> {firstAnn ? (
+  <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
  <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
  <span className="italic text-muted-foreground">Sem anotações</span> )}
                     {c.subItems && c.subItems.length > 1 && (
@@ -830,7 +829,7 @@ export function PatientRow({
                 if (!list || !list.length) return null;
                 return (
  <div key={cat.code} className="mb-2">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {cat.icon} {cat.label}
+  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {cat.label}
  </div>
  <ul className="space-y-1"> {list.map((d) => {
                         const r = deviceRisk(d);
@@ -838,7 +837,7 @@ export function PatientRow({
  <li key={d.id} className="rounded-md border border-border bg-surface px-2 pb-1.5 pt-1.5 text-[11px]" title={r.semaphoreHint ?? r.label}>
  <div className="flex items-baseline justify-between gap-2">
  <span className="f-var">{deviceShort(d)}</span> {mounted && (
- <span className={`f-var text-[10px] ${r.className}`}> {r.icon} {Math.floor(r.days)}/{r.max}d
+  <span className={`f-var text-[10px] ${r.className}`}> {Math.floor(r.days)}/{r.max}d
  </span> )}
  </div>
 
@@ -866,7 +865,7 @@ export function PatientRow({
                       );
                       return (
  <li key={d.id} className="rounded border border-border/60 bg-surface px-1.5 py-1 text-[10px] text-muted-foreground">
- <span className="f-var">{def?.icon} {deviceShort(d)}</span> {" · "}
+  <span className="f-var">{deviceShort(d)}</span> {" · "}
                           {formatDateBR(d.insertedAt)} → {formatDateBR(d.removedAt!)} ({days}d)
  </li> );
                     })}
@@ -912,7 +911,7 @@ export function PatientRow({
                 return (
  <div key={cls} className={`mb-2 rounded-md border ${meta.borderClass} ${meta.bgClass} p-2`}>
  <div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
- <span>{meta.icon} {meta.label}</span>
+  <span>{meta.label}</span>
  <span className="font-mono">{list.length}</span>
  </div>
  <ul className="space-y-1.5"> {list.map((m, i) => {
@@ -944,7 +943,7 @@ export function PatientRow({
  <div className={`h-full ${prog.alert === "ok" ? "bg-clinical-stable" : "bg-clinical-attention"}`}
                                        style={{ width: `${prog.percent}%` }} />
  </div> {alert && (
- <div className={`mt-1 text-[10px] font-semibold ${alert.className}`}>{alert.icon} {alert.label}</div> )}
+  <div className={`mt-1 text-[10px] font-semibold ${alert.className}`}>{alert.label}</div> )}
  </div> )}
  </li> );
                       })}
@@ -971,7 +970,7 @@ export function PatientRow({
  <li key={c.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
- <span>{r.icon}</span><span className="truncate">{c.source}</span>
+  <span className="truncate">{c.source}</span>
  </div>
  <span className={`shrink-0 font-mono text-[9px] ${r.className}`}>{r.label}</span>
  </div>
@@ -1074,7 +1073,7 @@ export function PatientRow({
  <tr key={i} className="border-b border-border/50 last:border-0">
  <td className="py-1 text-muted-foreground">{e.label}</td>
  <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
- <td className="py-1 text-right text-[10px]" title={t.label}>{ins.trend !== "flat" ? t.icon : "—"}</td>
+  <td className="py-1 text-right text-[10px]" title={t.label}>{t.label}</td>
  </tr> );
                     })}
  </tbody>
@@ -1244,7 +1243,7 @@ export function PatientRow({
             onLPPChange={onUpdate ? (next) => onUpdate({ ...patient, lpp: next }) : undefined}
           />
  <div className="mt-5">
- <SofaPanel patient={patient} />
+  {mounted && <SofaPanel patient={patient} />}
  </div>
  <div className="mt-5">
  <ClinicalTrendChart patient={patient} />
@@ -1291,7 +1290,6 @@ export function PatientRow({
               return (
  <li key={i} className={`rounded-md border p-3 text-[12px] ${cls}`}>
  <div className="flex items-center gap-2 font-semibold text-foreground">
- <span>{s.icon}</span>
  <span>{s.title}</span>
  </div>
  <div className="mt-1 text-[11px] text-muted-foreground">{s.rationale}</div>

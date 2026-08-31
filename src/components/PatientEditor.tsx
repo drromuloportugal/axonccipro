@@ -533,8 +533,8 @@ function StepNav({ tab, setTab }: { tab: string; setTab: (v: string) => void }) 
   const i = ORDER.indexOf(tab);
   return (
  <>
- <Button variant="outline" disabled={i <= 0} onClick={() => setTab(ORDER[i - 1])}>← Voltar</Button>
- <Button variant="outline" disabled={i >= ORDER.length - 1} onClick={() => setTab(ORDER[i + 1])}>Próximo →</Button>
+ <Button variant="outline" disabled={i <= 0} onClick={() => setTab(ORDER[i - 1])}>Voltar</Button>
+ <Button variant="outline" disabled={i >= ORDER.length - 1} onClick={() => setTab(ORDER[i + 1])}>Próximo</Button>
  </> );
 }
 
@@ -2126,7 +2126,7 @@ const CONCLUSION_OPTIONS: { code: NonNullable<ImagingExam["conclusion"]>; label:
   { code: "normal", label: "Normal", icon: "" },
   { code: "alterado", label: "Alterado", icon: "" },
   { code: "critico", label: "Crítico", icon: "" },
-  { code: "pendente", label: "Pendente", icon: "⏳" },
+  { code: "pendente", label: "Pendente", icon: "" },
 ];
 
 function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: ImagingExam[]) => void }) {

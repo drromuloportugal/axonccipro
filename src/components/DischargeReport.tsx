@@ -71,14 +71,14 @@ function buildReport(patient: Patient, dc: DischargeCheck, activeBlockers: Disch
   }
 
   const safety = [
-    dc.stability?.neuro !== false ? "✔ Estabilidade neurológica" : "✗ Instabilidade neurológica",
-    dc.stability?.resp !== false ? "✔ Estabilidade respiratória" : "✗ Instabilidade respiratória",
-    dc.stability?.hemo !== false ? "✔ Estabilidade hemodinâmica" : "✗ Instabilidade hemodinâmica",
-    dc.stability?.metab !== false ? "✔ Estabilidade metabólica" : "✗ Instabilidade metabólica",
-    dc.meds?.conciliation ? "✔ Medicações conciliadas" : "◻ Conciliação medicamentosa pendente",
-    (dcDevs.length ? "✔ Dispositivos revisados" : "◻ Dispositivos a revisar"),
-    (dc.pendencies?.lab || dc.pendencies?.imaging || dc.pendencies?.consults || dc.pendencies?.cultures) ? "✔ Pendências comunicadas" : "◻ Sem pendências registradas",
-    dc.communication?.medHandoff && dc.communication?.nurseHandoff ? "✔ Passagem de plantão realizada" : "◻ Passagem de plantão pendente",
+    dc.stability?.neuro !== false ? "Adequado: estabilidade neurológica" : "Alerta: instabilidade neurológica",
+    dc.stability?.resp !== false ? "Adequado: estabilidade respiratória" : "Alerta: instabilidade respiratória",
+    dc.stability?.hemo !== false ? "Adequado: estabilidade hemodinâmica" : "Alerta: instabilidade hemodinâmica",
+    dc.stability?.metab !== false ? "Adequado: estabilidade metabólica" : "Alerta: instabilidade metabólica",
+    dc.meds?.conciliation ? "Concluído: medicações conciliadas" : "Pendente: conciliação medicamentosa",
+    (dcDevs.length ? "Concluído: dispositivos revisados" : "Pendente: dispositivos a revisar"),
+    (dc.pendencies?.lab || dc.pendencies?.imaging || dc.pendencies?.consults || dc.pendencies?.cultures) ? "Concluído: pendências comunicadas" : "Sem pendências registradas",
+    dc.communication?.medHandoff && dc.communication?.nurseHandoff ? "Concluído: passagem de plantão" : "Pendente: passagem de plantão",
   ].join("\n");
 
   const canDischarge = activeBlockers.length === 0 && dc.finalization?.fit === "sim";

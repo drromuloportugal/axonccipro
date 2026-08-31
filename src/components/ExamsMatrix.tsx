@@ -251,7 +251,7 @@ export function ExamsMatrix({
           .map((r) => {
             const cells = patientsWithSelection
               .map((b) => store.requested[cellKey(r.exam.code, b.bed)]
-                  ? `<td class="mk">✓</td>`
+                  ? `<td class="mk">Solicitado</td>`
                   : `<td></td>`,
               )
               .join("");

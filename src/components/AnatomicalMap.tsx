@@ -549,13 +549,13 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                 onClick={() => setHeatmap((v) => !v)}
                 className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${heatmap ? "border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical" : "border-border text-muted-foreground hover:text-foreground"}`}
                 title="Mostrar apenas focos ativos e dispositivos relacionados"
-              > Heatmap infeccioso{heatmap ? " ✓" : ""}</button> )}
+              > Heatmap infeccioso{heatmap ? " ativo" : ""}</button> )}
             {previousDevices && (
  <button
                 onClick={() => setCompare((v) => !v)}
                 className={`rounded-md border border-border px-2 py-0.5 text-[10px] ${compare ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
                 title="Comparar com semana anterior"
-              >⇄ Semana ant.</button> )}
+              >Semana anterior</button> )}
             {onLPPChange && (
  <button
                 onClick={() => setCreatingLPP({ view: "posterior", site: "livre", siteLabel: "Livre" })}
@@ -577,7 +577,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-colors ${
                 f.on ? f.activeCls : "border-border bg-surface-2 text-muted-foreground hover:text-foreground"
               }`}
-            > {f.label}{f.on ? " ✓" : ""}
+            > {f.label}{f.on ? " ativo" : ""}
  </button> ))}
  </div>
 
@@ -793,7 +793,7 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{def?.code ?? device.typeCode}</div>
  </div>
  </div>
- <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground">✕</button>
+  <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
  </div>
 
  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
@@ -815,7 +815,6 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
         className="mt-2 flex items-start gap-2 rounded-md border px-2 py-1.5 text-[11px]"
         style={{ borderColor: risk.color, background: `${risk.color}10` }}
       >
- <span className="text-[14px] leading-none">{risk.emoji}</span>
  <div className="flex-1">
  <div className="font-semibold" style={{ color: risk.color }}> Risco infeccioso: {risk.label} · {risk.score}/10
  </div> {risk.reasons.length > 0 && (
@@ -827,7 +826,7 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
  </div> )}
       {alerts.length > 0 && (
  <ul className="mt-2 space-y-0.5 text-[11px]"> {alerts.map((a, i) => (
- <li key={i} className={a.level === "danger" ? "text-clinical-critical" : a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {a.icon} {a.text}
+  <li key={i} className={a.level === "danger" ? "text-clinical-critical" : a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {a.text}
  </li> ))}
  </ul> )}
  </div> );
@@ -848,13 +847,13 @@ function AlertsList({ devices }: { devices: InvasiveDevice[] }) {
     return deviceAlerts(d, max).map((a) => ({ d, a, def }));
   });
   if (!rows.length) {
-    return <div className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px] text-clinical-stable">✓ Sem alertas de dispositivos.</div>;
+    return <div className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px] text-clinical-stable">Sem alertas de dispositivos.</div>;
   }
   return (
  <div className="rounded-md border border-border bg-surface p-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
  <ul className="space-y-0.5 text-[11px]"> {rows.map((r, i) => (
- <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.a.icon} {r.def?.code ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
+  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.code ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
  </li> ))}
  </ul>
  </div> );
@@ -914,14 +913,13 @@ function FocusPanel({
  <div className="rounded-md border border-border bg-surface p-3 text-[12px]">
  <div className="mb-2 flex items-start justify-between gap-2">
  <div className="flex items-center gap-2">
- <span className="text-lg" aria-hidden>{meta.icon}</span>
  <div>
  <div className="font-semibold text-foreground">{meta.label}</div>
  <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
  </div>
  </div>
  </div>
- <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground">✕</button>
+  <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
  </div>
 
  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
@@ -983,7 +981,7 @@ function FocusPanel({
 
 const TIMELINE_ICON: Record<string, string> = {
   febre: "", cultura_coletada: "", cultura_positiva: "",
-  atb_inicio: "", atb_fim: "✓", pcr: "",
+  atb_inicio: "", atb_fim: "", pcr: "",
   controle_foco: "", instabilidade: "", outro: "•",
 };
 

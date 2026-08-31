@@ -797,17 +797,17 @@ export function aiTherapySuggestions(p: Patient): TherapySuggestion[] {
   const hasNora = vaso.some((m) => /nora/i.test(m.name));
 
   if (s.pam < 65 && vaso.length) {
-    out.push({ icon: "↑", severity: "critical",
+    out.push({ icon: "", severity: "critical",
       title: "Considerar AUMENTO de noradrenalina",
       rationale: `PAM ${s.pam} mmHg abaixo da meta (≥65). Avaliar resposta volêmica e titular vasopressor.` });
   }
   if (s.pam < 65 && !vaso.length) {
-    out.push({ icon: "+", severity: "critical",
+    out.push({ icon: "", severity: "critical",
       title: "Iniciar suporte vasopressor",
       rationale: `PAM ${s.pam} mmHg sem DVA. Considerar noradrenalina após ressuscitação volêmica.` });
   }
   if (s.pam > 95 && hasNora) {
-    out.push({ icon: "↓", severity: "attention",
+    out.push({ icon: "", severity: "attention",
       title: "Considerar REDUÇÃO da noradrenalina",
       rationale: `PAM ${s.pam} mmHg acima do alvo — iniciar desmame de vasopressor.` });
   }
@@ -820,12 +820,12 @@ export function aiTherapySuggestions(p: Patient): TherapySuggestion[] {
   if (lactato && hasNora) {
     const ins = examInsight(lactato, p.sex);
     if (ins.trend === "improving") {
-      out.push({ icon: "↓", severity: "info",
+      out.push({ icon: "", severity: "info",
         title: "Considerar desmame de noradrenalina",
         rationale: `Lactato em queda (${lactato.value}) + PAM ${s.pam} sustentada.` });
     }
     if (ins.trend === "worsening") {
-      out.push({ icon: "!", severity: "critical",
+      out.push({ icon: "", severity: "critical",
         title: "Reavaliar perfusão tecidual",
         rationale: `Lactato em elevação (${lactato.value}) apesar de vasopressor. Avaliar débito cardíaco / foco.` });
     }
@@ -851,7 +851,7 @@ export function aiTherapySuggestions(p: Patient): TherapySuggestion[] {
     }
   }
   if (!out.length) {
-    out.push({ icon: "✓", severity: "info",
+    out.push({ icon: "", severity: "info",
       title: "Sem ajustes sugeridos no momento",
       rationale: "Parâmetros dentro dos alvos clínicos esperados." });
   }

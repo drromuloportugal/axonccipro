@@ -31,7 +31,7 @@ export function SofaPanel({ patient }: { patient: Patient }) {
     ? s.dominant.keys
         .map((k) => {
           const meta = SOFA_SYSTEMS.find((x) => x.key === k)!;
-          return `${meta.icon} ${meta.label}`;
+           return meta.label;
         })
         .join(" · ") + ` — ${s.dominant.score}`
     : "N/D";
@@ -60,7 +60,7 @@ export function SofaPanel({ patient }: { patient: Patient }) {
       label: "Sistemas ≥2",
       value: s.systemsGte2 != null ? `${s.systemsGte2}/6` : "N/D",
     },
-    { label: "Trajetória", value: `${traj.icon} ${traj.label}`, className: traj.className },
+    { label: "Trajetória", value: traj.label, className: traj.className },
   ];
 
   return (
@@ -77,7 +77,7 @@ export function SofaPanel({ patient }: { patient: Patient }) {
  </div>
  <div className="font-mono text-2xl font-bold leading-none text-foreground"> {cur != null ? cur : "N/D"}
  </div>
- <div className={`text-[10px] font-semibold ${deltaClass(s.delta24)}`}> {s.delta24 != null ? `${traj.icon} ${fmtDelta(s.delta24)} / 24 h` : "Δ 24 h N/D"}
+  <div className={`text-[10px] font-semibold ${deltaClass(s.delta24)}`}> {s.delta24 != null ? `${fmtDelta(s.delta24)} / 24 h` : "Δ 24 h N/D"}
  </div>
  </div>
  </div> {/* Tabela compacta */}
@@ -100,7 +100,6 @@ export function SofaPanel({ patient }: { patient: Patient }) {
               title={`${sys.label}: ${v == null ? "sem dado" : `${v} pts`}`}
             >
  <span className="inline-block h-2 w-2 rounded-full" style={{ background: sys.color }} />
- <span>{sys.icon}</span>
  <span className="font-medium text-foreground">{sys.label}</span>
  <span className="font-mono text-muted-foreground">{v == null ? "N/D" : v}</span>
  </span> );
@@ -168,7 +167,7 @@ export function SofaPanel({ patient }: { patient: Patient }) {
                         }}
                         formatter={(v: number, name: string) => {
                           const sys = SOFA_SYSTEMS.find((x) => x.key === name);
-                          return [v ?? "N/D", sys ? `${sys.icon} ${sys.label}` : name];
+                           return [v ?? "N/D", sys ? sys.label : name];
                         }}
                       /> {SOFA_SYSTEMS.map((sys) => (
  <Line
