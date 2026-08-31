@@ -400,6 +400,19 @@ function Passometro() {
                   onChange={(e) => handleImportFiles(e.target.files)}
                 />
 
+                {/* Gestão */}
+  <button
+                  onClick={() => {
+                    setManagementOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-3 py-2 text-[12px] font-semibold text-clinical-attention transition-colors hover:bg-clinical-attention/20"
+                  title="Dashboard executivo de gestão da UTI"
+                >
+  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Gestão
+  </button>
+
                 {/* Ferramentas clínicas */}
  <button
                   onClick={() => {
