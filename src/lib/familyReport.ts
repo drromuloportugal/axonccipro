@@ -45,7 +45,7 @@ function para(doc: Doc, s: string, yIn: number, opts?: { size?: number; color?: 
   let y = ensure(doc, yIn, lh * 2);
   lines.forEach((ln, i) => {
     if (y + lh > 272) { doc.addPage(); y = 22; }
-    doc.text(ln, M + 2 + (i === 0 ? 6 : 0), y, { align: "justify", maxWidth: CW - 5 - (i === 0 ? 6 : 0) });
+    doc.text(ln, M + 2 + (i === 0 ? 6 : 0), y);
     y += lh;
   });
   return y + 2.5;
