@@ -284,7 +284,7 @@ export function PatientRow({
     right?: React.ReactNode;
   }) => (
  <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
- <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
+ <span className="min-w-0 truncate rounded bg-clinical-neutral px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white"> {label}
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {right}
         {editBtn(tab, title)}
