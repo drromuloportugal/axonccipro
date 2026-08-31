@@ -35,6 +35,7 @@ import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeChec
 import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
+import { BloodGasPanel } from "@/components/BloodGasPanel";
 
 import { Pill } from "lucide-react";
 
