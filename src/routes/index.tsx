@@ -41,8 +41,9 @@ function Passometro() {
   const [examsOpen, setExamsOpen] = useState(false);
   const [dilutionOpen, setDilutionOpen] = useState(false);
 
-  // Header auto-hide on scroll down / show on scroll up
+  // Header + bed navigation auto-hide on scroll down / show on scroll up
   const [headerHidden, setHeaderHidden] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const lastScrollY = useRef(0);
   const headerRef = useRef<HTMLElement | null>(null);
@@ -66,10 +67,13 @@ function Passometro() {
       const delta = y - lastScrollY.current;
       if (y < 60) {
         setHeaderHidden(false);
+        setNavHidden(false);
       } else if (delta > 8) {
         setHeaderHidden(true);
+        setNavHidden(true);
       } else if (delta < -8) {
         setHeaderHidden(false);
+        setNavHidden(false);
       }
       lastScrollY.current = y;
     };
