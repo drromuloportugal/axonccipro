@@ -113,9 +113,6 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
         ))}
       </ul>
 
-      <p className="mt-1.5 border-t border-border/60 pt-1 text-[9.5px] leading-snug text-muted-foreground">
-        {ABG_DISCLAIMER}
-      </p>
     </div>
   );
 }
