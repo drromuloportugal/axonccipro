@@ -132,6 +132,7 @@ export function PatientRow({
   onUpdate,
   onDelete,
   onArchive,
+  defaultOpen = false,
 }: {
   patient: Patient;
   onEdit?: (p: Patient, tab?: string) => void;
@@ -139,8 +140,9 @@ export function PatientRow({
   onUpdate?: (p: Patient) => void;
   onDelete?: (p: Patient) => void;
   onArchive?: (p: Patient) => void;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [pumpOpen, setPumpOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [medAnalysisOpen, setMedAnalysisOpen] = useState(false);
