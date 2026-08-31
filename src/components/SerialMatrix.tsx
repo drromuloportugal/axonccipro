@@ -58,13 +58,61 @@ export function SerialMatrix({
     for (const row of VITAL_ROWS) {
       for (const r of series[row.key] ?? []) if (r.at) set.add(dayKey(r.at));
     }
+    for (const c of custom) {
+      for (const r of c.readings ?? []) if (r.at) set.add(dayKey(r.at));
+    }
     for (const e of exams) {
       if (e.takenAt) set.add(dayKey(e.takenAt));
       for (const h of e.history ?? []) if (h.takenAt) set.add(dayKey(h.takenAt));
     }
     if (set.size === 0) set.add(new Date().toISOString().slice(0, 10));
     return Array.from(set).filter(Boolean).sort();
-  }, [series, exams, extraDates]);
+  }, [series, custom, exams, extraDates]);
+
+  const setCustom = (id: string, date: string, raw: string) => {
+    const value = parseNum(raw);
+    const next = custom.map((c) => {
+      if (c.id !== id) return c;
+      const arr = [...(c.readings ?? [])];
+      const idx = arr.findIndex((r) => dayKey(r.at) === date);
+      if (value == null) {
+        if (idx >= 0) arr.splice(idx, 1);
+      } else if (idx >= 0) {
+        arr[idx] = { ...arr[idx], value, at: arr[idx].at ?? atFor(date) };
+      } else {
+        arr.push({ id: uid(), value, at: atFor(date) });
+      }
+      arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
+      return { ...c, readings: arr };
+    });
+    onChangeState("customSeries", next);
+  };
+
+  const addCustom = () => {
+    const label = newVital.label.trim();
+    if (!label) return;
+    onChangeState("customSeries", [
+      ...custom,
+      { id: uid(), label, unit: newVital.unit.trim() || undefined, readings: [] },
+    ]);
+    setNewVital({ label: "", unit: "" });
+  };
+
+  const removeCustom = (id: string) =>
+    onChangeState("customSeries", custom.filter((c) => c.id !== id));
+
+  const addExam = () => {
+    const label = newExam.label.trim();
+    if (!label) return;
+    onChangeExams([
+      ...exams,
+      { label, value: "", unit: newExam.unit.trim() || undefined, trend: "flat", history: [] },
+    ]);
+    setNewExam({ label: "", unit: "" });
+  };
+
+  const removeExam = (i: number) => onChangeExams(exams.filter((_, k) => k !== i));
+
 
   const setVital = (key: SeriesKey, date: string, raw: string) => {
     const value = parseNum(raw);
