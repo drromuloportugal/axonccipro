@@ -163,6 +163,23 @@ export interface ImagingExam {
   images?: ImagingImage[]; // anexos do exame
 }
 
+/** Eletroencefalograma com parecer. */
+export interface EegRecord {
+  id: string;
+  performedAt: string;     // ISO date
+  report: string;          // parecer / laudo descritivo
+  reportedBy?: string;
+}
+
+/** Registro de hemotransfusão (transfusão de hemocomponentes). */
+export interface Hemotransfusion {
+  id: string;
+  date: string;            // ISO date
+  component: string;       // ex.: "Concentrado de hemácias", "Plasma", "Plaquetas"
+  volume?: string;         // ex.: "1 bolsa · 250 mL"
+  note?: string;           // indicação / observação
+}
+
 
 export type ConductSystem =
   | "dieta" | "fono" | "resp" | "cardio" | "neuro" | "renal" | "gi" | "infec"
@@ -440,6 +457,8 @@ export interface Patient {
   medications: Medication[];
   exams: ExamRow[];
   imaging?: ImagingExam[];
+  eeg?: EegRecord[];
+  hemotransfusions?: Hemotransfusion[];
   devices?: InvasiveDevice[];
 
   conducts: Conduct[];
