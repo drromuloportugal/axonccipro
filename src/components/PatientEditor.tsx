@@ -182,7 +182,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  <TabsTrigger value="hist">2 · História</TabsTrigger>
  <TabsTrigger value="proc">3 · Intervenções</TabsTrigger>
  <TabsTrigger value="med">4 · Medicações</TabsTrigger>
- <TabsTrigger value="exam">5a · Exames</TabsTrigger>
+ <TabsTrigger value="exam">5a · Imagem</TabsTrigger>
  <TabsTrigger value="cult">5b · Culturas</TabsTrigger>
  <TabsTrigger value="sup">6 · Estado atual</TabsTrigger>
  <TabsTrigger value="plan">7 · Plano</TabsTrigger>
