@@ -73,9 +73,14 @@ function Chip({ kind, children }: { kind: TimelineKind | "neutral"; children: Re
   return <span className={`chip ${kindClass[kind]}`}>{children}</span>;
 }
 
-function ColTitle({ children }: { children: React.ReactNode }) {
+const TITLE_GREENS = [
+  "title-green-1", "title-green-2", "title-green-3", "title-green-4",
+  "title-green-5", "title-green-6", "title-green-7",
+] as const;
+
+function ColTitle({ children, tone = 0 }: { children: React.ReactNode; tone?: number }) {
   return (
- <div className="mb-2 inline-flex max-w-full items-center rounded-md bg-clinical-neutral px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white"> <span className="truncate">{children}</span>
+ <div className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} mb-2`}> <span className="truncate">{children}</span>
  </div> );
 }
 
@@ -277,14 +282,16 @@ export function PatientRow({
     tab,
     title,
     right,
+    tone = 0,
   }: {
     label: string;
     tab: string;
     title: string;
     right?: React.ReactNode;
+    tone?: number;
   }) => (
- <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
- <span className="min-w-0 truncate rounded bg-clinical-neutral px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white"> {label}
+ <div className="mb-1.5 flex items-center justify-between gap-1.5">
+ <span className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} min-w-0 truncate !text-[11px]`}> {label}
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {right}
         {editBtn(tab, title)}
