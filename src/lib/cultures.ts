@@ -105,20 +105,20 @@ export interface CultureResultBadge {
 
 export function cultureResultBadge(c: Culture): CultureResultBadge {
   if (c.result === "negativa")
-    return { label: "Negativa", className: "text-clinical-stable", icon: "🟢" };
+    return { label: "Negativa", className: "text-clinical-stable", icon: "" };
   if (
     c.result === "andamento" ||
     c.resistanceProfile === "pendente" ||
     (!c.organism && !c.result)
   )
-    return { label: "Em andamento", className: "text-clinical-attention", icon: "🟡" };
-  return { label: "Positiva", className: "text-clinical-critical", icon: "🔴" };
+    return { label: "Em andamento", className: "text-clinical-attention", icon: "" };
+  return { label: "Positiva", className: "text-clinical-critical", icon: "" };
 }
 
 export function abxResultBadge(r: AntibiogramResult) {
-  if (r === "S") return { label: "Sensível",       icon: "🟢", className: "text-clinical-stable" };
-  if (r === "I") return { label: "Intermediária",  icon: "🟡", className: "text-clinical-attention" };
-  return            { label: "Resistente",         icon: "🔴", className: "text-clinical-critical" };
+  if (r === "S") return { label: "Sensível",       icon: "", className: "text-clinical-stable" };
+  if (r === "I") return { label: "Intermediária",  icon: "", className: "text-clinical-attention" };
+  return            { label: "Resistente",         icon: "", className: "text-clinical-critical" };
 }
 
 // ----- Alertas inteligentes ---------------------------------------------------

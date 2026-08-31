@@ -98,28 +98,20 @@ export function PumpCard({
           <span>{stMeta.icon}</span>{stMeta.label}
         </span>
       </div>
-      <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-        {doseLabel}{rate != null ? ` · ${rate.toFixed(1)} mL/h` : ""}
-      </div>
-      {pump?.pumpDrugName && (
-        <div className="mt-0.5 truncate text-[11px] italic text-foreground/80" title={pump.pumpDrugName}>
-          {pump.pumpDrugName}
-        </div>
-      )}
+      <div className="mt-0.5 font-mono text-[11px] text-muted-foreground"> {doseLabel}{rate != null ? ` · ${rate.toFixed(1)} mL/h` : ""}
+      </div> {pump?.pumpDrugName && (
+        <div className="mt-0.5 truncate text-[11px] italic text-foreground/80" title={pump.pumpDrugName}> {pump.pumpDrugName}
+        </div> )}
       {pump && (
-        <div className="mt-0.5 text-[10px] text-muted-foreground">
-          {pump.drugAmountMg} {cat === "insulina" ? "UI" : "mg"} / {pump.finalVolumeMl} mL {pump.solvent}
+        <div className="mt-0.5 text-[10px] text-muted-foreground"> {pump.drugAmountMg} {cat === "insulina" ? "UI" : "mg"} / {pump.finalVolumeMl} mL {pump.solvent}
           {pump.concentrationMcgPerMl ? ` · ${pump.concentrationMcgPerMl.toFixed(0)} ${cat === "insulina" ? "UI" : "mcg"}/mL` : ""}
-        </div>
-      )}
+        </div> )}
       <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
         <LinkIcon className="h-2.5 w-2.5" />
-        <span className="truncate">
-          {accessLabel(devices, pump?.accessDeviceId)}
+        <span className="truncate"> {accessLabel(devices, pump?.accessDeviceId)}
           {pump?.accessLumen ? ` · L${pump.accessLumen}` : ""}
         </span>
-      </div>
-      {bag && (
+      </div> {bag && (
         <>
           <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-3">
             <div
@@ -133,17 +125,13 @@ export function PumpCard({
             />
           </div>
           <div className="mt-1 flex items-center justify-between text-[10px]">
-            <span className={alert?.className}>
-              {alert?.icon} {bag.remainingMl.toFixed(0)} mL · {fmtRemaining(bag.remainingMin)}
+            <span className={alert?.className}> {alert?.icon} {bag.remainingMl.toFixed(0)} mL · {fmtRemaining(bag.remainingMin)}
             </span>
-            <span className="font-mono text-muted-foreground">
-              {bag.endsAt ? `troca ${fmtClock(bag.endsAt)}` : "—"}
+            <span className="font-mono text-muted-foreground"> {bag.endsAt ? `troca ${fmtClock(bag.endsAt)}` : "—"}
             </span>
           </div>
-        </>
-      )}
-    </button>
-  );
+        </> )}
+    </button> );
 }
 
 // ============================================================================
@@ -165,17 +153,14 @@ export function PumpDashboard({ patient, onOpen }: { patient: Patient; onOpen: (
       className="flex w-full flex-wrap items-center gap-1.5 rounded-md border border-border bg-surface-2/60 px-2 py-1 text-[10px] transition-colors hover:bg-surface-3"
       title="Abrir monitor de bombas"
     >
-      <span className="font-mono font-semibold text-foreground">💉 {active.length} bombas</span>
-      {Object.entries(buckets).map(([k, n]) => {
+      <span className="font-mono font-semibold text-foreground"> {active.length} bombas</span> {Object.entries(buckets).map(([k, n]) => {
         const meta = PUMP_CATEGORY_META[k as keyof typeof PUMP_CATEGORY_META];
         return (
           <span key={k} className={`flex items-center gap-0.5 ${meta.className}`}>
             <span>{meta.icon}</span><span>{n}</span>
-          </span>
-        );
+          </span> );
       })}
-    </button>
-  );
+    </button> );
 }
 
 // ============================================================================
@@ -216,20 +201,14 @@ export function PumpMonitor({
   const groups = useMemo(() => groupPumpsByAccess(pumps), [pumps]);
 
   return (
-    <div className="space-y-4">
-      {/* Status legend */}
-      <div className="flex flex-wrap gap-2 text-[10px]">
-        {PUMP_STATUSES.map((s) => {
+    <div className="space-y-4"> {/* Status legend */}
+      <div className="flex flex-wrap gap-2 text-[10px]"> {PUMP_STATUSES.map((s) => {
           const m = PUMP_STATUS_META[s];
           return (
-            <span key={s} className={`flex items-center gap-1 rounded border border-border px-1.5 py-0.5 ${m.className}`}>
-              {m.icon} {m.label}
-            </span>
-          );
+            <span key={s} className={`flex items-center gap-1 rounded border border-border px-1.5 py-0.5 ${m.className}`}> {m.icon} {m.label}
+            </span> );
         })}
-      </div>
-
-      {/* Compatibility alerts per access */}
+      </div> {/* Compatibility alerts per access */}
       {Array.from(groups.entries()).map(([key, meds]) => {
         if (key === "__unassigned__" || meds.length < 2) return null;
         const issues = scanCompatibility(meds);
@@ -239,46 +218,35 @@ export function PumpMonitor({
         return (
           <div key={key} className="rounded-md border border-clinical-critical/40 bg-clinical-critical/5 p-2 text-[11px]">
             <div className="mb-1 flex items-center gap-1 font-semibold text-clinical-critical">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Compartilhamento de lúmen — {accLabel}{first.pump?.accessLumen ? ` · L${first.pump.accessLumen}` : ""}
+              <AlertTriangle className="h-3.5 w-3.5" /> Compartilhamento de lúmen — {accLabel}{first.pump?.accessLumen ? ` · L${first.pump.accessLumen}` : ""}
             </div>
-            <ul className="space-y-0.5">
-              {issues.map((iss, i) => {
+            <ul className="space-y-0.5"> {issues.map((iss, i) => {
                 const cm = COMPAT_META[iss.level];
                 return (
                   <li key={i} className={`flex items-center gap-1 ${cm.className}`}>
                     <span>{cm.icon}</span>
                     <span>{iss.a}  ⇄  {iss.b}</span>
                     <span className="text-muted-foreground">— {cm.label}</span>
-                  </li>
-                );
+                  </li> );
               })}
             </ul>
-          </div>
-        );
+          </div> );
       })}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {pumps.map((m, i) => (
-          <PumpCard key={i} med={m} devices={devices} onClick={() => setEditIdx(i)} />
-        ))}
-      </div>
-
-      {/* Side editor */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"> {pumps.map((m, i) => (
+          <PumpCard key={i} med={m} devices={devices} onClick={() => setEditIdx(i)} /> ))}
+      </div> {/* Side editor */}
       <Sheet open={editing != null} onOpenChange={(o) => !o && setEditIdx(null)}>
-        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
-          {editing && editingIdxInPatient >= 0 && (
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md"> {editing && editingIdxInPatient >= 0 && (
             <PumpEditor
               med={editing}
               devices={devices}
               weight={patient.weight}
               onChange={(patch) => applyMed(editingIdxInPatient, patch)}
-            />
-          )}
+            /> )}
         </SheetContent>
       </Sheet>
-    </div>
-  );
+    </div> );
 }
 
 // ============================================================================
@@ -346,13 +314,10 @@ function PumpEditor({
     <div className="space-y-3">
       <SheetHeader>
         <SheetTitle className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-clinical-resp" />
-          Editar bomba
+          <Activity className="h-4 w-4 text-clinical-resp" /> Editar bomba
         </SheetTitle>
         <SheetDescription>Recalcula automaticamente mL/h, dose e concentração.</SheetDescription>
-      </SheetHeader>
-
-      {/* Medication name */}
+      </SheetHeader> {/* Medication name */}
       <div>
         <Label>Medicação</Label>
         <div className="flex gap-2">
@@ -360,19 +325,15 @@ function PumpEditor({
             className={inputCls}
             value={COMMON_PUMP_DRUGS.includes(med.name) ? med.name : "__other__"}
             onChange={(e) => e.target.value !== "__other__" && setName(e.target.value)}
-          >
-            {COMMON_PUMP_DRUGS.map((n) => <option key={n} value={n}>{n}</option>)}
+          > {COMMON_PUMP_DRUGS.map((n) => <option key={n} value={n}>{n}</option>)}
             <option value="__other__">Outra…</option>
           </select>
           <input className={inputCls} value={med.name} onChange={(e) => setName(e.target.value)} />
         </div>
-      </div>
-
-      {/* Status */}
+      </div> {/* Status */}
       <div>
         <Label>Status operacional</Label>
-        <div className="grid grid-cols-3 gap-1">
-          {PUMP_STATUSES.map((s) => {
+        <div className="grid grid-cols-3 gap-1"> {PUMP_STATUSES.map((s) => {
             const m = PUMP_STATUS_META[s];
             const active = (pump.status ?? "running") === s;
             return (
@@ -381,15 +342,11 @@ function PumpEditor({
                 type="button"
                 onClick={() => setPump({ status: s })}
                 className={`rounded border px-1.5 py-1 text-[10px] ${m.className} ${active ? `${m.borderClass} bg-surface-2 font-semibold` : "border-border"}`}
-              >
-                {m.icon} {m.label}
-              </button>
-            );
+              > {m.icon} {m.label}
+              </button> );
           })}
         </div>
-      </div>
-
-      {/* Infusion data */}
+      </div> {/* Infusion data */}
       <fieldset className="rounded-md border border-border p-2">
         <legend className="px-1 text-[10px] font-semibold uppercase text-muted-foreground">Dados da infusão</legend>
         <div className="mb-2">
@@ -416,12 +373,9 @@ function PumpEditor({
               onChange={(e) => setPump({ bagStartedAt: e.target.value ? new Date(e.target.value).toISOString() : undefined })} />
           </div>
         </div>
-        <div className="mt-1 text-[10px] text-muted-foreground">
-          Concentração: <b>{(pump.concentrationMcgPerMl ?? computeConcentrationMcgPerMl(pump.drugAmountMg, pump.finalVolumeMl)).toFixed(1)}</b> {isInsulin ? "UI" : "mcg"}/mL
+        <div className="mt-1 text-[10px] text-muted-foreground"> Concentração: <b>{(pump.concentrationMcgPerMl ?? computeConcentrationMcgPerMl(pump.drugAmountMg, pump.finalVolumeMl)).toFixed(1)}</b> {isInsulin ? "UI" : "mcg"}/mL
         </div>
-      </fieldset>
-
-      {/* Programming */}
+      </fieldset> {/* Programming */}
       <fieldset className="rounded-md border border-border p-2">
         <legend className="px-1 text-[10px] font-semibold uppercase text-muted-foreground">Programação</legend>
         <div className="grid grid-cols-2 gap-2">
@@ -434,21 +388,16 @@ function PumpEditor({
           <div>
             <Label>Unidade</Label>
             <select className={inputCls} value={pump.targetDoseUnit ?? "mcg/kg/min"}
-              onChange={(e) => setPump({ targetDoseUnit: e.target.value as PumpInfusion["targetDoseUnit"] })}>
-              {(["mcg/kg/min", "mcg/min", "mg/h", "mg/kg/h", "UI/h", "mL/h"] as const).map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
+              onChange={(e) => setPump({ targetDoseUnit: e.target.value as PumpInfusion["targetDoseUnit"] })}> {(["mcg/kg/min", "mcg/min", "mg/h", "mg/kg/h", "UI/h", "mL/h"] as const).map((u) => (
+                <option key={u} value={u}>{u}</option> ))}
             </select>
           </div>
           <NumField label="Velocidade (mL/h)" value={pump.rateMlPerHour ?? 0}
             onChange={(v) => setPump({ rateMlPerHour: v })} />
-          <div className="text-[10px] text-muted-foreground self-end">
-            Peso paciente: <b>{weight} kg</b>
+          <div className="text-[10px] text-muted-foreground self-end"> Peso paciente: <b>{weight} kg</b>
           </div>
         </div>
-      </fieldset>
-
-      {/* Linked access */}
+      </fieldset> {/* Linked access */}
       <fieldset className="rounded-md border border-border p-2">
         <legend className="px-1 text-[10px] font-semibold uppercase text-muted-foreground">Acesso vascular</legend>
         <div className="grid grid-cols-2 gap-2">
@@ -456,33 +405,24 @@ function PumpEditor({
             <Label>Dispositivo</Label>
             <select className={inputCls} value={pump.accessDeviceId ?? ""}
               onChange={(e) => setPump({ accessDeviceId: e.target.value || undefined })}>
-              <option value="">— sem acesso vinculado —</option>
-              {devices.map((d) => {
+              <option value="">— sem acesso vinculado —</option> {devices.map((d) => {
                 const def = deviceTypeByCode(d.typeCode);
                 return (
-                  <option key={d.id} value={d.id}>
-                    {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
-                  </option>
-                );
+                  <option key={d.id} value={d.id}> {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
+                  </option> );
               })}
             </select>
-          </div>
-          {sameAccess?.lumens && sameAccess.lumens > 1 && (
+          </div> {sameAccess?.lumens && sameAccess.lumens > 1 && (
             <div>
               <Label>Lúmen ({sameAccess.lumens} disponíveis)</Label>
               <select className={inputCls} value={pump.accessLumen ?? ""}
                 onChange={(e) => setPump({ accessLumen: e.target.value ? Number(e.target.value) : undefined })}>
-                <option value="">—</option>
-                {Array.from({ length: sameAccess.lumens }).map((_, i) => (
-                  <option key={i + 1} value={i + 1}>L{i + 1}</option>
-                ))}
+                <option value="">—</option> {Array.from({ length: sameAccess.lumens }).map((_, i) => (
+                  <option key={i + 1} value={i + 1}>L{i + 1}</option> ))}
               </select>
-            </div>
-          )}
+            </div> )}
         </div>
-      </fieldset>
-
-      {/* History */}
+      </fieldset> {/* History */}
       <div>
         <Label>Observações / histórico de alterações</Label>
         <textarea
@@ -497,12 +437,10 @@ function PumpEditor({
         <Button size="sm" variant="outline" onClick={() => {
           setPump({ bagStartedAt: nowISO(), bagVolumeMl: pump.finalVolumeMl, status: "running" });
         }}>Trocar bolsa agora</Button>
-        <Button size="sm" variant="ghost" onClick={() => onChange({ active: false })}>
-          Suspender
+        <Button size="sm" variant="ghost" onClick={() => onChange({ active: false })}> Suspender
         </Button>
       </div>
-    </div>
-  );
+    </div> );
 }
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -519,6 +457,5 @@ function NumField({ label, value, onChange }: { label: string; value: number; on
         value={Number.isFinite(value) ? value : 0}
         onChange={(e) => onChange(Number(e.target.value))}
       />
-    </div>
-  );
+    </div> );
 }

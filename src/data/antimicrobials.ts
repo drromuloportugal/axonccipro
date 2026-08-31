@@ -49,7 +49,7 @@ export const ANTIMICROBIAL_LIBRARY: AntimicrobialGroup[] = [
   {
     id: "antibact",
     label: "Antibacterianos",
-    icon: "🦠",
+    icon: "",
     classes: [
       {
         id: "pen-nat",
@@ -292,7 +292,7 @@ export const ANTIMICROBIAL_LIBRARY: AntimicrobialGroup[] = [
   {
     id: "antifung",
     label: "Antifúngicos",
-    icon: "🍄",
+    icon: "",
     classes: [
       {
         id: "polienos",
@@ -340,7 +340,7 @@ export const ANTIMICROBIAL_LIBRARY: AntimicrobialGroup[] = [
   {
     id: "antiviral",
     label: "Antivirais",
-    icon: "🧬",
+    icon: "",
     classes: [
       {
         id: "herpes",
@@ -459,7 +459,7 @@ export const ANTIMICROBIAL_LIBRARY: AntimicrobialGroup[] = [
   {
     id: "antiparas",
     label: "Antiparasitários",
-    icon: "🪳",
+    icon: "",
     classes: [
       {
         id: "malaria",
@@ -509,12 +509,10 @@ export const ANTIMICROBIAL_LIBRARY: AntimicrobialGroup[] = [
   },
 ];
 
-export const ALL_ANTIMICROBIALS: AntimicrobialDrug[] = ANTIMICROBIAL_LIBRARY.flatMap((g) =>
-  g.classes.flatMap((c) => c.drugs),
+export const ALL_ANTIMICROBIALS: AntimicrobialDrug[] = ANTIMICROBIAL_LIBRARY.flatMap((g) => g.classes.flatMap((c) => c.drugs),
 );
 
-const norm = (s: string) =>
-  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 /** Procura no catálogo pelo nome (tolerante a acentos/sufixos). */
 export function findAntimicrobial(name: string): AntimicrobialDrug | undefined {

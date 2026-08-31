@@ -36,12 +36,12 @@ export const PUMP_STATUS_META: Record<
   PumpStatus,
   { icon: string; label: string; className: string; dotClass: string; borderClass: string }
 > = {
-  running:      { icon: "🟢", label: "Em funcionamento", className: "text-clinical-stable",    dotClass: "bg-clinical-stable",    borderClass: "border-clinical-stable/50" },
-  ending_soon:  { icon: "🟡", label: "Próx. de terminar", className: "text-clinical-attention", dotClass: "bg-clinical-attention", borderClass: "border-clinical-attention/60" },
-  needs_change: { icon: "🟠", label: "Necessita troca",   className: "text-clinical-device",    dotClass: "bg-clinical-device",    borderClass: "border-clinical-device/60" },
-  stopped:      { icon: "🔴", label: "Interrompida",      className: "text-clinical-critical",  dotClass: "bg-clinical-critical",  borderClass: "border-clinical-critical/70" },
-  occluded:     { icon: "⚫", label: "Oclusão detectada", className: "text-foreground",         dotClass: "bg-foreground",         borderClass: "border-foreground/60" },
-  titrating:    { icon: "🔵", label: "Em titulação",      className: "text-clinical-resp",      dotClass: "bg-clinical-resp",      borderClass: "border-clinical-resp/60" },
+  running:      { icon: "", label: "Em funcionamento", className: "text-clinical-stable",    dotClass: "bg-clinical-stable",    borderClass: "border-clinical-stable/50" },
+  ending_soon:  { icon: "", label: "Próx. de terminar", className: "text-clinical-attention", dotClass: "bg-clinical-attention", borderClass: "border-clinical-attention/60" },
+  needs_change: { icon: "", label: "Necessita troca",   className: "text-clinical-device",    dotClass: "bg-clinical-device",    borderClass: "border-clinical-device/60" },
+  stopped:      { icon: "", label: "Interrompida",      className: "text-clinical-critical",  dotClass: "bg-clinical-critical",  borderClass: "border-clinical-critical/70" },
+  occluded:     { icon: "", label: "Oclusão detectada", className: "text-foreground",         dotClass: "bg-foreground",         borderClass: "border-foreground/60" },
+  titrating:    { icon: "", label: "Em titulação",      className: "text-clinical-resp",      dotClass: "bg-clinical-resp",      borderClass: "border-clinical-resp/60" },
 };
 
 export const PUMP_STATUSES: PumpStatus[] = [

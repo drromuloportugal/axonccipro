@@ -8,12 +8,12 @@ import type { Patient, ExamRow } from "@/data/patients";
 export type SofaKey = "resp" | "cardio" | "neuro" | "coag" | "hepato" | "renal";
 
 export const SOFA_SYSTEMS: { key: SofaKey; label: string; icon: string; color: string }[] = [
-  { key: "resp", label: "Respiratório", icon: "🫁", color: "#3b82f6" },
-  { key: "cardio", label: "Cardiovascular", icon: "🫀", color: "#ef4444" },
-  { key: "neuro", label: "Neurológico", icon: "🧠", color: "#8b5cf6" },
-  { key: "coag", label: "Coagulação", icon: "🩸", color: "#7f1d1d" },
-  { key: "hepato", label: "Hepático", icon: "🧬", color: "#166534" },
-  { key: "renal", label: "Renal", icon: "🩺", color: "#eab308" },
+  { key: "resp", label: "Respiratório", icon: "", color: "#3b82f6" },
+  { key: "cardio", label: "Cardiovascular", icon: "", color: "#ef4444" },
+  { key: "neuro", label: "Neurológico", icon: "", color: "#8b5cf6" },
+  { key: "coag", label: "Coagulação", icon: "", color: "#7f1d1d" },
+  { key: "hepato", label: "Hepático", icon: "", color: "#166534" },
+  { key: "renal", label: "Renal", icon: "", color: "#eab308" },
 ];
 
 export type SofaComponents = Record<SofaKey, number | null>;
@@ -40,8 +40,7 @@ function toNum(raw?: string | number | null): number | null {
 }
 
 function findExam(p: Patient, ...labels: string[]): ExamRow | undefined {
-  return (p.exams ?? []).find((e) =>
-    labels.some((l) => (e.label ?? "").toLowerCase().includes(l.toLowerCase())),
+  return (p.exams ?? []).find((e) => labels.some((l) => (e.label ?? "").toLowerCase().includes(l.toLowerCase())),
   );
 }
 

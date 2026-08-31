@@ -278,13 +278,13 @@ export function deviceAlerts(d: InvasiveDevice, max: number): DeviceAlert[] {
   const { days } = deviceTimeColor(d);
   const alerts: DeviceAlert[] = [];
   if (days >= max) {
-    alerts.push({ icon: "⚠", text: "Considerar troca", level: "danger" });
-    alerts.push({ icon: "⚠", text: "Avaliar necessidade de permanência", level: "warn" });
+    alerts.push({ icon: "", text: "Considerar troca", level: "danger" });
+    alerts.push({ icon: "", text: "Avaliar necessidade de permanência", level: "warn" });
   } else if (days >= max * 0.8) {
-    alerts.push({ icon: "⚠", text: "Próximo do limite — programar troca", level: "warn" });
+    alerts.push({ icon: "", text: "Próximo do limite — programar troca", level: "warn" });
   }
   if (!d.insertedBy) {
-    alerts.push({ icon: "⚠", text: "Revisão pendente — sem profissional registrado", level: "review" });
+    alerts.push({ icon: "", text: "Revisão pendente — sem profissional registrado", level: "review" });
   }
   return alerts;
 }

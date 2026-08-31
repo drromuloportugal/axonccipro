@@ -22,16 +22,16 @@ interface SysDef {
 }
 
 const SYSTEMS: SysDef[] = [
-  { key: "cardio", label: "Cardiovascular", icon: "🫀", color: "#ef4444", weight: 1.4 },
-  { key: "resp",   label: "Respiratório",   icon: "🫁", color: "#3b82f6", weight: 1.4 },
-  { key: "neuro",  label: "Neurológico",    icon: "🧠", color: "#8b5cf6", weight: 1.2 },
-  { key: "hemato", label: "Hematológico",   icon: "🩸", color: "#7f1d1d", weight: 1.0 },
-  { key: "infec",  label: "Infeccioso",     icon: "🦠", color: "#f97316", weight: 1.3 },
-  { key: "renal",  label: "Renal",          icon: "🩺", color: "#eab308", weight: 1.1 },
-  { key: "hepato", label: "Hepático",       icon: "🧬", color: "#166534", weight: 0.9 },
-  { key: "gi",     label: "Gastrointestinal", icon: "🍽", color: "#84cc16", weight: 0.7 },
-  { key: "musc",   label: "Musculoesquelético", icon: "💪", color: "#92400e", weight: 0.6 },
-  { key: "metab",  label: "Metabólico",     icon: "🧪", color: "#14b8a6", weight: 0.9 },
+  { key: "cardio", label: "Cardiovascular", icon: "", color: "#ef4444", weight: 1.4 },
+  { key: "resp",   label: "Respiratório",   icon: "", color: "#3b82f6", weight: 1.4 },
+  { key: "neuro",  label: "Neurológico",    icon: "", color: "#8b5cf6", weight: 1.2 },
+  { key: "hemato", label: "Hematológico",   icon: "", color: "#7f1d1d", weight: 1.0 },
+  { key: "infec",  label: "Infeccioso",     icon: "", color: "#f97316", weight: 1.3 },
+  { key: "renal",  label: "Renal",          icon: "", color: "#eab308", weight: 1.1 },
+  { key: "hepato", label: "Hepático",       icon: "", color: "#166534", weight: 0.9 },
+  { key: "gi",     label: "Gastrointestinal", icon: "", color: "#84cc16", weight: 0.7 },
+  { key: "musc",   label: "Musculoesquelético", icon: "", color: "#92400e", weight: 0.6 },
+  { key: "metab",  label: "Metabólico",     icon: "", color: "#14b8a6", weight: 0.9 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -44,8 +44,7 @@ function num(s?: string): number | undefined {
   return isNaN(n) ? undefined : n;
 }
 function exam(p: Patient, ...labels: string[]): ExamRow | undefined {
-  return p.exams.find((e) =>
-    labels.some((l) => e.label.toLowerCase().includes(l.toLowerCase()))
+  return p.exams.find((e) => labels.some((l) => e.label.toLowerCase().includes(l.toLowerCase()))
   );
 }
 function clamp(v: number, lo = 0, hi = 100) {
@@ -254,16 +253,16 @@ function buildAlerts(global: number[], nowIdx: number): Alert[] {
   const m3 = global[Math.max(0, nowIdx - 3)];
 
   if (m1 !== undefined && m1 - cur >= 15) {
-    alerts.push({ level: "critical", icon: "🔴", text: "Queda >15 pts em 24h" });
+    alerts.push({ level: "critical", icon: "", text: "Queda >15 pts em 24h" });
   } else if (m2 !== undefined && m2 - cur >= 10) {
-    alerts.push({ level: "attention", icon: "🟠", text: "Queda >10 pts em 48h" });
+    alerts.push({ level: "attention", icon: "", text: "Queda >10 pts em 48h" });
   }
   if (m3 !== undefined && Math.abs(cur - m3) < 3) {
-    alerts.push({ level: "watch", icon: "🟡", text: "Estável sem melhora 72h" });
+    alerts.push({ level: "watch", icon: "", text: "Estável sem melhora 72h" });
   }
   const min = Math.min(...global.slice(0, nowIdx + 1));
   if (cur - min >= 20) {
-    alerts.push({ level: "good", icon: "🟢", text: "Recuperação sustentada >20 pts" });
+    alerts.push({ level: "good", icon: "", text: "Recuperação sustentada >20 pts" });
   }
   return alerts;
 }
@@ -347,35 +346,27 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
     "text-clinical-critical";
 
   return (
-    <div className="rounded-md border border-border bg-surface p-4">
-      {/* Header */}
+    <div className="rounded-md border border-border bg-surface p-4"> {/* Header */}
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            📈 Mapa Temporal de Integridade Orgânica
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Mapa Temporal de Integridade Orgânica
           </div>
-          <div className="text-[10px] text-muted-foreground">
-            Eletrocardiograma da recuperação · escala 0–100 ·{" "}
+          <div className="text-[10px] text-muted-foreground"> Eletrocardiograma da recuperação · escala 0–100 ·{" "}
             {data.unit === "h" ? "horas" : data.unit === "s" ? "semanas" : "dias"} desde admissão UTI
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Índice Global
+            <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Índice Global
             </div>
-            <div className={`font-mono text-2xl font-bold leading-none ${globalColor}`}>
-              {data.currentGlobal.toFixed(0)}
+            <div className={`font-mono text-2xl font-bold leading-none ${globalColor}`}> {data.currentGlobal.toFixed(0)}
             </div>
             <div className={`text-[10px] font-semibold ${globalColor}`}>{globalLabel}</div>
           </div>
         </div>
-      </div>
-
-      {/* Alerts strip */}
+      </div> {/* Alerts strip */}
       {data.alerts.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {data.alerts.map((a, i) => (
+        <div className="mb-3 flex flex-wrap gap-1.5"> {data.alerts.map((a, i) => (
             <span
               key={i}
               className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-semibold ${
@@ -386,23 +377,19 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
               }`}
             >
               <span>{a.icon}</span>{a.text}
-            </span>
-          ))}
-        </div>
-      )}
+            </span> ))}
+        </div> )}
 
       {/* Chart */}
       <div className="h-[320px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data.rows} margin={{ top: 8, right: 12, left: -10, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
-
-            {/* Severity bands */}
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} /> {/* Severity bands */}
             <ReferenceArea y1={80} y2={100} fill="hsl(142 65% 42%)" fillOpacity={0.05} />
             <ReferenceArea y1={60} y2={80} fill="hsl(82 60% 50%)" fillOpacity={0.05} />
             <ReferenceArea y1={40} y2={60} fill="hsl(40 90% 55%)" fillOpacity={0.06} />
             <ReferenceArea y1={20} y2={40} fill="hsl(20 85% 55%)" fillOpacity={0.07} />
-            <ReferenceArea y1={0}  y2={20} fill="hsl(0 75% 55%)"  fillOpacity={0.08} />
+            <ReferenceArea y1={0}  y2={20} fill="hsl(0 75% 55%)"fillOpacity={0.08} />
 
             <XAxis
               dataKey="label"
@@ -415,9 +402,7 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
               ticks={[0, 20, 40, 60, 80, 100]}
               stroke="hsl(var(--muted-foreground))"
               tick={{ fontSize: 10 }}
-            />
-
-            {/* Now marker */}
+            /> {/* Now marker */}
             <ReferenceLine
               x={data.rows[data.nowIdx]?.label as string}
               stroke="hsl(var(--foreground))"
@@ -440,9 +425,7 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
                 const sys = SYSTEMS.find((s) => s.key === clean);
                 return [v.toFixed(0), sys ? `${sys.icon} ${sys.label}` : "Índice global"];
               }}
-            />
-
-            {/* System lines (historical + projection) */}
+            /> {/* System lines (historical + projection) */}
             {SYSTEMS.flatMap((s) => {
               if (hidden.has(s.key)) return [];
               return [
@@ -496,15 +479,12 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
                   isAnimationActive={false}
                   connectNulls={false}
                 />
-              </>
-            )}
+              </> )}
 
             <Legend content={() => null} />
           </LineChart>
         </ResponsiveContainer>
-      </div>
-
-      {/* Custom legend — toggleable chips */}
+      </div> {/* Custom legend — toggleable chips */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <button
           type="button"
@@ -514,10 +494,8 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
           } border-foreground/40 bg-foreground/5 text-foreground`}
           title="Índice Global de Integridade (média ponderada)"
         >
-          <span className="inline-block h-0.5 w-4 bg-foreground" style={{ height: 3 }} />
-          Índice Global
-        </button>
-        {SYSTEMS.map((s) => {
+          <span className="inline-block h-0.5 w-4 bg-foreground" style={{ height: 3 }} /> Índice Global
+        </button> {SYSTEMS.map((s) => {
           const cur = data.scores[s.key];
           return (
             <button
@@ -533,12 +511,9 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
               <span>{s.icon}</span>
               <span className="font-medium text-foreground">{s.label}</span>
               <span className="font-mono text-muted-foreground">{cur.toFixed(0)}</span>
-            </button>
-          );
+            </button> );
         })}
-      </div>
-
-      {/* Band legend */}
+      </div> {/* Band legend */}
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] uppercase tracking-wider text-muted-foreground">
         <span className="font-semibold text-foreground">Faixas:</span>
         <span>80–100 Preservada</span>
@@ -548,6 +523,5 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
         <span>0–19 Falência</span>
         <span>· · · Projeção 7d</span>
       </div>
-    </div>
-  );
+    </div> );
 }

@@ -123,9 +123,9 @@ const DRAFT_KEY = (patientId: string, id: string) => `passometro:intub:${patient
 // ============================================================================
 
 const MODE_META: Record<IntubationMode, { icon: string; label: string; color: string; sub: string }> = {
-  ISR:          { icon: "🟥", label: "Sequência Rápida (ISR)", color: "border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical", sub: "Pré-oxig → Sedação → BNM → Intubação" },
-  DSI:          { icon: "🟨", label: "Sequência Retardada (DSI)", color: "border-clinical-attention/40 bg-clinical-attention/10 text-clinical-attention", sub: "Sedação → Pré-oxig → BNM → Intubação" },
-  Convencional: { icon: "🟦", label: "Convencional", color: "border-clinical-resp/40 bg-clinical-resp/10 text-clinical-resp", sub: "Sedação titulada + analgesia" },
+  ISR:          { icon: "", label: "Sequência Rápida (ISR)", color: "border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical", sub: "Pré-oxig → Sedação → BNM → Intubação" },
+  DSI:          { icon: "", label: "Sequência Retardada (DSI)", color: "border-clinical-attention/40 bg-clinical-attention/10 text-clinical-attention", sub: "Sedação → Pré-oxig → BNM → Intubação" },
+  Convencional: { icon: "", label: "Convencional", color: "border-clinical-resp/40 bg-clinical-resp/10 text-clinical-resp", sub: "Sedação titulada + analgesia" },
 };
 
 const STEP_TITLES = [
@@ -171,8 +171,7 @@ export function IntubationJourney({
     setRecord((r) => ({ ...r, weightKg: r.weightKg ?? patient.weight, heightCm: r.heightCm ?? patient.height, sex: r.sex ?? patient.sex, age: r.age ?? patient.age }));
   }, [open, patient.id]);
 
-  const update = <K extends keyof IntubationRecord>(k: K, v: IntubationRecord[K]) =>
-    setRecord((r) => ({ ...r, [k]: v, updatedAt: new Date().toISOString() }));
+  const update = <K extends keyof IntubationRecord>(k: K, v: IntubationRecord[K]) => setRecord((r) => ({ ...r, [k]: v, updatedAt: new Date().toISOString() }));
 
   const progress = useMemo(() => Math.round(((step + 1) / STEP_TITLES.length) * 100), [step]);
 
@@ -222,8 +221,7 @@ export function IntubationJourney({
         <div className="mt-1 h-1 rounded-full bg-surface-3">
           <div className="h-1 rounded-full bg-clinical-critical" style={{ width: `${progress}%` }} />
         </div>
-      </div>
-    );
+      </div> );
   }
 
   return (
@@ -231,8 +229,7 @@ export function IntubationJourney({
       <DialogContent
         className="max-h-[90vh] w-[95vw] max-w-4xl overflow-hidden p-0 gap-0"
         style={{ height: "88vh" }}
-      >
-        {/* Sticky header */}
+      > {/* Sticky header */}
         <div className="sticky top-0 z-10 border-b-2 border-border-strong bg-surface-2 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
@@ -241,8 +238,7 @@ export function IntubationJourney({
               </div>
               <div className="min-w-0">
                 <div className="truncate text-[13px] font-bold">Jornada da Intubação Orotraqueal</div>
-                <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {patient.name} · {patient.bed} · {STEP_TITLES[step]}
+                <div className="truncate text-[10px] uppercase tracking-wider text-muted-foreground"> {patient.name} · {patient.bed} · {STEP_TITLES[step]}
                 </div>
               </div>
             </div>
@@ -264,13 +260,9 @@ export function IntubationJourney({
             </div>
             <span className="font-mono text-[10px] font-semibold text-muted-foreground">{progress}%</span>
           </div>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
-          {/* Steps as stacked cards */}
-          <div className="space-y-2">
-            {STEP_TITLES.map((title, i) => {
+        </div> {/* Body */}
+        <div className="flex-1 overflow-y-auto px-4 py-4"> {/* Steps as stacked cards */}
+          <div className="space-y-2"> {STEP_TITLES.map((title, i) => {
               const active = i === step;
               const done = i < step;
               return (
@@ -288,16 +280,13 @@ export function IntubationJourney({
                     onClick={() => setStep(i)}
                     className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left"
                   >
-                    <div className="flex items-center gap-2">
-                      {done ? <CheckCircle2 className="h-4 w-4 text-clinical-stable" /> :
+                    <div className="flex items-center gap-2"> {done ? <CheckCircle2 className="h-4 w-4 text-clinical-stable" /> :
                        active ? <PlayCircle className="h-4 w-4 text-clinical-critical" /> :
                        <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                       <span className={`text-[12px] font-bold ${active ? "text-foreground" : done ? "text-clinical-stable" : "text-muted-foreground"}`}>{title}</span>
                     </div>
                     <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${active ? "rotate-180" : ""}`} />
-                  </button>
-
-                  {active && (
+                  </button> {active && (
                     <div className="border-t border-border px-3 py-3">
                       <StepBody
                         step={i}
@@ -312,43 +301,33 @@ export function IntubationJourney({
                           onClick={() => setStep(Math.max(0, i - 1))}
                           disabled={i === 0}
                           className="rounded-md border border-border bg-surface px-3 py-1 text-[11px] font-semibold hover:bg-surface-3 disabled:opacity-40"
-                        >
-                          ← Voltar
-                        </button>
-                        {i < STEP_TITLES.length - 1 ? (
+                        > ← Voltar
+                        </button> {i < STEP_TITLES.length - 1 ? (
                           <button
                             onClick={() => setStep(i + 1)}
                             className="rounded-md bg-clinical-critical px-3 py-1 text-[11px] font-semibold text-white hover:bg-clinical-critical/90"
-                          >
-                            Avançar →
-                          </button>
-                        ) : (
+                          > Avançar →
+                          </button> ) : (
                           <div className="flex gap-2">
                             <button
                               onClick={() => finalize("cancelada")}
                               className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-3 py-1 text-[11px] font-semibold text-clinical-attention hover:bg-clinical-attention/20"
-                            >
-                              Cancelar registro
+                            > Cancelar registro
                             </button>
                             <button
                               onClick={() => finalize("concluida")}
                               className="rounded-md bg-clinical-stable px-3 py-1 text-[11px] font-semibold text-white hover:bg-clinical-stable/90"
-                            >
-                              Concluir jornada ✓
+                            > Concluir jornada ✓
                             </button>
-                          </div>
-                        )}
+                          </div> )}
                       </div>
-                    </div>
-                  )}
-                </div>
-              );
+                    </div> )}
+                </div> );
             })}
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog> );
 }
 
 // ============================================================================
@@ -384,8 +363,7 @@ function StepInitial({ record, update }: { record: IntubationRecord; update: any
   return (
     <div className="space-y-3">
       <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo de intubação</div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {(Object.keys(MODE_META) as IntubationMode[]).map((m) => {
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3"> {(Object.keys(MODE_META) as IntubationMode[]).map((m) => {
           const meta = MODE_META[m];
           const active = record.mode === m;
           return (
@@ -397,8 +375,7 @@ function StepInitial({ record, update }: { record: IntubationRecord; update: any
               <div className="text-lg">{meta.icon}</div>
               <div className="text-[12px] font-bold">{meta.label}</div>
               <div className="text-[10px] text-muted-foreground">{meta.sub}</div>
-            </button>
-          );
+            </button> );
         })}
       </div>
 
@@ -413,18 +390,13 @@ function StepInitial({ record, update }: { record: IntubationRecord; update: any
           </select>
         </div>
         <NumField label="Idade" value={record.age} onChange={(v) => update("age", v)} />
-      </div>
-      {record.weightKg ? (
-        <div className="rounded-md border border-clinical-stable/40 bg-clinical-stable/10 px-3 py-2 text-[11px] font-semibold text-clinical-stable">
-          ✓ Peso {record.weightKg} kg registrado. Doses recalculadas automaticamente na etapa 4.
-        </div>
-      ) : (
+      </div> {record.weightKg ? (
+        <div className="rounded-md border border-clinical-stable/40 bg-clinical-stable/10 px-3 py-2 text-[11px] font-semibold text-clinical-stable"> ✓ Peso {record.weightKg} kg registrado. Doses recalculadas automaticamente na etapa 4.
+        </div> ) : (
         <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-3 py-2 text-[11px] font-semibold text-clinical-attention flex items-center gap-1">
           <AlertTriangle className="h-3 w-3" /> Informe o peso para habilitar o cálculo automático de doses.
-        </div>
-      )}
-    </div>
-  );
+        </div> )}
+    </div> );
 }
 
 function NumField({ label, value, onChange, step = 1 }: { label: string; value?: number; onChange: (v: number|undefined) => void; step?: number }) {
@@ -437,8 +409,7 @@ function NumField({ label, value, onChange, step = 1 }: { label: string; value?:
         onChange={(e) => { const v = e.target.value; onChange(v === "" ? undefined : Number(v)); }}
         className="w-full rounded border border-border bg-surface px-2 py-1 text-[12px] font-mono"
       />
-    </div>
-  );
+    </div> );
 }
 
 // ---------- Step 1 — preparação ----------
@@ -450,29 +421,24 @@ function StepPreparation({ record, update }: { record: IntubationRecord; update:
     <div className="space-y-3">
       <div>
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Equipamentos</div>
-        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-          {EQUIPMENT.map((e) => (
+        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2"> {EQUIPMENT.map((e) => (
             <label key={e} className={`flex cursor-pointer items-center gap-2 rounded border-2 px-2 py-1.5 text-[11px] ${eq[e] ? "border-clinical-stable/40 bg-clinical-stable/10" : "border-border bg-surface"}`}>
               <input type="checkbox" checked={!!eq[e]} onChange={() => toggle(e)} className="h-4 w-4" />
               <span className={eq[e] ? "font-semibold text-clinical-stable" : ""}>{e}</span>
-            </label>
-          ))}
+            </label> ))}
         </div>
       </div>
       <div>
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Equipe</div>
-        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-          {TEAM_ROLES.map((r) => (
+        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2"> {TEAM_ROLES.map((r) => (
             <div key={r}>
               <label className="block text-[10px] font-semibold text-muted-foreground">{r}</label>
               <input value={tm[r] ?? ""} onChange={(e) => update("team", { ...tm, [r]: e.target.value })}
                 className="w-full rounded border border-border bg-surface px-2 py-1 text-[12px]" placeholder="Nome" />
-            </div>
-          ))}
+            </div> ))}
         </div>
       </div>
-    </div>
-  );
+    </div> );
 }
 
 // ---------- Step 2 — fisiologia ----------
@@ -495,28 +461,21 @@ function StepPhysio({ record, update }: { record: IntubationRecord; update: any 
       </div>
       <div>
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Condições associadas</div>
-        <div className="flex flex-wrap gap-1.5">
-          {PHYSIO_CONDITIONS.map((c) => {
+        <div className="flex flex-wrap gap-1.5"> {PHYSIO_CONDITIONS.map((c) => {
             const active = conds.includes(c);
             return (
               <button key={c} onClick={() => toggleCond(c)}
-                className={`rounded-full border-2 px-2.5 py-1 text-[11px] font-semibold ${active ? "border-clinical-attention bg-clinical-attention/15 text-clinical-attention" : "border-border bg-surface text-muted-foreground hover:text-foreground"}`}>
-                {c}
-              </button>
-            );
+                className={`rounded-full border-2 px-2.5 py-1 text-[11px] font-semibold ${active ? "border-clinical-attention bg-clinical-attention/15 text-clinical-attention" : "border-border bg-surface text-muted-foreground hover:text-foreground"}`}> {c}
+              </button> );
           })}
         </div>
-      </div>
-      {advice.length > 0 && (
+      </div> {advice.length > 0 && (
         <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 p-2 text-[11px]">
-          <div className="mb-1 font-bold text-clinical-attention">⚠ Recomendações</div>
-          <ul className="list-disc space-y-0.5 pl-4">
-            {advice.map((a, i) => <li key={i}>{a}</li>)}
+          <div className="mb-1 font-bold text-clinical-attention"> Recomendações</div>
+          <ul className="list-disc space-y-0.5 pl-4"> {advice.map((a, i) => <li key={i}>{a}</li>)}
           </ul>
-        </div>
-      )}
-    </div>
-  );
+        </div> )}
+    </div> );
 }
 
 // ---------- Step 3 — pré-oxigenação ----------
@@ -536,35 +495,26 @@ function StepPreox({ record, update }: { record: IntubationRecord; update: any }
     <div className="space-y-3">
       <div>
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Método</div>
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
-          {PREOX_METHODS.map((m) => (
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3"> {PREOX_METHODS.map((m) => (
             <button key={m} onClick={() => update("preoxMethod", m)}
-              className={`rounded-md border-2 px-2 py-1.5 text-[11px] font-semibold ${record.preoxMethod === m ? "border-clinical-resp bg-clinical-resp/10 text-clinical-resp" : "border-border bg-surface hover:bg-surface-3"}`}>
-              {m}
-            </button>
-          ))}
+              className={`rounded-md border-2 px-2 py-1.5 text-[11px] font-semibold ${record.preoxMethod === m ? "border-clinical-resp bg-clinical-resp/10 text-clinical-resp" : "border-border bg-surface hover:bg-surface-3"}`}> {m}
+            </button> ))}
         </div>
       </div>
       <div className="rounded-md border-2 border-clinical-resp/30 bg-clinical-resp/5 p-3 text-center">
         <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Cronômetro (3 min)</div>
         <div className="font-mono text-4xl font-bold text-clinical-resp">{mm}:{ss}</div>
         <div className="mt-2 flex justify-center gap-2">
-          <button onClick={() => setRunning(!running)} className="inline-flex items-center gap-1 rounded-md bg-clinical-resp px-3 py-1 text-[11px] font-semibold text-white">
-            {running ? <PauseCircle className="h-3 w-3" /> : <PlayCircle className="h-3 w-3" />}
+          <button onClick={() => setRunning(!running)} className="inline-flex items-center gap-1 rounded-md bg-clinical-resp px-3 py-1 text-[11px] font-semibold text-white"> {running ? <PauseCircle className="h-3 w-3" /> : <PlayCircle className="h-3 w-3" />}
             {running ? "Pausar" : "Iniciar"}
           </button>
-          <button onClick={() => { setRemaining(180); setRunning(false); update("preoxSeconds", 180); }} className="rounded-md border border-border px-3 py-1 text-[11px] font-semibold hover:bg-surface-3">
-            Reiniciar
+          <button onClick={() => { setRemaining(180); setRunning(false); update("preoxSeconds", 180); }} className="rounded-md border border-border px-3 py-1 text-[11px] font-semibold hover:bg-surface-3"> Reiniciar
           </button>
         </div>
-      </div>
-      {record.mode === "DSI" && (
-        <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 p-2 text-[11px] font-semibold text-clinical-attention">
-          🟨 DSI: administrar sedativo (Cetamina 1 mg/kg) para tolerar a pré-oxigenação antes do BNM.
-        </div>
-      )}
-    </div>
-  );
+      </div> {record.mode === "DSI" && (
+        <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 p-2 text-[11px] font-semibold text-clinical-attention"> DSI: administrar sedativo (Cetamina 1 mg/kg) para tolerar a pré-oxigenação antes do BNM.
+        </div> )}
+    </div> );
 }
 
 // ---------- Step 4 — medicações ----------
@@ -577,17 +527,14 @@ function StepDrugs({ record, weight, hypotension, contraSux, update }: { record:
   };
   const groups: DrugDef["group"][] = ["Sedativo", "Analgesia", "BNM"];
   return (
-    <div className="space-y-3">
-      {!weight && (
+    <div className="space-y-3"> {!weight && (
         <div className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 p-2 text-[11px] font-semibold text-clinical-critical flex items-center gap-1">
           <AlertTriangle className="h-3 w-3" /> Volte à etapa inicial e informe o peso para calcular doses.
-        </div>
-      )}
+        </div> )}
       {groups.map((g) => (
         <div key={g}>
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{g}</div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {DRUGS.filter((d) => d.group === g).map((d) => {
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2"> {DRUGS.filter((d) => d.group === g).map((d) => {
               const { mg, mL, amp } = calcDose(d, weight);
               const highlighted = d.highlightIf?.({ hypotension, contraSux }) ?? false;
               const contraSuxNow = d.name === "Succinilcolina" && contraSux;
@@ -598,13 +545,11 @@ function StepDrugs({ record, weight, hypotension, contraSux, update }: { record:
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
                       <Pill className="h-3.5 w-3.5 text-clinical-neuro" />
-                      <span className="text-[12px] font-bold">{d.name}</span>
-                      {highlighted && <span className="text-[9px] font-bold text-clinical-attention">★ INDICADO</span>}
+                      <span className="text-[12px] font-bold">{d.name}</span> {highlighted && <span className="text-[9px] font-bold text-clinical-attention">★ INDICADO</span>}
                       {contraSuxNow && <span className="text-[9px] font-bold text-clinical-critical">✕ CONTRAINDICADO</span>}
                     </div>
                     <button onClick={() => toggleAdmin(d.name, mg, mL)}
-                      className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${done ? "border-clinical-stable bg-clinical-stable/20 text-clinical-stable" : "border-border bg-surface-2 hover:bg-surface-3"}`}>
-                      {done ? "✓ Adm." : "+ Administrar"}
+                      className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${done ? "border-clinical-stable bg-clinical-stable/20 text-clinical-stable" : "border-border bg-surface-2 hover:bg-surface-3"}`}> {done ? "✓ Adm." : "+ Administrar"}
                     </button>
                   </div>
                   <div className="mt-1.5 grid grid-cols-4 gap-1 rounded bg-surface-2/60 p-1.5 text-center font-mono text-[10px]">
@@ -615,22 +560,16 @@ function StepDrugs({ record, weight, hypotension, contraSux, update }: { record:
                   </div>
                   <div className="mt-1 text-[10px] text-muted-foreground">
                     <span className="font-semibold">Conc:</span> {d.concMgMl} mg/mL{d.ampMg ? ` · Amp ${d.ampMg} mg` : ""}
-                  </div>
-                  {d.contra && d.contra.length > 0 && (
-                    <div className="text-[10px]"><span className="font-semibold text-clinical-critical">Contra:</span> {d.contra.join(", ")}</div>
-                  )}
+                  </div> {d.contra && d.contra.length > 0 && (
+                    <div className="text-[10px]"><span className="font-semibold text-clinical-critical">Contra:</span> {d.contra.join(", ")}</div> )}
                   {d.effects && d.effects.length > 0 && (
-                    <div className="text-[10px]"><span className="font-semibold text-clinical-attention">Adverso:</span> {d.effects.join(", ")}</div>
-                  )}
+                    <div className="text-[10px]"><span className="font-semibold text-clinical-attention">Adverso:</span> {d.effects.join(", ")}</div> )}
                   {d.alt && <div className="text-[10px]"><span className="font-semibold text-muted-foreground">Alt:</span> {d.alt}</div>}
-                </div>
-              );
+                </div> );
             })}
           </div>
-        </div>
-      ))}
-    </div>
-  );
+        </div> ))}
+    </div> );
 }
 
 // ---------- Step 5 — procedimento ----------
@@ -646,42 +585,32 @@ function StepProcedure({ record, update }: { record: IntubationRecord; update: a
         <div>
           <label className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Dispositivo</label>
           <select value={p.device ?? ""} onChange={(e) => setP({ device: e.target.value })} className="w-full rounded border border-border bg-surface px-2 py-1 text-[12px]">
-            <option value="">—</option>
-            {["Laringoscópio", "Videolaringoscópio", "Fibrobroncoscópio", "Máscara laríngea", "Cricotireoidostomia"].map((d) => <option key={d}>{d}</option>)}
+            <option value="">—</option> {["Laringoscópio", "Videolaringoscópio", "Fibrobroncoscópio", "Máscara laríngea", "Cricotireoidostomia"].map((d) => <option key={d}>{d}</option>)}
           </select>
         </div>
         <div>
           <label className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Cormack-Lehane</label>
-          <div className="flex gap-1">
-            {CORMACK.map((c) => (
+          <div className="flex gap-1"> {CORMACK.map((c) => (
               <button key={c} onClick={() => setP({ cormack: c })}
-                className={`flex-1 rounded border-2 px-2 py-1 text-[11px] font-bold ${p.cormack === c ? "border-clinical-critical bg-clinical-critical/10 text-clinical-critical" : "border-border"}`}>{c}</button>
-            ))}
+                className={`flex-1 rounded border-2 px-2 py-1 text-[11px] font-bold ${p.cormack === c ? "border-clinical-critical bg-clinical-critical/10 text-clinical-critical" : "border-border"}`}>{c}</button> ))}
           </div>
         </div>
         <NumField label="Laring. (s)" value={p.laryngoscopySec} onChange={(v) => setP({ laryngoscopySec: v })} />
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {[{k: "burp", label: "BURP"}, {k: "bougie", label: "Bougie"}].map((x) => (
+      <div className="flex flex-wrap gap-1.5"> {[{k: "burp", label: "BURP"}, {k: "bougie", label: "Bougie"}].map((x) => (
           <label key={x.k} className={`flex cursor-pointer items-center gap-1.5 rounded-md border-2 px-2 py-1 text-[11px] font-semibold ${(p as any)[x.k] ? "border-clinical-resp bg-clinical-resp/10 text-clinical-resp" : "border-border bg-surface"}`}>
-            <input type="checkbox" checked={!!(p as any)[x.k]} onChange={(e) => setP({ [x.k]: e.target.checked })} />
-            {x.label}
-          </label>
-        ))}
+            <input type="checkbox" checked={!!(p as any)[x.k]} onChange={(e) => setP({ [x.k]: e.target.checked })} /> {x.label}
+          </label> ))}
       </div>
       <div>
         <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Complicações durante o procedimento</div>
-        <div className="flex flex-wrap gap-1.5">
-          {COMPLICATIONS.map((c) => (
+        <div className="flex flex-wrap gap-1.5"> {COMPLICATIONS.map((c) => (
             <button key={c} onClick={() => toggleCx(c)}
-              className={`rounded-full border-2 px-2.5 py-1 text-[11px] font-semibold ${cx.includes(c) ? "border-clinical-critical bg-clinical-critical/15 text-clinical-critical" : "border-border bg-surface text-muted-foreground"}`}>
-              {c}
-            </button>
-          ))}
+              className={`rounded-full border-2 px-2.5 py-1 text-[11px] font-semibold ${cx.includes(c) ? "border-clinical-critical bg-clinical-critical/15 text-clinical-critical" : "border-border bg-surface text-muted-foreground"}`}> {c}
+            </button> ))}
         </div>
       </div>
-    </div>
-  );
+    </div> );
 }
 
 // ---------- Step 6 — confirmação ----------
@@ -692,29 +621,18 @@ function StepConfirm({ record, update }: { record: IntubationRecord; update: any
   const negative = positive === 0 && Object.keys(cf).length > 0;
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-        {CONFIRM_ITEMS.map((c) => (
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2"> {CONFIRM_ITEMS.map((c) => (
           <label key={c} className={`flex cursor-pointer items-center gap-2 rounded border-2 px-2 py-1.5 text-[11px] ${cf[c] ? "border-clinical-stable/50 bg-clinical-stable/10 text-clinical-stable font-semibold" : "border-border bg-surface"}`}>
-            <input type="checkbox" checked={!!cf[c]} onChange={() => toggle(c)} className="h-4 w-4" />
-            {c}
-          </label>
-        ))}
-      </div>
-      {positive >= 3 ? (
-        <div className="rounded-md border-2 border-clinical-stable/50 bg-clinical-stable/10 p-2 text-[11px] font-bold text-clinical-stable">
-          ✅ Intubação confirmada ({positive} sinais positivos)
-        </div>
-      ) : negative ? (
-        <div className="rounded-md border-2 border-clinical-critical/60 bg-clinical-critical/10 p-2 text-[11px] font-bold text-clinical-critical">
-          🚨 Confirmação NEGATIVA — abrir algoritmo de via aérea difícil imediatamente!
-        </div>
-      ) : (
-        <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/5 p-2 text-[11px] text-clinical-attention">
-          Marque pelo menos 3 sinais para confirmar posicionamento.
-        </div>
-      )}
-    </div>
-  );
+            <input type="checkbox" checked={!!cf[c]} onChange={() => toggle(c)} className="h-4 w-4" /> {c}
+          </label> ))}
+      </div> {positive >= 3 ? (
+        <div className="rounded-md border-2 border-clinical-stable/50 bg-clinical-stable/10 p-2 text-[11px] font-bold text-clinical-stable"> ✅ Intubação confirmada ({positive} sinais positivos)
+        </div> ) : negative ? (
+        <div className="rounded-md border-2 border-clinical-critical/60 bg-clinical-critical/10 p-2 text-[11px] font-bold text-clinical-critical"> Confirmação NEGATIVA — abrir algoritmo de via aérea difícil imediatamente!
+        </div> ) : (
+        <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/5 p-2 text-[11px] text-clinical-attention"> Marque pelo menos 3 sinais para confirmar posicionamento.
+        </div> )}
+    </div> );
 }
 
 // ---------- Step 7 — pós-intubação ----------
@@ -749,8 +667,7 @@ function StepPostVent({ record, update }: { record: IntubationRecord; update: an
         <div><label className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">BNM</label>
           <input value={v.nmb ?? ""} onChange={(e) => set({ nmb: e.target.value })} className="w-full rounded border border-border bg-surface px-2 py-1 text-[12px]" placeholder="Ex: Cisatracúrio" /></div>
       </div>
-    </div>
-  );
+    </div> );
 }
 
 // ---------- Step 8 — complicações ----------
@@ -760,21 +677,18 @@ function StepComplications({ record, update }: { record: IntubationRecord; updat
   return (
     <div className="space-y-3">
       <div className="text-[11px] text-muted-foreground">Marque qualquer complicação ocorrida durante ou após o procedimento para abrir o algoritmo correspondente.</div>
-      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-        {COMPLICATIONS.map((c) => {
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2"> {COMPLICATIONS.map((c) => {
           const on = cx.includes(c);
           return (
             <button key={c} onClick={() => toggle(c)}
               className={`flex items-center justify-between gap-2 rounded-md border-2 px-2 py-1.5 text-[11px] font-semibold ${on ? "border-clinical-critical bg-clinical-critical/10 text-clinical-critical" : "border-border bg-surface"}`}>
               <span>{c}</span>{on && <AlertTriangle className="h-3.5 w-3.5" />}
-            </button>
-          );
+            </button> );
         })}
       </div>
       <div>
         <label className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Notas</label>
         <textarea value={record.notes ?? ""} onChange={(e) => update("notes", e.target.value)} rows={3} className="w-full rounded border border-border bg-surface px-2 py-1 text-[12px]" />
       </div>
-    </div>
-  );
+    </div> );
 }

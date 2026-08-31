@@ -19,10 +19,8 @@ const inputCls =
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-      {children}
-    </div>
-  );
+    <div className="mb-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {children}
+    </div> );
 }
 
 const DILUENTS: Diluent[] = ["SF 0,9%", "SG 5%", "SF 0,9% ou SG 5%", "Sem diluente", "Outro"];
@@ -92,13 +90,11 @@ export function DilutionCenter({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
-      {/* Header */}
+    <div className="fixed inset-0 z-50 flex flex-col bg-background"> {/* Header */}
       <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-2">
         <FlaskConical className="h-4 w-4 text-clinical-resp" />
         <div className="text-[13px] font-semibold text-foreground">FARMÁCIA</div>
-        <div className="ml-2 flex items-center gap-1">
-          {([
+        <div className="ml-2 flex items-center gap-1"> {([
             { v: "calc", label: "Bomba de infusão", icon: Calculator },
             { v: "atb", label: "Antimicrobianos", icon: Pill },
             { v: "history", label: "Histórico", icon: History },
@@ -113,10 +109,8 @@ export function DilutionCenter({
                   : "border-border bg-surface text-muted-foreground hover:bg-surface-2"
               }`}
             >
-              <t.icon className="h-3 w-3" />
-              {t.label}
-            </button>
-          ))}
+              <t.icon className="h-3 w-3" /> {t.label}
+            </button> ))}
         </div>
         <input
           className="ml-auto h-8 w-44 rounded-md border border-input bg-background px-2 text-[12px] outline-none focus:ring-1 focus:ring-ring"
@@ -130,12 +124,10 @@ export function DilutionCenter({
       </div>
 
       <div className="flex items-center gap-2 border-b border-clinical-attention/40 bg-clinical-attention/10 px-4 py-1.5 text-[10px] text-foreground">
-        <AlertTriangle className="h-3 w-3 shrink-0 text-clinical-attention" />
-        {DILUTION_DISCLAIMER}
+        <AlertTriangle className="h-3 w-3 shrink-0 text-clinical-attention" /> {DILUTION_DISCLAIMER}
       </div>
 
-      <div className="flex min-h-0 flex-1">
-        {/* Sidebar */}
+      <div className="flex min-h-0 flex-1"> {/* Sidebar */}
         {tab !== "atb" && (
         <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-surface-2/50">
           <div className="relative p-2">
@@ -147,44 +139,30 @@ export function DilutionCenter({
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
-            {favorites.length > 0 && !query && (
+          <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3"> {favorites.length > 0 && !query && (
               <>
-                <div className="px-1 py-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Favoritos
-                </div>
-                {drugs.filter((d) => favorites.includes(d.code)).map((d) => (
+                <div className="px-1 py-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Favoritos
+                </div> {drugs.filter((d) => favorites.includes(d.code)).map((d) => (
                   <DrugItem key={`f-${d.code}`} d={d} active={d.code === drug?.code} fav
-                    onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} />
-                ))}
-              </>
-            )}
-            <div className="px-1 py-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Vasoativos · diuréticos · antiarrítmicos
-            </div>
-            {filtered.filter((d) => d.group === "vaso").map((d) => (
+                    onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
+              </> )}
+            <div className="px-1 py-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Vasoativos · diuréticos · antiarrítmicos
+            </div> {filtered.filter((d) => d.group === "vaso").map((d) => (
               <DrugItem key={d.code} d={d} active={d.code === drug?.code} fav={favorites.includes(d.code)}
-                onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} />
-            ))}
-            <div className="px-1 py-1 pt-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Analgésicos · sedativos · BNM
-            </div>
-            {filtered.filter((d) => d.group === "sedo").map((d) => (
+                onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
+            <div className="px-1 py-1 pt-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Analgésicos · sedativos · BNM
+            </div> {filtered.filter((d) => d.group === "sedo").map((d) => (
               <DrugItem key={d.code} d={d} active={d.code === drug?.code} fav={favorites.includes(d.code)}
-                onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} />
-            ))}
+                onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
           </div>
-        </aside>
-        )}
+        </aside> )}
 
         {tab === "atb" ? (
           <AntimicrobialLibrary
             patients={patients.map((p) => ({ id: p.id, name: p.name, bed: p.bed }))}
             onAddToPatient={onAddToPatient}
-          />
-        ) : (
-        <main className="min-h-0 flex-1 overflow-y-auto p-4">
-          {tab === "calc" && drug && (
+          /> ) : (
+        <main className="min-h-0 flex-1 overflow-y-auto p-4"> {tab === "calc" && drug && (
             <DrugCalculator
               key={drug.code}
               drug={drug}
@@ -214,16 +192,14 @@ export function DilutionCenter({
               }}
               onRegister={pushHistory}
               onAddToPatient={onAddToPatient}
-            />
-          )}
+            /> )}
 
           {tab === "history" && (
             <HistoryPanel
               history={history}
               onClear={() => { setHistory([]); dilutionStore.saveHistory([]); }}
               onDuplicate={(rec) => { setDrugCode(rec.drugCode); setTab("calc"); }}
-            />
-          )}
+            /> )}
 
           {tab === "bank" && (
             <BankPanel
@@ -276,13 +252,10 @@ export function DilutionCenter({
                 });
                 toast.success("Padrão restaurado");
               }}
-            />
-          )}
-        </main>
-        )}
+            /> )}
+        </main> )}
       </div>
-    </div>
-  );
+    </div> );
 }
 
 function DrugItem({
@@ -297,9 +270,7 @@ function DrugItem({
       <button onClick={onFav} title="Favoritar" className="p-1">
         <Star className={`h-3 w-3 ${fav ? "fill-clinical-attention text-clinical-attention" : "text-muted-foreground"}`} />
       </button>
-    </div>
-
-  );
+    </div> );
 }
 
 // ============================================================================
@@ -314,11 +285,9 @@ function DoseSlider({
     return (
       <>
         <input className={inputCls} inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} />
-        <div className="mt-1 text-[10px] text-muted-foreground">
-          Sem faixa de referência cadastrada para {unit}.
+        <div className="mt-1 text-[10px] text-muted-foreground"> Sem faixa de referência cadastrada para {unit}.
         </div>
-      </>
-    );
+      </> );
   }
   const span = range.max - range.min;
   const step = span / 200;
@@ -343,8 +312,7 @@ function DoseSlider({
           onChange={(e) => onChange(fmt(Number(e.target.value)))}
         />
       </div>
-      <div className="relative mt-1 h-4">
-        {([
+      <div className="relative mt-1 h-4"> {([
           { v: range.min, l: "mín" },
           { v: range.usual, l: "usual" },
           { v: range.max, l: "máx" },
@@ -355,13 +323,10 @@ function DoseSlider({
             onClick={() => onChange(fmt(t.v))}
             style={{ left: `${pct(t.v)}%` }}
             className="absolute -translate-x-1/2 whitespace-nowrap text-[9px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary"
-          >
-            {t.l} {fmt(t.v)}
-          </button>
-        ))}
+          > {t.l} {fmt(t.v)}
+          </button> ))}
       </div>
-    </div>
-  );
+    </div> );
 }
 
 /** Barra horizontal com dois pontos: dose mínima e dose máxima. */
@@ -425,19 +390,15 @@ function DoseRangeSlider({
           />
         </div>
       </div>
-      <div className="mt-0.5 flex justify-between text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {range ? (
+      <div className="mt-0.5 flex justify-between text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> {range ? (
           <>
             <button type="button" onClick={() => onChangeMin(fmt(range.min))}>mín {fmt(range.min)}</button>
             <button type="button" onClick={() => onChangeMax(fmt(range.usual))}>usual {fmt(range.usual)}</button>
             <button type="button" onClick={() => onChangeMax(fmt(range.max))}>máx {fmt(range.max)}</button>
-          </>
-        ) : (
-          <span>Sem faixa de referência cadastrada para {unit}.</span>
-        )}
+          </> ) : (
+          <span>Sem faixa de referência cadastrada para {unit}.</span> )}
       </div>
-    </div>
-  );
+    </div> );
 }
 
 
@@ -514,8 +475,7 @@ function DrugCalculator({
   const dilLabel = isCustom ? "Personalizada" : preset?.label ?? "—";
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
-      {/* ---------------- Coluna 1 — identificação + diluição ---------------- */}
+    <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr]"> {/* ---------------- Coluna 1 — identificação + diluição ---------------- */}
       <div className="space-y-4">
         <div className="rounded-lg border border-border bg-surface p-4">
           <div className="flex items-center gap-2">
@@ -525,21 +485,17 @@ function DrugCalculator({
               isCustom
                 ? "border-clinical-attention/50 bg-clinical-attention/10 text-clinical-attention"
                 : "border-clinical-stable/50 bg-clinical-stable/10 text-clinical-stable"
-            }`}>
-              {isCustom ? "Diluição personalizada" : "Padrão cadastrado"}
+            }`}> {isCustom ? "Diluição personalizada" : "Padrão cadastrado"}
             </span>
           </div>
           <div className="mt-1 text-[10px] text-muted-foreground">Fonte do padrão: {DILUTION_SOURCE_NOTE}</div>
 
           <div className="mt-3">
             <Label>Diluição selecionada</Label>
-            <select className={inputCls} value={dilutionId} onChange={(e) => applyPreset(e.target.value)}>
-              {drug.dilutions.map((d) => (
-                <option key={d.id} value={d.id}>{d.custom ? "★ " : ""}{d.label}</option>
-              ))}
+            <select className={inputCls} value={dilutionId} onChange={(e) => applyPreset(e.target.value)}> {drug.dilutions.map((d) => (
+                <option key={d.id} value={d.id}>{d.custom ? "★ " : ""}{d.label}</option> ))}
               <option value="__custom__">➕ Diluição personalizada</option>
-            </select>
-            {preset?.note && <div className="mt-1 text-[10px] italic text-muted-foreground">{preset.note}</div>}
+            </select> {preset?.note && <div className="mt-1 text-[10px] italic text-muted-foreground">{preset.note}</div>}
           </div>
 
           <fieldset className="mt-3 rounded-md border border-border p-2">
@@ -552,8 +508,7 @@ function DrugCalculator({
               </div>
               <div>
                 <Label>Unidade</Label>
-                <select className={inputCls} value={ampUnit} onChange={(e) => setAmpUnit(e.target.value as MassUnit)}>
-                  {(["mg", "mcg", "g", "U"] as MassUnit[]).map((u) => <option key={u} value={u}>{u}</option>)}
+                <select className={inputCls} value={ampUnit} onChange={(e) => setAmpUnit(e.target.value as MassUnit)}> {(["mg", "mcg", "g", "U"] as MassUnit[]).map((u) => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
               <div>
@@ -591,8 +546,7 @@ function DrugCalculator({
               <div className="col-span-2">
                 <Label>Diluente</Label>
                 <select className={inputCls} value={diluent}
-                  onChange={(e) => { setDiluent(e.target.value as Diluent); setIsCustom(true); }}>
-                  {DILUENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                  onChange={(e) => { setDiluent(e.target.value as Diluent); setIsCustom(true); }}> {DILUENTS.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
             </div>
@@ -612,20 +566,16 @@ function DrugCalculator({
                 }}
               >
                 <Plus className="h-3 w-3" /> Salvar como nova diluição
-              </button>
-              {preset && (
+              </button> {preset && (
                 <button
                   className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-[10px] hover:bg-surface-2"
                   onClick={() => applyPreset(preset.id)}
                 >
                   <RotateCcw className="h-3 w-3" /> Restaurar padrão selecionado
-                </button>
-              )}
+                </button> )}
             </div>
           </fieldset>
-        </div>
-
-        {/* Resultado solução */}
+        </div> {/* Resultado solução */}
         <div className="grid grid-cols-3 gap-2">
           <Metric label="Volume final" value={sol.finalVolumeMl != null ? `${fmtNum(sol.finalVolumeMl, 0)} mL` : "—"} />
           <Metric label="Quantidade total"
@@ -635,15 +585,11 @@ function DrugCalculator({
             value={conc ? `${fmtNum(conc.value)} ${conc.unit}` : "—"}
             big
           />
-        </div>
-        {sol.missing.length > 0 && <Warn items={sol.missing} />}
-      </div>
-
-      {/* ---------------- Coluna 2 — bomba ---------------- */}
+        </div> {sol.missing.length > 0 && <Warn items={sol.missing} />}
+      </div> {/* ---------------- Coluna 2 — bomba ---------------- */}
       <div className="space-y-4">
         <div className="rounded-lg border border-border bg-surface p-4">
-          <div className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
-            💉 Programação da bomba
+          <div className="flex items-center gap-2 text-[13px] font-semibold text-foreground"> Programação da bomba
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2">
             <div>
@@ -658,12 +604,9 @@ function DrugCalculator({
                   if (p?.weight) setWeight(String(p.weight));
                 }}
               >
-                <option value="">Selecionar paciente…</option>
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.bed} · {p.name}{p.weight ? ` · ${p.weight} kg` : ""}
-                  </option>
-                ))}
+                <option value="">Selecionar paciente…</option> {patients.map((p) => (
+                  <option key={p.id} value={p.id}> {p.bed} · {p.name}{p.weight ? ` · ${p.weight} kg` : ""}
+                  </option> ))}
               </select>
               <div className="mt-1 flex items-center gap-1">
                 <span className="text-[10px] text-muted-foreground">Peso (kg)</span>
@@ -675,8 +618,7 @@ function DrugCalculator({
             </div>
             <div>
               <Label>Unidade da prescrição</Label>
-              <select className={inputCls} value={doseUnit} onChange={(e) => setDoseUnit(e.target.value as DoseUnit)}>
-                {drug.allowedDoseUnits.map((u) => <option key={u} value={u}>{u}</option>)}
+              <select className={inputCls} value={doseUnit} onChange={(e) => setDoseUnit(e.target.value as DoseUnit)}> {drug.allowedDoseUnits.map((u) => <option key={u} value={u}>{u}</option>)}
                 {(["mcg/h", "mcg/min", "mg/h", "mg/min", "U/h", "U/min", "mL/h"] as DoseUnit[])
                   .filter((u) => !drug.allowedDoseUnits.includes(u))
                   .map((u) => <option key={u} value={u}>{u}</option>)}
@@ -692,8 +634,7 @@ function DrugCalculator({
                 onChangeMin={(v) => { setDoseMin(v); setDose(v); }}
                 onChangeMax={setDoseMax}
               />
-              <div className="mt-1 rounded-md border border-border bg-surface-2 px-2 py-1 text-center font-mono text-[11px] text-foreground">
-                {rateMin.rateMlPerHour != null && rateMax.rateMlPerHour != null
+              <div className="mt-1 rounded-md border border-border bg-surface-2 px-2 py-1 text-center font-mono text-[11px] text-foreground"> {rateMin.rateMlPerHour != null && rateMax.rateMlPerHour != null
                   ? `${fmtNum(rateMin.rateMlPerHour)} → ${fmtNum(rateMax.rateMlPerHour)} mL/h`
                   : "Faixa de bomba indisponível"}
               </div>
@@ -703,17 +644,12 @@ function DrugCalculator({
 
 
           <div className="mt-3 rounded-lg border border-primary/40 bg-primary/5 p-4 text-center">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Velocidade da bomba</div>
-            {rate.rateMlPerHour != null ? (
-              <div className="font-mono text-4xl font-bold text-primary">{fmtNum(rate.rateMlPerHour)} <span className="text-lg">mL/h</span></div>
-            ) : (
-              <div className="text-[12px] font-semibold text-clinical-attention">⚠️ Dados insuficientes para calcular a velocidade da bomba.</div>
-            )}
-          </div>
-          {rate.missing.length > 0 && <Warn items={rate.missing} />}
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Velocidade da bomba</div> {rate.rateMlPerHour != null ? (
+              <div className="font-mono text-4xl font-bold text-primary">{fmtNum(rate.rateMlPerHour)} <span className="text-lg">mL/h</span></div> ) : (
+              <div className="text-[12px] font-semibold text-clinical-attention"> Dados insuficientes para calcular a velocidade da bomba.</div> )}
+          </div> {rate.missing.length > 0 && <Warn items={rate.missing} />}
 
-          <div className="mt-3 text-[10px] text-muted-foreground">
-            Confira a sequência: medicamento → apresentação → concentração → diluição → volume final → dose → peso → unidade → velocidade.
+          <div className="mt-3 text-[10px] text-muted-foreground"> Confira a sequência: medicamento → apresentação → concentração → diluição → volume final → dose → peso → unidade → velocidade.
           </div>
 
           <button
@@ -782,11 +718,9 @@ function DrugCalculator({
           >
             <Plus className="h-3 w-3" /> Adicionar ao paciente
           </button>
-        </div>
-
-        {/* Cálculo reverso */}
+        </div> {/* Cálculo reverso */}
         <div className="rounded-lg border border-border bg-surface p-4">
-          <div className="text-[13px] font-semibold text-foreground">🔄 Qual dose o paciente está recebendo?</div>
+          <div className="text-[13px] font-semibold text-foreground"> Qual dose o paciente está recebendo?</div>
           <div className="mt-2 grid grid-cols-2 gap-2">
             <div>
               <Label>Velocidade da bomba (mL/h)</Label>
@@ -798,20 +732,14 @@ function DrugCalculator({
               <input className={inputCls} inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} />
             </div>
           </div>
-          <div className="mt-2 rounded-md border border-border bg-surface-2 p-3 text-center">
-            {reverse.dose != null ? (
-              <div className="font-mono text-2xl font-bold text-foreground">
-                {fmtNum(reverse.dose, 3)} <span className="text-sm">{doseUnit}</span>
-              </div>
-            ) : (
-              <div className="text-[11px] text-clinical-attention">⚠️ Dados insuficientes para calcular a dose.</div>
-            )}
-          </div>
-          {reverse.missing.length > 0 && <Warn items={reverse.missing} />}
+          <div className="mt-2 rounded-md border border-border bg-surface-2 p-3 text-center"> {reverse.dose != null ? (
+              <div className="font-mono text-2xl font-bold text-foreground"> {fmtNum(reverse.dose, 3)} <span className="text-sm">{doseUnit}</span>
+              </div> ) : (
+              <div className="text-[11px] text-clinical-attention"> Dados insuficientes para calcular a dose.</div> )}
+          </div> {reverse.missing.length > 0 && <Warn items={reverse.missing} />}
         </div>
       </div>
-    </div>
-  );
+    </div> );
 }
 
 function Metric({ label, value, big }: { label: string; value: string; big?: boolean }) {
@@ -819,8 +747,7 @@ function Metric({ label, value, big }: { label: string; value: string; big?: boo
     <div className="rounded-lg border border-border bg-surface p-3 text-center">
       <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
       <div className={`font-mono font-bold text-foreground ${big ? "text-2xl" : "text-lg"}`}>{value}</div>
-    </div>
-  );
+    </div> );
 }
 
 function Warn({ items }: { items: string[] }) {
@@ -829,11 +756,9 @@ function Warn({ items }: { items: string[] }) {
       <div className="flex items-center gap-1 font-semibold text-clinical-attention">
         <AlertTriangle className="h-3 w-3" /> Verifique os dados
       </div>
-      <ul className="mt-1 list-disc pl-5 text-foreground">
-        {items.map((m) => <li key={m}>{m}</li>)}
+      <ul className="mt-1 list-disc pl-5 text-foreground"> {items.map((m) => <li key={m}>{m}</li>)}
       </ul>
-    </div>
-  );
+    </div> );
 }
 
 // ============================================================================
@@ -849,21 +774,17 @@ function HistoryPanel({
   return (
     <div className="space-y-2">
       <div className="flex justify-end">
-        <button onClick={onClear} className="rounded border border-border px-2 py-1 text-[10px] hover:bg-surface-2">
-          Limpar histórico
+        <button onClick={onClear} className="rounded border border-border px-2 py-1 text-[10px] hover:bg-surface-2"> Limpar histórico
         </button>
       </div>
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-[11px]">
           <thead className="bg-surface-2 text-left">
-            <tr>
-              {["Data/hora", "Medicamento", "Diluição", "Tipo", "Diluente", "Vol. final", "Concentração", "Dose", "Bomba", "Responsável", ""].map((h) => (
-                <th key={h} className="px-2 py-1.5 font-semibold text-muted-foreground">{h}</th>
-              ))}
+            <tr> {["Data/hora", "Medicamento", "Diluição", "Tipo", "Diluente", "Vol. final", "Concentração", "Dose", "Bomba", "Responsável", ""].map((h) => (
+                <th key={h} className="px-2 py-1.5 font-semibold text-muted-foreground">{h}</th> ))}
             </tr>
           </thead>
-          <tbody>
-            {history.map((r) => (
+          <tbody> {history.map((r) => (
               <tr key={r.id} className="border-t border-border">
                 <td className="px-2 py-1 font-mono">{new Date(r.at).toLocaleString("pt-BR")}</td>
                 <td className="px-2 py-1 font-semibold">{r.drugName}</td>
@@ -880,13 +801,11 @@ function HistoryPanel({
                     <Copy className="h-3 w-3" /> Duplicar
                   </button>
                 </td>
-              </tr>
-            ))}
+              </tr> ))}
           </tbody>
         </table>
       </div>
-    </div>
-  );
+    </div> );
 }
 
 // ============================================================================
@@ -905,10 +824,8 @@ function BankPanel({
 }) {
   return (
     <div className="space-y-4">
-      <div className="text-[11px] text-muted-foreground">
-        ⚙️ Banco de diluições — {DILUTION_SOURCE_NOTE}
-      </div>
-      {drugs.map((d) => {
+      <div className="text-[11px] text-muted-foreground"> ⚙ Banco de diluições — {DILUTION_SOURCE_NOTE}
+      </div> {drugs.map((d) => {
         const disabled = new Set(overrides[d.code]?.disabled ?? []);
         return (
           <div key={d.code} className="rounded-lg border border-border bg-surface p-3">
@@ -922,8 +839,7 @@ function BankPanel({
                 <RotateCcw className="h-3 w-3" /> Restaurar padrão
               </button>
             </div>
-            <ul className="mt-2 space-y-1">
-              {[...d.dilutions, ...(overrides[d.code]?.customDilutions ?? []).filter((c) => disabled.has(c.id))]
+            <ul className="mt-2 space-y-1"> {[...d.dilutions, ...(overrides[d.code]?.customDilutions ?? []).filter((c) => disabled.has(c.id))]
                 .map((p) => (
                   <BankDilutionRow
                     key={p.id}
@@ -931,31 +847,22 @@ function BankPanel({
                     disabled={disabled.has(p.id)}
                     onToggle={(disable) => onToggleDilution(d.code, p.id, disable)}
                     onSave={(next) => onEditDilution(d.code, p, next)}
-                  />
-                ))}
+                  /> ))}
             </ul>
-          </div>
-        );
+          </div> );
       })}
 
 
       <div className="rounded-lg border border-border bg-surface p-3">
-        <div className="text-[12px] font-semibold text-foreground">Registro de alterações</div>
-        {!audit.length ? (
-          <div className="mt-1 text-[11px] text-muted-foreground">Nenhuma alteração registrada.</div>
-        ) : (
-          <ul className="mt-1 space-y-0.5 text-[11px]">
-            {audit.map((a, i) => (
-              <li key={i} className="font-mono text-muted-foreground">
-                {new Date(a.at).toLocaleString("pt-BR")} · {a.drugCode} · {a.field}: {a.before} → {a.after}
+        <div className="text-[12px] font-semibold text-foreground">Registro de alterações</div> {!audit.length ? (
+          <div className="mt-1 text-[11px] text-muted-foreground">Nenhuma alteração registrada.</div> ) : (
+          <ul className="mt-1 space-y-0.5 text-[11px]"> {audit.map((a, i) => (
+              <li key={i} className="font-mono text-muted-foreground"> {new Date(a.at).toLocaleString("pt-BR")} · {a.drugCode} · {a.field}: {a.before} → {a.after}
                 {a.user ? ` · ${a.user}` : ""}
-              </li>
-            ))}
-          </ul>
-        )}
+              </li> ))}
+          </ul> )}
       </div>
-    </div>
-  );
+    </div> );
 }
 
 function BankDilutionRow({
@@ -981,8 +888,7 @@ function BankDilutionRow({
   return (
     <li className="flex flex-wrap items-center gap-2 rounded border border-border/60 bg-surface-2/40 px-2 py-1 text-[11px]">
       <input type="checkbox" checked={!disabled} onChange={(e) => onToggle(!e.target.checked)} />
-      <span className={`min-w-[9rem] flex-1 ${disabled ? "text-muted-foreground line-through" : "text-foreground"}`}>
-        {preset.label}
+      <span className={`min-w-[9rem] flex-1 ${disabled ? "text-muted-foreground line-through" : "text-foreground"}`}> {preset.label}
       </span>
       <input className={smallInput} inputMode="decimal" value={drugVol}
         onChange={(e) => setDrugVol(e.target.value)} title="Volume do medicamento (mL)" />
@@ -994,8 +900,7 @@ function BankDilutionRow({
         className="h-7 rounded border border-input bg-background px-1 text-[11px] outline-none focus:ring-1 focus:ring-ring"
         value={diluent}
         onChange={(e) => setDiluent(e.target.value as Diluent)}
-      >
-        {DILUENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+      > {DILUENTS.map((d) => <option key={d} value={d}>{d}</option>)}
       </select>
       <button
         disabled={!dirty}
@@ -1010,8 +915,6 @@ function BankDilutionRow({
         className="inline-flex items-center gap-1 rounded border border-border px-1.5 py-0.5 text-[10px] hover:bg-surface-2 disabled:opacity-40"
       >
         <Save className="h-3 w-3" /> Salvar
-      </button>
-      {preset.custom && <span className="rounded bg-clinical-attention/10 px-1 text-[9px] text-clinical-attention">personalizada</span>}
-    </li>
-  );
+      </button> {preset.custom && <span className="rounded bg-clinical-attention/10 px-1 text-[9px] text-clinical-attention">personalizada</span>}
+    </li> );
 }

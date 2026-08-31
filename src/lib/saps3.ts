@@ -53,8 +53,7 @@ export function saps3Mortality(score: number): number {
 
 // ---------------------------------------------------------------- utilidades
 
-const norm = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 function num(v: unknown): number | null {
   if (typeof v === "number") return Number.isFinite(v) ? v : null;
@@ -436,10 +435,10 @@ export function computeSaps3(p: Patient): Saps3Result {
     let value: string | null = null;
     let warning: string | undefined;
     if (pao2 === null) {
-      warning = "⚠️ PaO₂ necessária (gasometria arterial).";
+      warning = " PaO₂ necessária (gasometria arterial).";
     } else if (vm) {
       if (!fio2) {
-        warning = "⚠️ FiO₂ necessária para calcular PaO₂/FiO₂.";
+        warning = " FiO₂ necessária para calcular PaO₂/FiO₂.";
         value = `PaO₂ ${pao2} mmHg · em VM`;
       } else {
         const pf = pao2 / fio2;
@@ -461,8 +460,7 @@ export function computeSaps3(p: Patient): Saps3Result {
   }
 
   // -------- totais
-  const sum = (g: Saps3Group) =>
-    items.filter((i) => i.group === g).reduce((a, b) => a + (b.points ?? 0), 0);
+  const sum = (g: Saps3Group) => items.filter((i) => i.group === g).reduce((a, b) => a + (b.points ?? 0), 0);
   const g1 = sum(1), g2 = sum(2), g3 = sum(3);
   const score = g1 + g2 + g3 + SAPS3_OFFSET;
   const missing = items.filter((i) => i.missing);
