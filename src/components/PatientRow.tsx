@@ -1103,8 +1103,7 @@ export function PatientRow({
  </div>
  </> );
             })()}
- <div>
- </div> {/* Bristol — linhas temporais */}
+ {/* Bristol — linhas temporais */}
  <div className="mt-4">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
  </div> {(patient.state.stools?.length ?? 0) > 0 ? (
