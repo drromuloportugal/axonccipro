@@ -1209,7 +1209,7 @@ export function PatientRow({
  <SofaPanel patient={patient} />
  </div>
  <div className="mt-5">
- <OrganIntegrityChart patient={patient} />
+ <ClinicalTrendChart patient={patient} />
 
  </div>
  </div> )}
