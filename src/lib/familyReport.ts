@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import type { Patient } from "@/data/patients";
 import { deviceTypeByCode } from "@/data/devices";
+import { CONDUCT_SYSTEM_META } from "@/lib/clinical";
 import { stripEmoji } from "@/lib/text";
 
 /* ---------- paleta (tons do sistema) ---------- */
@@ -41,14 +42,24 @@ function box(doc: Doc, x: number, y: number, w: number, h: number, fill: readonl
   doc.rect(x, y, w, h, "FD");
 }
 
-function sectionTitle(doc: Doc, label: string, y: number) {
+function sectionTitle(doc: Doc, label: string, yIn: number) {
+  const y = ensure(doc, yIn, 24);
   doc.setFillColor(GREEN[0], GREEN[1], GREEN[2]);
   doc.rect(M, y, CW, 8, "F");
   txt(doc, label.toUpperCase(), M + 3, y + 5.4, { size: 10, bold: true, color: [255, 255, 255] });
   return y + 13;
 }
 
-function bullet(doc: Doc, s: string, y: number, color: readonly number[] = INK) {
+function ensure(doc: Doc, y: number, needed = 14) {
+  if (y + needed > 272) {
+    doc.addPage();
+    return 20;
+  }
+  return y;
+}
+
+function bullet(doc: Doc, s: string, yIn: number, color: readonly number[] = INK) {
+  const y = ensure(doc, yIn, 12);
   doc.setFillColor(GREEN[0], GREEN[1], GREEN[2]);
   doc.circle(M + 1.6, y - 1.2, 1.1, "F");
   return txt(doc, s, M + 5.5, y, { size: 10, color, maxWidth: CW - 6 }) + 1.2;
@@ -165,8 +176,8 @@ export function buildFamilyReport(patient: Patient): jsPDF {
   txt(doc, patient.name, M + 4, y + 7.5, { size: 13, bold: true });
   txt(doc, `Leito ${patient.bed} · ${patient.age} anos · Equipe ${patient.team} · Médico(a) ${patient.attending}`, M + 4, y + 13.5, { size: 9, color: SOFT, maxWidth: CW - 60 });
   doc.setFillColor(sev.color[0], sev.color[1], sev.color[2]);
-  doc.roundedRect(W - M - 52, y + 5.5, 48, 9, 2, 2, "F");
-  txt(doc, sev.label, W - M - 28, y + 11.2, { size: 7.5, bold: true, color: [255, 255, 255], align: "center", maxWidth: 44 });
+  doc.roundedRect(W - M - 54, y + 4, 50, 12, 2, 2, "F");
+  txt(doc, sev.label, W - M - 29, y + 8.6, { size: 7.5, bold: true, color: [255, 255, 255], align: "center", maxWidth: 44 });
   y += 27;
 
   /* 1. linha do tempo */
@@ -231,7 +242,10 @@ export function buildFamilyReport(patient: Patient): jsPDF {
   progressBar(doc, M, y + 2.5, CW, done / total, GREEN);
   y += 12;
   patient.conducts.slice(0, 8).forEach((c) => {
-    y = bullet(doc, `${c.done ? "Concluído" : "Em andamento"} — equipe ${c.team}${c.subItems?.[0]?.text ? `: ${c.subItems[0].text}` : ""}`, y, c.done ? INK : AMBER);
+    const sys = c.system ? CONDUCT_SYSTEM_META[c.system]?.label : undefined;
+    const notes = (c.subItems ?? []).map((s2) => s2.text).filter(Boolean).slice(0, 2).join("; ");
+    const head = sys ?? c.text ?? "Cuidado";
+    y = bullet(doc, `${head} (equipe ${c.team}) — ${c.done ? "concluído hoje" : "em andamento"}${notes ? `: ${notes}` : ""}`, y, c.done ? INK : AMBER);
   });
 
   if (patient.goals?.length) {
