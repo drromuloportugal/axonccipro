@@ -671,7 +671,7 @@ export function PatientRow({
           >
  <ChevronDown className="h-3.5 w-3.5" />
  <span className={`h-2 w-2 rounded-full ${sevDot[patient.severity]}`} />
- <span>{patient.name}</span>
+ <span className="text-base font-extrabold">{patient.name}</span>
  <span className="font-mono text-muted-foreground">· {patient.bed}</span>
  <span className="text-muted-foreground">· {sevLabel[patient.severity]}</span>
  </button>
@@ -713,9 +713,9 @@ export function PatientRow({
  </button>
  </div>
  </div>
- <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-none [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
  <div onClick={colClick("id")}>
- <ColTitle>Identificação</ColTitle>
+ <ColTitle tone={0}>Identificação</ColTitle>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
  </div>
@@ -748,7 +748,7 @@ export function PatientRow({
  </div> {/* Procedimentos & eventos — ao final da coluna 01 */}
             {patient.procedures.length > 0 && (
  <div className="mt-4">
- <ColTitle>Procedimentos & eventos</ColTitle>
+ <ColTitle tone={0}>Procedimentos & eventos</ColTitle>
  <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
@@ -759,7 +759,7 @@ export function PatientRow({
  </div> )}
  </div> {/* 2 */}
  <div onClick={colClick("hist")}>
- <ColTitle>História clínica</ColTitle>
+ <ColTitle tone={1}>História clínica</ColTitle>
  <div className="space-y-3"> {([
                  { cat: "current", label: "Diagnósticos atuais", box: "border-clinical-attention/50 bg-clinical-attention/10", text: "text-clinical-attention", head: "bg-clinical-attention" },
                  { cat: "inactive", label: "Diagnósticos inativos", box: "border-border bg-surface-2", text: "text-muted-foreground", head: "bg-clinical-neutral" },
@@ -794,7 +794,7 @@ export function PatientRow({
  <div onClick={colClick("proc")}>
  <div>
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
- <ColTitle>Dispositivos invasivos</ColTitle>
+ <ColTitle tone={2}>Dispositivos invasivos</ColTitle>
 
  <div className="flex flex-wrap items-center gap-1.5"> {(patient.infections?.filter((i) => i.status !== "resolvido").length ?? 0) > 0 && (
  <button
@@ -876,7 +876,7 @@ export function PatientRow({
  </div> {/* 4 — Medicações agrupadas por classe */}
  <div onClick={colClick("med")}>
  <div className="mb-2 flex items-center justify-between gap-2">
- <ColTitle>Medicações</ColTitle>
+ <ColTitle tone={3}>Medicações</ColTitle>
  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
  <button
                   type="button"
@@ -1041,7 +1041,7 @@ export function PatientRow({
  </div>
  </div> {/* 6 */}
  <div onClick={colClick("sup")}>
- <ColTitle>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
+ <ColTitle tone={5}>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
  <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
@@ -1154,7 +1154,7 @@ export function PatientRow({
  </div>
  </div> {/* 7 - Plano · Metas por sistema orgânico */}
  <div onClick={colClick("plan")}>
- <ColTitle>Condutas</ColTitle>
+ <ColTitle tone={6}>Condutas</ColTitle>
  <div className="mb-2 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
  <span>{conductsDone}/{patient.conducts.length} concluídas</span>
  <span className="font-mono text-foreground">{conductsPct}%</span>
