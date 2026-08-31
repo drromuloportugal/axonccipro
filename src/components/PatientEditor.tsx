@@ -65,6 +65,7 @@ import { PressureInjuryMap } from "@/components/PressureInjuryMap";
 import { DRUG_BANK, dilutionStore, mergedDrug, normalize, type DrugOverride } from "@/data/dilutions";
 
 import { SmartMonitoring } from "@/components/SmartMonitoring";
+import { SerialMatrix } from "@/components/SerialMatrix";
 
 type Props = {
   open: boolean;
