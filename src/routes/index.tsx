@@ -7,7 +7,8 @@ import { PatientEditor } from "@/components/PatientEditor";
 import { PatientPrintView } from "@/components/PatientPrintView";
 import { ExamsMatrix } from "@/components/ExamsMatrix";
 import { DilutionCenter } from "@/components/DilutionCenter";
-import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
+import { ManagementDashboard } from "@/components/ManagementDashboard";
+import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
 import unimedLogo from "@/assets/unimed-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
@@ -165,6 +166,7 @@ function Passometro() {
   const [printing, setPrinting] = useState<Patient | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [managementOpen, setManagementOpen] = useState(false);
 
   const bedNumber = (bed: string) => {
     const m = String(bed).match(/(\d+)/);
@@ -399,6 +401,19 @@ function Passometro() {
                   className="hidden"
                   onChange={(e) => handleImportFiles(e.target.files)}
                 />
+
+                {/* Gestão */}
+  <button
+                  onClick={() => {
+                    setManagementOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-3 py-2 text-[12px] font-semibold text-clinical-attention transition-colors hover:bg-clinical-attention/20"
+                  title="Dashboard executivo de gestão da UTI"
+                >
+  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Gestão
+  </button>
 
                 {/* Ferramentas clínicas */}
  <button
@@ -735,6 +750,16 @@ function Passometro() {
  </div>
  </div>
       )}
+
+ <ManagementDashboard
+        open={managementOpen}
+        onClose={() => setManagementOpen(false)}
+        patients={patients}
+        onSelectPatient={(id) => {
+          const i = active.findIndex((p) => p.id === id);
+          if (i >= 0) goTo(i);
+        }}
+      />
  </div>
   );
 }
