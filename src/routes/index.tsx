@@ -7,7 +7,7 @@ import { PatientEditor } from "@/components/PatientEditor";
 import { PatientPrintView } from "@/components/PatientPrintView";
 import { ExamsMatrix } from "@/components/ExamsMatrix";
 import { DilutionCenter } from "@/components/DilutionCenter";
-import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw } from "lucide-react";
+import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import unimedLogo from "@/assets/unimed-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
