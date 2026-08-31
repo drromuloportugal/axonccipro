@@ -80,7 +80,7 @@ const TITLE_GREENS = [
 
 function ColTitle({ children, tone = 0 }: { children: React.ReactNode; tone?: number }) {
   return (
- <div className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} mb-2`}> <span className="truncate">{children}</span>
+ <div className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} mb-2`}> <span className="leading-tight">{children}</span>
  </div> );
 }
 
@@ -291,7 +291,7 @@ export function PatientRow({
     tone?: number;
   }) => (
  <div className="mb-1.5 flex items-center justify-between gap-1.5">
- <span className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} min-w-0 truncate !text-[11px]`}> {label}
+ <span className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} min-w-0 !text-[11px] leading-tight`}> {label}
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {right}
         {editBtn(tab, title)}
@@ -307,7 +307,7 @@ export function PatientRow({
  <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
  <div className="mb-1.5 flex items-center justify-between gap-1.5">
- <span className="title-box title-green-1 min-w-0 truncate !text-[11px]"> Identificação
+ <span className="title-box title-green-1 min-w-0 !text-[11px] leading-tight"> Identificação
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
  <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
@@ -399,6 +399,7 @@ export function PatientRow({
             label="Invasões"
             tab="proc"
             title="Editar dispositivos invasivos"
+            tone={2}
             right={
  <button
                 type="button"
@@ -422,6 +423,7 @@ export function PatientRow({
             label="Medicações"
             tab="med"
             title="Editar medicações"
+            tone={3}
             right={
  <div className="flex items-center gap-1">
  <button
@@ -481,7 +483,7 @@ export function PatientRow({
  </div> {/* 5 - Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
 
- <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" /> {/* 1) Culturas */}
+ <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" tone={4} /> {/* 1) Culturas */}
           {(patient.cultures?.length ?? 0) > 0 && (
  <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
@@ -512,7 +514,7 @@ export function PatientRow({
  </div> )}
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
  <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
- <ColHead label="Estado atual" tab="sup" title="Editar estado atual" /> {/* Estado atual — sinais vitais (linhas) */}
+ <ColHead label="Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="rounded border border-border bg-surface px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
  <div className="space-y-0.5"> {vitalRows.map((r) => (
@@ -669,7 +671,7 @@ export function PatientRow({
           >
  <ChevronDown className="h-3.5 w-3.5" />
  <span className={`h-2 w-2 rounded-full ${sevDot[patient.severity]}`} />
- <span>{patient.name}</span>
+ <span className="text-base font-extrabold">{patient.name}</span>
  <span className="font-mono text-muted-foreground">· {patient.bed}</span>
  <span className="text-muted-foreground">· {sevLabel[patient.severity]}</span>
  </button>
@@ -711,9 +713,9 @@ export function PatientRow({
  </button>
  </div>
  </div>
- <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-none [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
  <div onClick={colClick("id")}>
- <ColTitle>Identificação</ColTitle>
+ <ColTitle tone={0}>Identificação</ColTitle>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
  </div>
@@ -746,7 +748,7 @@ export function PatientRow({
  </div> {/* Procedimentos & eventos — ao final da coluna 01 */}
             {patient.procedures.length > 0 && (
  <div className="mt-4">
- <ColTitle>Procedimentos & eventos</ColTitle>
+ <ColTitle tone={0}>Procedimentos & eventos</ColTitle>
  <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
@@ -757,7 +759,7 @@ export function PatientRow({
  </div> )}
  </div> {/* 2 */}
  <div onClick={colClick("hist")}>
- <ColTitle>História clínica</ColTitle>
+ <ColTitle tone={1}>História clínica</ColTitle>
  <div className="space-y-3"> {([
                  { cat: "current", label: "Diagnósticos atuais", box: "border-clinical-attention/50 bg-clinical-attention/10", text: "text-clinical-attention", head: "bg-clinical-attention" },
                  { cat: "inactive", label: "Diagnósticos inativos", box: "border-border bg-surface-2", text: "text-muted-foreground", head: "bg-clinical-neutral" },
@@ -792,7 +794,7 @@ export function PatientRow({
  <div onClick={colClick("proc")}>
  <div>
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
- <ColTitle>Dispositivos invasivos</ColTitle>
+ <ColTitle tone={2}>Dispositivos invasivos</ColTitle>
 
  <div className="flex flex-wrap items-center gap-1.5"> {(patient.infections?.filter((i) => i.status !== "resolvido").length ?? 0) > 0 && (
  <button
@@ -874,7 +876,7 @@ export function PatientRow({
  </div> {/* 4 — Medicações agrupadas por classe */}
  <div onClick={colClick("med")}>
  <div className="mb-2 flex items-center justify-between gap-2">
- <ColTitle>Medicações</ColTitle>
+ <ColTitle tone={3}>Medicações</ColTitle>
  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
  <button
                   type="button"
@@ -954,6 +956,7 @@ export function PatientRow({
  <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
  </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
+ <ColTitle tone={4}>Culturas · Imagem</ColTitle>
  <div className="mb-3">
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Culturas microbiológicas</div> {onEdit && (
@@ -1039,7 +1042,7 @@ export function PatientRow({
  </div>
  </div> {/* 6 */}
  <div onClick={colClick("sup")}>
- <ColTitle>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
+ <ColTitle tone={5}>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
  <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
@@ -1152,7 +1155,7 @@ export function PatientRow({
  </div>
  </div> {/* 7 - Plano · Metas por sistema orgânico */}
  <div onClick={colClick("plan")}>
- <ColTitle>Condutas</ColTitle>
+ <ColTitle tone={6}>Condutas</ColTitle>
  <div className="mb-2 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
  <span>{conductsDone}/{patient.conducts.length} concluídas</span>
  <span className="font-mono text-foreground">{conductsPct}%</span>
