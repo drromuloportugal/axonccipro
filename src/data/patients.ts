@@ -511,6 +511,10 @@ export interface Patient {
       pas?: VitalReading[];
       /** Pressão arterial diastólica (mmHg). */
       pad?: VitalReading[];
+      /** Balanço hídrico seriado (mL, positivo = retenção). */
+      bh?: VitalReading[];
+      /** Escala de Bristol seriada (1–7). */
+      bristol?: VitalReading[];
     };
 
     /** Detailed intake/output ledger; enables real-time balance calculation. */
