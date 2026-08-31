@@ -26,7 +26,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PumpMonitor, PumpDashboard } from "@/components/PumpMonitor";
 import { AnatomicalMap } from "@/components/AnatomicalMap";
-import { OrganIntegrityChart } from "@/components/OrganIntegrityChart";
+import { ClinicalTrendChart } from "@/components/ClinicalTrendChart";
 import { SofaPanel } from "@/components/SofaPanel";
 
 import { IntubationJourney } from "@/components/IntubationJourney";
