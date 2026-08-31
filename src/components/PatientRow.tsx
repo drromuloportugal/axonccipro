@@ -80,7 +80,7 @@ const TITLE_GREENS = [
 
 function ColTitle({ children, tone = 0 }: { children: React.ReactNode; tone?: number }) {
   return (
- <div className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} mb-2`}> <span className="truncate">{children}</span>
+ <div className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} mb-2`}> <span className="leading-tight">{children}</span>
  </div> );
 }
 
@@ -291,7 +291,7 @@ export function PatientRow({
     tone?: number;
   }) => (
  <div className="mb-1.5 flex items-center justify-between gap-1.5">
- <span className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} min-w-0 truncate !text-[11px]`}> {label}
+ <span className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} min-w-0 !text-[11px] leading-tight`}> {label}
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {right}
         {editBtn(tab, title)}
@@ -307,7 +307,7 @@ export function PatientRow({
  <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
  <div className="mb-1.5 flex items-center justify-between gap-1.5">
- <span className="title-box title-green-1 min-w-0 truncate !text-[11px]"> Identificação
+ <span className="title-box title-green-1 min-w-0 !text-[11px] leading-tight"> Identificação
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
  <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
