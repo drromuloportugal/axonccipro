@@ -493,8 +493,8 @@ function DrugCalculator({
  <div className="mt-3">
  <Label>Diluição selecionada</Label>
  <select className={inputCls} value={dilutionId} onChange={(e) => applyPreset(e.target.value)}> {drug.dilutions.map((d) => (
- <option key={d.id} value={d.id}>{d.custom ? "★ " : ""}{d.label}</option> ))}
- <option value="__custom__">➕ Diluição personalizada</option>
+ <option key={d.id} value={d.id}>{d.custom ? " " : ""}{d.label}</option> ))}
+ <option value="__custom__"> Diluição personalizada</option>
  </select> {preset?.note && <div className="mt-1 text-[10px] italic text-muted-foreground">{preset.note}</div>}
  </div>
 
@@ -824,7 +824,7 @@ function BankPanel({
 }) {
   return (
  <div className="space-y-4">
- <div className="text-[11px] text-muted-foreground"> ⚙ Banco de diluições — {DILUTION_SOURCE_NOTE}
+ <div className="text-[11px] text-muted-foreground"> Banco de diluições — {DILUTION_SOURCE_NOTE}
  </div> {drugs.map((d) => {
         const disabled = new Set(overrides[d.code]?.disabled ?? []);
         return (

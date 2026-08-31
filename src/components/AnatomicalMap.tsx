@@ -580,7 +580,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  <span className="font-semibold uppercase tracking-wider">Forma:</span>
  <span>● CVC/PICC</span><span>▲ PAI/PVP</span><span>■ Dreno</span>
  <span>◆ DVE/DLE/ECMO</span><span>○ TQT/Estomia</span>
- <span>⬢ LPP</span><span>◌ Foco infeccioso</span>
+ <span> LPP</span><span>◌ Foco infeccioso</span>
  </div> {infections.length > 0 && (
  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
  <span className="font-semibold uppercase tracking-wider">Foco:</span>
@@ -948,7 +948,7 @@ function FocusPanel({
 const TIMELINE_ICON: Record<string, string> = {
   febre: "", cultura_coletada: "", cultura_positiva: "",
   atb_inicio: "", atb_fim: "✓", pcr: "",
-  controle_foco: "✅", instabilidade: "⚡", outro: "•",
+  controle_foco: "", instabilidade: "", outro: "•",
 };
 
 function TimelinePanel({ events }: { events: import("@/data/patients").InfectionTimelineEvent[] }) {

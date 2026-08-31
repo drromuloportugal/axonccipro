@@ -1028,7 +1028,7 @@ export function PatientRow({
  <span>{icon}</span><span>{im.modality} · {im.region}</span>
  </div>
  <span className="font-mono text-[10px] text-muted-foreground"> {formatDateBR(im.performedAt)}
-                            {im.status && <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">{im.status === "concluido" ? "✅ Concluído" : " Solicitado"}</span>}
+                            {im.status && <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">{im.status === "concluido" ? " Concluído" : " Solicitado"}</span>}
  </span>
 
  </div> {im.summary && <div className="mt-0.5 text-[10.5px] text-muted-foreground">{im.summary}</div>}

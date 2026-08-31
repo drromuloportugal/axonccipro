@@ -1420,7 +1420,7 @@ function MedicationsList({
  <option key={d.name} value={d.name}>{d.name}</option> ))}
  </optgroup>
  <optgroup label="Banco de diluições"> {bankDrugs.map((d) => (
- <option key={d.code} value={d.name}> {d.hasCustom ? "★ " : ""}{d.name}{d.hasCustom ? " (diluição personalizada)" : ""}
+ <option key={d.code} value={d.name}> {d.hasCustom ? " " : ""}{d.name}{d.hasCustom ? " (diluição personalizada)" : ""}
  </option> ))}
  </optgroup>
  </select> {drug && (
@@ -1440,7 +1440,7 @@ function MedicationsList({
  <div className="mt-2 rounded-md border border-border bg-background/60 p-2 text-[10px]">
  <div className="font-semibold">Diluições cadastradas ({bankSel.presentation.label})</div>
  <ul className="mt-1 space-y-0.5"> {bankSel.dilutions.map((dl) => (
- <li key={dl.id} className={dl.custom ? "text-clinical-attention" : "text-muted-foreground"}> {dl.custom ? "★ " : "• "}{dl.label}
+ <li key={dl.id} className={dl.custom ? "text-clinical-attention" : "text-muted-foreground"}> {dl.custom ? " " : "• "}{dl.label}
  </li> ))}
  </ul>
  </div> )}
@@ -2108,7 +2108,7 @@ const IMAGING_MODALITIES: { code: ImagingModality; label: string }[] = [
 
 const STATUS_OPTIONS: { code: NonNullable<ImagingExam["status"]>; label: string; icon: string }[] = [
   { code: "solicitado", label: "Solicitado", icon: "" },
-  { code: "concluido", label: "Concluído", icon: "✅" },
+  { code: "concluido", label: "Concluído", icon: "" },
 ];
 
 

@@ -545,7 +545,7 @@ function StepDrugs({ record, weight, hypotension, contraSux, update }: { record:
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5">
  <Pill className="h-3.5 w-3.5 text-clinical-neuro" />
- <span className="text-[12px] font-bold">{d.name}</span> {highlighted && <span className="text-[9px] font-bold text-clinical-attention">★ INDICADO</span>}
+ <span className="text-[12px] font-bold">{d.name}</span> {highlighted && <span className="text-[9px] font-bold text-clinical-attention"> INDICADO</span>}
                       {contraSuxNow && <span className="text-[9px] font-bold text-clinical-critical">✕ CONTRAINDICADO</span>}
  </div>
  <button onClick={() => toggleAdmin(d.name, mg, mL)}
@@ -626,7 +626,7 @@ function StepConfirm({ record, update }: { record: IntubationRecord; update: any
  <input type="checkbox" checked={!!cf[c]} onChange={() => toggle(c)} className="h-4 w-4" /> {c}
  </label> ))}
  </div> {positive >= 3 ? (
- <div className="rounded-md border-2 border-clinical-stable/50 bg-clinical-stable/10 p-2 text-[11px] font-bold text-clinical-stable"> ✅ Intubação confirmada ({positive} sinais positivos)
+ <div className="rounded-md border-2 border-clinical-stable/50 bg-clinical-stable/10 p-2 text-[11px] font-bold text-clinical-stable"> Intubação confirmada ({positive} sinais positivos)
  </div> ) : negative ? (
  <div className="rounded-md border-2 border-clinical-critical/60 bg-clinical-critical/10 p-2 text-[11px] font-bold text-clinical-critical"> Confirmação NEGATIVA — abrir algoritmo de via aérea difícil imediatamente!
  </div> ) : (

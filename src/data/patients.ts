@@ -642,7 +642,7 @@ export const patients: Patient[] = [
     allergies: ["Dipirona"],
     procedures: [
       { date: "05/06 14:20", label: " IOT", detail: "Tubo 7.5 — Dr. Lima", kind: "resp" },
-      { date: "10/06 22:40", label: "⚡ PCR revertida", detail: "1 ciclo RCP", kind: "critical" },
+      { date: "10/06 22:40", label: " PCR revertida", detail: "1 ciclo RCP", kind: "critical" },
       { date: "13/06 08:00", label: " CRRT iniciada", kind: "neuro" },
     ],
     devices: [

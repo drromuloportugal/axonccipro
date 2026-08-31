@@ -105,7 +105,7 @@ export function trendBadge(t: TrendDirection) {
   switch (t) {
     case "improving": return { icon: "", className: "text-clinical-stable", label: "Melhorando" };
     case "worsening": return { icon: "", className: "text-clinical-critical", label: "Piorando" };
-    case "flat": return { icon: "➖", className: "text-clinical-neutral", label: "Estável" };
+    case "flat": return { icon: "", className: "text-clinical-neutral", label: "Estável" };
   }
 }
 
@@ -365,9 +365,9 @@ export const PROCEDURES: ProcedureDef[] = [
   { code: "PIC", label: "Monitor de PIC", kind: "neuro", icon: "" },
   { code: "DVE", label: "Derivação ventricular externa", kind: "neuro", icon: "" },
   { code: "BRONCO", label: "Broncoscopia", kind: "resp", icon: "" },
-  { code: "CVPP", label: "Cardioversão", kind: "critical",icon: "⚡" },
+  { code: "CVPP", label: "Cardioversão", kind: "critical",icon: "" },
   { code: "TORACO", label: "Toracocentese", kind: "resp", icon: "" },
-  { code: "PCR", label: "PCR revertida", kind: "critical",icon: "⚡" },
+  { code: "PCR", label: "PCR revertida", kind: "critical",icon: "" },
 ];
 
 export const procedureByCode = (c: string) => PROCEDURES.find((p) => p.code === c);
