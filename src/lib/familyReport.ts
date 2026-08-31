@@ -265,11 +265,11 @@ export function generateFamilyReport(patient: Patient) {
   y += 3;
 
   y = sectionTitle(doc, "Como acompanhar", y);
-  y = bullet(doc, "A evolução na UTI acontece em dias, não em horas: pequenas melhoras já são importantes.");
-  y = bullet(doc, "A equipe atualiza a família em horário combinado e sempre que houver mudança relevante.");
-  y = bullet(doc, "Perguntas simples são bem-vindas: o que melhorou hoje, o que preocupa, qual o próximo passo.");
+  y = bullet(doc, "A evolução na UTI acontece em dias, não em horas: pequenas melhoras já são importantes.", y);
+  y = bullet(doc, "A equipe atualiza a família em horário combinado e sempre que houver mudança relevante.", y);
+  y = bullet(doc, "Perguntas simples são bem-vindas: o que melhorou hoje, o que preocupa, qual o próximo passo.", y);
   if (patient.legalRepresentative?.name) {
-    y = bullet(doc, `Contato de referência da família: ${patient.legalRepresentative.name}${patient.legalRepresentative.relation ? ` (${patient.legalRepresentative.relation})` : ""}${patient.legalRepresentative.phone ? ` · ${patient.legalRepresentative.phone}` : ""}`);
+    y = bullet(doc, `Contato de referência da família: ${patient.legalRepresentative.name}${patient.legalRepresentative.relation ? ` (${patient.legalRepresentative.relation})` : ""}${patient.legalRepresentative.phone ? ` · ${patient.legalRepresentative.phone}` : ""}`, y);
   }
   y += 4;
 
