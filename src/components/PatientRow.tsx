@@ -474,7 +474,7 @@ export function PatientRow({
  </div> {/* 5 - Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
 
- <ColHead label="Culturas · Lab · Gaso · Imagem" tab="exam" title="Editar exames" /> {/* 1) Culturas */}
+ <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" /> {/* 1) Culturas */}
           {(patient.cultures?.length ?? 0) > 0 && (
  <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
