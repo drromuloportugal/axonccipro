@@ -77,8 +77,8 @@ function findExam(p: Patient, keys: string[]): { n: number; at?: string; label: 
 }
 
 const VASOACTIVES = [
-  "noradrenalina", "norepinefrina", "adrenalina", "epinefrina",
-  "vasopressina", "dopamina", "dobutamina", "terlipressina", "milrinona",
+ "noradrenalina", "norepinefrina", "adrenalina", "epinefrina",
+ "vasopressina", "dopamina", "dobutamina", "terlipressina", "milrinona",
 ];
 
 export function isOnVasoactive(p: Patient): boolean {

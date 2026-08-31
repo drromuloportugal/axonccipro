@@ -3,25 +3,25 @@ import { DRUG_BANK } from "@/data/dilutions";
 
 // Common ICU pump drugs (used in selector)
 const BASE_PUMP_DRUGS = [
-  "Noradrenalina",
-  "Vasopressina",
-  "Adrenalina",
-  "Dobutamina",
-  "Dopamina",
-  "Nitroglicerina",
-  "Nitroprussiato",
-  "Propofol",
-  "Midazolam",
-  "Dexmedetomidina",
-  "Fentanil",
-  "Morfina",
-  "Cetamina",
-  "Insulina",
-  "Heparina",
-  "Nutrição Parenteral",
-  "Bicarbonato",
-  "Cloreto de potássio",
-  "Hidrocortisona",
+ "Noradrenalina",
+ "Vasopressina",
+ "Adrenalina",
+ "Dobutamina",
+ "Dopamina",
+ "Nitroglicerina",
+ "Nitroprussiato",
+ "Propofol",
+ "Midazolam",
+ "Dexmedetomidina",
+ "Fentanil",
+ "Morfina",
+ "Cetamina",
+ "Insulina",
+ "Heparina",
+ "Nutrição Parenteral",
+ "Bicarbonato",
+ "Cloreto de potássio",
+ "Hidrocortisona",
 ];
 
 /** Base list + todos os fármacos cadastrados no banco de diluições. */
@@ -45,7 +45,7 @@ export const PUMP_STATUS_META: Record<
 };
 
 export const PUMP_STATUSES: PumpStatus[] = [
-  "running", "titrating", "ending_soon", "needs_change", "stopped", "occluded",
+ "running", "titrating", "ending_soon", "needs_change", "stopped", "occluded",
 ];
 
 // ============================================================================

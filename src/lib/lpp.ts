@@ -73,12 +73,12 @@ export function nearestSite(view: LPPView, x: number, y: number, radius = 22): L
 // ============================================================================
 
 export const STAGE_META: Record<LPPStage, { label: string; short: string; color: string; className: string }> = {
-  "1":  { label: "Estágio 1 — Eritema não branqueável", short: "E1",  color: "hsl(142 65% 42%)", className: "text-clinical-stable" },
-  "2":  { label: "Estágio 2 — Perda parcial de espessura", short: "E2", color: "hsl(45 95% 55%)",  className: "text-clinical-attention" },
-  "3":  { label: "Estágio 3 — Perda total de espessura",    short: "E3", color: "hsl(25 90% 55%)",  className: "text-clinical-device" },
-  "4":  { label: "Estágio 4 — Perda total de tecido",       short: "E4", color: "hsl(0 80% 55%)",   className: "text-clinical-critical" },
-  "NC": { label: "Não classificável",                       short: "NC", color: "hsl(0 0% 55%)",    className: "text-muted-foreground" },
-  "LTP":{ label: "Lesão tissular profunda",                 short: "LTP",color: "hsl(280 60% 60%)", className: "text-clinical-neuro" },
+ "1":  { label: "Estágio 1 — Eritema não branqueável", short: "E1",  color: "hsl(142 65% 42%)", className: "text-clinical-stable" },
+ "2":  { label: "Estágio 2 — Perda parcial de espessura", short: "E2", color: "hsl(45 95% 55%)",  className: "text-clinical-attention" },
+ "3":  { label: "Estágio 3 — Perda total de espessura",    short: "E3", color: "hsl(25 90% 55%)",  className: "text-clinical-device" },
+ "4":  { label: "Estágio 4 — Perda total de tecido",       short: "E4", color: "hsl(0 80% 55%)",   className: "text-clinical-critical" },
+ "NC": { label: "Não classificável",                       short: "NC", color: "hsl(0 0% 55%)",    className: "text-muted-foreground" },
+ "LTP":{ label: "Lesão tissular profunda",                 short: "LTP",color: "hsl(280 60% 60%)", className: "text-clinical-neuro" },
 };
 
 export function summarizeLPP(lesions: LPPLesion[] | undefined) {

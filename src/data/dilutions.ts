@@ -5,10 +5,10 @@
 // ============================================================================
 
 export const DILUTION_SOURCE_NOTE =
-  "Protocolo cadastrado pelo usuário a partir de material institucional.";
+ "Protocolo cadastrado pelo usuário a partir de material institucional.";
 
 export const DILUTION_DISCLAIMER =
-  "Os padrões de diluição são configuráveis. Confirme o protocolo institucional, a apresentação comercial e a prescrição antes da administração.";
+ "Os padrões de diluição são configuráveis. Confirme o protocolo institucional, a apresentação comercial e a prescrição antes da administração.";
 
 export type MassUnit = "mg" | "mcg" | "g" | "U";
 

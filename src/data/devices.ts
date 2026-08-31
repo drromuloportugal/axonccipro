@@ -56,12 +56,12 @@ export const DEVICE_TYPES: DeviceTypeDef[] = [
   {
     code: "PVP", label: "Cateter venoso periférico", icon: "", category: "venous_peripheral",
     sites: [
-      "Dorso da mão D", "Dorso da mão E",
-      "Antebraço D", "Antebraço E",
-      "Fossa cubital D", "Fossa cubital E",
-      "Braquial D", "Braquial E",
-      "Jugular externa D", "Jugular externa E",
-      "Dorso do pé D", "Dorso do pé E",
+ "Dorso da mão D", "Dorso da mão E",
+ "Antebraço D", "Antebraço E",
+ "Fossa cubital D", "Fossa cubital E",
+ "Braquial D", "Braquial E",
+ "Jugular externa D", "Jugular externa E",
+ "Dorso do pé D", "Dorso do pé E",
     ],
     needsSize: true, sizeLabel: "Gauge (Nº)", recommendedMaxDays: 4,
     notesLabel: "Aspecto / fixação", riskWeight: 1,

@@ -55,11 +55,11 @@ function buildReport(patient: Patient, dc: DischargeCheck, activeBlockers: Disch
     ? dcDevs.map((d) => `  • ${d.name}${d.keep === true ? " — permanecer" : d.keep === false ? " — retirar" : ""}${d.reason ? ` (${d.reason})` : ""}${d.removalPlan ? ` | Plano: ${d.removalPlan}` : ""}`).join("\n")
     : activeDevs.length
       ? activeDevs.map((d) => `  • ${d.typeCode}`).join("\n")
-      : "  • Nenhum dispositivo ativo.";
+      : " • Nenhum dispositivo ativo.";
 
   const linesMeds = meds.length
     ? meds.map((m) => `  • ${m.name} — ${m.dose ?? ""} ${m.freq ?? ""} ${m.route ? `(${m.route})` : ""}`.trim()).join("\n")
-    : "  • Sem medicações em continuidade.";
+    : " • Sem medicações em continuidade.";
 
   const pend: string[] = [];
   if (dc.pendencies?.lab) pend.push(`  • Laboratório: ${dc.pendencies.lab}`);
@@ -84,7 +84,7 @@ function buildReport(patient: Patient, dc: DischargeCheck, activeBlockers: Disch
   const canDischarge = activeBlockers.length === 0 && dc.finalization?.fit === "sim";
   const conclusion = canDischarge
     ? "Após revisão dos critérios assistenciais e de segurança para transferência, considera-se o paciente clinicamente apto para continuidade do tratamento em unidade de menor complexidade."
-    : `Paciente permanece sem condições clínicas para transferência devido aos seguintes fatores:\n${activeBlockers.map((b) => `  • ${BLOCKER_LABELS[b] ?? b}`).join("\n") || "  • Checklist incompleto."}`;
+    : `Paciente permanece sem condições clínicas para transferência devido aos seguintes fatores:\n${activeBlockers.map((b) => `  • ${BLOCKER_LABELS[b] ?? b}`).join("\n") || " • Checklist incompleto."}`;
 
   const justificativa = canDischarge
     ? "Paciente apresenta estabilidade neurológica, hemodinâmica, respiratória e metabólica, sem necessidade de monitorização intensiva contínua ou terapias exclusivas de unidade de terapia intensiva. Encontra-se apto para continuidade do tratamento em enfermaria, permanecendo sob acompanhamento multiprofissional, com plano terapêutico definido e critérios de reavaliação estabelecidos."
@@ -156,7 +156,7 @@ ${dc.meds?.notes ? `\nObservações: ${dc.meds.notes}` : ""}
 ===================================================================
 PENDÊNCIAS
 ===================================================================
-${pend.length ? pend.join("\n") : "  • Sem pendências registradas."}
+${pend.length ? pend.join("\n") : " • Sem pendências registradas."}
 
 ===================================================================
 PLANO ASSISTENCIAL
@@ -265,47 +265,47 @@ export function DischargeReportModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[95vh] w-[95vw] max-w-[1000px] overflow-hidden p-0">
-        <DialogHeader className="border-b border-border bg-surface-2 px-4 py-3">
-          <DialogTitle className="flex items-center gap-2 text-[15px]">
-            <FileText className="h-5 w-5 text-primary" />
+ <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+ <DialogContent className="max-h-[95vh] w-[95vw] max-w-[1000px] overflow-hidden p-0">
+ <DialogHeader className="border-b border-border bg-surface-2 px-4 py-3">
+ <DialogTitle className="flex items-center gap-2 text-[15px]">
+ <FileText className="h-5 w-5 text-primary" />
             Relatório de Alta da UTI · {patient.name}
-          </DialogTitle>
-        </DialogHeader>
+ </DialogTitle>
+ </DialogHeader>
 
-        <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2">
-          <button
+ <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2">
+ <button
             onClick={handleCopy}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12px] font-medium hover:bg-surface-3"
           >
-            <Copy className="h-3.5 w-3.5" /> Copiar
-          </button>
-          <button
+ <Copy className="h-3.5 w-3.5" /> Copiar
+ </button>
+ <button
             onClick={handlePrint}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12px] font-medium hover:bg-surface-3"
           >
-            <Printer className="h-3.5 w-3.5" /> Imprimir
-          </button>
-          <button
+ <Printer className="h-3.5 w-3.5" /> Imprimir
+ </button>
+ <button
             onClick={handleExportPDF}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12px] font-medium hover:bg-surface-3"
           >
-            <Download className="h-3.5 w-3.5" /> Exportar PDF
-          </button>
-          <button
+ <Download className="h-3.5 w-3.5" /> Exportar PDF
+ </button>
+ <button
             onClick={handleAttachRecord}
             className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-[12px] font-semibold text-primary hover:bg-primary/20"
           >
-            <Check className="h-3.5 w-3.5" /> Anexar ao prontuário
-          </button>
-          <div className="ml-auto text-[11px] text-muted-foreground">
+ <Check className="h-3.5 w-3.5" /> Anexar ao prontuário
+ </button>
+ <div className="ml-auto text-[11px] text-muted-foreground">
             {edited ? "Editado" : "Gerado automaticamente"} · {nowStamp()}
-          </div>
-        </div>
+ </div>
+ </div>
 
-        <div className="max-h-[75vh] overflow-y-auto bg-background p-4">
-          <textarea
+ <div className="max-h-[75vh] overflow-y-auto bg-background p-4">
+ <textarea
             value={text}
             onChange={(e) => {
               setText(e.target.value);
@@ -314,18 +314,18 @@ export function DischargeReportModal({
             spellCheck={false}
             className="h-[70vh] w-full resize-none rounded-md border border-border-strong bg-surface p-4 font-mono text-[12px] leading-relaxed text-foreground outline-none focus:border-primary"
           />
-        </div>
+ </div>
 
-        <div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 text-[11px] text-muted-foreground">
-          <span>Documento editável — revise antes de anexar ao prontuário.</span>
-          <button
+ <div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 text-[11px] text-muted-foreground">
+ <span>Documento editável — revise antes de anexar ao prontuário.</span>
+ <button
             onClick={onClose}
             className="rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:bg-primary/90"
           >
             Fechar
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
+ </button>
+ </div>
+ </DialogContent>
+ </Dialog>
   );
 }

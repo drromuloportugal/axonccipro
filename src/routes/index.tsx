@@ -292,24 +292,24 @@ function Passometro() {
   }, [printing]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+ <div className="min-h-screen bg-background text-foreground">
       {/* Header — centered Unimed logo, tools tucked inside a circular hamburger menu */}
-      <header
+ <header
         ref={headerRef}
         className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-white/30 backdrop-blur-2xl transition-transform duration-300 ease-out ${
           headerHidden ? "-translate-y-full" : "translate-y-0"
         }`}
         style={{
           background:
-            "linear-gradient(135deg, rgba(0, 88, 42, 0.92) 0%, rgba(0, 148, 68, 0.85) 100%)",
+ "linear-gradient(135deg, rgba(0, 88, 42, 0.92) 0%, rgba(0, 148, 68, 0.85) 100%)",
           boxShadow:
-            "0 20px 60px -16px rgba(0, 88, 42, 0.5), 0 14px 40px -18px rgba(0, 148, 68, 0.45)",
+ "0 20px 60px -16px rgba(0, 88, 42, 0.5), 0 14px 40px -18px rgba(0, 148, 68, 0.45)",
         }}
       >
-        <div className="relative flex items-center justify-center px-6 py-4">
+ <div className="relative flex items-center justify-center px-6 py-4">
           {/* Logo — centered, spans the header width */}
-          <div className="flex min-w-0 flex-1 items-center justify-center">
-            <img
+ <div className="flex min-w-0 flex-1 items-center justify-center">
+ <img
               src={unimedLogo.url}
               alt="Unimed"
               className="h-auto w-auto max-w-full object-contain"
@@ -318,44 +318,44 @@ function Passometro() {
                 filter: "drop-shadow(0 6px 18px rgba(0, 60, 28, 0.45))",
               }}
             />
-          </div>
+ </div>
 
           {/* Circular hamburger — tools drawer */}
-          <div className="absolute right-4 top-1/2 z-30 -translate-y-1/2">
-            <button
+ <div className="absolute right-4 top-1/2 z-30 -translate-y-1/2">
+ <button
               type="button"
               onClick={() => setToolsOpen((o) => !o)}
               className="flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-white/90 text-foreground shadow-lg backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
               style={{
                 boxShadow:
-                  "0 10px 30px -8px color-mix(in oklab, var(--clinical-resp) 40%, transparent), 0 8px 22px -10px color-mix(in oklab, var(--clinical-stable) 35%, transparent)",
+ "0 10px 30px -8px color-mix(in oklab, var(--clinical-resp) 40%, transparent), 0 8px 22px -10px color-mix(in oklab, var(--clinical-stable) 35%, transparent)",
               }}
               aria-label="Ferramentas"
               aria-expanded={toolsOpen}
             >
               {toolsOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+ </button>
 
             {toolsOpen && (
-              <div
+ <div
                 className="absolute right-0 top-full mt-3 flex w-72 flex-col gap-2 rounded-2xl border border-white/60 bg-white/95 p-3 shadow-2xl backdrop-blur-xl"
                 style={{
                   boxShadow:
-                    "0 24px 60px -16px color-mix(in oklab, var(--clinical-resp) 35%, transparent), 0 18px 44px -18px color-mix(in oklab, var(--clinical-stable) 30%, transparent)",
+ "0 24px 60px -16px color-mix(in oklab, var(--clinical-resp) 35%, transparent), 0 18px 44px -18px color-mix(in oklab, var(--clinical-stable) 30%, transparent)",
                 }}
               >
                 {/* Busca */}
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                  <input
+ <div className="relative">
+ <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+ <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Buscar paciente ou leito"
                     className="w-full rounded-md border border-border bg-white/90 py-1.5 pl-8 pr-3 text-[12px] outline-none placeholder:text-muted-foreground focus:border-primary"
                   />
-                </div>
+ </div>
 
-                <input
+ <input
                   ref={fileInputRef}
                   type="file"
                   accept="application/json,.json"
@@ -365,7 +365,7 @@ function Passometro() {
                 />
 
                 {/* Ferramentas clínicas */}
-                <button
+ <button
                   onClick={() => {
                     setExamsOpen(true);
                     setToolsOpen(false);
@@ -373,10 +373,10 @@ function Passometro() {
                   className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-resp/40 bg-clinical-resp/10 px-3 py-2 text-[12px] font-semibold text-clinical-resp transition-colors hover:bg-clinical-resp/20"
                   title="Central de exames — todos os leitos"
                 >
-                  <FlaskConical className="h-3.5 w-3.5" />
+ <FlaskConical className="h-3.5 w-3.5" />
                   Exames
-                </button>
-                <button
+ </button>
+ <button
                   onClick={() => {
                     setDilutionOpen(true);
                     setToolsOpen(false);
@@ -384,10 +384,10 @@ function Passometro() {
                   className="inline-flex w-full items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-[12px] font-semibold text-primary transition-colors hover:bg-primary/20"
                   title="Farmácia — bombas de infusão e antimicrobianos"
                 >
-                  <Syringe className="h-3.5 w-3.5" />
+ <Syringe className="h-3.5 w-3.5" />
                   Farmácia
-                </button>
-                <button
+ </button>
+ <button
                   onClick={() => {
                     setHistoryOpen(true);
                     setToolsOpen(false);
@@ -395,23 +395,23 @@ function Passometro() {
                   className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-surface-3"
                   title="Pacientes arquivados"
                 >
-                  <Archive className="h-3.5 w-3.5" />
+ <Archive className="h-3.5 w-3.5" />
                   Histórico
-                  <span className="ml-auto font-mono text-[11px] tabular-nums text-muted-foreground">{archived.length}</span>
-                </button>
-                <button
+ <span className="ml-auto font-mono text-[11px] tabular-nums text-muted-foreground">{archived.length}</span>
+ </button>
+ <button
                   onClick={() => {
                     openNew();
                     setToolsOpen(false);
                   }}
                   className="inline-flex w-full items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+ <Plus className="h-3.5 w-3.5" />
                   Novo paciente
-                </button>
+ </button>
 
                 {/* Dados + Sistema */}
-                <button
+ <button
                   onClick={() => {
                     handleImportClick();
                     setToolsOpen(false);
@@ -419,10 +419,10 @@ function Passometro() {
                   className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
                   title="Importar pacientes (JSON)"
                 >
-                  <Upload className="h-3.5 w-3.5" />
+ <Upload className="h-3.5 w-3.5" />
                   Importar
-                </button>
-                <button
+ </button>
+ <button
                   onClick={() => {
                     exportPatients(patients);
                     setToolsOpen(false);
@@ -430,55 +430,55 @@ function Passometro() {
                   className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
                   title="Exportar todos os pacientes (JSON)"
                 >
-                  <Download className="h-3.5 w-3.5" />
+ <Download className="h-3.5 w-3.5" />
                   Exportar
-                </button>
+ </button>
 
                 {/* Font scale */}
-                <div className="flex items-center justify-between rounded-md border border-border bg-white/90 px-2 py-1.5" title="Tamanho da fonte">
-                  <div className="flex items-center gap-1.5">
-                    <Type className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-[11px] font-semibold text-foreground">FONTE</span>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <button
+ <div className="flex items-center justify-between rounded-md border border-border bg-white/90 px-2 py-1.5" title="Tamanho da fonte">
+ <div className="flex items-center gap-1.5">
+ <Type className="h-3.5 w-3.5 text-muted-foreground" />
+ <span className="text-[11px] font-semibold text-foreground">FONTE</span>
+ </div>
+ <div className="flex items-center gap-0.5">
+ <button
                       type="button"
                       onClick={() => bumpFont(-FONT_STEP)}
                       disabled={fontScale <= FONT_MIN + 0.001}
                       className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground disabled:opacity-40"
                       title="Diminuir fonte"
                     >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="min-w-[2.4rem] text-center font-mono text-[11px] tabular-nums text-foreground">
+ <Minus className="h-3 w-3" />
+ </button>
+ <span className="min-w-[2.4rem] text-center font-mono text-[11px] tabular-nums text-foreground">
                       {Math.round(fontScale * 100)}%
-                    </span>
-                    <button
+ </span>
+ <button
                       type="button"
                       onClick={() => bumpFont(+FONT_STEP)}
                       disabled={fontScale >= FONT_MAX - 0.001}
                       className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground disabled:opacity-40"
                       title="Aumentar fonte"
                     >
-                      <Plus className="h-3 w-3" />
-                    </button>
-                    <button
+ <Plus className="h-3 w-3" />
+ </button>
+ <button
                       type="button"
                       onClick={() => setFontScale(1)}
                       className="ml-0.5 rounded px-1 py-0.5 text-[10px] font-semibold text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground"
                       title="Restaurar tamanho padrão"
                     >
                       A
-                    </button>
-                  </div>
-                </div>
-              </div>
+ </button>
+ </div>
+ </div>
+ </div>
             )}
-          </div>
-        </div>
+ </div>
+ </div>
 
         {/* Filters strip with counts inline */}
-        <div className="flex items-center justify-center gap-2 border-t border-border/60 bg-surface/50 px-6 py-2">
+ <div className="flex items-center justify-center gap-2 border-t border-border/60 bg-surface/50 px-6 py-2">
           {(
             [
               { v: "all", label: "Todos", count: counts.total, c: "text-foreground" },
@@ -487,7 +487,7 @@ function Passometro() {
               { v: "stable", label: "Estáveis", count: counts.stable, c: "text-clinical-stable" },
             ] as { v: Filter; label: string; count: number; c: string }[]
           ).map((f) => (
-            <button
+ <button
               key={f.v}
               onClick={() => setFilter(f.v)}
               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[11px] font-semibold transition-colors ${
@@ -496,19 +496,19 @@ function Passometro() {
                   : "text-muted-foreground hover:bg-surface-3/60 hover:text-foreground"
               }`}
             >
-              <span>{f.label}</span>
-              <span className={`font-mono tabular-nums ${filter === f.v ? "text-foreground" : f.c}`}>
+ <span>{f.label}</span>
+ <span className={`font-mono tabular-nums ${filter === f.v ? "text-foreground" : f.c}`}>
                 {f.count}
-              </span>
-            </button>
+ </span>
+ </button>
           ))}
-        </div>
-      </header>
+ </div>
+ </header>
 
       {/* Patient list — padding-top matches fixed header height so content never jumps */}
-      <main className="no-print" style={{ paddingTop: headerHeight || undefined }}>
+ <main className="no-print" style={{ paddingTop: headerHeight || undefined }}>
         {filtered.map((p) => (
-          <PatientRow key={p.id} patient={p} onEdit={openEdit} onPrint={setPrinting} onUpdate={handleSave}
+ <PatientRow key={p.id} patient={p} onEdit={openEdit} onPrint={setPrinting} onUpdate={handleSave}
             onArchive={(pt) => {
               setPatients((prev) => prev.map((x) => (x.id === pt.id ? { ...x, archived: true, archivedAt: new Date().toISOString() } : x)));
               toast.success("Paciente arquivado", { description: `${pt.name} (${pt.bed}) foi movido para o histórico.` });
@@ -519,16 +519,16 @@ function Passometro() {
           }} />
         ))}
         {filtered.length === 0 && (
-          <div className="px-6 py-12 text-center text-sm text-muted-foreground">
+ <div className="px-6 py-12 text-center text-sm text-muted-foreground">
             Nenhum paciente encontrado.
-          </div>
+ </div>
         )}
-      </main>
+ </main>
 
       {/* Legend */}
-      <footer className="no-print border-t border-border bg-surface/40 px-6 py-3">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-          <span className="font-semibold text-foreground">Legenda clínica</span>
+ <footer className="no-print border-t border-border bg-surface/40 px-6 py-3">
+ <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
+ <span className="font-semibold text-foreground">Legenda clínica</span>
           {[
             { c: "bg-clinical-neutral", l: "Neutro" },
             { c: "bg-clinical-resp", l: "Respiratório" },
@@ -539,18 +539,18 @@ function Passometro() {
             { c: "bg-clinical-neuro", l: "Neurologia" },
             { c: "bg-clinical-nutri", l: "Nutrição" },
           ].map((x) => (
-            <span key={x.l} className="flex items-center gap-1.5">
-              <span className={`h-2 w-2 rounded-full ${x.c}`} />
+ <span key={x.l} className="flex items-center gap-1.5">
+ <span className={`h-2 w-2 rounded-full ${x.c}`} />
               {x.l}
-            </span>
+ </span>
           ))}
-        </div>
-      </footer>
+ </div>
+ </footer>
 
       {/* Print mount — visible only via @media print rules in styles.css */}
-      <div id="print-area">{printing && <PatientPrintView patient={printing} />}</div>
+ <div id="print-area">{printing && <PatientPrintView patient={printing} />}</div>
 
-      <PatientEditor
+ <PatientEditor
         open={editorOpen}
         initial={editing}
         initialTab={editingTab}
@@ -562,7 +562,7 @@ function Passometro() {
         onSave={handleSave}
       />
 
-      <DilutionCenter
+ <DilutionCenter
         open={dilutionOpen}
         onClose={() => setDilutionOpen(false)}
         patients={active.map((p) => ({ id: p.id, name: p.name, bed: p.bed, weight: p.weight }))}
@@ -573,35 +573,35 @@ function Passometro() {
         }
       />
 
-      <ExamsMatrix open={examsOpen} onClose={() => setExamsOpen(false)} patients={active} />
+ <ExamsMatrix open={examsOpen} onClose={() => setExamsOpen(false)} patients={active} />
 
       {historyOpen && (
-        <div className="no-print fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-6 backdrop-blur-sm" onClick={() => setHistoryOpen(false)}>
-          <div className="mt-12 w-full max-w-[95vw] rounded-2xl border border-border bg-background p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Archive className="h-4 w-4" /> Histórico — pacientes arquivados
-              </h2>
-              <button type="button" onClick={() => setHistoryOpen(false)} className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" aria-label="Fechar">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+ <div className="no-print fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-6 backdrop-blur-sm" onClick={() => setHistoryOpen(false)}>
+ <div className="mt-12 w-full max-w-[95vw] rounded-2xl border border-border bg-background p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+ <div className="mb-4 flex items-center justify-between">
+ <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+ <Archive className="h-4 w-4" /> Histórico — pacientes arquivados
+ </h2>
+ <button type="button" onClick={() => setHistoryOpen(false)} className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" aria-label="Fechar">
+ <X className="h-4 w-4" />
+ </button>
+ </div>
 
             {archived.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">Nenhum paciente arquivado.</p>
+ <p className="py-8 text-center text-sm text-muted-foreground">Nenhum paciente arquivado.</p>
             ) : (
-              <ul className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto">
+ <ul className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto">
                 {archived.map((p) => (
-                  <li key={p.id} className="rounded-lg border border-border bg-surface/60">
-                   <div className="flex items-center gap-3 px-3 py-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px] font-semibold text-foreground">{p.name}</div>
-                      <div className="font-mono text-[11px] text-muted-foreground">
+ <li key={p.id} className="rounded-lg border border-border bg-surface/60">
+ <div className="flex items-center gap-3 px-3 py-2">
+ <div className="min-w-0 flex-1">
+ <div className="truncate text-[13px] font-semibold text-foreground">{p.name}</div>
+ <div className="font-mono text-[11px] text-muted-foreground">
                         {p.bed}
                         {p.archivedAt ? ` · arquivado em ${new Date(p.archivedAt).toLocaleDateString("pt-BR")}` : ""}
-                      </div>
-                    </div>
-                    <button
+ </div>
+ </div>
+ <button
                       type="button"
                       onClick={() => {
                         setPatients((prev) => prev.map((x) => (x.id === p.id ? { ...x, archived: false, archivedAt: undefined } : x)));
@@ -609,10 +609,10 @@ function Passometro() {
                       }}
                       className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary transition-colors hover:bg-primary/20"
                     >
-                      <RotateCcw className="h-3.5 w-3.5" />
+ <RotateCcw className="h-3.5 w-3.5" />
                       Desarquivar
-                    </button>
-                    <button
+ </button>
+ <button
                       type="button"
                       onClick={() => {
                         if (window.confirm(`Remover ${p.name} (${p.bed}) definitivamente?`)) {
@@ -622,24 +622,24 @@ function Passometro() {
                       className="rounded p-1 text-muted-foreground transition-colors hover:bg-clinical-critical/15 hover:text-clinical-critical"
                       title="Excluir definitivamente"
                     >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                   </div>
-                   <div className="border-t border-border bg-background">
-                     <PatientRow
+ <X className="h-3.5 w-3.5" />
+ </button>
+ </div>
+ <div className="border-t border-border bg-background">
+ <PatientRow
                        patient={p}
                        onEdit={openEdit}
                        onPrint={setPrinting}
                        onUpdate={handleSave}
                      />
-                   </div>
-                  </li>
+ </div>
+ </li>
                 ))}
-              </ul>
+ </ul>
             )}
-          </div>
-        </div>
+ </div>
+ </div>
       )}
-    </div>
+ </div>
   );
 }

@@ -79,18 +79,18 @@ const SECTION_ORDER: string[] = Array.from(new Set(EXAM_CATALOG.map((e) => e.sec
 
 // Exames pré-selecionados por padrão em cada leito
 const DEFAULT_PRESELECTED: string[] = [
-  "lab_hemato__hemograma",
-  "lab_hemato__plaquetas",
-  "lab_marc__pcr",
-  "lab_bio__ureia",
-  "lab_bio__creatinina",
-  "lab_bio__sodio",
-  "lab_bio__potassio",
-  "lab_bio__magnesio",
-  "lab_bio__calcio_ionico",
-  "gaso__gasometria_arterial",
-  "gaso__lactato_arterial",
-  "img_rx__rx_torax",
+ "lab_hemato__hemograma",
+ "lab_hemato__plaquetas",
+ "lab_marc__pcr",
+ "lab_bio__ureia",
+ "lab_bio__creatinina",
+ "lab_bio__sodio",
+ "lab_bio__potassio",
+ "lab_bio__magnesio",
+ "lab_bio__calcio_ionico",
+ "gaso__gasometria_arterial",
+ "gaso__lactato_arterial",
+ "img_rx__rx_torax",
 ];
 
 const GROUP_META: Record<ExamGroup, { label: string; ring: string; chip: string; dot: string }> = {
@@ -281,14 +281,14 @@ export function ExamsMatrix({
   .pt { font-size: 8px; color: #333; font-weight: 400; }
   .foot { margin-top: 8px; font-size: 8px; color: #666; }
 </style></head><body>
-  <h1> Exames da UTI</h1>
-  <div class="meta">Data: ${today} · ${patientsWithSelection.length} paciente(s) · ${rows.length} exame(s) · ${totalRequests} solicitação(ões)</div>
-  <table>
-    <thead><tr><th>Exame</th>${headerCells}</tr></thead>
-    <tbody>${bodyHTML}</tbody>
-  </table>
-  <div class="foot">Passômetro UTI — impressão gerada automaticamente.</div>
-  <script>window.onload = () => { setTimeout(() => { window.print(); }, 200); };</script>
+ <h1> Exames da UTI</h1>
+ <div class="meta">Data: ${today} · ${patientsWithSelection.length} paciente(s) · ${rows.length} exame(s) · ${totalRequests} solicitação(ões)</div>
+ <table>
+ <thead><tr><th>Exame</th>${headerCells}</tr></thead>
+ <tbody>${bodyHTML}</tbody>
+ </table>
+ <div class="foot">Passômetro UTI — impressão gerada automaticamente.</div>
+ <script>window.onload = () => { setTimeout(() => { window.print(); }, 200); };</script>
 </body></html>`;
 
     const w = window.open("", "_blank");
@@ -304,65 +304,65 @@ export function ExamsMatrix({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background/98 backdrop-blur"> {/* Header */}
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-surface px-5 py-3">
-        <div className="flex items-center gap-3">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-clinical-resp/15 text-clinical-resp">
-            <FlaskConical className="h-4 w-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-bold tracking-[0.18em] text-foreground"> EXAMES DA UTI</h2>
-            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground"> {beds.length} leito(s) · {EXAM_CATALOG.length} exames catalogados · {totalRequested} solicitação(ões)
-            </p>
-          </div>
-        </div>
-        <button
+ <div className="fixed inset-0 z-50 flex flex-col bg-background/98 backdrop-blur"> {/* Header */}
+ <div className="flex items-center justify-between gap-3 border-b border-border bg-surface px-5 py-3">
+ <div className="flex items-center gap-3">
+ <div className="grid h-9 w-9 place-items-center rounded-md bg-clinical-resp/15 text-clinical-resp">
+ <FlaskConical className="h-4 w-4" />
+ </div>
+ <div>
+ <h2 className="text-sm font-bold tracking-[0.18em] text-foreground"> EXAMES DA UTI</h2>
+ <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground"> {beds.length} leito(s) · {EXAM_CATALOG.length} exames catalogados · {totalRequested} solicitação(ões)
+ </p>
+ </div>
+ </div>
+ <button
           onClick={onClose}
           className="rounded-md border border-border bg-surface px-2 py-1.5 text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground"
           title="Fechar"
         >
-          <X className="h-4 w-4" />
-        </button>
-      </div> {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface/60 px-5 py-2">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
+ <X className="h-4 w-4" />
+ </button>
+ </div> {/* Toolbar */}
+ <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface/60 px-5 py-2">
+ <div className="relative">
+ <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+ <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Pesquisar exame"
             className="w-64 rounded-md border border-border bg-surface py-1.5 pl-8 pr-3 text-[12px] outline-none placeholder:text-muted-foreground focus:border-primary"
           />
-        </div>
+ </div>
 
-        <div className="flex items-center gap-1 rounded-md border border-border bg-surface px-1 py-0.5">
-          <Filter className="mr-0.5 h-3 w-3 text-muted-foreground" /> {(["all", "lab", "img", "micro", "gaso"] as CatFilter[]).map((c) => (
-            <button
+ <div className="flex items-center gap-1 rounded-md border border-border bg-surface px-1 py-0.5">
+ <Filter className="mr-0.5 h-3 w-3 text-muted-foreground" /> {(["all", "lab", "img", "micro", "gaso"] as CatFilter[]).map((c) => (
+ <button
               key={c}
               onClick={() => setCat(c)}
               className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
                 cat === c ? "bg-surface-3 text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             > {c === "all" ? "Todos" : GROUP_META[c as ExamGroup].label}
-            </button> ))}
-        </div>
+ </button> ))}
+ </div>
 
-        <label className="flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-foreground">
-          <input
+ <label className="flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-foreground">
+ <input
             type="checkbox"
             checked={onlyRequested}
             onChange={(e) => setOnlyRequested(e.target.checked)}
           /> Somente solicitados
-        </label>
+ </label>
 
-        <div className="ml-auto flex items-center gap-2">
-          <button
+ <div className="ml-auto flex items-center gap-2">
+ <button
             onClick={() => { setStore(loadStore()); toast.success("Painel atualizado"); }}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12px] font-medium text-foreground hover:bg-surface-3"
           >
-            <RefreshCw className="h-3.5 w-3.5" /> Atualizar
-          </button>
-          <button
+ <RefreshCw className="h-3.5 w-3.5" /> Atualizar
+ </button>
+ <button
             onClick={() => {
               if (!window.confirm("Redefinir todos os leitos para os exames pré-selecionados? As solicitações extras serão removidas.")) return;
               const next: Store = { requested: {}, preseededBeds: {} };
@@ -376,57 +376,57 @@ export function ExamsMatrix({
             }}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12px] font-medium text-foreground hover:bg-surface-3"
           >
-            <RotateCcw className="h-3.5 w-3.5" /> Reset
-          </button>
-          <button
+ <RotateCcw className="h-3.5 w-3.5" /> Reset
+ </button>
+ <button
             onClick={printPDF}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12px] font-medium text-foreground hover:bg-surface-3"
           >
-            <Printer className="h-3.5 w-3.5" /> Imprimir PDF
-          </button>
-        </div>
-      </div> {/* Matrix */}
-      <div className="min-h-0 flex-1 overflow-auto">
-        <table className="min-w-max border-separate border-spacing-0 text-[12px]">
-          <thead className="sticky top-0 z-10 bg-surface">
-            <tr>
-              <th className="sticky left-0 z-20 min-w-[170px] max-w-[170px] border-b border-r-2 border-border-strong bg-surface px-2 py-2 text-left text-[10px] font-bold uppercase tracking-[0.14em] text-foreground"> Exame
-              </th> {beds.map((b) => (
-                <th
+ <Printer className="h-3.5 w-3.5" /> Imprimir PDF
+ </button>
+ </div>
+ </div> {/* Matrix */}
+ <div className="min-h-0 flex-1 overflow-auto">
+ <table className="min-w-max border-separate border-spacing-0 text-[12px]">
+ <thead className="sticky top-0 z-10 bg-surface">
+ <tr>
+ <th className="sticky left-0 z-20 min-w-[170px] max-w-[170px] border-b border-r-2 border-border-strong bg-surface px-2 py-2 text-left text-[10px] font-bold uppercase tracking-[0.14em] text-foreground"> Exame
+ </th> {beds.map((b) => (
+ <th
                   key={b.id}
                   className="min-w-[76px] border-b border-l border-border bg-surface px-1.5 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-foreground"
                   title={b.name}
                 >
-                  <div className="font-mono text-clinical-neutral">{b.bed}</div>
-                  <div className="mt-0.5 truncate text-[9px] font-normal normal-case text-muted-foreground">{b.name.split(" ")[0]}</div>
-                </th> ))}
-            </tr>
-          </thead>
-          <tbody> {examsBySection.map(([section, exams]) => (
-              <>
-                <tr key={`s-${section}`}>
-                  <td
+ <div className="font-mono text-clinical-neutral">{b.bed}</div>
+ <div className="mt-0.5 truncate text-[9px] font-normal normal-case text-muted-foreground">{b.name.split(" ")[0]}</div>
+ </th> ))}
+ </tr>
+ </thead>
+ <tbody> {examsBySection.map(([section, exams]) => (
+ <>
+ <tr key={`s-${section}`}>
+ <td
                     colSpan={1 + beds.length}
                     className="sticky left-0 border-b border-t border-border bg-surface-2 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"
                   >
-                    <span className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${GROUP_META[exams[0].group].dot}`} /> {section}
-                  </td>
-                </tr> {exams.map((e) => (
-                  <tr key={e.code} className="group">
-                    <td className={`sticky left-0 z-[5] min-w-[170px] max-w-[170px] border-b border-r-2 border-border-strong border-l-4 bg-background px-2 py-1.5 text-left ${GROUP_META[e.group].ring}`}>
-                      <span className="truncate text-foreground" title={e.label}>{e.label}</span>
-                    </td> {beds.map((b) => {
+ <span className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${GROUP_META[exams[0].group].dot}`} /> {section}
+ </td>
+ </tr> {exams.map((e) => (
+ <tr key={e.code} className="group">
+ <td className={`sticky left-0 z-[5] min-w-[170px] max-w-[170px] border-b border-r-2 border-border-strong border-l-4 bg-background px-2 py-1.5 text-left ${GROUP_META[e.group].ring}`}>
+ <span className="truncate text-foreground" title={e.label}>{e.label}</span>
+ </td> {beds.map((b) => {
                       const key = cellKey(e.code, b.bed);
                       const checked = !!store.requested[key];
                       return (
-                        <td key={b.id} className="border-b border-l border-border bg-background p-0 text-center">
-                          <button
+ <td key={b.id} className="border-b border-l border-border bg-background p-0 text-center">
+ <button
                             type="button"
                             onClick={() => toggle(e.code, b.bed)}
                             className="flex h-8 w-full items-center justify-center transition-colors hover:bg-surface-2"
                             title={checked ? "Solicitado — clique para desmarcar" : "Clique para solicitar"}
                           >
-                            <span
+ <span
                               aria-checked={checked}
                               role="checkbox"
                               className={`grid h-4 w-4 place-items-center rounded border transition-colors ${
@@ -435,22 +435,22 @@ export function ExamsMatrix({
                                   : "border-border bg-background"
                               }`}
                             > {checked && (
-                                <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
-                                  <path d="M2.5 6.5l2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg> )}
-                            </span>
-                          </button>
-                        </td> );
+ <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
+ <path d="M2.5 6.5l2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" />
+ </svg> )}
+ </span>
+ </button>
+ </td> );
                     })}
-                  </tr> ))}
-              </> ))}
+ </tr> ))}
+ </> ))}
             {examsBySection.length === 0 && (
-              <tr>
-                <td colSpan={1 + beds.length} className="px-4 py-10 text-center text-[12px] text-muted-foreground"> Nenhum exame corresponde aos filtros.
-                </td>
-              </tr> )}
-          </tbody>
-        </table>
-      </div>
-    </div> );
+ <tr>
+ <td colSpan={1 + beds.length} className="px-4 py-10 text-center text-[12px] text-muted-foreground"> Nenhum exame corresponde aos filtros.
+ </td>
+ </tr> )}
+ </tbody>
+ </table>
+ </div>
+ </div> );
 }

@@ -897,7 +897,7 @@ export const MEDICATION_CLASS_META: Record<MedicationClass, { label: string; sho
 };
 
 export const MEDICATION_CLASS_ORDER: MedicationClass[] = [
-  "antibiotic", "pump", "hydration", "iv", "im", "sc", "oral", "inhaled", "topical",
+ "antibiotic", "pump", "hydration", "iv", "im", "sc", "oral", "inhaled", "topical",
 ];
 
 /** Resolve a medication class from explicit field or from route/isAntibiotic/pump heuristics. */
@@ -979,7 +979,7 @@ export const CONDUCT_SYSTEM_META: Record<ConductSystem, { label: string; short: 
 };
 
 export const CONDUCT_SYSTEM_ORDER: ConductSystem[] = [
-  "dieta", "fono", "gi", "neuro", "cardio", "resp", "renal", "infec", "hemato", "skin", "other",
+ "dieta", "fono", "gi", "neuro", "cardio", "resp", "renal", "infec", "hemato", "skin", "other",
 ];
 
 // ============================================================================
@@ -997,7 +997,7 @@ export const ANNOTATION_COLOR_META: Record<AnnotationColor, { label: string; tex
 };
 
 export const ANNOTATION_COLOR_ORDER: AnnotationColor[] = [
-  "default", "green", "yellow", "orange", "red", "teal", "purple",
+ "default", "green", "yellow", "orange", "red", "teal", "purple",
 ];
 
 /** Formata YYYY-MM-DD (input type=date) evitando o shift de fuso horário. */

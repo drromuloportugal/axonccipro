@@ -343,67 +343,67 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
     data.currentGlobal >= 80 ? "text-clinical-stable" :
     data.currentGlobal >= 60 ? "text-clinical-stable" :
     data.currentGlobal >= 40 ? "text-clinical-attention" :
-    "text-clinical-critical";
+ "text-clinical-critical";
 
   return (
-    <div className="rounded-md border border-border bg-surface p-4"> {/* Header */}
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Mapa Temporal de Integridade Orgânica
-          </div>
-          <div className="text-[10px] text-muted-foreground"> Eletrocardiograma da recuperação · escala 0–100 ·{" "}
+ <div className="rounded-md border border-border bg-surface p-4"> {/* Header */}
+ <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+ <div>
+ <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Mapa Temporal de Integridade Orgânica
+ </div>
+ <div className="text-[10px] text-muted-foreground"> Eletrocardiograma da recuperação · escala 0–100 ·{" "}
             {data.unit === "h" ? "horas" : data.unit === "s" ? "semanas" : "dias"} desde admissão UTI
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Índice Global
-            </div>
-            <div className={`font-mono text-2xl font-bold leading-none ${globalColor}`}> {data.currentGlobal.toFixed(0)}
-            </div>
-            <div className={`text-[10px] font-semibold ${globalColor}`}>{globalLabel}</div>
-          </div>
-        </div>
-      </div> {/* Alerts strip */}
+ </div>
+ </div>
+ <div className="flex items-center gap-3">
+ <div className="text-right">
+ <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Índice Global
+ </div>
+ <div className={`font-mono text-2xl font-bold leading-none ${globalColor}`}> {data.currentGlobal.toFixed(0)}
+ </div>
+ <div className={`text-[10px] font-semibold ${globalColor}`}>{globalLabel}</div>
+ </div>
+ </div>
+ </div> {/* Alerts strip */}
       {data.alerts.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5"> {data.alerts.map((a, i) => (
-            <span
+ <div className="mb-3 flex flex-wrap gap-1.5"> {data.alerts.map((a, i) => (
+ <span
               key={i}
               className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-semibold ${
                 a.level === "critical" ? "border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical" :
                 a.level === "attention" ? "border-clinical-attention/40 bg-clinical-attention/10 text-clinical-attention" :
                 a.level === "watch" ? "border-yellow-500/40 bg-yellow-500/10 text-yellow-600" :
-                "border-clinical-stable/40 bg-clinical-stable/10 text-clinical-stable"
+ "border-clinical-stable/40 bg-clinical-stable/10 text-clinical-stable"
               }`}
             >
-              <span>{a.icon}</span>{a.text}
-            </span> ))}
-        </div> )}
+ <span>{a.icon}</span>{a.text}
+ </span> ))}
+ </div> )}
 
       {/* Chart */}
-      <div className="h-[320px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data.rows} margin={{ top: 8, right: 12, left: -10, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} /> {/* Severity bands */}
-            <ReferenceArea y1={80} y2={100} fill="hsl(142 65% 42%)" fillOpacity={0.05} />
-            <ReferenceArea y1={60} y2={80} fill="hsl(82 60% 50%)" fillOpacity={0.05} />
-            <ReferenceArea y1={40} y2={60} fill="hsl(40 90% 55%)" fillOpacity={0.06} />
-            <ReferenceArea y1={20} y2={40} fill="hsl(20 85% 55%)" fillOpacity={0.07} />
-            <ReferenceArea y1={0}  y2={20} fill="hsl(0 75% 55%)"fillOpacity={0.08} />
+ <div className="h-[320px] w-full">
+ <ResponsiveContainer width="100%" height="100%">
+ <LineChart data={data.rows} margin={{ top: 8, right: 12, left: -10, bottom: 4 }}>
+ <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} /> {/* Severity bands */}
+ <ReferenceArea y1={80} y2={100} fill="hsl(142 65% 42%)" fillOpacity={0.05} />
+ <ReferenceArea y1={60} y2={80} fill="hsl(82 60% 50%)" fillOpacity={0.05} />
+ <ReferenceArea y1={40} y2={60} fill="hsl(40 90% 55%)" fillOpacity={0.06} />
+ <ReferenceArea y1={20} y2={40} fill="hsl(20 85% 55%)" fillOpacity={0.07} />
+ <ReferenceArea y1={0}  y2={20} fill="hsl(0 75% 55%)"fillOpacity={0.08} />
 
-            <XAxis
+ <XAxis
               dataKey="label"
               stroke="hsl(var(--muted-foreground))"
               tick={{ fontSize: 10 }}
               interval="preserveStartEnd"
             />
-            <YAxis
+ <YAxis
               domain={[0, 100]}
               ticks={[0, 20, 40, 60, 80, 100]}
               stroke="hsl(var(--muted-foreground))"
               tick={{ fontSize: 10 }}
             /> {/* Now marker */}
-            <ReferenceLine
+ <ReferenceLine
               x={data.rows[data.nowIdx]?.label as string}
               stroke="hsl(var(--foreground))"
               strokeDasharray="4 2"
@@ -411,7 +411,7 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
               label={{ value: "agora", fill: "hsl(var(--muted-foreground))", fontSize: 9, position: "top" }}
             />
 
-            <Tooltip
+ <Tooltip
               contentStyle={{
                 background: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",
@@ -429,7 +429,7 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
             {SYSTEMS.flatMap((s) => {
               if (hidden.has(s.key)) return [];
               return [
-                <Line
+ <Line
                   key={`${s.key}-h`}
                   type="monotone"
                   dataKey={`${s.key}_hist`}
@@ -440,7 +440,7 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
                   isAnimationActive={false}
                   connectNulls={false}
                 />,
-                <Line
+ <Line
                   key={`${s.key}-p`}
                   type="monotone"
                   dataKey={`${s.key}_proj`}
@@ -457,8 +457,8 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
 
             {/* Global index — thick line */}
             {!hidden.has("global") && (
-              <>
-                <Line
+ <>
+ <Line
                   type="monotone"
                   dataKey="global_hist"
                   name="global_hist"
@@ -468,7 +468,7 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
                   isAnimationActive={false}
                   connectNulls={false}
                 />
-                <Line
+ <Line
                   type="monotone"
                   dataKey="global_proj"
                   name="global_proj"
@@ -479,14 +479,14 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
                   isAnimationActive={false}
                   connectNulls={false}
                 />
-              </> )}
+ </> )}
 
-            <Legend content={() => null} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div> {/* Custom legend — toggleable chips */}
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        <button
+ <Legend content={() => null} />
+ </LineChart>
+ </ResponsiveContainer>
+ </div> {/* Custom legend — toggleable chips */}
+ <div className="mt-3 flex flex-wrap items-center gap-1.5">
+ <button
           type="button"
           onClick={() => toggle("global")}
           className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[10px] font-semibold transition-opacity ${
@@ -494,11 +494,11 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
           } border-foreground/40 bg-foreground/5 text-foreground`}
           title="Índice Global de Integridade (média ponderada)"
         >
-          <span className="inline-block h-0.5 w-4 bg-foreground" style={{ height: 3 }} /> Índice Global
-        </button> {SYSTEMS.map((s) => {
+ <span className="inline-block h-0.5 w-4 bg-foreground" style={{ height: 3 }} /> Índice Global
+ </button> {SYSTEMS.map((s) => {
           const cur = data.scores[s.key];
           return (
-            <button
+ <button
               key={s.key}
               type="button"
               onClick={() => toggle(s.key)}
@@ -507,21 +507,21 @@ export function OrganIntegrityChart({ patient }: { patient: Patient }) {
               }`}
               title={`${s.label} · ${cur.toFixed(0)}/100`}
             >
-              <span className="inline-block h-2 w-2 rounded-full" style={{ background: s.color }} />
-              <span>{s.icon}</span>
-              <span className="font-medium text-foreground">{s.label}</span>
-              <span className="font-mono text-muted-foreground">{cur.toFixed(0)}</span>
-            </button> );
+ <span className="inline-block h-2 w-2 rounded-full" style={{ background: s.color }} />
+ <span>{s.icon}</span>
+ <span className="font-medium text-foreground">{s.label}</span>
+ <span className="font-mono text-muted-foreground">{cur.toFixed(0)}</span>
+ </button> );
         })}
-      </div> {/* Band legend */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] uppercase tracking-wider text-muted-foreground">
-        <span className="font-semibold text-foreground">Faixas:</span>
-        <span>80–100 Preservada</span>
-        <span>60–79 Disf. leve</span>
-        <span>40–59 Moderada</span>
-        <span>20–39 Grave</span>
-        <span>0–19 Falência</span>
-        <span>· · · Projeção 7d</span>
-      </div>
-    </div> );
+ </div> {/* Band legend */}
+ <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] uppercase tracking-wider text-muted-foreground">
+ <span className="font-semibold text-foreground">Faixas:</span>
+ <span>80–100 Preservada</span>
+ <span>60–79 Disf. leve</span>
+ <span>40–59 Moderada</span>
+ <span>20–39 Grave</span>
+ <span>0–19 Falência</span>
+ <span>· · · Projeção 7d</span>
+ </div>
+ </div> );
 }

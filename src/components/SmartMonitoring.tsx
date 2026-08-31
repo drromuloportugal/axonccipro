@@ -39,10 +39,10 @@ function classifyBristol(b?: number): { level: Level; text: string } {
 function classifyFecalVolume(v?: string): { level: Level; text: string } {
   if (!v) return { level: "na", text: "—" };
   const map: Record<string, { level: Level; text: string }> = {
-    "ausente": { level: "na",     text: "Sem evacuação" },
-    "+":       { level: "normal", text: "+ · Pequeno volume" },
-    "++":      { level: "normal", text: "++ · Volume moderado" },
-    "+++":     { level: "leve",   text: "+++ · Grande volume" },
+ "ausente": { level: "na",     text: "Sem evacuação" },
+ "+":       { level: "normal", text: "+ · Pequeno volume" },
+ "++":      { level: "normal", text: "++ · Volume moderado" },
+ "+++":     { level: "leve",   text: "+++ · Grande volume" },
   };
   return map[v] ?? { level: "na", text: "—" };
 }
@@ -58,13 +58,13 @@ function classifyTemp(t?: number): { level: Level; text: string } {
 }
 
 const RESP_MAP: Record<string, Level> = {
-  "Ar ambiente": "normal",
-  "Cateter O₂": "leve",
-  "Máscara O₂": "mod",
-  "Cateter alto fluxo": "mod",
-  "VNI": "mod",
-  "VM PSV": "grave", "VM PCV": "grave", "VM VCV": "grave", "VM APRV": "grave",
-  "ECMO": "grave",
+ "Ar ambiente": "normal",
+ "Cateter O₂": "leve",
+ "Máscara O₂": "mod",
+ "Cateter alto fluxo": "mod",
+ "VNI": "mod",
+ "VM PSV": "grave", "VM PCV": "grave", "VM VCV": "grave", "VM APRV": "grave",
+ "ECMO": "grave",
 };
 function classifyResp(v?: string): { level: Level; text: string } {
   if (!v) return { level: "na", text: "—" };
@@ -181,9 +181,9 @@ function classifyResiduo(v?: number): { level: Level; text: string } {
 // ---------- UI helpers ----------
 
 const inputCls =
-  "w-full rounded border border-border bg-surface px-2 py-1.5 text-[12px] outline-none focus:border-primary";
+ "w-full rounded border border-border bg-surface px-2 py-1.5 text-[12px] outline-none focus:border-primary";
 const L = ({ children }: { children: React.ReactNode }) => (
-  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{children}</label>
+ <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{children}</label>
 );
 
 function Card({
@@ -191,17 +191,17 @@ function Card({
 }: { n: number; title: string; level: Level; detail: string; children: React.ReactNode }) {
   const meta = LEVEL_META[level];
   return (
-    <section className={`rounded-lg border bg-surface p-3 ring-1 ${meta.ring} border-border`}>
-      <header className="mb-2 flex items-start justify-between gap-2">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> {String(n).padStart(2, "0")} · {title}
-          </div>
-          <div className="mt-0.5 text-[12px] font-semibold text-foreground">{detail}</div>
-        </div>
-        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${meta.badge}`}> {meta.emoji} {meta.label}
-        </span>
-      </header> {children}
-    </section> );
+ <section className={`rounded-lg border bg-surface p-3 ring-1 ${meta.ring} border-border`}>
+ <header className="mb-2 flex items-start justify-between gap-2">
+ <div>
+ <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> {String(n).padStart(2, "0")} · {title}
+ </div>
+ <div className="mt-0.5 text-[12px] font-semibold text-foreground">{detail}</div>
+ </div>
+ <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${meta.badge}`}> {meta.emoji} {meta.label}
+ </span>
+ </header> {children}
+ </section> );
 }
 
 // ---------- Resumo de sinais vitais (reutilizável na coluna 6) ----------
@@ -308,25 +308,25 @@ export function SmartMonitoring({ patient, onChange }: Props) {
 
 
   return (
-    <div className="space-y-3"> {/* Resumo */}
-      <div className={`flex items-center justify-between rounded-lg border p-3 ${overallMeta.badge}`}>
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em] opacity-80">Assistente inteligente de monitoramento · UTI</div>
-          <div className="mt-0.5 text-[13px] font-semibold">Estado clínico geral (últimas 24h)</div>
-        </div>
-        <div className="text-right">
-          <div className="text-[22px] leading-none">{overallMeta.emoji}</div>
-          <div className="mt-1 text-[10px] font-bold uppercase tracking-wider">{overallMeta.label}</div>
-        </div>
-      </div> {/* ============ ESTADO ATUAL — SINAIS VITAIS ============ */}
-      <div>
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground"> Estado atual · Sinais vitais</span>
-          <span className="h-px flex-1 bg-border" />
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2"> {/* 1. Temperatura — múltiplos registros */}
-        <Card n={1} title="Temperatura (mín / máx)" level={temp.level} detail={temp.text}>
-          <ReadingList
+ <div className="space-y-3"> {/* Resumo */}
+ <div className={`flex items-center justify-between rounded-lg border p-3 ${overallMeta.badge}`}>
+ <div>
+ <div className="text-[10px] font-bold uppercase tracking-[0.14em] opacity-80">Assistente inteligente de monitoramento · UTI</div>
+ <div className="mt-0.5 text-[13px] font-semibold">Estado clínico geral (últimas 24h)</div>
+ </div>
+ <div className="text-right">
+ <div className="text-[22px] leading-none">{overallMeta.emoji}</div>
+ <div className="mt-1 text-[10px] font-bold uppercase tracking-wider">{overallMeta.label}</div>
+ </div>
+ </div> {/* ============ ESTADO ATUAL — SINAIS VITAIS ============ */}
+ <div>
+ <div className="mb-1.5 flex items-center gap-2">
+ <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground"> Estado atual · Sinais vitais</span>
+ <span className="h-px flex-1 bg-border" />
+ </div>
+ <div className="grid grid-cols-1 gap-3 md:grid-cols-2"> {/* 1. Temperatura — múltiplos registros */}
+ <Card n={1} title="Temperatura (mín / máx)" level={temp.level} detail={temp.text}>
+ <ReadingList
             items={series.temp ?? []}
             unit="°C" step="0.1" placeholder="36.5"
             legacy={s.temp}
@@ -336,9 +336,9 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               if (n.length) { onChange("temp", Math.min(...n)); onChange("tempMax", Math.max(...n)); }
             }}
           />
-        </Card> {/* 2. Saturação de O₂ — múltiplos registros */}
-        <Card n={2} title="Saturação de O₂ (mín / máx)" level={worst(spo2.level, resp.level)} detail={`${spo2.text} · ${resp.text}`}>
-          <ReadingList
+ </Card> {/* 2. Saturação de O₂ — múltiplos registros */}
+ <Card n={2} title="Saturação de O₂ (mín / máx)" level={worst(spo2.level, resp.level)} detail={`${spo2.text} · ${resp.text}`}>
+ <ReadingList
             items={series.spo2 ?? []}
             unit="%" placeholder="96"
             legacy={s.spo2}
@@ -348,23 +348,23 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               if (n.length) onChange("spo2", Math.min(...n));
             }}
           />
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <div>
-              <L>Suporte respiratório</L>
-              <select className={inputCls} value={s.vent}
+ <div className="mt-2 grid grid-cols-2 gap-2">
+ <div>
+ <L>Suporte respiratório</L>
+ <select className={inputCls} value={s.vent}
                 onChange={(e) => onChange("vent", e.target.value)}> {["Ar ambiente","Cateter O₂","Máscara O₂","Cateter alto fluxo","VNI","VM PSV","VM PCV","VM VCV","VM APRV","ECMO"].map((v) => (
-                  <option key={v} value={v}>{v}</option> ))}
-              </select>
-            </div>
-            <div>
-              <L>FiO₂ (%)</L>
-              <input type="number" min={21} max={100} className={inputCls} value={s.fio2 ?? ""}
+ <option key={v} value={v}>{v}</option> ))}
+ </select>
+ </div>
+ <div>
+ <L>FiO₂ (%)</L>
+ <input type="number" min={21} max={100} className={inputCls} value={s.fio2 ?? ""}
                 onChange={(e) => onChange("fio2", Number(e.target.value))} />
-            </div>
-          </div>
-        </Card> {/* 3. FC — múltiplos registros */}
-        <Card n={3} title="Frequência cardíaca (mín / máx)" level={fc.level} detail={fc.text}>
-          <ReadingList
+ </div>
+ </div>
+ </Card> {/* 3. FC — múltiplos registros */}
+ <Card n={3} title="Frequência cardíaca (mín / máx)" level={fc.level} detail={fc.text}>
+ <ReadingList
             items={series.fc ?? []}
             unit="bpm" placeholder="80"
             legacy={s.fcMax ?? s.fcMin}
@@ -374,9 +374,9 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               if (n.length) { onChange("fcMin", Math.min(...n)); onChange("fcMax", Math.max(...n)); }
             }}
           />
-        </Card> {/* 4. PAM — múltiplos registros */}
-        <Card n={4} title="PAM (mín / máx)" level={bp.level} detail={bp.text}>
-          <ReadingList
+ </Card> {/* 4. PAM — múltiplos registros */}
+ <Card n={4} title="PAM (mín / máx)" level={bp.level} detail={bp.text}>
+ <ReadingList
             items={series.pam ?? []}
             unit="mmHg" placeholder="75"
             legacy={s.pam}
@@ -386,9 +386,9 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               if (n.length) onChange("pam", Math.min(...n));
             }}
           />
-        </Card> {/* 5. Glicemia — múltiplos registros */}
-        <Card n={5} title="Glicemia (mín / máx)" level={gli.level} detail={gli.text}>
-          <ReadingList
+ </Card> {/* 5. Glicemia — múltiplos registros */}
+ <Card n={5} title="Glicemia (mín / máx)" level={gli.level} detail={gli.text}>
+ <ReadingList
             items={series.glicemia ?? []}
             unit="mg/dL" placeholder="110"
             legacy={s.glicemia}
@@ -398,17 +398,17 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               if (n.length) onChange("glicemia", Math.max(...n));
             }}
           />
-        </Card>
-        </div>
-      </div> {/* ============ ESCALA DE BRISTOL — ELIMINAÇÃO INTESTINAL ============ */}
-      <div>
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground"> Escala de Bristol · Eliminação intestinal</span>
-          <span className="h-px flex-1 bg-border" />
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <Card n={1} title="Eliminação intestinal" level={intest.level} detail={intest.text}>
-            <StoolList
+ </Card>
+ </div>
+ </div> {/* ============ ESCALA DE BRISTOL — ELIMINAÇÃO INTESTINAL ============ */}
+ <div>
+ <div className="mb-1.5 flex items-center gap-2">
+ <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground"> Escala de Bristol · Eliminação intestinal</span>
+ <span className="h-px flex-1 bg-border" />
+ </div>
+ <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+ <Card n={1} title="Eliminação intestinal" level={intest.level} detail={intest.text}>
+ <StoolList
               items={s.stools ?? []}
               legacyBristol={s.bristol}
               legacyVolume={s.fecalVolume}
@@ -416,10 +416,10 @@ export function SmartMonitoring({ patient, onChange }: Props) {
               onChangeStools={(v) => onChange("stools", v)}
               onChangeHours={(v) => onChange("hoursWithoutStool", v)}
             />
-          </Card>
-        </div>
-      </div>
-    </div> );
+ </Card>
+ </div>
+ </div>
+ </div> );
 }
 
 // ---------- StoolList: múltiplas eliminações intestinais ----------
@@ -445,38 +445,38 @@ function StoolList({
   ]);
 
   return (
-    <div className="space-y-2">
-      <div>
-        <L>h sem evacuar</L>
-        <input type="number" min={0} className={inputCls} value={hoursWithoutStool ?? ""}
+ <div className="space-y-2">
+ <div>
+ <L>h sem evacuar</L>
+ <input type="number" min={0} className={inputCls} value={hoursWithoutStool ?? ""}
           onChange={(e) => onChangeHours(e.target.value === "" ? undefined : Number(e.target.value))} />
-      </div>
-      <ul className="space-y-1"> {items.map((st) => (
-          <li key={st.id} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-1">
-            <select className={inputCls} value={st.bristol ?? ""}
+ </div>
+ <ul className="space-y-1"> {items.map((st) => (
+ <li key={st.id} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-1">
+ <select className={inputCls} value={st.bristol ?? ""}
               onChange={(e) => upd(st.id, { bristol: e.target.value === "" ? undefined : (Number(e.target.value) as StoolEntry["bristol"]) })}>
-              <option value="">— Bristol —</option> {[1,2,3,4,5,6,7].map((v) => <option key={v} value={v}>Tipo {v}</option>)}
-            </select>
-            <select className={inputCls} value={st.volume ?? ""}
+ <option value="">— Bristol —</option> {[1,2,3,4,5,6,7].map((v) => <option key={v} value={v}>Tipo {v}</option>)}
+ </select>
+ <select className={inputCls} value={st.volume ?? ""}
               onChange={(e) => upd(st.id, { volume: (e.target.value || undefined) as StoolEntry["volume"] })}>
-              <option value="">— Volume —</option>
-              <option value="ausente">Ausente</option>
-              <option value="+">+ Pequeno</option>
-              <option value="++">++ Moderado</option>
-              <option value="+++">+++ Grande</option>
-            </select>
-            <input type="datetime-local" className={inputCls}
+ <option value="">— Volume —</option>
+ <option value="ausente">Ausente</option>
+ <option value="+">+ Pequeno</option>
+ <option value="++">++ Moderado</option>
+ <option value="+++">+++ Grande</option>
+ </select>
+ <input type="datetime-local" className={inputCls}
               value={st.at ? new Date(st.at).toISOString().slice(0, 16) : ""}
               onChange={(e) => upd(st.id, { at: e.target.value ? new Date(e.target.value).toISOString() : undefined })} />
-            <button type="button" onClick={() => del(st.id)}
+ <button type="button" onClick={() => del(st.id)}
               className="rounded border border-border bg-surface px-2 text-[11px] hover:bg-destructive/10 hover:text-destructive"
               title="Remover">✕</button>
-          </li> ))}
-      </ul>
-      <button type="button" onClick={add}
+ </li> ))}
+ </ul>
+ <button type="button" onClick={add}
         className="rounded-md border border-dashed border-border bg-surface px-2 py-1 text-[11px] font-semibold hover:bg-surface-3"> + Adicionar eliminação
-      </button>
-    </div> );
+ </button>
+ </div> );
 }
 
 // ---------- ReadingList: múltiplos registros de um parâmetro vital ----------
@@ -502,32 +502,32 @@ function ReadingList({
   const add = () => onChange([...items, { id: rid(), value: legacy, at: new Date().toISOString() }]);
 
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2">
-        <div className="rounded border border-border bg-surface px-2 py-1">
-          <L>Mínima</L>
-          <div className="text-[13px] font-bold text-foreground">{min ?? "—"} {min != null ? unit : ""}</div>
-        </div>
-        <div className="rounded border border-border bg-surface px-2 py-1">
-          <L>Máxima</L>
-          <div className="text-[13px] font-bold text-foreground">{max ?? "—"} {max != null ? unit : ""}</div>
-        </div>
-      </div>
-      <ul className="space-y-1"> {items.map((r) => (
-          <li key={r.id} className="grid grid-cols-[1fr_1.4fr_auto] gap-1">
-            <input type="number" step={step} placeholder={placeholder} className={inputCls}
+ <div className="space-y-2">
+ <div className="grid grid-cols-2 gap-2">
+ <div className="rounded border border-border bg-surface px-2 py-1">
+ <L>Mínima</L>
+ <div className="text-[13px] font-bold text-foreground">{min ?? "—"} {min != null ? unit : ""}</div>
+ </div>
+ <div className="rounded border border-border bg-surface px-2 py-1">
+ <L>Máxima</L>
+ <div className="text-[13px] font-bold text-foreground">{max ?? "—"} {max != null ? unit : ""}</div>
+ </div>
+ </div>
+ <ul className="space-y-1"> {items.map((r) => (
+ <li key={r.id} className="grid grid-cols-[1fr_1.4fr_auto] gap-1">
+ <input type="number" step={step} placeholder={placeholder} className={inputCls}
               value={r.value ?? ""}
               onChange={(e) => upd(r.id, { value: e.target.value === "" ? undefined : Number(e.target.value) })} />
-            <input type="datetime-local" className={inputCls}
+ <input type="datetime-local" className={inputCls}
               value={r.at ? new Date(r.at).toISOString().slice(0, 16) : ""}
               onChange={(e) => upd(r.id, { at: e.target.value ? new Date(e.target.value).toISOString() : undefined })} />
-            <button type="button" onClick={() => del(r.id)}
+ <button type="button" onClick={() => del(r.id)}
               className="rounded border border-border bg-surface px-2 text-[11px] hover:bg-destructive/10 hover:text-destructive"
               title="Remover">✕</button>
-          </li> ))}
-      </ul>
-      <button type="button" onClick={add}
+ </li> ))}
+ </ul>
+ <button type="button" onClick={add}
         className="rounded-md border border-dashed border-border bg-surface px-2 py-1 text-[11px] font-semibold hover:bg-surface-3"> + Adicionar registro ({unit})
-      </button>
-    </div> );
+ </button>
+ </div> );
 }

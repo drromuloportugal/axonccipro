@@ -32,7 +32,7 @@ export interface StewardAlert {
 }
 
 const DISCLAIMER =
-  "Sistema de apoio à decisão clínica. Não substitui a avaliação e a decisão do médico assistente.";
+ "Sistema de apoio à decisão clínica. Não substitui a avaliação e a decisão do médico assistente.";
 
 export const STEWARDSHIP_DISCLAIMER = DISCLAIMER;
 
