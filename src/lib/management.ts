@@ -38,8 +38,9 @@ export function onMechanicalVentilation(p: Patient): boolean {
 export function onVasoactive(p: Patient): boolean {
   const dva = p.state?.dva;
   if (dva && dva.trim() && !/^n(ã|a)o$|^sem|^-$/i.test(dva.trim())) return true;
+  const vaso = /nora|noradren|adrenalina|dobuta|dopamina|vasopressina|terlipressina|milrinona/i;
   return (p.medications ?? []).some(
-    (m) => m.active !== false && m.pump?.category === "vasoativa" && m.pump?.status !== "stopped",
+    (m) => m.active !== false && m.pump?.status !== "stopped" && vaso.test(m.pump?.pumpDrugName ?? m.name ?? ""),
   );
 }
 
