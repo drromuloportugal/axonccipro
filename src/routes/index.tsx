@@ -505,25 +505,82 @@ function Passometro() {
  </div>
  </header>
 
-      {/* Patient list — padding-top matches fixed header height so content never jumps */}
- <main className="no-print" style={{ paddingTop: headerHeight || undefined }}>
-        {filtered.map((p) => (
- <PatientRow key={p.id} patient={p} onEdit={openEdit} onPrint={setPrinting} onUpdate={handleSave}
-            onArchive={(pt) => {
-              setPatients((prev) => prev.map((x) => (x.id === pt.id ? { ...x, archived: true, archivedAt: new Date().toISOString() } : x)));
-              toast.success("Paciente arquivado", { description: `${pt.name} (${pt.bed}) foi movido para o histórico.` });
-            }}
-            onDelete={(pt) => {
-            setPatients((prev) => prev.filter((x) => x.id !== pt.id));
-            toast.success("Paciente removido", { description: `${pt.name} (${pt.bed}) foi removido do sistema.` });
-          }} />
-        ))}
-        {filtered.length === 0 && (
- <div className="px-6 py-12 text-center text-sm text-muted-foreground">
-            Nenhum paciente encontrado.
- </div>
+      {/* Patient deck — one patient per screen, slide sideways to walk between them */}
+      <main className="no-print" style={{ paddingTop: headerHeight || undefined }}>
+        {filtered.length === 0 ? (
+          <div className="px-6 py-12 text-center text-sm text-muted-foreground">Nenhum paciente encontrado.</div>
+        ) : (
+          <>
+            {/* Navegação lateral */}
+            <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur">
+              <button
+                type="button"
+                onClick={() => goTo(current - 1)}
+                disabled={current <= 0}
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
+                aria-label="Paciente anterior"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Anterior
+              </button>
+              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+                {filtered.map((p, i) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => goTo(i)}
+                    className={`shrink-0 rounded-md border px-2 py-1 font-mono text-[10px] tracking-wider transition-colors ${
+                      i === current
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    }`}
+                    title={p.name}
+                  >
+                    {p.bed}
+                  </button>
+                ))}
+              </div>
+              <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
+                {current + 1}/{filtered.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => goTo(current + 1)}
+                disabled={current >= filtered.length - 1}
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-40"
+                aria-label="Próximo paciente"
+              >
+                Próximo <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            <div
+              ref={deckRef}
+              onScroll={handleDeckScroll}
+              className="flex w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth"
+            >
+              {filtered.map((p) => (
+                <section key={p.id} className="w-full shrink-0 snap-start">
+                  <PatientRow
+                    patient={p}
+                    defaultOpen
+                    onEdit={openEdit}
+                    onPrint={setPrinting}
+                    onUpdate={handleSave}
+                    onArchive={(pt) => {
+                      setPatients((prev) => prev.map((x) => (x.id === pt.id ? { ...x, archived: true, archivedAt: new Date().toISOString() } : x)));
+                      toast.success("Paciente arquivado", { description: `${pt.name} (${pt.bed}) foi movido para o histórico.` });
+                    }}
+                    onDelete={(pt) => {
+                      setPatients((prev) => prev.filter((x) => x.id !== pt.id));
+                      toast.success("Paciente removido", { description: `${pt.name} (${pt.bed}) foi removido do sistema.` });
+                    }}
+                  />
+                </section>
+              ))}
+            </div>
+          </>
         )}
- </main>
+      </main>
 
       {/* Legend */}
  <footer className="no-print border-t border-border bg-surface/40 px-6 py-3">
