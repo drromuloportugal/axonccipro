@@ -300,7 +300,7 @@ export function PatientRow({
  <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
  <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
- <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Identificação
+ <span className="min-w-0 truncate rounded bg-clinical-neutral px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white"> Identificação
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
  <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
