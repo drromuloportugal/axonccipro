@@ -190,6 +190,16 @@ export function PatientRow({
     onUpdate({ ...patient, conducts });
   };
 
+  const toggleSubItem = (idx: number, subIdx: number) => {
+    if (!onUpdate) return;
+    const conducts = patient.conducts.map((c, i) =>
+      i === idx
+        ? { ...c, subItems: (c.subItems ?? []).map((s, si) => (si === subIdx ? { ...s, done: !s.done } : s)) }
+        : c,
+    );
+    onUpdate({ ...patient, conducts });
+  };
+
   // Group devices by category for expanded view
   const devicesByCat = useMemo(() => {
     const map = new Map<DeviceCategory, InvasiveDevice[]>();
