@@ -35,6 +35,7 @@ import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeChec
 import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
+import { BloodGasPanel } from "@/components/BloodGasPanel";
 
 import { Pill } from "lucide-react";
 
@@ -1129,6 +1130,7 @@ export function PatientRow({
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial
  </div> {gaso.length ? renderTable(gaso) : (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem gasometria.</div> )}
+ <BloodGasPanel patient={patient} />
  </div>
  </> );
             })()}
