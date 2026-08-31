@@ -73,9 +73,14 @@ function Chip({ kind, children }: { kind: TimelineKind | "neutral"; children: Re
   return <span className={`chip ${kindClass[kind]}`}>{children}</span>;
 }
 
-function ColTitle({ children }: { children: React.ReactNode }) {
+const TITLE_GREENS = [
+  "title-green-1", "title-green-2", "title-green-3", "title-green-4",
+  "title-green-5", "title-green-6", "title-green-7",
+] as const;
+
+function ColTitle({ children, tone = 0 }: { children: React.ReactNode; tone?: number }) {
   return (
- <div className="mb-2 inline-flex max-w-full items-center rounded-md bg-clinical-neutral px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white"> <span className="truncate">{children}</span>
+ <div className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} mb-2`}> <span className="truncate">{children}</span>
  </div> );
 }
 
@@ -277,14 +282,16 @@ export function PatientRow({
     tab,
     title,
     right,
+    tone = 0,
   }: {
     label: string;
     tab: string;
     title: string;
     right?: React.ReactNode;
+    tone?: number;
   }) => (
- <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
- <span className="min-w-0 truncate rounded bg-clinical-neutral px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white"> {label}
+ <div className="mb-1.5 flex items-center justify-between gap-1.5">
+ <span className={`title-box ${TITLE_GREENS[tone % TITLE_GREENS.length]} min-w-0 truncate !text-[11px]`}> {label}
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {right}
         {editBtn(tab, title)}
@@ -295,12 +302,12 @@ export function PatientRow({
  <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
-        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong/40"
+        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-none [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong"
       > {/* 1 - Identificação */}
  <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
- <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
- <span className="min-w-0 truncate rounded bg-clinical-neutral px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white"> Identificação
+ <div className="mb-1.5 flex items-center justify-between gap-1.5">
+ <span className="title-box title-green-1 min-w-0 truncate !text-[11px]"> Identificação
  </span>
  <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
  <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
@@ -342,7 +349,7 @@ export function PatientRow({
 
  <div className="flex min-w-0 items-center gap-2">
  <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
- <span className="truncate text-sm font-semibold leading-tight text-foreground">{patient.name}</span>
+ <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
  </div>
 
 
@@ -379,7 +386,7 @@ export function PatientRow({
  </div> {/* 2 - História */}
  <div onClick={colClick("hist")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
 
- <ColHead label="História" tab="hist" title="Editar história" />
+ <ColHead label="História" tab="hist" title="Editar história" tone={1} />
  <div className="flex flex-wrap gap-1"> {patient.diagnoses.slice(-3).map((d, i) => (
  <Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
             {patient.diagnoses.length === 0 && (
