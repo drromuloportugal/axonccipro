@@ -551,8 +551,13 @@ function Passometro() {
           <div className="px-6 py-12 text-center text-sm text-muted-foreground">Nenhum paciente encontrado.</div>
         ) : (
           <>
-            {/* Navegação lateral */}
-            <div className="sticky z-20 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur" style={{ top: headerHeight || 0 }}>
+            {/* Navegação lateral — oculta ao rolar para baixo */}
+            <div
+              className={`sticky z-20 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur transition-transform duration-300 ease-out ${
+                navHidden ? "-translate-y-full" : "translate-y-0"
+              }`}
+              style={{ top: headerHeight || 0 }}
+            >
               <button
                 type="button"
                 onClick={() => goTo(current - 1)}
