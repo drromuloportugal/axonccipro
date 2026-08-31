@@ -956,6 +956,7 @@ export function PatientRow({
  <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
  </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
+ <ColTitle tone={4}>Culturas · Imagem</ColTitle>
  <div className="mb-3">
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Culturas microbiológicas</div> {onEdit && (
