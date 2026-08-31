@@ -43,7 +43,7 @@
   --color-clinical-neuro: var(--clinical-neuro);
   --color-clinical-nutri: var(--clinical-nutri);
 
-  --font-sans: "Inter", "SF Pro Display", system-ui, sans-serif;
+  --font-sans: "Archivo", "SF Pro Display", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -146,6 +146,9 @@
   html.fs-lg { font-size: 18px; }
   body {
     background-color: var(--color-background);
+    background-image:
+      linear-gradient(135deg, oklch(0.97 0.03 150 / 0.85) 0%, oklch(0.93 0.06 155 / 0.7) 45%, oklch(0.88 0.08 160 / 0.75) 100%);
+    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-weight: 700;
@@ -216,4 +219,25 @@
   font-family: var(--font-mono);
   font-weight: 700;
 }
+
+/* Caixas de título sólidas em tons de verde */
+@utility title-box {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  border-radius: 0;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: oklch(0.99 0 0);
+}
+@utility title-green-1 { background: oklch(0.42 0.1 155); }
+@utility title-green-2 { background: oklch(0.48 0.12 158); }
+@utility title-green-3 { background: oklch(0.54 0.13 150); }
+@utility title-green-4 { background: oklch(0.5 0.11 175); }
+@utility title-green-5 { background: oklch(0.58 0.13 145); }
+@utility title-green-6 { background: oklch(0.45 0.09 140); }
+@utility title-green-7 { background: oklch(0.52 0.12 165); }
 
