@@ -35,12 +35,12 @@ export type PumpCategory =
   | "insulina" | "hidratacao" | "analgesico" | "outro";
 export type SolventType = "SF 0,9%" | "SG 5%" | "Água destilada" | "Outra";
 export type PumpStatus =
-  | "running"      // 🟢 em funcionamento
-  | "ending_soon"  // 🟡 próxima de terminar
-  | "needs_change" // 🟠 necessita troca
-  | "stopped"      // 🔴 interrompida
-  | "occluded"     // ⚫ oclusão detectada
-  | "titrating";   // 🔵 em titulação
+  | "running"//  em funcionamento
+  | "ending_soon"//  próxima de terminar
+  | "needs_change" //  necessita troca
+  | "stopped"//  interrompida
+  | "occluded"//  oclusão detectada
+  | "titrating";   //  em titulação
 
 export interface PumpInfusion {
   mode: PumpMode;
@@ -641,9 +641,9 @@ export const patients: Patient[] = [
     social: { tabagismo: "40 maços/ano", etilismo: "social", ocupacao: "Aposentada", dependencia: "Parcial" },
     allergies: ["Dipirona"],
     procedures: [
-      { date: "05/06 14:20", label: "🫁 IOT", detail: "Tubo 7.5 — Dr. Lima", kind: "resp" },
-      { date: "10/06 22:40", label: "⚡ PCR revertida", detail: "1 ciclo RCP", kind: "critical" },
-      { date: "13/06 08:00", label: "🩸 CRRT iniciada", kind: "neuro" },
+      { date: "05/06 14:20", label: " IOT", detail: "Tubo 7.5 — Dr. Lima", kind: "resp" },
+      { date: "10/06 22:40", label: " PCR revertida", detail: "1 ciclo RCP", kind: "critical" },
+      { date: "13/06 08:00", label: " CRRT iniciada", kind: "neuro" },
     ],
     devices: [
       { id: "d1", category: "airway", typeCode: "TOT", site: "Oral", size: "7.5", insertedAt: daysAgoISO(10, 14, 20), insertedBy: "Dr. Lima", notes: "Fixação 22 cm", recommendedMaxDays: 7 },
@@ -781,13 +781,13 @@ export const patients: Patient[] = [
       },
     ],
     infectionTimeline: [
-      { at: daysAgoISO(8, 4, 0),  kind: "febre",            label: "Pico febril 38,9°C",                focusId: "inf1" },
-      { at: daysAgoISO(7, 7, 30), kind: "cultura_coletada", label: "Aspirado traqueal coletado",         focusId: "inf1" },
-      { at: daysAgoISO(7, 8, 0),  kind: "atb_inicio",       label: "Início de Meropenem 1g 8/8h",        focusId: "inf1" },
-      { at: daysAgoISO(6, 9, 0),  kind: "cultura_positiva", label: "Pseudomonas MDR sensível a Mero",    focusId: "inf1" },
-      { at: daysAgoISO(2, 5, 30), kind: "febre",            label: "Re-pico febril 38,4°C",              focusId: "inf2" },
-      { at: daysAgoISO(1, 6, 0),  kind: "cultura_coletada", label: "Hemoculturas pareadas (perif+CVC)",  focusId: "inf2" },
-      { at: daysAgoISO(0, 6, 0),  kind: "pcr",              label: "PCR 22 mg/dL ↑",                     focusId: "inf2" },
+      { at: daysAgoISO(8, 4, 0), kind: "febre", label: "Pico febril 38,9°C", focusId: "inf1" },
+      { at: daysAgoISO(7, 7, 30), kind: "cultura_coletada", label: "Aspirado traqueal coletado", focusId: "inf1" },
+      { at: daysAgoISO(7, 8, 0), kind: "atb_inicio", label: "Início de Meropenem 1g 8/8h", focusId: "inf1" },
+      { at: daysAgoISO(6, 9, 0), kind: "cultura_positiva", label: "Pseudomonas MDR sensível a Mero", focusId: "inf1" },
+      { at: daysAgoISO(2, 5, 30), kind: "febre", label: "Re-pico febril 38,4°C", focusId: "inf2" },
+      { at: daysAgoISO(1, 6, 0), kind: "cultura_coletada", label: "Hemoculturas pareadas (perif+CVC)", focusId: "inf2" },
+      { at: daysAgoISO(0, 6, 0), kind: "pcr", label: "PCR 22 mg/dL ↑", focusId: "inf2" },
     ],
     state: {
       glasgow: 10, rass: -2, pam: 72, dva: "Nora 0,28",
@@ -836,8 +836,8 @@ export const patients: Patient[] = [
     social: { tabagismo: "20 maços/ano", ocupacao: "Motorista", dependencia: "Independente" },
     allergies: ["—"],
     procedures: [
-      { date: "10/06 23:10", label: "🫁 IOT", detail: "Tubo 8.0", kind: "resp" },
-      { date: "11/06 02:30", label: "🧠 DVE", detail: "Neurocirurgia", kind: "neuro" },
+      { date: "10/06 23:10", label: " IOT", detail: "Tubo 8.0", kind: "resp" },
+      { date: "11/06 02:30", label: " DVE", detail: "Neurocirurgia", kind: "neuro" },
     ],
     devices: [
       { id: "d6", category: "airway", typeCode: "TOT", site: "Oral", size: "8.0", insertedAt: daysAgoISO(4, 23, 10), recommendedMaxDays: 7 },
@@ -906,9 +906,9 @@ export const patients: Patient[] = [
     social: { tabagismo: "ex-tabagista", ocupacao: "Aposentado", dependencia: "Independente" },
     allergies: ["—"],
     procedures: [
-      { date: "30/05 10:00", label: "🫁 IOT", kind: "resp" },
-      { date: "08/06 09:00", label: "🫁 Extubação", kind: "resp" },
-      { date: "08/06 09:30", label: "🫁 VNI", kind: "resp" },
+      { date: "30/05 10:00", label: " IOT", kind: "resp" },
+      { date: "08/06 09:00", label: " Extubação", kind: "resp" },
+      { date: "08/06 09:30", label: " VNI", kind: "resp" },
     ],
     devices: [
       { id: "d12", category: "urinary", typeCode: "SVD", site: "Uretral", size: "2 vias", insertedAt: daysAgoISO(16, 11, 0), recommendedMaxDays: 14 },

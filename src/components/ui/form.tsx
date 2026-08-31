@@ -31,9 +31,9 @@ const FormField = <
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
-      <Controller {...props} />
-    </FormFieldContext.Provider>
+ <FormFieldContext.Provider value={{ name: props.name }}>
+ <Controller {...props} />
+ </FormFieldContext.Provider>
   );
 };
 
@@ -75,9 +75,9 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
     const id = React.useId();
 
     return (
-      <FormItemContext.Provider value={{ id }}>
-        <div ref={ref} className={cn("space-y-2", className)} {...props} />
-      </FormItemContext.Provider>
+ <FormItemContext.Provider value={{ id }}>
+ <div ref={ref} className={cn("space-y-2", className)} {...props} />
+ </FormItemContext.Provider>
     );
   },
 );
@@ -90,7 +90,7 @@ const FormLabel = React.forwardRef<
   const { error, formItemId } = useFormField();
 
   return (
-    <Label
+ <Label
       ref={ref}
       className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}
@@ -107,7 +107,7 @@ const FormControl = React.forwardRef<
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
   return (
-    <Slot
+ <Slot
       ref={ref}
       id={formItemId}
       aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
@@ -125,7 +125,7 @@ const FormDescription = React.forwardRef<
   const { formDescriptionId } = useFormField();
 
   return (
-    <p
+ <p
       ref={ref}
       id={formDescriptionId}
       className={cn("text-[0.8rem] text-muted-foreground", className)}
@@ -147,14 +147,14 @@ const FormMessage = React.forwardRef<
   }
 
   return (
-    <p
+ <p
       ref={ref}
       id={formMessageId}
       className={cn("text-[0.8rem] font-medium text-destructive", className)}
       {...props}
     >
       {body}
-    </p>
+ </p>
   );
 });
 FormMessage.displayName = "FormMessage";

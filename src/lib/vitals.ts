@@ -68,7 +68,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
     const val = v.fcMax ?? null;
     const level = band(val, [60, 100], [40, 140]);
     out.push({
-      key: "fc", label: "FC máx", icon: "❤️", value: val, unit: "bpm", level,
+      key: "fc", label: "FC máx", icon: "", value: val, unit: "bpm", level,
       reference: "60–100 bpm",
       causes: ["Dor, agitação, ansiedade", "Hipovolemia, sepse, febre", "Hipoxemia, BAV, IAM"],
       actions: ["ECG 12 derivações", "Avaliar volemia e perfusão", "Reavaliar sedação/analgesia"],
@@ -79,7 +79,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
     const val = v.fr ?? null;
     const level = band(val, [12, 20], [8, 30]);
     out.push({
-      key: "fr", label: "FR", icon: "🫁", value: val, unit: "ipm", level,
+      key: "fr", label: "FR", icon: "", value: val, unit: "ipm", level,
       reference: "12–20 ipm",
       causes: ["Acidose metabólica, sepse", "Dor, ansiedade, hipoxemia", "Sedação excessiva, fadiga muscular"],
       actions: ["Gasometria arterial", "SpO₂ contínua", "Reavaliar parâmetros de VM"],
@@ -90,7 +90,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
     const val = v.pam ?? null;
     const level = band(val, [65, 100], [55, 120]);
     out.push({
-      key: "pam", label: "PAM", icon: "🩸", value: val, unit: "mmHg", level,
+      key: "pam", label: "PAM", icon: "", value: val, unit: "mmHg", level,
       reference: "65–100 mmHg",
       causes: ["Choque (séptico/cardiogênico/hipovolêmico)", "DVA inadequada, sedação profunda", "Crise hipertensiva, dor"],
       actions: ["Reposição volêmica guiada", "Titular DVA (alvo PAM ≥65)", "Avaliar lactato e perfusão"],
@@ -105,7 +105,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
       else if (val >= 37.8 || val < 36) level = "attention";
     }
     out.push({
-      key: "temp", label: "Temp máx", icon: "🌡️", value: val, unit: "°C", level,
+      key: "temp", label: "Temp máx", icon: "", value: val, unit: "°C", level,
       reference: "36,0–37,7 °C",
       causes: ["Infecção / sepse", "Reação medicamentosa, transfusional", "Hipotermia: exposição, choque"],
       actions: ["Coletar culturas antes de ATB", "Antitérmico se desconforto", "Reaquecimento ativo se hipotermia"],
@@ -120,7 +120,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
       else if (val < 95) level = "attention";
     }
     out.push({
-      key: "spo2", label: "SpO₂", icon: "🫀", value: val, unit: "%", level,
+      key: "spo2", label: "SpO₂", icon: "", value: val, unit: "%", level,
       reference: "≥ 95%",
       causes: ["Atelectasia, broncoespasmo, PNM", "TEP, edema pulmonar", "Extubação acidental, deslocamento TOT"],
       actions: ["Aumentar FiO₂ / PEEP", "Aspiração de vias aéreas", "Radiografia / gasometria"],
@@ -135,7 +135,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
       else if (val < 70 || val > 180) level = "attention";
     }
     out.push({
-      key: "glic", label: "Glicemia", icon: "🍬", value: val, unit: "mg/dL", level,
+      key: "glic", label: "Glicemia", icon: "", value: val, unit: "mg/dL", level,
       reference: "70–180 mg/dL",
       causes: ["Sepse, corticoide, NPT", "Insulina excessiva, jejum prolongado", "DM descompensado"],
       actions: ["HGT seriado 4/4h", "Ajustar bomba de insulina", "Glicose 50% se hipoglicemia"],
@@ -150,7 +150,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
       else if (val < 0.5) level = "attention";
     }
     out.push({
-      key: "diur", label: "Diurese", icon: "💧", value: val, unit: "mL/kg/h", level,
+      key: "diur", label: "Diurese", icon: "", value: val, unit: "mL/kg/h", level,
       reference: "≥ 0,5 mL/kg/h",
       causes: ["Hipovolemia, choque", "LRA, obstrução de SVD", "Síndrome hepatorrenal"],
       actions: ["Checar permeabilidade SVD", "Prova volêmica orientada", "Avaliar função renal / USG"],
@@ -165,7 +165,7 @@ export function assessVitals(v: VitalInput): VitalAssessment[] {
       else if (val > 1000 || val < -500) level = "attention";
     }
     out.push({
-      key: "bh", label: "Balanço hídrico", icon: "⚖️", value: val, unit: "mL/24h", level,
+      key: "bh", label: "Balanço hídrico", icon: "", value: val, unit: "mL/24h", level,
       reference: "−500 a +1000 mL",
       causes: ["Ressuscitação volêmica, IRA oligúrica", "Diurético excessivo, perdas insensíveis", "Sangramento, drenagens"],
       actions: ["Reavaliar oferta hídrica", "Diurético se hipervolemia sintomática", "Reposição se hipovolemia"],

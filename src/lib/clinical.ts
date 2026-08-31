@@ -49,8 +49,7 @@ export const LABS: LabDef[] = [
 ];
 
 export const labByCode = (code: string) => LABS.find((l) => l.code === code);
-export const labByLabel = (label: string) =>
-  LABS.find((l) => l.code === label || l.label.toLowerCase() === label.toLowerCase());
+export const labByLabel = (label: string) => LABS.find((l) => l.code === label || l.label.toLowerCase() === label.toLowerCase());
 
 // Parse "12,1" / "18.000" / "1,5" → number. Brazilian style.
 export function parseClinicalNumber(raw: string): number | null {
@@ -81,11 +80,11 @@ export function classifyLab(code: string, value: number, sex: "M" | "F" = "M"): 
 
 export function bucketBadge(b: LabBucket) {
   switch (b) {
-    case "very_low": return { icon: "🔴", className: "text-clinical-critical", label: "Muito baixo" };
-    case "low":      return { icon: "🟡", className: "text-clinical-attention", label: "Baixo" };
-    case "normal":   return { icon: "🟢", className: "text-clinical-stable",    label: "Normal" };
-    case "high":     return { icon: "🟠", className: "text-clinical-device",    label: "Elevado" };
-    case "very_high":return { icon: "🔴", className: "text-clinical-critical", label: "Muito elevado" };
+    case "very_low": return { icon: "", className: "text-clinical-critical", label: "Muito baixo" };
+    case "low": return { icon: "", className: "text-clinical-attention", label: "Baixo" };
+    case "normal": return { icon: "", className: "text-clinical-stable", label: "Normal" };
+    case "high": return { icon: "", className: "text-clinical-device", label: "Elevado" };
+    case "very_high":return { icon: "", className: "text-clinical-critical", label: "Muito elevado" };
   }
 }
 
@@ -104,9 +103,9 @@ export function computeTrend(code: string, history: number[]): TrendDirection {
 
 export function trendBadge(t: TrendDirection) {
   switch (t) {
-    case "improving": return { icon: "📉", className: "text-clinical-stable",    label: "Melhorando" };
-    case "worsening": return { icon: "📈", className: "text-clinical-critical", label: "Piorando" };
-    case "flat":      return { icon: "➖", className: "text-clinical-neutral",   label: "Estável" };
+    case "improving": return { icon: "", className: "text-clinical-stable", label: "Melhorando" };
+    case "worsening": return { icon: "", className: "text-clinical-critical", label: "Piorando" };
+    case "flat": return { icon: "", className: "text-clinical-neutral", label: "Estável" };
   }
 }
 
@@ -153,8 +152,8 @@ export const DRUGS: DrugDef[] = [
     name: "Noradrenalina", category: "vasoativa", doseUnit: "mcg/kg/min",
     usual: 0.1, min: 0.02, max: 2, bic: true,
     protocols: {
-      Geral:  { name: "Padrão (8mg/100mL)", ...ratio(8, 100) },
-      Neuro:  { name: "Padrão (8mg/100mL)", ...ratio(8, 100) },
+      Geral: { name: "Padrão (8mg/100mL)", ...ratio(8, 100) },
+      Neuro: { name: "Padrão (8mg/100mL)", ...ratio(8, 100) },
       Cardio: { name: "Concentrada (16mg/100mL)", ...ratio(16, 100) },
     },
   },
@@ -162,8 +161,8 @@ export const DRUGS: DrugDef[] = [
     name: "Adrenalina", category: "vasoativa", doseUnit: "mcg/kg/min",
     usual: 0.05, min: 0.01, max: 1, bic: true,
     protocols: {
-      Geral:  { name: "Padrão (5mg/100mL)", ...ratio(5, 100) },
-      Neuro:  { name: "Padrão (5mg/100mL)", ...ratio(5, 100) },
+      Geral: { name: "Padrão (5mg/100mL)", ...ratio(5, 100) },
+      Neuro: { name: "Padrão (5mg/100mL)", ...ratio(5, 100) },
       Cardio: { name: "Concentrada (10mg/100mL)", ...ratio(10, 100) },
     },
   },
@@ -171,8 +170,8 @@ export const DRUGS: DrugDef[] = [
     name: "Vasopressina", category: "vasoativa", doseUnit: "UI/h",
     usual: 2.4, min: 0.6, max: 4.8, bic: true,
     protocols: {
-      Geral:  { name: "20 UI/100 mL", ...ratio(20, 100) },
-      Neuro:  { name: "20 UI/100 mL", ...ratio(20, 100) },
+      Geral: { name: "20 UI/100 mL", ...ratio(20, 100) },
+      Neuro: { name: "20 UI/100 mL", ...ratio(20, 100) },
       Cardio: { name: "20 UI/100 mL", ...ratio(20, 100) },
     },
   },
@@ -180,8 +179,8 @@ export const DRUGS: DrugDef[] = [
     name: "Dobutamina", category: "vasoativa", doseUnit: "mcg/kg/min",
     usual: 5, min: 2, max: 20, bic: true,
     protocols: {
-      Geral:  { name: "250mg/250mL", ...ratio(250, 250) },
-      Neuro:  { name: "250mg/250mL", ...ratio(250, 250) },
+      Geral: { name: "250mg/250mL", ...ratio(250, 250) },
+      Neuro: { name: "250mg/250mL", ...ratio(250, 250) },
       Cardio: { name: "500mg/250mL", ...ratio(500, 250) },
     },
   },
@@ -189,8 +188,8 @@ export const DRUGS: DrugDef[] = [
     name: "Nitroprussiato", category: "vasoativa", doseUnit: "mcg/kg/min",
     usual: 1, min: 0.25, max: 8, bic: true,
     protocols: {
-      Geral:  { name: "50mg/250mL", ...ratio(50, 250) },
-      Neuro:  { name: "50mg/250mL", ...ratio(50, 250) },
+      Geral: { name: "50mg/250mL", ...ratio(50, 250) },
+      Neuro: { name: "50mg/250mL", ...ratio(50, 250) },
       Cardio: { name: "50mg/250mL", ...ratio(50, 250) },
     },
     notes: "Fotoprotegida. Risco de cianeto > 48h.",
@@ -199,8 +198,8 @@ export const DRUGS: DrugDef[] = [
     name: "Fentanil", category: "analgesico", doseUnit: "mcg/kg/min",
     usual: 0.03, min: 0.01, max: 0.1, bic: true,
     protocols: {
-      Geral:  { name: "2500mcg/50mL (50mcg/mL)", ...ratio(2.5, 50) },
-      Neuro:  { name: "2500mcg/50mL (50mcg/mL)", ...ratio(2.5, 50) },
+      Geral: { name: "2500mcg/50mL (50mcg/mL)", ...ratio(2.5, 50) },
+      Neuro: { name: "2500mcg/50mL (50mcg/mL)", ...ratio(2.5, 50) },
       Cardio: { name: "2500mcg/50mL (50mcg/mL)", ...ratio(2.5, 50) },
     },
   },
@@ -208,8 +207,8 @@ export const DRUGS: DrugDef[] = [
     name: "Midazolam", category: "sedativo", doseUnit: "mg/kg/h",
     usual: 0.05, min: 0.02, max: 0.2, bic: true,
     protocols: {
-      Geral:  { name: "100mg/100mL", ...ratio(100, 100) },
-      Neuro:  { name: "100mg/100mL", ...ratio(100, 100) },
+      Geral: { name: "100mg/100mL", ...ratio(100, 100) },
+      Neuro: { name: "100mg/100mL", ...ratio(100, 100) },
       Cardio: { name: "100mg/100mL", ...ratio(100, 100) },
     },
   },
@@ -217,8 +216,8 @@ export const DRUGS: DrugDef[] = [
     name: "Propofol", category: "sedativo", doseUnit: "mg/kg/h",
     usual: 2, min: 0.5, max: 4, bic: true,
     protocols: {
-      Geral:  { name: "1% (10mg/mL)", ...ratio(1000, 100) },
-      Neuro:  { name: "2% (20mg/mL)", ...ratio(2000, 100) },
+      Geral: { name: "1% (10mg/mL)", ...ratio(1000, 100) },
+      Neuro: { name: "2% (20mg/mL)", ...ratio(2000, 100) },
       Cardio: { name: "1% (10mg/mL)", ...ratio(1000, 100) },
     },
     notes: "Risco de PRIS em uso prolongado.",
@@ -227,8 +226,8 @@ export const DRUGS: DrugDef[] = [
     name: "Dexmedetomidina", category: "sedativo", doseUnit: "mcg/kg/min",
     usual: 0.01, min: 0.003, max: 0.025, bic: true,
     protocols: {
-      Geral:  { name: "200mcg/50mL", ...ratio(0.2, 50) },
-      Neuro:  { name: "200mcg/50mL", ...ratio(0.2, 50) },
+      Geral: { name: "200mcg/50mL", ...ratio(0.2, 50) },
+      Neuro: { name: "200mcg/50mL", ...ratio(0.2, 50) },
       Cardio: { name: "200mcg/50mL", ...ratio(0.2, 50) },
     },
   },
@@ -236,8 +235,8 @@ export const DRUGS: DrugDef[] = [
     name: "Cisatracúrio", category: "sedativo", doseUnit: "mcg/kg/min",
     usual: 3, min: 1, max: 10, bic: true,
     protocols: {
-      Geral:  { name: "20mg/100mL", ...ratio(20, 100) },
-      Neuro:  { name: "20mg/100mL", ...ratio(20, 100) },
+      Geral: { name: "20mg/100mL", ...ratio(20, 100) },
+      Neuro: { name: "20mg/100mL", ...ratio(20, 100) },
       Cardio: { name: "20mg/100mL", ...ratio(20, 100) },
     },
   },
@@ -245,8 +244,8 @@ export const DRUGS: DrugDef[] = [
     name: "Insulina regular", category: "outros", doseUnit: "UI/h",
     usual: 2, min: 0.5, max: 20, bic: true,
     protocols: {
-      Geral:  { name: "100 UI/100 mL SF", ...ratio(100, 100) },
-      Neuro:  { name: "100 UI/100 mL SF", ...ratio(100, 100) },
+      Geral: { name: "100 UI/100 mL SF", ...ratio(100, 100) },
+      Neuro: { name: "100 UI/100 mL SF", ...ratio(100, 100) },
       Cardio: { name: "100 UI/100 mL SF", ...ratio(100, 100) },
     },
   },
@@ -254,8 +253,8 @@ export const DRUGS: DrugDef[] = [
     name: "Heparina", category: "anticoag", doseUnit: "UI/h",
     usual: 1000, min: 200, max: 2500, bic: true,
     protocols: {
-      Geral:  { name: "25.000 UI/250 mL", ...ratio(25000, 250) },
-      Neuro:  { name: "25.000 UI/250 mL", ...ratio(25000, 250) },
+      Geral: { name: "25.000 UI/250 mL", ...ratio(25000, 250) },
+      Neuro: { name: "25.000 UI/250 mL", ...ratio(25000, 250) },
       Cardio: { name: "25.000 UI/250 mL", ...ratio(25000, 250) },
     },
   },
@@ -263,8 +262,8 @@ export const DRUGS: DrugDef[] = [
     name: "Amiodarona", category: "cardio", doseUnit: "mg/h",
     usual: 60, min: 30, max: 90, bic: true,
     protocols: {
-      Geral:  { name: "900mg/500mL SG5%", ...ratio(900, 500) },
-      Neuro:  { name: "900mg/500mL SG5%", ...ratio(900, 500) },
+      Geral: { name: "900mg/500mL SG5%", ...ratio(900, 500) },
+      Neuro: { name: "900mg/500mL SG5%", ...ratio(900, 500) },
       Cardio: { name: "900mg/500mL SG5%", ...ratio(900, 500) },
     },
   },
@@ -353,22 +352,22 @@ export interface ProcedureDef {
 }
 
 export const PROCEDURES: ProcedureDef[] = [
-  { code: "IOT",        label: "Intubação orotraqueal", kind: "resp",    icon: "🫁" },
-  { code: "EXT",        label: "Extubação",             kind: "resp",    icon: "🫁" },
-  { code: "VNI",        label: "Ventilação não invasiva", kind: "resp",  icon: "🫁" },
-  { code: "TQT",        label: "Traqueostomia",         kind: "resp",    icon: "🫁" },
-  { code: "CVC",        label: "Cateter venoso central",kind: "stable",  icon: "💉" },
-  { code: "PAMI",       label: "PAM invasiva",          kind: "stable",  icon: "❤️" },
-  { code: "SVD",        label: "Sonda vesical",         kind: "device",  icon: "💧" },
-  { code: "SNE",        label: "Sonda nasoenteral",     kind: "nutri",   icon: "🍽" },
-  { code: "CRRT",       label: "Hemodiálise contínua",  kind: "neuro",   icon: "🩸" },
-  { code: "HD",         label: "Hemodiálise intermitente", kind: "neuro",icon: "🩸" },
-  { code: "PIC",        label: "Monitor de PIC",        kind: "neuro",   icon: "🧠" },
-  { code: "DVE",        label: "Derivação ventricular externa", kind: "neuro", icon: "🧠" },
-  { code: "BRONCO",     label: "Broncoscopia",          kind: "resp",    icon: "🫁" },
-  { code: "CVPP",       label: "Cardioversão",          kind: "critical",icon: "⚡" },
-  { code: "TORACO",     label: "Toracocentese",         kind: "resp",    icon: "🫁" },
-  { code: "PCR",        label: "PCR revertida",         kind: "critical",icon: "⚡" },
+  { code: "IOT", label: "Intubação orotraqueal", kind: "resp", icon: "" },
+  { code: "EXT", label: "Extubação", kind: "resp", icon: "" },
+  { code: "VNI", label: "Ventilação não invasiva", kind: "resp", icon: "" },
+  { code: "TQT", label: "Traqueostomia", kind: "resp", icon: "" },
+  { code: "CVC", label: "Cateter venoso central",kind: "stable", icon: "" },
+  { code: "PAMI", label: "PAM invasiva", kind: "stable", icon: "" },
+  { code: "SVD", label: "Sonda vesical", kind: "device", icon: "" },
+  { code: "SNE", label: "Sonda nasoenteral", kind: "nutri", icon: "" },
+  { code: "CRRT", label: "Hemodiálise contínua", kind: "neuro", icon: "" },
+  { code: "HD", label: "Hemodiálise intermitente", kind: "neuro",icon: "" },
+  { code: "PIC", label: "Monitor de PIC", kind: "neuro", icon: "" },
+  { code: "DVE", label: "Derivação ventricular externa", kind: "neuro", icon: "" },
+  { code: "BRONCO", label: "Broncoscopia", kind: "resp", icon: "" },
+  { code: "CVPP", label: "Cardioversão", kind: "critical",icon: "" },
+  { code: "TORACO", label: "Toracocentese", kind: "resp", icon: "" },
+  { code: "PCR", label: "PCR revertida", kind: "critical",icon: "" },
 ];
 
 export const procedureByCode = (c: string) => PROCEDURES.find((p) => p.code === c);
@@ -393,14 +392,14 @@ export function generateEstadoAtual(p: Patient): EstadoLine[] {
 
   const lines: EstadoLine[] = [];
   lines.push({
-    icon: "🧠",
+    icon: "",
     sys: "Neuro",
     text: `Glasgow ${s.glasgow} · RASS ${s.rass > 0 ? `+${s.rass}` : s.rass}`,
     kind: "neuro",
     flag: s.glasgow < 8,
   });
   lines.push({
-    icon: "❤️",
+    icon: "",
     sys: "Hemo",
     text: vasoActive.length
       ? `PAM ${s.pam} · ${vasoActive.map((v) => `${v.name.split(" ")[0]} ${v.dose}`).join(" + ")}`
@@ -409,21 +408,21 @@ export function generateEstadoAtual(p: Patient): EstadoLine[] {
     flag: s.pam < 65 || vasoActive.length > 0,
   });
   lines.push({
-    icon: "🫁",
+    icon: "",
     sys: "Resp",
     text: `${s.vent}${s.fio2 > 21 ? ` · FiO₂ ${s.fio2}%` : ""}`,
     kind: "resp",
     flag: s.fio2 > 50,
   });
   lines.push({
-    icon: "💧",
+    icon: "",
     sys: "Renal",
     text: s.diurese < 0.5 ? `Oligúria (${s.diurese.toFixed(1)} ml/kg/h)` : `Diurese ${s.diurese.toFixed(1)} ml/kg/h`,
     kind: s.diurese < 0.5 ? "attention" : "stable",
     flag: s.diurese < 0.5,
   });
   lines.push({
-    icon: "🦠",
+    icon: "",
     sys: "Infec",
     text: s.infection
       ? `${s.infection}${atbs.length ? ` · ${atbs.map((a) => a.name).join(", ")}` : ""} · T ${s.temp}°`
@@ -434,7 +433,7 @@ export function generateEstadoAtual(p: Patient): EstadoLine[] {
     flag: !!s.infection || s.temp >= 38,
   });
   lines.push({
-    icon: "🍽",
+    icon: "",
     sys: "Nutri",
     text: s.dieta,
     kind: "nutri",
@@ -599,10 +598,10 @@ export function antibioticProgress(med: Medication): AtbProgress | null {
 
 export function atbAlertBadge(a: AtbAlert): { icon: string; label: string; className: string } | null {
   switch (a) {
-    case "ending_48h": return { icon: "🟡", label: "Termina em 48h", className: "text-clinical-attention" };
-    case "ending_24h": return { icon: "🟠", label: "Termina em 24h", className: "text-clinical-device" };
-    case "last_dose":  return { icon: "🔴", label: "Última dose", className: "text-clinical-critical" };
-    case "overdue":    return { icon: "🔴", label: "Curso encerrado", className: "text-clinical-critical" };
+    case "ending_48h": return { icon: "", label: "Termina em 48h", className: "text-clinical-attention" };
+    case "ending_24h": return { icon: "", label: "Termina em 24h", className: "text-clinical-device" };
+    case "last_dose": return { icon: "", label: "Última dose", className: "text-clinical-critical" };
+    case "overdue": return { icon: "", label: "Curso encerrado", className: "text-clinical-critical" };
     case "ok": return null;
   }
 }
@@ -637,7 +636,7 @@ export function deviceRisk(d: InvasiveDevice): DeviceRisk {
   const hours = Math.max(0, (ref - inserted) / 3600000);
   const days = hours / 24;
 
-  const icons: Record<DeviceRiskLevel, string> = { green: "🟢", yellow: "🟡", orange: "🟠", red: "🔴" };
+  const icons: Record<DeviceRiskLevel, string> = { green: "", yellow: "", orange: "", red: "" };
   const classes: Record<DeviceRiskLevel, string> = {
     green: "text-clinical-stable",
     yellow: "text-clinical-attention",
@@ -662,7 +661,7 @@ export function deviceRisk(d: InvasiveDevice): DeviceRisk {
       max: sem.yellowMax,
       percent: Math.min(999, (days / redAt) * 100),
       level, icon: icons[level], label: labels[level], className: classes[level],
-      semaphoreHint: `🟢 0–${sem.greenMax}d · 🟡 ${sem.greenMax + 1}–${sem.yellowMax}d · 🔴 ≥${redAt}d (alerta de reavaliação, não de retirada obrigatória)`,
+      semaphoreHint: ` 0–${sem.greenMax}d ·  ${sem.greenMax + 1}–${sem.yellowMax}d ·  ≥${redAt}d (alerta de reavaliação, não de retirada obrigatória)`,
     };
   }
 
@@ -717,21 +716,21 @@ export function pumpCategoryOf(med: Medication): PumpCategory {
 }
 
 export const PUMP_CATEGORY_META: Record<PumpCategory, { icon: string; label: string; className: string; dotClass: string }> = {
-  vasoativa:      { icon: "🔴", label: "Vasoativa",     className: "text-clinical-critical", dotClass: "bg-clinical-critical" },
-  sedativo:       { icon: "🟣", label: "Sedativo",      className: "text-clinical-neuro",    dotClass: "bg-clinical-neuro" },
-  analgesico:     { icon: "🟣", label: "Analgésico",    className: "text-clinical-neuro",    dotClass: "bg-clinical-neuro" },
-  antimicrobiano: { icon: "🟢", label: "Antimicrobiano",className: "text-clinical-stable",   dotClass: "bg-clinical-stable" },
-  insulina:       { icon: "🟡", label: "Insulina",      className: "text-clinical-attention",dotClass: "bg-clinical-attention" },
-  hidratacao:     { icon: "⚪", label: "Hidratação",    className: "text-clinical-neutral",  dotClass: "bg-clinical-neutral" },
-  outro:          { icon: "⚪", label: "Outro",         className: "text-clinical-neutral",  dotClass: "bg-clinical-neutral" },
+  vasoativa: { icon: "", label: "Vasoativa", className: "text-clinical-critical", dotClass: "bg-clinical-critical" },
+  sedativo: { icon: "", label: "Sedativo", className: "text-clinical-neuro", dotClass: "bg-clinical-neuro" },
+  analgesico: { icon: "", label: "Analgésico", className: "text-clinical-neuro", dotClass: "bg-clinical-neuro" },
+  antimicrobiano: { icon: "", label: "Antimicrobiano",className: "text-clinical-stable", dotClass: "bg-clinical-stable" },
+  insulina: { icon: "", label: "Insulina", className: "text-clinical-attention",dotClass: "bg-clinical-attention" },
+  hidratacao: { icon: "", label: "Hidratação", className: "text-clinical-neutral", dotClass: "bg-clinical-neutral" },
+  outro: { icon: "", label: "Outro", className: "text-clinical-neutral", dotClass: "bg-clinical-neutral" },
 };
 
 // Dilution library view over DRUGS
 export const DILUTION_LIBRARY = DRUGS.reduce<Record<string, Record<"Geral" | "Neuro" | "Cardio", { amountMg: number; volumeMl: number; solvent: SolventType; label: string }>>>((acc, d) => {
   acc[d.name] = {
-    Geral:  { amountMg: d.protocols.Geral.ampMg,  volumeMl: d.protocols.Geral.diluentMl,  solvent: "SF 0,9%", label: d.protocols.Geral.name },
-    Neuro:  { amountMg: d.protocols.Neuro.ampMg,  volumeMl: d.protocols.Neuro.diluentMl,  solvent: "SF 0,9%", label: d.protocols.Neuro.name },
-    Cardio: { amountMg: d.protocols.Cardio.ampMg, volumeMl: d.protocols.Cardio.diluentMl, solvent: "SG 5%",   label: d.protocols.Cardio.name },
+    Geral: { amountMg: d.protocols.Geral.ampMg, volumeMl: d.protocols.Geral.diluentMl, solvent: "SF 0,9%", label: d.protocols.Geral.name },
+    Neuro: { amountMg: d.protocols.Neuro.ampMg, volumeMl: d.protocols.Neuro.diluentMl, solvent: "SF 0,9%", label: d.protocols.Neuro.name },
+    Cardio: { amountMg: d.protocols.Cardio.ampMg, volumeMl: d.protocols.Cardio.diluentMl, solvent: "SG 5%", label: d.protocols.Cardio.name },
   };
   return acc;
 }, {});
@@ -771,11 +770,11 @@ export function computeBagRemaining(pump: PumpInfusion, nowMs: number = Date.now
 
 export function bagAlertBadge(a: BagAlert): { icon: string; label: string; className: string; borderClass: string } {
   switch (a) {
-    case "low_2h":   return { icon: "🟡", label: "Restam 2 horas",  className: "text-clinical-attention", borderClass: "border-clinical-attention/60" };
-    case "low_1h":   return { icon: "🟠", label: "Resta 1 hora",    className: "text-clinical-device",    borderClass: "border-clinical-device/60" };
-    case "low_30min":return { icon: "🔴", label: "Restam 30 min",   className: "text-clinical-critical",  borderClass: "border-clinical-critical/70" };
-    case "empty":    return { icon: "⛔", label: "Bolsa finalizada",className: "text-clinical-critical",  borderClass: "border-clinical-critical" };
-    case "ok":       return { icon: "🟢", label: "OK",              className: "text-clinical-stable",    borderClass: "border-border" };
+    case "low_2h": return { icon: "", label: "Restam 2 horas", className: "text-clinical-attention", borderClass: "border-clinical-attention/60" };
+    case "low_1h": return { icon: "", label: "Resta 1 hora", className: "text-clinical-device", borderClass: "border-clinical-device/60" };
+    case "low_30min":return { icon: "", label: "Restam 30 min", className: "text-clinical-critical", borderClass: "border-clinical-critical/70" };
+    case "empty": return { icon: "", label: "Bolsa finalizada",className: "text-clinical-critical", borderClass: "border-clinical-critical" };
+    case "ok": return { icon: "", label: "OK", className: "text-clinical-stable", borderClass: "border-border" };
   }
 }
 
@@ -813,7 +812,7 @@ export function aiTherapySuggestions(p: Patient): TherapySuggestion[] {
       rationale: `PAM ${s.pam} mmHg acima do alvo — iniciar desmame de vasopressor.` });
   }
   if (s.diurese < 0.5) {
-    out.push({ icon: "💧", severity: "attention",
+    out.push({ icon: "", severity: "attention",
       title: "Avaliar volume / diurético",
       rationale: `Diurese ${s.diurese.toFixed(1)} ml/kg/h. Investigar hipovolemia, congestão ou LRA.` });
   }
@@ -832,12 +831,12 @@ export function aiTherapySuggestions(p: Patient): TherapySuggestion[] {
     }
   }
   if (s.fio2 > 60) {
-    out.push({ icon: "🫁", severity: "attention",
+    out.push({ icon: "", severity: "attention",
       title: "Otimizar ventilação",
       rationale: `FiO₂ ${s.fio2}% elevada. Reavaliar PEEP, recrutamento e prono.` });
   }
   if (s.temp >= 38.5) {
-    out.push({ icon: "🌡", severity: "attention",
+    out.push({ icon: "", severity: "attention",
       title: "Investigar foco de infecção",
       rationale: `Tax ${s.temp}°C — coletar culturas e reavaliar cobertura antimicrobiana.` });
   }
@@ -846,7 +845,7 @@ export function aiTherapySuggestions(p: Patient): TherapySuggestion[] {
     if (!isAtb) continue;
     const prog = antibioticProgress(m);
     if (prog && (prog.alert === "ending_24h" || prog.alert === "last_dose")) {
-      out.push({ icon: "💊", severity: "attention",
+      out.push({ icon: "", severity: "attention",
         title: `${m.name}: revisar conduta antes do término`,
         rationale: `Curso ${prog.currentDay}/${prog.totalDays} dias. Decidir suspensão, descalonamento ou prorrogação.` });
     }
@@ -870,15 +869,15 @@ export function feverStatus(tempC: number | undefined | null): {
 } {
   const t = typeof tempC === "number" ? tempC : NaN;
   if (!Number.isFinite(t) || t < 37.3) {
-    return { level: "normal", label: "Afebril", icon: "🌡", className: "text-clinical-stable", pulse: false };
+    return { level: "normal", label: "Afebril", icon: "", className: "text-clinical-stable", pulse: false };
   }
   if (t < 37.8) {
-    return { level: "febricula", label: "Febrícula", icon: "🌡", className: "text-clinical-attention", pulse: false };
+    return { level: "febricula", label: "Febrícula", icon: "", className: "text-clinical-attention", pulse: false };
   }
   if (t < 39.0) {
-    return { level: "febril", label: "Febril", icon: "🌡", className: "text-clinical-device", pulse: false };
+    return { level: "febril", label: "Febril", icon: "", className: "text-clinical-device", pulse: false };
   }
-  return { level: "hipertermia", label: "Hipertermia", icon: "🔥", className: "text-clinical-critical", pulse: true };
+  return { level: "hipertermia", label: "Hipertermia", icon: "", className: "text-clinical-critical", pulse: true };
 }
 
 // ============================================================================
@@ -886,19 +885,19 @@ export function feverStatus(tempC: number | undefined | null): {
 // ============================================================================
 
 export const MEDICATION_CLASS_META: Record<MedicationClass, { label: string; short: string; icon: string; className: string; bgClass: string; borderClass: string }> = {
-  antibiotic: { label: "Antibióticos",   short: "ATB",         icon: "💊", className: "text-clinical-attention", bgClass: "bg-clinical-attention/10", borderClass: "border-clinical-attention/40" },
-  pump:       { label: "Bomba",          short: "Bomba",       icon: "🩸", className: "text-clinical-critical",  bgClass: "bg-clinical-critical/10",  borderClass: "border-clinical-critical/40" },
-  hydration:  { label: "Hidratação",     short: "Hidrat.",     icon: "💧", className: "text-clinical-resp",      bgClass: "bg-clinical-resp/10",      borderClass: "border-clinical-resp/40" },
-  iv:         { label: "Venoso",         short: "EV",          icon: "💉", className: "text-clinical-resp",      bgClass: "bg-clinical-resp/10",      borderClass: "border-clinical-resp/40" },
-  im:         { label: "Intramuscular",  short: "IM",          icon: "💪", className: "text-clinical-device",    bgClass: "bg-clinical-device/10",    borderClass: "border-clinical-device/40" },
-  sc:         { label: "Subcutâneo",     short: "SC",          icon: "🩹", className: "text-clinical-stable",    bgClass: "bg-clinical-stable/10",    borderClass: "border-clinical-stable/40" },
-  oral:       { label: "Oral/Enteral",   short: "VO/Ent.",     icon: "🍽", className: "text-clinical-nutri",     bgClass: "bg-clinical-nutri/10",     borderClass: "border-clinical-nutri/40" },
-  inhaled:    { label: "Inalatório",     short: "Inal.",       icon: "🫁", className: "text-clinical-resp",      bgClass: "bg-clinical-resp/10",      borderClass: "border-clinical-resp/40" },
-  topical:    { label: "Tópico",         short: "Tóp.",        icon: "🧴", className: "text-clinical-neutral",   bgClass: "bg-clinical-neutral/10",   borderClass: "border-clinical-neutral/40" },
+  antibiotic: { label: "Antibióticos", short: "ATB", icon: "", className: "text-clinical-attention", bgClass: "bg-clinical-attention/10", borderClass: "border-clinical-attention/40" },
+  pump: { label: "Bomba", short: "Bomba", icon: "", className: "text-clinical-critical", bgClass: "bg-clinical-critical/10", borderClass: "border-clinical-critical/40" },
+  hydration: { label: "Hidratação", short: "Hidrat.", icon: "", className: "text-clinical-resp", bgClass: "bg-clinical-resp/10", borderClass: "border-clinical-resp/40" },
+  iv: { label: "Venoso", short: "EV", icon: "", className: "text-clinical-resp", bgClass: "bg-clinical-resp/10", borderClass: "border-clinical-resp/40" },
+  im: { label: "Intramuscular", short: "IM", icon: "", className: "text-clinical-device", bgClass: "bg-clinical-device/10", borderClass: "border-clinical-device/40" },
+  sc: { label: "Subcutâneo", short: "SC", icon: "", className: "text-clinical-stable", bgClass: "bg-clinical-stable/10", borderClass: "border-clinical-stable/40" },
+  oral: { label: "Oral/Enteral", short: "VO/Ent.", icon: "", className: "text-clinical-nutri", bgClass: "bg-clinical-nutri/10", borderClass: "border-clinical-nutri/40" },
+  inhaled: { label: "Inalatório", short: "Inal.", icon: "", className: "text-clinical-resp", bgClass: "bg-clinical-resp/10", borderClass: "border-clinical-resp/40" },
+  topical: { label: "Tópico", short: "Tóp.", icon: "", className: "text-clinical-neutral", bgClass: "bg-clinical-neutral/10", borderClass: "border-clinical-neutral/40" },
 };
 
 export const MEDICATION_CLASS_ORDER: MedicationClass[] = [
-  "antibiotic", "pump", "hydration", "iv", "im", "sc", "oral", "inhaled", "topical",
+ "antibiotic", "pump", "hydration", "iv", "im", "sc", "oral", "inhaled", "topical",
 ];
 
 /** Resolve a medication class from explicit field or from route/isAntibiotic/pump heuristics. */
@@ -922,13 +921,13 @@ export function medClassOf(m: Medication): MedicationClass {
 // ============================================================================
 
 export const BRISTOL: { value: 1 | 2 | 3 | 4 | 5 | 6 | 7; label: string; hint: string; color: string; className: string }[] = [
-  { value: 1, label: "Tipo 1", hint: "Bolinhas duras separadas — constipação grave",  color: "#6b4a2b", className: "text-clinical-critical" },
-  { value: 2, label: "Tipo 2", hint: "Salsicha grumosa — constipação",                 color: "#8b5a2b", className: "text-clinical-device" },
-  { value: 3, label: "Tipo 3", hint: "Salsicha com rachaduras — normal (firme)",       color: "#a67b3e", className: "text-clinical-attention" },
-  { value: 4, label: "Tipo 4", hint: "Salsicha lisa — ideal",                          color: "#8f6a3c", className: "text-clinical-stable" },
-  { value: 5, label: "Tipo 5", hint: "Pedaços macios com bordas nítidas",              color: "#a88551", className: "text-clinical-attention" },
-  { value: 6, label: "Tipo 6", hint: "Fragmentos moles / pastoso — diarreia leve",     color: "#b28e5d", className: "text-clinical-device" },
-  { value: 7, label: "Tipo 7", hint: "Líquido sem sólidos — diarreia grave",           color: "#c8a074", className: "text-clinical-critical" },
+  { value: 1, label: "Tipo 1", hint: "Bolinhas duras separadas — constipação grave", color: "#6b4a2b", className: "text-clinical-critical" },
+  { value: 2, label: "Tipo 2", hint: "Salsicha grumosa — constipação", color: "#8b5a2b", className: "text-clinical-device" },
+  { value: 3, label: "Tipo 3", hint: "Salsicha com rachaduras — normal (firme)", color: "#a67b3e", className: "text-clinical-attention" },
+  { value: 4, label: "Tipo 4", hint: "Salsicha lisa — ideal", color: "#8f6a3c", className: "text-clinical-stable" },
+  { value: 5, label: "Tipo 5", hint: "Pedaços macios com bordas nítidas", color: "#a88551", className: "text-clinical-attention" },
+  { value: 6, label: "Tipo 6", hint: "Fragmentos moles / pastoso — diarreia leve", color: "#b28e5d", className: "text-clinical-device" },
+  { value: 7, label: "Tipo 7", hint: "Líquido sem sólidos — diarreia grave", color: "#c8a074", className: "text-clinical-critical" },
 ];
 
 export function bristolMeta(n?: number | null) {
@@ -948,8 +947,7 @@ export interface FluidBalanceSummary {
   balance: number;   // intake − (output + drains + derivations)
 }
 
-const sumVol = (arr?: { volumeMl: number; unit?: string }[]) =>
-  (arr ?? []).reduce((acc, e) => acc + (e.unit === "L" ? e.volumeMl * 1000 : e.volumeMl), 0);
+const sumVol = (arr?: { volumeMl: number; unit?: string }[]) => (arr ?? []).reduce((acc, e) => acc + (e.unit === "L" ? e.volumeMl * 1000 : e.volumeMl), 0);
 
 export function computeFluidBalance(fb?: { intake?: FluidEntry[]; output?: FluidEntry[]; drains?: DrainEntry[]; derivations?: DerivationEntry[] }): FluidBalanceSummary {
   const totalIntake = sumVol(fb?.intake);
@@ -967,21 +965,21 @@ export function computeFluidBalance(fb?: { intake?: FluidEntry[]; output?: Fluid
 // ============================================================================
 
 export const CONDUCT_SYSTEM_META: Record<ConductSystem, { label: string; short: string; icon: string; className: string; bgClass: string; borderClass: string }> = {
-  dieta:  { label: "Dieta",             short: "Dieta",  icon: "🍽", className: "text-clinical-nutri",     bgClass: "bg-clinical-nutri/10",     borderClass: "border-clinical-nutri/50" },
-  fono:   { label: "Fonoterapia",       short: "Fono",   icon: "🗣", className: "text-clinical-neuro",     bgClass: "bg-clinical-neuro/10",     borderClass: "border-clinical-neuro/50" },
-  gi:     { label: "Digestivo",         short: "Digest", icon: "🥄", className: "text-clinical-nutri",     bgClass: "bg-clinical-nutri/10",     borderClass: "border-clinical-nutri/50" },
-  neuro:  { label: "Sistema nervoso central", short: "SNC", icon: "🧠", className: "text-clinical-neuro",  bgClass: "bg-clinical-neuro/10",     borderClass: "border-clinical-neuro/50" },
-  cardio: { label: "Cardiovascular",    short: "Cardio", icon: "❤️", className: "text-clinical-critical",  bgClass: "bg-clinical-critical/10",  borderClass: "border-clinical-critical/50" },
-  resp:   { label: "Respiratório",      short: "Resp",   icon: "🫁", className: "text-clinical-resp",      bgClass: "bg-clinical-resp/10",      borderClass: "border-clinical-resp/50" },
-  renal:  { label: "Renal/Metabólico",  short: "Renal",  icon: "💧", className: "text-clinical-attention", bgClass: "bg-clinical-attention/10", borderClass: "border-clinical-attention/50" },
-  infec:  { label: "Sepse/Infecção",    short: "Infec",  icon: "🦠", className: "text-clinical-device",    bgClass: "bg-clinical-device/10",    borderClass: "border-clinical-device/50" },
-  hemato: { label: "Hematológico",      short: "Hemato", icon: "🩸", className: "text-clinical-critical",  bgClass: "bg-clinical-critical/10",  borderClass: "border-clinical-critical/50" },
-  skin:   { label: "Pele/Fâneros/Mucosa", short: "Pele", icon: "🩹", className: "text-clinical-attention", bgClass: "bg-clinical-attention/10", borderClass: "border-clinical-attention/50" },
-  other:  { label: "Outros",            short: "Outros", icon: "•",  className: "text-clinical-neutral",   bgClass: "bg-clinical-neutral/10",   borderClass: "border-clinical-neutral/40" },
+  dieta: { label: "Dieta", short: "Dieta", icon: "", className: "text-clinical-nutri", bgClass: "bg-clinical-nutri/10", borderClass: "border-clinical-nutri/50" },
+  fono: { label: "Fonoterapia", short: "Fono", icon: "", className: "text-clinical-neuro", bgClass: "bg-clinical-neuro/10", borderClass: "border-clinical-neuro/50" },
+  gi: { label: "Digestivo", short: "Digest", icon: "", className: "text-clinical-nutri", bgClass: "bg-clinical-nutri/10", borderClass: "border-clinical-nutri/50" },
+  neuro: { label: "Sistema nervoso central", short: "SNC", icon: "", className: "text-clinical-neuro", bgClass: "bg-clinical-neuro/10", borderClass: "border-clinical-neuro/50" },
+  cardio: { label: "Cardiovascular", short: "Cardio", icon: "", className: "text-clinical-critical", bgClass: "bg-clinical-critical/10", borderClass: "border-clinical-critical/50" },
+  resp: { label: "Respiratório", short: "Resp", icon: "", className: "text-clinical-resp", bgClass: "bg-clinical-resp/10", borderClass: "border-clinical-resp/50" },
+  renal: { label: "Renal/Metabólico", short: "Renal", icon: "", className: "text-clinical-attention", bgClass: "bg-clinical-attention/10", borderClass: "border-clinical-attention/50" },
+  infec: { label: "Sepse/Infecção", short: "Infec", icon: "", className: "text-clinical-device", bgClass: "bg-clinical-device/10", borderClass: "border-clinical-device/50" },
+  hemato: { label: "Hematológico", short: "Hemato", icon: "", className: "text-clinical-critical", bgClass: "bg-clinical-critical/10", borderClass: "border-clinical-critical/50" },
+  skin: { label: "Pele/Fâneros/Mucosa", short: "Pele", icon: "", className: "text-clinical-attention", bgClass: "bg-clinical-attention/10", borderClass: "border-clinical-attention/50" },
+  other: { label: "Outros", short: "Outros", icon: "•", className: "text-clinical-neutral", bgClass: "bg-clinical-neutral/10", borderClass: "border-clinical-neutral/40" },
 };
 
 export const CONDUCT_SYSTEM_ORDER: ConductSystem[] = [
-  "dieta", "fono", "gi", "neuro", "cardio", "resp", "renal", "infec", "hemato", "skin", "other",
+ "dieta", "fono", "gi", "neuro", "cardio", "resp", "renal", "infec", "hemato", "skin", "other",
 ];
 
 // ============================================================================
@@ -989,17 +987,17 @@ export const CONDUCT_SYSTEM_ORDER: ConductSystem[] = [
 // ============================================================================
 
 export const ANNOTATION_COLOR_META: Record<AnnotationColor, { label: string; textClass: string; swatch: string }> = {
-  default: { label: "Padrão", textClass: "",                       swatch: "#94a3b8" },
-  green:   { label: "Verde",  textClass: "text-emerald-600 dark:text-emerald-400",  swatch: "#10b981" },
-  yellow:  { label: "Amarelo",textClass: "text-yellow-600 dark:text-yellow-400",    swatch: "#eab308" },
-  orange:  { label: "Laranja",textClass: "text-orange-600 dark:text-orange-400",    swatch: "#f97316" },
-  red:     { label: "Vermelho",textClass:"text-red-800 dark:text-red-500",          swatch: "#991b1b" },
-  teal:    { label: "Turquesa",textClass:"text-teal-500 dark:text-teal-300",        swatch: "#14b8a6" },
-  purple:  { label: "Roxo",   textClass: "text-purple-600 dark:text-purple-400",    swatch: "#a855f7" },
+  default: { label: "Padrão", textClass: "", swatch: "#94a3b8" },
+  green: { label: "Verde", textClass: "text-emerald-600 dark:text-emerald-400", swatch: "#10b981" },
+  yellow: { label: "Amarelo",textClass: "text-yellow-600 dark:text-yellow-400", swatch: "#eab308" },
+  orange: { label: "Laranja",textClass: "text-orange-600 dark:text-orange-400", swatch: "#f97316" },
+  red: { label: "Vermelho",textClass:"text-red-800 dark:text-red-500", swatch: "#991b1b" },
+  teal: { label: "Turquesa",textClass:"text-teal-500 dark:text-teal-300", swatch: "#14b8a6" },
+  purple: { label: "Roxo", textClass: "text-purple-600 dark:text-purple-400", swatch: "#a855f7" },
 };
 
 export const ANNOTATION_COLOR_ORDER: AnnotationColor[] = [
-  "default", "green", "yellow", "orange", "red", "teal", "purple",
+ "default", "green", "yellow", "orange", "red", "teal", "purple",
 ];
 
 /** Formata YYYY-MM-DD (input type=date) evitando o shift de fuso horário. */

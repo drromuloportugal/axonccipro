@@ -10,68 +10,68 @@ import type { Culture, AntibiogramResult } from "@/data/patients";
 // ----- Fontes -----------------------------------------------------------------
 
 export const CULTURE_SOURCES = [
-  { code: "hemo_perif",  label: "Hemocultura periférica",         group: "Hemoculturas" },
-  { code: "hemo_cvc",    label: "Hemocultura CVC",                 group: "Hemoculturas" },
-  { code: "hemo_pai",    label: "Hemocultura cateter arterial",    group: "Hemoculturas" },
-  { code: "uro",         label: "Urocultura",                      group: "Urocultura" },
-  { code: "trach",       label: "Aspirado traqueal",               group: "Vias aéreas" },
-  { code: "bal",         label: "Lavado broncoalveolar (BAL)",     group: "Vias aéreas" },
-  { code: "escovado",    label: "Escovado protegido (PSB)",        group: "Vias aéreas" },
-  { code: "ferida",      label: "Cultura de ferida",               group: "Pele e partes moles" },
-  { code: "liquor",      label: "Líquor (LCR)",                    group: "Líquidos estéreis" },
-  { code: "pleural",     label: "Líquido pleural",                 group: "Líquidos estéreis" },
-  { code: "peritoneal",  label: "Líquido peritoneal",              group: "Líquidos estéreis" },
-  { code: "pericardico", label: "Líquido pericárdico",             group: "Líquidos estéreis" },
-  { code: "sinovial",    label: "Líquido sinovial",                group: "Líquidos estéreis" },
-  { code: "outro",       label: "Outro material",                  group: "Outros" },
+  { code: "hemo_perif", label: "Hemocultura periférica", group: "Hemoculturas" },
+  { code: "hemo_cvc", label: "Hemocultura CVC", group: "Hemoculturas" },
+  { code: "hemo_pai", label: "Hemocultura cateter arterial", group: "Hemoculturas" },
+  { code: "uro", label: "Urocultura", group: "Urocultura" },
+  { code: "trach", label: "Aspirado traqueal", group: "Vias aéreas" },
+  { code: "bal", label: "Lavado broncoalveolar (BAL)", group: "Vias aéreas" },
+  { code: "escovado", label: "Escovado protegido (PSB)", group: "Vias aéreas" },
+  { code: "ferida", label: "Cultura de ferida", group: "Pele e partes moles" },
+  { code: "liquor", label: "Líquor (LCR)", group: "Líquidos estéreis" },
+  { code: "pleural", label: "Líquido pleural", group: "Líquidos estéreis" },
+  { code: "peritoneal", label: "Líquido peritoneal", group: "Líquidos estéreis" },
+  { code: "pericardico", label: "Líquido pericárdico", group: "Líquidos estéreis" },
+  { code: "sinovial", label: "Líquido sinovial", group: "Líquidos estéreis" },
+  { code: "outro", label: "Outro material", group: "Outros" },
 ] as const;
 
 export type CultureSourceCode = (typeof CULTURE_SOURCES)[number]["code"];
 
 export const COLLECTION_METHODS: Record<string, string[]> = {
-  uro:   ["Jato médio", "Sonda vesical", "Punção suprapúbica", "Cateterização"],
+  uro: ["Jato médio", "Sonda vesical", "Punção suprapúbica", "Cateterização"],
   hemo_perif: ["Punção periférica"],
-  hemo_cvc:   ["Coleta por CVC"],
-  hemo_pai:   ["Coleta por cateter arterial"],
-  bal:      ["Broncoscopia", "BAL às cegas"],
+  hemo_cvc: ["Coleta por CVC"],
+  hemo_pai: ["Coleta por cateter arterial"],
+  bal: ["Broncoscopia", "BAL às cegas"],
   escovado: ["Broncoscopia (escovado protegido)", "PSB às cegas"],
-  trach:    ["Aspirado endotraqueal"],
+  trach: ["Aspirado endotraqueal"],
 };
 
 // ----- Biblioteca de microrganismos -------------------------------------------
 
 export const ORGANISM_LIBRARY = {
   gramPos: [
-    "Staphylococcus aureus",
-    "Staphylococcus aureus (MRSA)",
-    "Staphylococcus epidermidis",
-    "Streptococcus pneumoniae",
-    "Streptococcus pyogenes",
-    "Enterococcus faecalis",
-    "Enterococcus faecium",
-    "Enterococcus faecium (VRE)",
+ "Staphylococcus aureus",
+ "Staphylococcus aureus (MRSA)",
+ "Staphylococcus epidermidis",
+ "Streptococcus pneumoniae",
+ "Streptococcus pyogenes",
+ "Enterococcus faecalis",
+ "Enterococcus faecium",
+ "Enterococcus faecium (VRE)",
   ],
   gramNeg: [
-    "Klebsiella pneumoniae",
-    "Klebsiella pneumoniae (ESBL)",
-    "Klebsiella pneumoniae (KPC)",
-    "Klebsiella pneumoniae (NDM)",
-    "Escherichia coli",
-    "Escherichia coli (ESBL)",
-    "Pseudomonas aeruginosa",
-    "Acinetobacter baumannii",
-    "Enterobacter cloacae",
-    "Serratia marcescens",
-    "Proteus mirabilis",
-    "Stenotrophomonas maltophilia",
+ "Klebsiella pneumoniae",
+ "Klebsiella pneumoniae (ESBL)",
+ "Klebsiella pneumoniae (KPC)",
+ "Klebsiella pneumoniae (NDM)",
+ "Escherichia coli",
+ "Escherichia coli (ESBL)",
+ "Pseudomonas aeruginosa",
+ "Acinetobacter baumannii",
+ "Enterobacter cloacae",
+ "Serratia marcescens",
+ "Proteus mirabilis",
+ "Stenotrophomonas maltophilia",
   ],
   fungos: [
-    "Candida albicans",
-    "Candida glabrata",
-    "Candida tropicalis",
-    "Candida auris",
-    "Aspergillus fumigatus",
-    "Cryptococcus neoformans",
+ "Candida albicans",
+ "Candida glabrata",
+ "Candida tropicalis",
+ "Candida auris",
+ "Aspergillus fumigatus",
+ "Cryptococcus neoformans",
   ],
 };
 
@@ -84,15 +84,15 @@ export const ALL_ORGANISMS = [
 // ----- Painel padrão de antibiograma ------------------------------------------
 
 export const ABX_PANEL = [
-  "Oxacilina", "Cefazolina", "Ceftriaxona", "Ceftazidima", "Cefepime",
-  "Piperacilina-tazobactam", "Ampicilina-sulbactam",
-  "Ertapenem", "Imipenem", "Meropenem",
-  "Amicacina", "Gentamicina",
-  "Ciprofloxacino", "Levofloxacino",
-  "Vancomicina", "Linezolida", "Daptomicina", "Teicoplanina",
-  "Polimixina B", "Colistina", "Tigeciclina", "Fosfomicina",
-  "Sulfametoxazol-trimetoprim",
-  "Fluconazol", "Voriconazol", "Anfotericina B", "Caspofungina", "Micafungina",
+ "Oxacilina", "Cefazolina", "Ceftriaxona", "Ceftazidima", "Cefepime",
+ "Piperacilina-tazobactam", "Ampicilina-sulbactam",
+ "Ertapenem", "Imipenem", "Meropenem",
+ "Amicacina", "Gentamicina",
+ "Ciprofloxacino", "Levofloxacino",
+ "Vancomicina", "Linezolida", "Daptomicina", "Teicoplanina",
+ "Polimixina B", "Colistina", "Tigeciclina", "Fosfomicina",
+ "Sulfametoxazol-trimetoprim",
+ "Fluconazol", "Voriconazol", "Anfotericina B", "Caspofungina", "Micafungina",
 ];
 
 // ----- Resultado / classificação ----------------------------------------------
@@ -105,20 +105,20 @@ export interface CultureResultBadge {
 
 export function cultureResultBadge(c: Culture): CultureResultBadge {
   if (c.result === "negativa")
-    return { label: "Negativa", className: "text-clinical-stable", icon: "🟢" };
+    return { label: "Negativa", className: "text-clinical-stable", icon: "" };
   if (
     c.result === "andamento" ||
     c.resistanceProfile === "pendente" ||
     (!c.organism && !c.result)
   )
-    return { label: "Em andamento", className: "text-clinical-attention", icon: "🟡" };
-  return { label: "Positiva", className: "text-clinical-critical", icon: "🔴" };
+    return { label: "Em andamento", className: "text-clinical-attention", icon: "" };
+  return { label: "Positiva", className: "text-clinical-critical", icon: "" };
 }
 
 export function abxResultBadge(r: AntibiogramResult) {
-  if (r === "S") return { label: "Sensível",       icon: "🟢", className: "text-clinical-stable" };
-  if (r === "I") return { label: "Intermediária",  icon: "🟡", className: "text-clinical-attention" };
-  return            { label: "Resistente",         icon: "🔴", className: "text-clinical-critical" };
+  if (r === "S") return { label: "Sensível", icon: "", className: "text-clinical-stable" };
+  if (r === "I") return { label: "Intermediária", icon: "", className: "text-clinical-attention" };
+  return            { label: "Resistente", icon: "", className: "text-clinical-critical" };
 }
 
 // ----- Alertas inteligentes ---------------------------------------------------

@@ -32,7 +32,7 @@ export interface StewardAlert {
 }
 
 const DISCLAIMER =
-  "Sistema de apoio à decisão clínica. Não substitui a avaliação e a decisão do médico assistente.";
+ "Sistema de apoio à decisão clínica. Não substitui a avaliação e a decisão do médico assistente.";
 
 export const STEWARDSHIP_DISCLAIMER = DISCLAIMER;
 
@@ -84,8 +84,7 @@ export function runStewardship(p: Patient): StewardAlert[] {
   const leuco = labValue(p, "Leuco");
   const lactato = labValue(p, "Lactato");
 
-  const push = (a: Omit<StewardAlert, "id" | "source"> & { source?: string }) =>
-    out.push({ id: `${a.code}-${out.length}`, source: a.source ?? "Protocolo institucional de stewardship / IDSA-SBI", ...a } as StewardAlert);
+  const push = (a: Omit<StewardAlert, "id" | "source"> & { source?: string }) => out.push({ id: `${a.code}-${out.length}`, source: a.source ?? "Protocolo institucional de stewardship / IDSA-SBI", ...a } as StewardAlert);
 
   for (const m of abx) {
     const days = daysSince(m.startISO) ?? null;
@@ -268,9 +267,9 @@ export function runStewardship(p: Patient): StewardAlert[] {
 }
 
 export function severityMeta(s: StewardSeverity) {
-  if (s === "critical") return { icon: "🔴", className: "border-clinical-critical/50 bg-clinical-critical/10 text-clinical-critical" };
-  if (s === "attention") return { icon: "🟡", className: "border-clinical-attention/50 bg-clinical-attention/10 text-clinical-attention" };
-  return { icon: "🔵", className: "border-primary/40 bg-primary/10 text-primary" };
+  if (s === "critical") return { icon: "", className: "border-clinical-critical/50 bg-clinical-critical/10 text-clinical-critical" };
+  if (s === "attention") return { icon: "", className: "border-clinical-attention/50 bg-clinical-attention/10 text-clinical-attention" };
+  return { icon: "", className: "border-primary/40 bg-primary/10 text-primary" };
 }
 
 export type { AwareClass };

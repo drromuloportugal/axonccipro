@@ -14,57 +14,57 @@ priorizando riscos com maior impacto e evitando "fadiga de alertas".
 
 Retorne EXCLUSIVAMENTE JSON válido no schema:
 {
-  "resumo": {
-    "totalMedicamentos": number,
-    "classesTerapeuticas": string[],
-    "altoRisco": string[],
-    "potencialmenteInapropriados": string[],
-    "polifarmacia": boolean,
-    "observacoes": string
+ "resumo": {
+ "totalMedicamentos": number,
+ "classesTerapeuticas": string[],
+ "altoRisco": string[],
+ "potencialmenteInapropriados": string[],
+ "polifarmacia": boolean,
+ "observacoes": string
   },
-  "interacoes": [
+ "interacoes": [
     { "medicamentos": [string, string], "mecanismo": string, "relevancia": string,
-      "frequencia": string, "consequencias": string, "conduta": string,
-      "gravidade": "sem"|"leve"|"moderada"|"grave"|"contraindicada" }
+ "frequencia": string, "consequencias": string, "conduta": string,
+ "gravidade": "sem"|"leve"|"moderada"|"grave"|"contraindicada" }
   ],
-  "interacoesCondicoes": [
+ "interacoesCondicoes": [
     { "medicamento": string, "condicao": string, "risco": string, "conduta": string,
-      "gravidade": "leve"|"moderada"|"grave" }
+ "gravidade": "leve"|"moderada"|"grave" }
   ],
-  "ajusteDose": [
+ "ajusteDose": [
     { "medicamento": string, "doseAtual": string, "doseSugerida": string,
-      "justificativa": string, "fator": string }
+ "justificativa": string, "fator": string }
   ],
-  "eventosAdversos": [
+ "eventosAdversos": [
     { "evento": string, "medicamentosEnvolvidos": string[], "risco": "baixo"|"moderado"|"alto"|"muito_alto",
-      "justificativa": string, "monitorizacao": string }
+ "justificativa": string, "monitorizacao": string }
   ],
-  "compatibilidade": [
+ "compatibilidade": [
     { "medicamentos": string[], "problema": string, "conduta": string,
-      "gravidade": "leve"|"moderada"|"grave"|"contraindicada" }
+ "gravidade": "leve"|"moderada"|"grave"|"contraindicada" }
   ],
-  "duplicidade": [
+ "duplicidade": [
     { "medicamentos": string[], "tipo": string, "conduta": string }
   ],
-  "desnecessarios": [
+ "desnecessarios": [
     { "medicamento": string, "motivo": string, "conduta": string }
   ],
-  "otimizacoes": [
+ "otimizacoes": [
     { "recomendacao": string, "justificativa": string, "prioridade": "baixa"|"media"|"alta" }
   ],
-  "resumoExecutivo": {
-    "interacoesLeves": number,
-    "interacoesModeradas": number,
-    "interacoesGraves": number,
-    "interacoesContraindicadas": number,
-    "riscosPrioritarios": [ { "descricao": string, "gravidade": "moderada"|"grave"|"contraindicada" } ],
-    "recomendacoesPriorizadas": string[]
+ "resumoExecutivo": {
+ "interacoesLeves": number,
+ "interacoesModeradas": number,
+ "interacoesGraves": number,
+ "interacoesContraindicadas": number,
+ "riscosPrioritarios": [ { "descricao": string, "gravidade": "moderada"|"grave"|"contraindicada" } ],
+ "recomendacoesPriorizadas": string[]
   },
-  "referencias": [
+ "referencias": [
     { "titulo": string, "autores": string, "ano": string, "recomendacao": string, "nivelEvidencia": string }
   ],
-  "dataAnalise": string,
-  "observacaoConsenso": string
+ "dataAnalise": string,
+ "observacaoConsenso": string
 }
 
 Regras:
@@ -84,8 +84,8 @@ export const analyzeMedications = createServerFn({ method: "POST" })
     const res = await fetch(GATEWAY_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
+ "Content-Type": "application/json",
+ "Lovable-API-Key": apiKey,
       },
       body: JSON.stringify({
         model: MODEL,

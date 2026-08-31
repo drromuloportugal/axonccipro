@@ -75,10 +75,8 @@ function Chip({ kind, children }: { kind: TimelineKind | "neutral"; children: Re
 
 function ColTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-      {children}
-    </div>
-  );
+ <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> {children}
+ </div> );
 }
 
 function deviceSide(d: InvasiveDevice): string {
@@ -112,24 +110,19 @@ function DeviceCompact({ d, mounted }: { d: InvasiveDevice; mounted: boolean }) 
   const def = deviceTypeByCode(d.typeCode);
   const tip = `${def?.label ?? d.typeCode} · ${days}d · ${r.label}${r.semaphoreHint ? `\n${r.semaphoreHint}` : ""}`;
   return (
-    <div className="rounded-md border border-border bg-surface px-1.5 pb-1 pt-1" title={tip}>
-      <div className="flex items-baseline justify-between gap-1">
-        <span className="min-w-0 flex-1 truncate f-var text-[11px] leading-snug">{deviceShort(d)}</span>
-        {mounted && (
-          <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{r.icon} {days}/{r.max}d</span>
-        )}
+ <div className="rounded-md border border-border bg-surface px-1.5 pb-1 pt-1" title={tip}>
+ <div className="flex items-baseline justify-between gap-1">
+ <span className="min-w-0 flex-1 truncate f-var text-[11px] leading-snug">{deviceShort(d)}</span> {mounted && (
+ <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{r.icon} {days}/{r.max}d</span> )}
 
-      </div>
-      <div className="mt-1 h-[3px] w-full overflow-hidden rounded-full bg-surface-3">
-        {mounted && (
-          <div
+ </div>
+ <div className="mt-1 h-[3px] w-full overflow-hidden rounded-full bg-surface-3"> {mounted && (
+ <div
             className={`h-full rounded-full transition-all ${DEVICE_BAR[r.level]}`}
             style={{ width: `${Math.min(100, Math.max(4, r.percent))}%` }}
-          />
-        )}
-      </div>
-    </div>
-  );
+          /> )}
+ </div>
+ </div> );
 }
 
 export function PatientRow({
@@ -139,6 +132,7 @@ export function PatientRow({
   onUpdate,
   onDelete,
   onArchive,
+  defaultOpen = false,
 }: {
   patient: Patient;
   onEdit?: (p: Patient, tab?: string) => void;
@@ -146,8 +140,9 @@ export function PatientRow({
   onUpdate?: (p: Patient) => void;
   onDelete?: (p: Patient) => void;
   onArchive?: (p: Patient) => void;
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [pumpOpen, setPumpOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [medAnalysisOpen, setMedAnalysisOpen] = useState(false);
@@ -237,17 +232,15 @@ export function PatientRow({
   const [zoomImg, setZoomImg] = useState<string | null>(null);
 
 
-  const editBtn = (tab: string, title = "Editar este bloco") =>
-    onEdit ? (
-      <button
+  const editBtn = (tab: string, title = "Editar este bloco") => onEdit ? (
+ <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onEdit(patient, tab); }}
         className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground"
         title={title}
       >
-        <Pencil className="h-3 w-3" />
-      </button>
-    ) : null;
+ <Pencil className="h-3 w-3" />
+ </button> ) : null;
 
   // On collapsed rows, any column click expands the row. Once expanded, a
   // column click opens the editor for that block.
@@ -277,615 +270,481 @@ export function PatientRow({
     title: string;
     right?: React.ReactNode;
   }) => (
-    <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
-      <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        {label}
-      </span>
-      <span className="flex shrink-0 items-center gap-0.5">
-        {right}
+ <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
+ <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
+ </span>
+ <span className="flex shrink-0 items-center gap-0.5"> {right}
         {editBtn(tab, title)}
-      </span>
-    </div>
-  );
+ </span>
+ </div> );
 
   return (
-    <div className="border-b border-border last:border-b-0">
-      {/* Collapsed row — 7 columns, separated by vertical dividers */}
+ <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
-      <div
-        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] gap-0 px-4 py-4 text-left font-semibold [&>div:nth-child(odd)]:bg-[rgba(0,120,58,0.07)] [&>div:nth-child(even)]:bg-[rgba(0,166,80,0.12)] [&>div]:py-2 [&>div]:rounded-md [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:bg-[rgba(0,148,68,0.2)]"
-      >
-        {/* 1 - Identificação */}
-        <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
+ <div
+        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong/40"
+      > {/* 1 - Identificação */}
+ <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
-          <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
-            <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Identificação
-            </span>
-            <span className="flex shrink-0 items-center gap-0.5">
-              {onPrint && (
-                <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
+ <div className="mb-1.5 flex h-5 items-center justify-between gap-1.5">
+ <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Identificação
+ </span>
+ <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
+ <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
                   className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Imprimir paciente">
-                  <Printer className="h-3 w-3" />
-                </button>
-              )}
-              <button type="button" onClick={(e) => { e.stopPropagation(); exportPatient(patient); }}
+ <Printer className="h-3 w-3" />
+ </button> )}
+ <button type="button" onClick={(e) => { e.stopPropagation(); exportPatient(patient); }}
                 className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Exportar paciente (JSON)">
-                <Download className="h-3 w-3" />
-              </button>
-              {onDelete && (
-                <button type="button" onClick={(e) => {
+ <Download className="h-3 w-3" />
+ </button> {onDelete && (
+ <button type="button" onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm(`Remover ${patient.name} (${patient.bed}) do sistema? Esta ação não pode ser desfeita.`)) onDelete(patient);
                 }}
                   className="rounded p-0.5 text-muted-foreground hover:bg-clinical-critical/15 hover:text-clinical-critical" title="Excluir paciente">
-                  <Trash2 className="h-3 w-3" />
-                </button>
-              )}
+ <Trash2 className="h-3 w-3" />
+ </button> )}
               {onArchive && (
-                <button type="button" onClick={(e) => { e.stopPropagation(); onArchive(patient); }}
+ <button type="button" onClick={(e) => { e.stopPropagation(); onArchive(patient); }}
                   className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Arquivar paciente (histórico)">
-                  <Archive className="h-3 w-3" />
-                </button>
-              )}
+ <Archive className="h-3 w-3" />
+ </button> )}
               {editBtn("id", "Editar identificação")}
-            </span>
-          </div>
+ </span>
+ </div>
 
-          <button
+ <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setDischargeOpen(true); }}
             className={`mb-1.5 inline-flex items-center gap-1 self-start rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors ${dcBtnClass}`}
             title="Checar critérios de alta da UTI"
           >
-            <LogOut className="h-3 w-3" />
-            {dcBtnLabel}
-          </button>
+ <LogOut className="h-3 w-3" /> {dcBtnLabel}
+ </button>
 
-          <div className="mb-1.5" onClick={(e) => e.stopPropagation()}>
-            <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
-          </div>
+ <div className="mb-1.5" onClick={(e) => e.stopPropagation()}>
+ <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+ </div>
 
-          <div className="flex min-w-0 items-center gap-2">
-            <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
-            <span className="truncate text-sm font-semibold leading-tight text-foreground">{patient.name}</span>
-          </div>
+ <div className="flex min-w-0 items-center gap-2">
+ <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
+ <span className="truncate text-sm font-semibold leading-tight text-foreground">{patient.name}</span>
+ </div>
 
 
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground">
-            <span className="font-mono font-medium text-clinical-neutral">{patient.bed}</span>
-            <span className="text-border">·</span>
-            <span>{computedAge}a {patient.sex}</span>
-            <span className="text-border">·</span>
-            <span>{patient.weight}kg{patient.height ? `/${patient.height}cm` : ""}</span>
-          </div>
+ <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground">
+ <span className="font-mono font-medium text-clinical-neutral">{patient.bed}</span>
+ <span className="text-border">·</span>
+ <span>{computedAge}a {patient.sex}</span>
+ <span className="text-border">·</span>
+ <span>{patient.weight}kg{patient.height ? `/${patient.height}cm` : ""}</span>
+ </div>
 
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] leading-snug text-muted-foreground">
-            <span title="Dias de internação hospitalar">Hosp <span className="font-mono font-semibold text-foreground">D{dHosp}</span></span>
-            <span className="text-border">·</span>
-            <span title="Dias de internação na UTI">UTI <span className="font-mono font-semibold text-foreground">D{dICU}</span></span>
-          </div>
-
-          {patient.origin && (
-            <div className="mt-1 truncate text-[10px] leading-snug text-muted-foreground">
-              <span className="font-semibold">Origem:</span>{" "}
+ <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] leading-snug text-muted-foreground">
+ <span title="Dias de internação hospitalar">Hosp <span className="font-mono font-semibold text-foreground">D{dHosp}</span></span>
+ <span className="text-border">·</span>
+ <span title="Dias de internação na UTI">UTI <span className="font-mono font-semibold text-foreground">D{dICU}</span></span>
+ </div> {patient.origin && (
+ <div className="mt-1 truncate text-[10px] leading-snug text-muted-foreground">
+ <span className="font-semibold">Origem:</span>{" "}
               {[patient.origin.name ?? patient.origin.type, patient.origin.city, patient.origin.state]
                 .filter(Boolean).join(" · ")}
-            </div>
-          )}
+ </div> )}
 
           {/* Procedimentos & eventos — movidos para o rodapé da coluna 01 */}
           {patient.procedures.length > 0 && (
-            <div className="mt-2 border-t border-border/60 pt-1.5">
-              <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                Procedimentos & eventos
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {patient.procedures.slice(-3).map((p, i) => (
-                  <Chip key={i} kind={p.kind}>{p.label}</Chip>
-                ))}
+ <div className="mt-2 border-t border-border/60 pt-1.5">
+ <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
+ </div>
+ <div className="flex flex-wrap gap-1"> {patient.procedures.slice(-3).map((p, i) => (
+ <Chip key={i} kind={p.kind}>{p.label}</Chip> ))}
                 {patient.procedures.length > 3 && (
-                  <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+ <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
+ </div>
+ </div> )}
+ </div> {/* 2 - História */}
+ <div onClick={colClick("hist")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
 
-        {/* 2 - História */}
-        <div onClick={colClick("hist")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
-
-          <ColHead label="História" tab="hist" title="Editar história" />
-          <div className="flex flex-wrap gap-1">
-            {patient.diagnoses.slice(-3).map((d, i) => (
-              <Chip key={i} kind={d.kind}>{d.label}</Chip>
-            ))}
+ <ColHead label="História" tab="hist" title="Editar história" />
+ <div className="flex flex-wrap gap-1"> {patient.diagnoses.slice(-3).map((d, i) => (
+ <Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
             {patient.diagnoses.length === 0 && (
-              <span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span>
-            )}
-          </div>
-        </div>
+ <span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span> )}
+ </div>
+ </div> {/* 3 - Invasões / Dispositivos */}
+ <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5 px-3 border-l-2 border-border-strong">
 
-        {/* 3 - Invasões / Dispositivos */}
-        <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5 px-3 border-l-2 border-border-strong">
-
-          <ColHead
+ <ColHead
             label="Invasões"
             tab="proc"
             title="Editar dispositivos invasivos"
             right={
-              <button
+ <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setIntubOpen(true); }}
                 className="rounded p-0.5 text-clinical-critical hover:bg-clinical-critical/15"
                 title="Jornada de intubação"
               >
-                🫁
-              </button>
-            }
+                
+ </button> }
           />
-          <div className="space-y-0.5">
-            {activeDevices.slice(0, 4).map((d) => (
-              <DeviceCompact key={d.id} d={d} mounted={mounted} />
-            ))}
+ <div className="space-y-0.5"> {activeDevices.slice(0, 4).map((d) => (
+ <DeviceCompact key={d.id} d={d} mounted={mounted} /> ))}
             {activeDevices.length > 4 && (
-              <div className="text-[10px] text-muted-foreground">+{activeDevices.length - 4} dispositivo(s)</div>
-            )}
+ <div className="text-[10px] text-muted-foreground">+{activeDevices.length - 4} dispositivo(s)</div> )}
             {activeDevices.length === 0 && (
-              <span className="text-[11px] italic text-muted-foreground/60">Sem dispositivos</span>
-            )}
-          </div>
-        </div>
-
-
-        {/* 4 - Medicações com dashboard de bombas */}
-        <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5 px-3 border-l-2 border-border-strong">
-          <ColHead
+ <span className="text-[11px] italic text-muted-foreground/60">Sem dispositivos</span> )}
+ </div>
+ </div> {/* 4 - Medicações com dashboard de bombas */}
+ <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5 px-3 border-l-2 border-border-strong">
+ <ColHead
             label="Medicações"
             tab="med"
             title="Editar medicações"
             right={
-              <div className="flex items-center gap-1">
-                <button
+ <div className="flex items-center gap-1">
+ <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setMedAnalysisOpen(true); }}
                   className="rounded p-0.5 text-primary hover:bg-primary/15"
                   title="Análise Medicamentosa"
                 >
-                  <Pill className="h-3 w-3" />
-                </button>
-                <button
+ <Pill className="h-3 w-3" />
+ </button>
+ <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setAiOpen(true); }}
                   className="rounded p-0.5 text-clinical-attention hover:bg-clinical-attention/15"
                   title="Ajustar terapia (IA)"
                 >
-                  <Sparkles className="h-3 w-3" />
-                </button>
-              </div>
-            }
+ <Sparkles className="h-3 w-3" />
+ </button>
+ </div> }
           />
 
-          <div onClick={(e) => e.stopPropagation()}>
-            <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
-          </div>
+ <div onClick={(e) => e.stopPropagation()}>
+ <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
+ </div>
 
-          <div className="space-y-1.5">
-            {MEDICATION_CLASS_ORDER.map((cls) => {
+ <div className="space-y-1.5"> {MEDICATION_CLASS_ORDER.map((cls) => {
               const list = medsByClass.get(cls);
               if (!list || !list.length) return null;
               const meta = MEDICATION_CLASS_META[cls];
               return (
-                <div key={cls} className={`rounded border ${meta.borderClass} ${meta.bgClass} px-1.5 py-1`}>
-                  <div className={`mb-0.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>
-                    <span>{meta.icon} {meta.short}</span>
-                    <span className="font-mono">{list.length}</span>
-                  </div>
-                  {list.slice(0, 3).map((m, i) => {
+ <div key={cls} className={`rounded border ${meta.borderClass} ${meta.bgClass} px-1.5 py-1`}>
+ <div className={`mb-0.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>
+ <span>{meta.icon} {meta.short}</span>
+ <span className="font-mono">{list.length}</span>
+ </div> {list.slice(0, 3).map((m, i) => {
                     const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
                     const prog = isAtb ? antibioticProgress(m) : null;
                     return (
-                      <div key={i} className="text-[10.5px] leading-snug">
-                        <div className="flex items-center gap-1">
-                          <CircleDot className={`h-1.5 w-1.5 shrink-0 ${kindClass[m.kind]}`} />
-                          <span className="min-w-0 flex-1 truncate font-semibold text-foreground">{m.name}</span>
-                          <span className="shrink-0 font-mono text-[9.5px] text-muted-foreground">
-                            {m.mlPerHour !== undefined ? `${m.mlPerHour.toFixed(1)} mL/h` : m.dose}
-                          </span>
-                        </div>
-                        {mounted && prog && (
-                          <div className="ml-2.5 text-[8.5px] font-mono text-muted-foreground">
-                            D{prog.currentDay}/{prog.totalDays}
-                          </div>
-                        )}
-                      </div>
-                    );
+ <div key={i} className="text-[10.5px] leading-snug">
+ <div className="flex items-center gap-1">
+ <CircleDot className={`h-1.5 w-1.5 shrink-0 ${kindClass[m.kind]}`} />
+ <span className="min-w-0 flex-1 truncate font-semibold text-foreground">{m.name}</span>
+ <span className="shrink-0 font-mono text-[9.5px] text-muted-foreground"> {m.mlPerHour !== undefined ? `${m.mlPerHour.toFixed(1)} mL/h` : m.dose}
+ </span>
+ </div> {mounted && prog && (
+ <div className="ml-2.5 text-[8.5px] font-mono text-muted-foreground"> D{prog.currentDay}/{prog.totalDays}
+ </div> )}
+ </div> );
                   })}
                   {list.length > 3 && (
-                    <div className="text-[9px] text-muted-foreground">+{list.length - 3}</div>
-                  )}
-                </div>
-              );
+ <div className="text-[9px] text-muted-foreground">+{list.length - 3}</div> )}
+ </div> );
             })}
             {activeMeds.length === 0 && (
-              <span className="text-[11px] italic text-muted-foreground/60">Sem medicações ativas</span>
-            )}
-          </div>
-        </div>
+ <span className="text-[11px] italic text-muted-foreground/60">Sem medicações ativas</span> )}
+ </div>
+ </div> {/* 5 - Culturas → Lab → Gasometria → Imagem */}
+ <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
 
-
-        {/* 5 - Culturas → Lab → Gasometria → Imagem */}
-        <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
-
-          <ColHead label="Culturas · Lab · Gaso · Imagem" tab="exam" title="Editar exames" />
-
-          {/* 1) Culturas */}
+ <ColHead label="Culturas · Lab · Gaso · Imagem" tab="exam" title="Editar exames" /> {/* 1) Culturas */}
           {(patient.cultures?.length ?? 0) > 0 && (
-            <div className="space-y-0.5">
-              {patient.cultures!.slice(-2).reverse().map((c) => {
+ <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
                 return (
-                  <div key={c.id} className="flex items-center gap-1 text-[10.5px] leading-snug" title={c.organism ?? c.source}>
-                    <span className="shrink-0">{r.icon}</span>
-                    <span className="min-w-0 flex-1 truncate">
-                      <span className="font-semibold text-foreground">🧫 {c.source}</span>
-                      {c.organism ? <span className="text-muted-foreground"> · {c.organism}</span> : null}
-                    </span>
-                  </div>
-                );
+ <div key={c.id} className="flex items-center gap-1 text-[10.5px] leading-snug" title={c.organism ?? c.source}>
+ <span className="shrink-0">{r.icon}</span>
+ <span className="min-w-0 flex-1 truncate">
+ <span className="font-semibold text-foreground"> {c.source}</span> {c.organism ? <span className="text-muted-foreground"> · {c.organism}</span> : null}
+ </span>
+ </div> );
               })}
-            </div>
-          )}
+ </div> )}
 
           {/* 2) Exames laboratoriais (não-gaso) + 3) Gasometria */}
           {(() => {
-            const isGaso = (code?: string, label?: string) =>
-              /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
+            const isGaso = (code?: string, label?: string) => /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
 
             const lab = patient.exams.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
             const gaso = patient.exams.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
             return (
-              <>
-                {lab.length > 0 && (
-                  <div className="mt-1 space-y-0.5">
-                    {lab.map((e, i) => {
+ <> {lab.length > 0 && (
+ <div className="mt-1 space-y-0.5"> {lab.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                       return (
-                        <div key={i} className="flex items-center gap-1 text-[11px] leading-snug">
-                          {b ? <span className="shrink-0">{b.icon}</span> : <span className="w-3 shrink-0" />}
-                          <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
-                          <span className={`shrink-0 font-mono font-medium ${b?.className ?? "text-foreground"}`}>{e.value}</span>
-                        </div>
-                      );
+ <div key={i} className="flex items-center gap-1 text-[11px] leading-snug"> {b ? <span className="shrink-0">{b.icon}</span> : <span className="w-3 shrink-0" />}
+ <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
+ <span className={`shrink-0 font-mono font-medium ${b?.className ?? "text-foreground"}`}>{e.value}</span>
+ </div> );
                     })}
-                  </div>
-                )}
+ </div> )}
                 {gaso.length > 0 && (
-                  <div className="mt-1 space-y-0.5 border-l-2 border-clinical-resp/40 pl-1.5">
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-clinical-resp">🩸 Gaso</div>
-                    {gaso.map((e, i) => {
+ <div className="mt-1 space-y-0.5 border-l-2 border-clinical-resp/40 pl-1.5">
+ <div className="text-[9px] font-bold uppercase tracking-wider text-clinical-resp"> Gaso</div> {gaso.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                       return (
-                        <div key={i} className="flex items-center gap-1 text-[10.5px] leading-snug">
-                          {b ? <span className="shrink-0">{b.icon}</span> : <span className="w-3 shrink-0" />}
-                          <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
-                          <span className={`shrink-0 font-mono font-medium ${b?.className ?? "text-foreground"}`}>{e.value}</span>
-                        </div>
-                      );
+ <div key={i} className="flex items-center gap-1 text-[10.5px] leading-snug"> {b ? <span className="shrink-0">{b.icon}</span> : <span className="w-3 shrink-0" />}
+ <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
+ <span className={`shrink-0 font-mono font-medium ${b?.className ?? "text-foreground"}`}>{e.value}</span>
+ </div> );
                     })}
-                  </div>
-                )}
-              </>
-            );
+ </div> )}
+ </> );
           })()}
 
           {/* 4) Imagem */}
           {(patient.imaging?.length ?? 0) > 0 && (
-            <div className="mt-1 space-y-0.5">
-              {patient.imaging!.slice(0, 2).map((im) => (
-                <div key={im.id} className="flex items-center gap-1 text-[10.5px] leading-snug">
-                  <span className="shrink-0">
-                    {im.conclusion === "critico" ? "🔴" : im.conclusion === "alterado" ? "🟡" : im.conclusion === "normal" ? "🟢" : "🩻"}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate" title={im.summary}>
-                    <span className="font-semibold text-foreground">{im.modality}</span>
-                    <span className="text-muted-foreground"> {im.region}</span>
-                  </span>
-                  {im.images && im.images.length > 0 && (
-                    <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
-                      📷{im.images.length}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-
-
-
-
-        {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
-        <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
-          <ColHead label="Estado atual" tab="sup" title="Editar estado atual" />
-          {/* Estado atual — sinais vitais (linhas) */}
-          <div className="rounded border border-border bg-surface px-1.5 py-1">
-            <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">🩺 Sinais vitais</div>
-            <div className="space-y-0.5">
-              {vitalRows.map((r) => (
-                <div key={r.label} className="flex items-baseline justify-between gap-1 text-[10px]">
-                  <span className="font-semibold text-muted-foreground">{r.label}</span>
-                  <span className={`truncate font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}>
-                    {r.v.text.split("·")[0].trim()}
-                  </span>
-                </div>
-              ))}
+ <div className="mt-1 space-y-0.5"> {patient.imaging!.slice(0, 2).map((im) => (
+ <div key={im.id} className="flex items-center gap-1 text-[10.5px] leading-snug">
+ <span className="shrink-0"> {im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : ""}
+ </span>
+ <span className="min-w-0 flex-1 truncate" title={im.summary}>
+ <span className="font-semibold text-foreground">{im.modality}</span>
+ <span className="text-muted-foreground"> {im.region}</span>
+ </span> {im.images && im.images.length > 0 && (
+ <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp"> {im.images.length}
+ </span> )}
+ </div> ))}
+ </div> )}
+ </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
+ <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1 px-3 border-l-2 border-border-strong">
+ <ColHead label="Estado atual" tab="sup" title="Editar estado atual" /> {/* Estado atual — sinais vitais (linhas) */}
+ <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
+ <div className="space-y-0.5"> {vitalRows.map((r) => (
+ <div key={r.label} className="flex items-baseline justify-between gap-1 text-[10px]">
+ <span className="font-semibold text-muted-foreground">{r.label}</span>
+ <span className={`truncate font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}> {r.v.text.split("·")[0].trim()}
+ </span>
+ </div> ))}
               {crcl && (
-                <div className="mt-0.5 flex items-baseline justify-between gap-1 border-t border-border/50 pt-0.5 text-[10px]">
-                  <span className="font-semibold text-muted-foreground">ClCr</span>
-                  <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL`}>
-                    {crcl.value} mL/min
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-          {/* Escala de Bristol — linhas temporais */}
+ <div className="mt-0.5 flex items-baseline justify-between gap-1 border-t border-border/50 pt-0.5 text-[10px]">
+ <span className="font-semibold text-muted-foreground">ClCr</span>
+ <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL`}> {crcl.value} mL/min
+ </span>
+ </div> )}
+ </div>
+ </div> {/* Escala de Bristol — linhas temporais */}
           {(patient.state.stools?.length ?? 0) > 0 && (
-            <div className="rounded border border-border bg-surface px-1.5 py-1">
-              <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">💩 Bristol</div>
-              <div className="space-y-0.5">
-                {patient.state.stools!.map((st) => {
+ <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Bristol</div>
+ <div className="space-y-0.5"> {patient.state.stools!.map((st) => {
                   const m = bristolMeta(st.bristol);
                   return (
-                    <div key={st.id} className="flex items-baseline justify-between gap-1 text-[10px]">
-                      <span className={`font-semibold ${m?.className ?? "text-foreground"}`}>{m ? `Tipo ${m.value}` : "—"}</span>
-                      <span className="font-mono text-muted-foreground">{st.volume ?? "—"}</span>
-                      <span className="text-[8.5px] text-muted-foreground">{st.at ? new Date(st.at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}</span>
-                    </div>
-                  );
+ <div key={st.id} className="flex items-baseline justify-between gap-1 text-[10px]">
+ <span className={`font-semibold ${m?.className ?? "text-foreground"}`}>{m ? `Tipo ${m.value}` : "—"}</span>
+ <span className="font-mono text-muted-foreground">{st.volume ?? "—"}</span>
+ <span className="text-[8.5px] text-muted-foreground">{st.at ? new Date(st.at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+ </div> );
                 })}
-              </div>
-            </div>
-          )}
+ </div>
+ </div> )}
           {/* Balanço hídrico — linhas */}
           {patient.state.fluidBalance && (fluidBalance.totalIntake || fluidBalance.totalOutput || fluidBalance.totalDrains) ? (
-            <div className="rounded border border-border bg-surface px-1.5 py-1">
-              <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">💧 Balanço hídrico</div>
-              <div className="space-y-0.5 text-[10px] font-mono font-semibold">
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-clinical-resp">Entradas</span>
-                  <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
-                </div>
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-clinical-attention">Saídas</span>
-                  <span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
-                </div>
-                <div className="flex items-baseline justify-between gap-1">
-                  <span className="text-clinical-device">Drenos</span>
-                  <span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
-                </div>
-                <div className={`flex items-baseline justify-between gap-1 border-t border-border pt-0.5 font-bold ${
+ <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Balanço hídrico</div>
+ <div className="space-y-0.5 text-[10px] font-mono font-semibold">
+ <div className="flex items-baseline justify-between gap-1">
+ <span className="text-clinical-resp">Entradas</span>
+ <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
+ </div>
+ <div className="flex items-baseline justify-between gap-1">
+ <span className="text-clinical-attention">Saídas</span>
+ <span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
+ </div>
+ <div className="flex items-baseline justify-between gap-1">
+ <span className="text-clinical-device">Drenos</span>
+ <span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
+ </div>
+ <div className={`flex items-baseline justify-between gap-1 border-t border-border pt-0.5 font-bold ${
                   fluidBalance.balance > 500 ? "text-clinical-attention"
                   : fluidBalance.balance < -500 ? "text-clinical-critical"
                   : "text-clinical-stable"
                 }`}>
-                  <span>BH</span>
-                  <span>
-                    {bhRate != null
+ <span>BH</span>
+ <span> {bhRate != null
                       ? `${bhRate >= 0 ? "+" : ""}${bhRate.toFixed(2)} mL/kg/h`
                       : `${fluidBalance.balance >= 0 ? "+" : ""}${fluidBalance.balance} mL`}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : null}
+ </span>
+ </div>
+ </div>
+ </div> ) : null}
           {patient.state.notes && (
-            <div className="mt-1 text-[10px] italic text-muted-foreground line-clamp-3">
-              {patient.state.notes}
-            </div>
-          )}
-        </div>
-
-
-
-        {/* 7 - Plano · Tarefas */}
-        <div onClick={colClick("plan")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
-          <ColHead
+ <div className="mt-1 text-[10px] italic text-muted-foreground line-clamp-3"> {patient.state.notes}
+ </div> )}
+ </div> {/* 7 - Plano · Tarefas */}
+ <div onClick={colClick("plan")} className="flex min-w-0 flex-col px-3 border-l-2 border-border-strong">
+ <ColHead
             label="Plano · Condutas"
             tab="plan"
             title="Editar plano e tarefas"
             right={<span className="font-mono text-[10px] text-foreground">{conductsPct}%</span>}
           />
-          <div className="mb-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
-            <span>{conductsDone}/{patient.conducts.length} tarefas</span>
-          </div>
-          <div className="bar-track">
-            <div className="h-full bg-clinical-stable transition-all" style={{ width: `${conductsPct}%` }} />
-          </div>
+ <div className="mb-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
+ <span>{conductsDone}/{patient.conducts.length} tarefas</span>
+ </div>
+ <div className="bar-track">
+ <div className="h-full bg-clinical-stable transition-all" style={{ width: `${conductsPct}%` }} />
+ </div>
 
 
-          <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}>
-            {patient.conducts.slice(0, 4).map((c, i) => {
+ <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}> {patient.conducts.slice(0, 4).map((c, i) => {
               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
               const firstAnn = c.subItems?.find((s) => s.text?.trim());
               const annColor = firstAnn?.color ? ANNOTATION_COLOR_META[firstAnn.color] : null;
               return (
-                <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
-                  <input
+ <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
+ <input
                     type="checkbox"
                     checked={c.done}
                     onChange={() => toggleConduct(i)}
                     disabled={!onUpdate}
                     className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
                   />
-                  <span className="min-w-0 flex-1">
-                    <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.icon} {meta.short}</span>
-                    {firstAnn ? (
-                      <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span>
-                    ) : (
-                      <span className="italic text-muted-foreground">Sem anotações</span>
-                    )}
+ <span className="min-w-0 flex-1">
+ <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.icon} {meta.short}</span> {firstAnn ? (
+ <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
+ <span className="italic text-muted-foreground">Sem anotações</span> )}
                     {c.subItems && c.subItems.length > 1 && (
-                      <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span>
-                    )}
-                  </span>
-                </li>
-              );
+ <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
+ </span>
+ </li> );
             })}
             {patient.conducts.length > 4 && (
-              <li className="text-[10px] text-muted-foreground">+{patient.conducts.length - 4} sistema(s)</li>
-            )}
-          </ul>
+ <li className="text-[10px] text-muted-foreground">+{patient.conducts.length - 4} sistema(s)</li> )}
+ </ul>
 
 
-          <button
+ <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
             className="mt-auto flex items-center gap-1 pt-2 text-[10px] font-semibold text-muted-foreground hover:text-foreground"
             title={open ? "Recolher linha" : "Expandir linha"}
-          >
-            {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          > {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             {open ? "Recolher" : "Expandir"}
-          </button>
+ </button>
 
-        </div>
-      </div>
-      )}
+ </div>
+ </div> )}
 
 
       {/* Expanded */}
       {open && (
-        <div className="border-t border-border bg-surface-2/40">
-        <div className="flex items-center justify-between gap-3 border-b border-border/60 bg-surface/60 px-5 py-2">
-          <button
+ <div className="border-t border-border bg-surface-2/40">
+ <div className="flex items-center justify-between gap-3 border-b border-border/60 bg-surface/60 px-5 py-2">
+ <button
             type="button"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 text-[11px] font-semibold text-foreground hover:text-primary"
           >
-            <ChevronDown className="h-3.5 w-3.5" />
-            <span className={`h-2 w-2 rounded-full ${sevDot[patient.severity]}`} />
-            <span>{patient.name}</span>
-            <span className="font-mono text-muted-foreground">· {patient.bed}</span>
-            <span className="text-muted-foreground">· {sevLabel[patient.severity]}</span>
-          </button>
-          <div className="flex items-center gap-1">
-            {onPrint && (
-              <button type="button" onClick={() => onPrint(patient)}
+ <ChevronDown className="h-3.5 w-3.5" />
+ <span className={`h-2 w-2 rounded-full ${sevDot[patient.severity]}`} />
+ <span>{patient.name}</span>
+ <span className="font-mono text-muted-foreground">· {patient.bed}</span>
+ <span className="text-muted-foreground">· {sevLabel[patient.severity]}</span>
+ </button>
+ <div className="flex items-center gap-1"> {onPrint && (
+ <button type="button" onClick={() => onPrint(patient)}
                 className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Imprimir">
-                <Printer className="h-3.5 w-3.5" />
-              </button>
-            )}
-            <button type="button" onClick={() => exportPatient(patient)}
+ <Printer className="h-3.5 w-3.5" />
+ </button> )}
+ <button type="button" onClick={() => exportPatient(patient)}
               className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Exportar JSON">
-              <Download className="h-3.5 w-3.5" />
-            </button>
-            {onEdit && (
-              <button type="button" onClick={() => onEdit(patient)}
+ <Download className="h-3.5 w-3.5" />
+ </button> {onEdit && (
+ <button type="button" onClick={() => onEdit(patient)}
                 className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Editar">
-                <Pencil className="h-3.5 w-3.5" />
-              </button>
-            )}
+ <Pencil className="h-3.5 w-3.5" />
+ </button> )}
             {onDelete && (
-              <button type="button" onClick={() => {
+ <button type="button" onClick={() => {
                 if (window.confirm(`Remover ${patient.name} (${patient.bed}) do sistema? Esta ação não pode ser desfeita.`)) onDelete(patient);
               }}
                 className="rounded p-1 text-muted-foreground hover:bg-clinical-critical/15 hover:text-clinical-critical" title="Excluir paciente">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            )}
+ <Trash2 className="h-3.5 w-3.5" />
+ </button> )}
             {onArchive && (
-              <button type="button" onClick={() => onArchive(patient)}
+ <button type="button" onClick={() => onArchive(patient)}
                 className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Arquivar paciente (histórico)">
-                <Archive className="h-3.5 w-3.5" />
-              </button>
-            )}
-            <button
+ <Archive className="h-3.5 w-3.5" />
+ </button> )}
+ <button
               type="button"
               onClick={() => setDischargeOpen(true)}
               className={`ml-1 inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${dcBtnClass}`}
               title="Checar critérios de alta da UTI"
             >
-              <LogOut className="h-3.5 w-3.5" />
-              {dcBtnLabel}
-            </button>
-            <button type="button" onClick={() => setOpen(false)}
-              className="ml-1 rounded border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground">
-              Recolher
-            </button>
-          </div>
-        </div>
-        <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] gap-0 px-5 py-5 text-[12px] font-semibold [&>div]:px-3 [&>div]:py-2 [&>div]:rounded-md [&>div+div]:border-l-2 [&>div+div]:border-border-strong [&>div:nth-child(odd)]:bg-surface [&>div:nth-child(even)]:bg-surface-2">
-          {/* 1 */}
-          <div onClick={colClick("id")}>
-            <ColTitle>Identificação</ColTitle>
-            <div className="mb-2" onClick={(e) => e.stopPropagation()}>
-              <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-            </div>
-            <dl className="space-y-1 text-muted-foreground">
-              <Row k="Médico" v={patient.attending} />
-              <Row k="Idade" v={`${computedAge} anos`} />
-              <Row k="Adm Hosp" v={`${patient.admissionHosp} · D${dHosp}`} />
-              <Row k="Adm UTI" v={`${patient.admissionICU} · D${dICU}`} />
-              <Row k="Alergias" v={patient.allergies.join(", ")} />
-              {(patient.legalRepresentative?.name || patient.legalRepresentative?.phone) && (
-                <Row k="Repr. legal" v={`${patient.legalRepresentative.name ?? "—"}${patient.legalRepresentative.relation ? ` (${patient.legalRepresentative.relation})` : ""}${patient.legalRepresentative.phone ? ` · ${patient.legalRepresentative.phone}` : ""}`} />
-              )}
+ <LogOut className="h-3.5 w-3.5" /> {dcBtnLabel}
+ </button>
+ <button type="button" onClick={() => setOpen(false)}
+              className="ml-1 rounded border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground"> Recolher
+ </button>
+ </div>
+ </div>
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-3 px-5 py-5 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:shadow-[0_1px_2px_rgba(15,23,42,0.04)]"> {/* 1 */}
+ <div onClick={colClick("id")}>
+ <ColTitle>Identificação</ColTitle>
+ <div className="mb-2" onClick={(e) => e.stopPropagation()}>
+ <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+ </div>
+ <dl className="space-y-1 text-muted-foreground">
+ <Row k="Médico" v={patient.attending} />
+ <Row k="Idade" v={`${computedAge} anos`} />
+ <Row k="Adm Hosp" v={`${patient.admissionHosp} · D${dHosp}`} />
+ <Row k="Adm UTI" v={`${patient.admissionICU} · D${dICU}`} />
+ <Row k="Alergias" v={patient.allergies.join(", ")} /> {(patient.legalRepresentative?.name || patient.legalRepresentative?.phone) && (
+ <Row k="Repr. legal" v={`${patient.legalRepresentative.name ?? "—"}${patient.legalRepresentative.relation ? ` (${patient.legalRepresentative.relation})` : ""}${patient.legalRepresentative.phone ? ` · ${patient.legalRepresentative.phone}` : ""}`} /> )}
               {(patient.legalRepresentative2?.name || patient.legalRepresentative2?.phone) && (
-                <Row k="Repr. legal 2" v={`${patient.legalRepresentative2.name ?? "—"}${patient.legalRepresentative2.relation ? ` (${patient.legalRepresentative2.relation})` : ""}${patient.legalRepresentative2.phone ? ` · ${patient.legalRepresentative2.phone}` : ""}`} />
-              )}
+ <Row k="Repr. legal 2" v={`${patient.legalRepresentative2.name ?? "—"}${patient.legalRepresentative2.relation ? ` (${patient.legalRepresentative2.relation})` : ""}${patient.legalRepresentative2.phone ? ` · ${patient.legalRepresentative2.phone}` : ""}`} /> )}
               {patient.advanceDirective && (patient.advanceDirective.intubation !== "unknown" || patient.advanceDirective.resuscitation !== "unknown") && (
-                <Row k="Diretivas" v={`${directiveLabel(patient.advanceDirective.intubation, "Entubar")} · ${directiveLabel(patient.advanceDirective.resuscitation, "RCP")}`} />
-              )}
+ <Row k="Diretivas" v={`${directiveLabel(patient.advanceDirective.intubation, "Entubar")} · ${directiveLabel(patient.advanceDirective.resuscitation, "RCP")}`} /> )}
               {patient.organDonation && patient.organDonation !== "unknown" && (
-                <Row k="Doação órgãos" v={organDonationLabel[patient.organDonation]} />
-              )}
-            </dl>
-            {patient.origin && (
-              <div className="mt-2 rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
-                <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Origem</div>
-                <div className="text-foreground">{patient.origin.name ?? patient.origin.type}</div>
-                <div className="text-muted-foreground">
-                  {patient.origin.type}
+ <Row k="Doação órgãos" v={organDonationLabel[patient.organDonation]} /> )}
+ </dl> {patient.origin && (
+ <div className="mt-2 rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Origem</div>
+ <div className="text-foreground">{patient.origin.name ?? patient.origin.type}</div>
+ <div className="text-muted-foreground"> {patient.origin.type}
                   {patient.origin.unit ? ` · ${patient.origin.unit}` : ""}
                   {patient.origin.city ? ` · ${patient.origin.city}` : ""}
                   {patient.origin.state ? `/${patient.origin.state}` : ""}
-                </div>
-              </div>
-            )}
-            <div className="mt-3">
-              <span className={`chip ${kindClass[patient.severity === "critical" ? "critical" : patient.severity === "attention" ? "attention" : "stable"]}`}>
-                {sevLabel[patient.severity]}
-              </span>
-            </div>
-
-            {/* Procedimentos & eventos — ao final da coluna 01 */}
+ </div>
+ </div> )}
+ <div className="mt-3">
+ <span className={`chip ${kindClass[patient.severity === "critical" ? "critical" : patient.severity === "attention" ? "attention" : "stable"]}`}> {sevLabel[patient.severity]}
+ </span>
+ </div> {/* Procedimentos & eventos — ao final da coluna 01 */}
             {patient.procedures.length > 0 && (
-              <div className="mt-4">
-                <ColTitle>Procedimentos & eventos</ColTitle>
-                <ol className="relative ml-2 space-y-2 border-l border-border pl-3">
-                  {patient.procedures.map((p, i) => (
-                    <li key={i} className="relative">
-                      <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
-                      <div className="text-[11px] text-muted-foreground">{p.date}</div>
-                      <div className={`text-[12px] ${kindClass[p.kind]}`}>{p.label}</div>
-                      {p.detail && <div className="text-[11px] text-muted-foreground">{p.detail}</div>}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-          </div>
-
-
-          {/* 2 */}
-          <div onClick={colClick("hist")}>
-            <ColTitle>História clínica</ColTitle>
-            <ol className="relative ml-2 space-y-2 border-l border-border pl-3">
-              {patient.diagnoses.map((d, i) => {
+ <div className="mt-4">
+ <ColTitle>Procedimentos & eventos</ColTitle>
+ <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
+ <li key={i} className="relative">
+ <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
+ <div className="text-[11px] text-muted-foreground">{p.date}</div>
+ <div className={`text-[12px] ${kindClass[p.kind]}`}>{p.label}</div> {p.detail && <div className="text-[11px] text-muted-foreground">{p.detail}</div>}
+ </li> ))}
+ </ol>
+ </div> )}
+ </div> {/* 2 */}
+ <div onClick={colClick("hist")}>
+ <ColTitle>História clínica</ColTitle>
+ <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.diagnoses.map((d, i) => {
                 const catMeta = d.category === "previous"
                   ? { label: "Pregresso", box: "border-clinical-resp/50 bg-clinical-resp/10", text: "text-clinical-resp", chip: "border-clinical-resp/50 bg-clinical-resp/15 text-clinical-resp" }
                   : d.category === "current"
@@ -894,165 +753,129 @@ export function PatientRow({
                       ? { label: "Complicação", box: "border-clinical-critical/50 bg-clinical-critical/10", text: "text-clinical-critical", chip: "border-clinical-critical/50 bg-clinical-critical/20 text-clinical-critical" }
                       : null;
                 return (
-                  <li key={i} className="relative">
-                    <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
-                    <div className={`rounded-md border px-2 py-1 ${catMeta?.box ?? "border-border bg-surface-2"}`}>
-                      <div className="text-[11px] text-muted-foreground">{d.date}</div>
-                      <div className={`text-[12px] ${catMeta?.text ?? kindClass[d.kind]}`}>{d.label}</div>
-                      {catMeta && (
-                        <span className={`mt-0.5 inline-flex rounded border px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider ${catMeta.chip}`}>
-                          {catMeta.label}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                );
+ <li key={i} className="relative">
+ <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
+ <div className={`rounded-md border px-2 py-1 ${catMeta?.box ?? "border-border bg-surface-2"}`}>
+ <div className="text-[11px] text-muted-foreground">{d.date}</div>
+ <div className={`text-[12px] ${catMeta?.text ?? kindClass[d.kind]}`}>{d.label}</div> {catMeta && (
+ <span className={`mt-0.5 inline-flex rounded border px-1.5 py-px text-[9px] font-semibold uppercase tracking-wider ${catMeta.chip}`}> {catMeta.label}
+ </span> )}
+ </div>
+ </li> );
               })}
-            </ol>
-            <div className="mt-3 space-y-1 text-[11px] text-muted-foreground">
-              {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
+ </ol>
+ <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
               {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
               {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
-            </div>
-          </div>
+ </div>
+ </div> {/* 3 - Dispositivos Invasivos */}
+ <div onClick={colClick("proc")}>
+ <div>
+ <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+ <ColTitle>Dispositivos invasivos</ColTitle>
 
-          {/* 3 - Dispositivos Invasivos */}
-          <div onClick={colClick("proc")}>
-            <div>
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <ColTitle>Dispositivos invasivos</ColTitle>
-
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {(patient.infections?.filter((i) => i.status !== "resolvido").length ?? 0) > 0 && (
-                    <button
+ <div className="flex flex-wrap items-center gap-1.5"> {(patient.infections?.filter((i) => i.status !== "resolvido").length ?? 0) > 0 && (
+ <button
                       onClick={() => setMapOpen(true)}
                       className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 px-2 py-0.5 text-[10px] font-semibold text-clinical-critical hover:bg-clinical-critical/15"
                       title="Mapa de infecção"
-                    >
-                      🦠 {patient.infections!.filter((i) => i.status !== "resolvido").length} focos
-                    </button>
-                  )}
+                    > {patient.infections!.filter((i) => i.status !== "resolvido").length} focos
+ </button> )}
                   {activeDevices.length > 0 && (
-                    <button
+ <button
                       onClick={() => setMapOpen(true)}
                       className="rounded-md border border-border bg-surface-2 px-2 py-0.5 text-[10px] font-semibold text-clinical-resp hover:bg-primary/10"
-                    >
-                      🧍 Visualizar dispositivos
-                    </button>
-                  )}
-                  <button
+                    > Visualizar dispositivos
+ </button> )}
+ <button
                     onClick={() => setLppOpen(true)}
                     className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold ${lppSummary.totalActive > 0 ? "border-clinical-attention/40 bg-clinical-attention/10 text-clinical-attention hover:bg-clinical-attention/15" : "border-border bg-surface-2 text-muted-foreground hover:text-foreground"}`}
                     title="Lesões por pressão"
-                  >
-                    🩹 {lppSummary.totalActive > 0 ? `${lppSummary.totalActive} LPP` : "+ LPP"}
-                  </button>
-                  <button
+                  > {lppSummary.totalActive > 0 ? `${lppSummary.totalActive} LPP` : "+ LPP"}
+ </button>
+ <button
                     onClick={(e) => { e.stopPropagation(); setIntubOpen(true); }}
                     className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 px-2 py-0.5 text-[10px] font-semibold text-clinical-critical hover:bg-clinical-critical/20"
                     title="Iniciar/continuar jornada de intubação orotraqueal"
-                  >
-                    🫁 Intubação
-                  </button>
+                  > Intubação
+ </button>
 
-                </div>
-              </div>
-              {activeDevices.length === 0 && (
-                <div className="text-[11px] text-muted-foreground">Sem dispositivos ativos.</div>
-              )}
+ </div>
+ </div> {activeDevices.length === 0 && (
+ <div className="text-[11px] text-muted-foreground">Sem dispositivos ativos.</div> )}
               {DEVICE_CATEGORIES.map((cat) => {
                 const list = devicesByCat.get(cat.code);
                 if (!list || !list.length) return null;
                 return (
-                  <div key={cat.code} className="mb-2">
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {cat.icon} {cat.label}
-                    </div>
-                    <ul className="space-y-1">
-                      {list.map((d) => {
+ <div key={cat.code} className="mb-2">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {cat.icon} {cat.label}
+ </div>
+ <ul className="space-y-1"> {list.map((d) => {
                         const r = deviceRisk(d);
                         return (
-                          <li key={d.id} className="rounded-md border border-border bg-surface px-2 pb-1.5 pt-1.5 text-[11px]" title={r.semaphoreHint ?? r.label}>
-                            <div className="flex items-baseline justify-between gap-2">
-                              <span className="f-var">{deviceShort(d)}</span>
-                              {mounted && (
-                                <span className={`f-var text-[10px] ${r.className}`}>
-                                  {r.icon} {Math.floor(r.days)}/{r.max}d
-                                </span>
-                              )}
-                            </div>
+ <li key={d.id} className="rounded-md border border-border bg-surface px-2 pb-1.5 pt-1.5 text-[11px]" title={r.semaphoreHint ?? r.label}>
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="f-var">{deviceShort(d)}</span> {mounted && (
+ <span className={`f-var text-[10px] ${r.className}`}> {r.icon} {Math.floor(r.days)}/{r.max}d
+ </span> )}
+ </div>
 
-                            <div className="mt-1 h-[4px] w-full overflow-hidden rounded-full bg-surface-3">
-                              {mounted && (
-                                <div
+ <div className="mt-1 h-[4px] w-full overflow-hidden rounded-full bg-surface-3"> {mounted && (
+ <div
                                   className={`h-full rounded-full ${DEVICE_BAR[r.level]}`}
                                   style={{ width: `${Math.min(100, Math.max(4, r.percent))}%` }}
-                                />
-                              )}
-                            </div>
-                          </li>
-                        );
+                                /> )}
+ </div>
+ </li> );
                       })}
-                    </ul>
-                  </div>
-                );
+ </ul>
+ </div> );
               })}
 
               {removedDevices.length > 0 && (
-                <details className="mt-1 rounded-md border border-border bg-surface-2/40 p-1.5" onClick={(e) => e.stopPropagation()}>
-                  <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    🗂 Histórico de invasões ({removedDevices.length})
-                  </summary>
-                  <ul className="mt-1 space-y-1">
-                    {removedDevices.map((d) => {
+ <details className="mt-1 rounded-md border border-border bg-surface-2/40 p-1.5" onClick={(e) => e.stopPropagation()}>
+ <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Histórico de invasões ({removedDevices.length})
+ </summary>
+ <ul className="mt-1 space-y-1"> {removedDevices.map((d) => {
                       const def = deviceTypeByCode(d.typeCode);
                       const days = Math.max(
                         0,
                         Math.floor((new Date(d.removedAt!).getTime() - new Date(d.insertedAt).getTime()) / 86400000),
                       );
                       return (
-                        <li key={d.id} className="rounded border border-border/60 bg-surface px-1.5 py-1 text-[10px] text-muted-foreground">
-                          <span className="f-var">{def?.icon} {deviceShort(d)}</span>
-                          {" · "}
+ <li key={d.id} className="rounded border border-border/60 bg-surface px-1.5 py-1 text-[10px] text-muted-foreground">
+ <span className="f-var">{def?.icon} {deviceShort(d)}</span> {" · "}
                           {formatDateBR(d.insertedAt)} → {formatDateBR(d.removedAt!)} ({days}d)
-                        </li>
-                      );
+ </li> );
                     })}
-                  </ul>
-                </details>
-              )}
-            </div>
-          </div>
-
-
-          {/* 4 — Medicações agrupadas por classe */}
-          <div onClick={colClick("med")}>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <ColTitle>Medicações</ColTitle>
-              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                <button
+ </ul>
+ </details> )}
+ </div>
+ </div> {/* 4 — Medicações agrupadas por classe */}
+ <div onClick={colClick("med")}>
+ <div className="mb-2 flex items-center justify-between gap-2">
+ <ColTitle>Medicações</ColTitle>
+ <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+ <button
                   type="button"
                   onClick={() => setMedAnalysisOpen(true)}
                   className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20"
                   title="Análise Medicamentosa (IA)"
-                >
-                  💊 Análise
-                </button>
-                <button
+                > Análise
+ </button>
+ <button
                   type="button"
                   onClick={() => setAtbHistOpen(true)}
                   className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-0.5 text-[10px] font-semibold text-clinical-attention hover:bg-clinical-attention/20"
                   title="Histórico de antimicrobianos administrados"
-                >
-                  🕓 Histórico
-                </button>
+                > Histórico
+ </button>
 
-              </div>
-            </div>
-            <div className="mb-2" onClick={(e) => e.stopPropagation()}>
-              <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
-            </div>
-            {(() => {
+ </div>
+ </div>
+ <div className="mb-2" onClick={(e) => e.stopPropagation()}>
+ <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
+ </div> {(() => {
               // include all meds (active + suspended), grouped by class
               const allByClass = new Map<string, Medication[]>();
               for (const m of patient.medications) {
@@ -1065,359 +888,258 @@ export function PatientRow({
                 if (!list || !list.length) return null;
                 const meta = MEDICATION_CLASS_META[cls];
                 return (
-                  <div key={cls} className={`mb-2 rounded-md border ${meta.borderClass} ${meta.bgClass} p-2`}>
-                    <div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
-                      <span>{meta.icon} {meta.label}</span>
-                      <span className="font-mono">{list.length}</span>
-                    </div>
-                    <ul className="space-y-1.5">
-                      {list.map((m, i) => {
+ <div key={cls} className={`mb-2 rounded-md border ${meta.borderClass} ${meta.bgClass} p-2`}>
+ <div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
+ <span>{meta.icon} {meta.label}</span>
+ <span className="font-mono">{list.length}</span>
+ </div>
+ <ul className="space-y-1.5"> {list.map((m, i) => {
                         const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
                         const prog = isAtb ? antibioticProgress(m) : null;
                         const alert = prog ? atbAlertBadge(prog.alert) : null;
                         return (
-                          <li key={i} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[12px]">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-1.5">
-                                <span>{isAtb ? "💊" : "🧪"}</span>
-                                <span className="font-semibold text-foreground">{m.name}</span>
-                              </div>
-                              <span className={`chip text-[9px] ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}>
-                                {m.active === false ? "Suspenso" : "Ativo"}
-                              </span>
-                            </div>
-                            <div className="ml-5 font-mono text-[11px] text-muted-foreground">
-                              {m.dose} · {m.route} · {m.freq}
-                            </div>
-                            {m.mlPerHour !== undefined && (
-                              <div className="ml-5 font-mono text-[11px] text-clinical-resp">
-                                BIC {m.mlPerHour.toFixed(1)} mL/h
-                              </div>
-                            )}
-                            <div className="ml-5 text-[10px] text-muted-foreground">
-                              {m.start}{m.end ? ` → ${m.end}` : ""}
-                            </div>
-                            {mounted && prog && (
-                              <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
-                                <div className="flex items-center justify-between text-[10px]">
-                                  <span className="font-semibold text-foreground">Dia {prog.currentDay} de {prog.totalDays}</span>
-                                  <span className="font-mono text-muted-foreground">{prog.percent.toFixed(0)}%</span>
-                                </div>
-                                <div className="my-1 h-1.5 overflow-hidden rounded-full bg-surface-3">
-                                  <div className={`h-full ${prog.alert === "ok" ? "bg-clinical-stable" : "bg-clinical-attention"}`}
+ <li key={i} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[12px]">
+ <div className="flex items-center justify-between gap-2">
+ <div className="flex items-center gap-1.5">
+ <span>{isAtb ? "" : ""}</span>
+ <span className="font-semibold text-foreground">{m.name}</span>
+ </div>
+ <span className={`chip text-[9px] ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}> {m.active === false ? "Suspenso" : "Ativo"}
+ </span>
+ </div>
+ <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
+ </div> {m.mlPerHour !== undefined && (
+ <div className="ml-5 font-mono text-[11px] text-clinical-resp"> BIC {m.mlPerHour.toFixed(1)} mL/h
+ </div> )}
+ <div className="ml-5 text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
+ </div> {mounted && prog && (
+ <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
+ <div className="flex items-center justify-between text-[10px]">
+ <span className="font-semibold text-foreground">Dia {prog.currentDay} de {prog.totalDays}</span>
+ <span className="font-mono text-muted-foreground">{prog.percent.toFixed(0)}%</span>
+ </div>
+ <div className="my-1 h-1.5 overflow-hidden rounded-full bg-surface-3">
+ <div className={`h-full ${prog.alert === "ok" ? "bg-clinical-stable" : "bg-clinical-attention"}`}
                                        style={{ width: `${prog.percent}%` }} />
-                                </div>
-                                {alert && (
-                                  <div className={`mt-1 text-[10px] font-semibold ${alert.className}`}>{alert.icon} {alert.label}</div>
-                                )}
-                              </div>
-                            )}
-                          </li>
-                        );
+ </div> {alert && (
+ <div className={`mt-1 text-[10px] font-semibold ${alert.className}`}>{alert.icon} {alert.label}</div> )}
+ </div> )}
+ </li> );
                       })}
-                    </ul>
-                  </div>
-                );
+ </ul>
+ </div> );
               });
             })()}
             {patient.medications.length === 0 && (
-              <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div>
-            )}
-          </div>
-
-
-          {/* 5 — Culturas → Lab → Gasometria → Imagem */}
-          <div onClick={colClick("exam")}>
-            {/* 1) Culturas */}
-            <div className="mb-3">
-              <div className="mb-1 flex items-center justify-between">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">🧫 Culturas microbiológicas</div>
-                {onEdit && (
-                  <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "cult"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Cultura</button>
-                )}
-              </div>
-              {(patient.cultures?.length ?? 0) === 0 ? (
-                <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma cultura registrada.</div>
-              ) : (
-                <ul className="space-y-1">
-                  {patient.cultures!.slice().reverse().map((c) => {
+ <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
+ </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
+ <div onClick={colClick("exam")}> {/* 1) Culturas */}
+ <div className="mb-3">
+ <div className="mb-1 flex items-center justify-between">
+ <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Culturas microbiológicas</div> {onEdit && (
+ <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "cult"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Cultura</button> )}
+ </div> {(patient.cultures?.length ?? 0) === 0 ? (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma cultura registrada.</div> ) : (
+ <ul className="space-y-1"> {patient.cultures!.slice().reverse().map((c) => {
                     const r = cultureResultBadge(c);
                     const alerts = detectCultureAlerts(c);
                     return (
-                      <li key={c.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                            <span>{r.icon}</span><span className="truncate">{c.source}</span>
-                          </div>
-                          <span className={`shrink-0 font-mono text-[9px] ${r.className}`}>{r.label}</span>
-                        </div>
-                        <div className="mt-0.5 text-[10px] text-muted-foreground">
-                          {new Date(c.collectedAt).toLocaleDateString("pt-BR")}
+ <li key={c.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <div className="flex items-center justify-between gap-2">
+ <div className="flex items-center gap-1.5 font-semibold text-foreground">
+ <span>{r.icon}</span><span className="truncate">{c.source}</span>
+ </div>
+ <span className={`shrink-0 font-mono text-[9px] ${r.className}`}>{r.label}</span>
+ </div>
+ <div className="mt-0.5 text-[10px] text-muted-foreground"> {new Date(c.collectedAt).toLocaleDateString("pt-BR")}
                           {c.collectionSite ? ` · ${c.collectionSite}` : ""}
-                        </div>
-                        {c.organism && <div className="mt-0.5 text-[10.5px] italic text-foreground">{c.organism}</div>}
+ </div> {c.organism && <div className="mt-0.5 text-[10.5px] italic text-foreground">{c.organism}</div>}
                         {c.resistanceProfile && c.resistanceProfile !== "pendente" && (
-                          <div className="text-[10px] text-muted-foreground">Perfil: {c.resistanceProfile}</div>
-                        )}
+ <div className="text-[10px] text-muted-foreground">Perfil: {c.resistanceProfile}</div> )}
                         {alerts.length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {alerts.map((a) => (
-                              <span key={a.code} className={`rounded px-1 py-0.5 text-[8.5px] font-bold uppercase tracking-wider ${
+ <div className="mt-1 flex flex-wrap gap-1"> {alerts.map((a) => (
+ <span key={a.code} className={`rounded px-1 py-0.5 text-[8.5px] font-bold uppercase tracking-wider ${
                                 a.severity === "critical" ? "bg-clinical-critical/15 text-clinical-critical" : "bg-clinical-attention/15 text-clinical-attention"
-                              }`}>🚨 {a.label}</span>
-                            ))}
-                          </div>
-                        )}
+                              }`}> {a.label}</span> ))}
+ </div> )}
                         {c.antibiogram && c.antibiogram.length > 0 && (
-                          <details className="mt-1">
-                            <summary className="cursor-pointer text-[10px] font-semibold text-foreground hover:underline">Antibiograma ({c.antibiogram.length})</summary>
-                            <ul className="mt-1 space-y-0.5 text-[10px]">
-                              {c.antibiogram.map((ab, i) => (
-                                <li key={i} className="flex items-center justify-between">
-                                  <span className="text-muted-foreground">{ab.drug}</span>
-                                  <span className={`font-mono font-semibold ${
+ <details className="mt-1">
+ <summary className="cursor-pointer text-[10px] font-semibold text-foreground hover:underline">Antibiograma ({c.antibiogram.length})</summary>
+ <ul className="mt-1 space-y-0.5 text-[10px]"> {c.antibiogram.map((ab, i) => (
+ <li key={i} className="flex items-center justify-between">
+ <span className="text-muted-foreground">{ab.drug}</span>
+ <span className={`font-mono font-semibold ${
                                     ab.result === "S" ? "text-clinical-stable" : ab.result === "I" ? "text-clinical-attention" : "text-clinical-critical"
                                   }`}>{ab.result}{ab.mic ? ` · ${ab.mic}` : ""}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </details>
-                        )}
-                      </li>
-                    );
+ </li> ))}
+ </ul>
+ </details> )}
+ </li> );
                   })}
-                </ul>
-              )}
-            </div>
-
-            {/* 2 & 3) Laboratoriais + Gasometria */}
+ </ul> )}
+ </div> {/* 2 & 3) Laboratoriais + Gasometria */}
             {(() => {
               const isGaso = (code?: string, label?: string) => /pH|PaO2|PaCO2|HCO3|SatO2|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
               const lab = patient.exams.filter((e) => !isGaso(e.code, e.label));
               const gaso = patient.exams.filter((e) => isGaso(e.code, e.label));
               const renderTable = (rows: typeof patient.exams) => (
-                <table className="w-full text-[12px]">
-                  <tbody>
-                    {rows.map((e, i) => {
+ <table className="w-full text-[12px]">
+ <tbody>{rows.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                       const t = trendBadge(ins.trend);
                       return (
-                        <tr key={i} className="border-b border-border/50 last:border-0">
-                          <td className="py-1 text-muted-foreground">{e.label}</td>
-                          <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>
-                            {b && <span className="mr-1">{b.icon}</span>}{e.value} {e.unit}
-                          </td>
-                          <td className="py-1 text-right text-[10px]" title={t.label}>
-                            {ins.trend !== "flat" ? t.icon : "—"}
-                          </td>
-                        </tr>
-                      );
+ <tr key={i} className="border-b border-border/50 last:border-0">
+ <td className="py-1 text-muted-foreground">{e.label}</td>
+ <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}> {b && <span className="mr-1">{b.icon}</span>}{e.value} {e.unit}
+ </td>
+ <td className="py-1 text-right text-[10px]" title={t.label}> {ins.trend !== "flat" ? t.icon : "—"}
+ </td>
+ </tr> );
                     })}
-                  </tbody>
-                </table>
-              );
+ </tbody>
+ </table> );
               return (
-                <>
-                  <div className="mb-3">
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">🧪 Exames laboratoriais</div>
-                    {lab.length ? renderTable(lab) : (
-                      <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem laboratoriais.</div>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp">🩸 Gasometria arterial</div>
-                    {gaso.length ? renderTable(gaso) : (
-                      <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem gasometria.</div>
-                    )}
-                  </div>
-                </>
-              );
+ <>
+ <div className="mb-3">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames laboratoriais</div> {lab.length ? renderTable(lab) : (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem laboratoriais.</div> )}
+ </div>
+ <div className="mb-3">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial</div> {gaso.length ? renderTable(gaso) : (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem gasometria.</div> )}
+ </div>
+ </> );
             })()}
 
             {/* 4) Imagem — com miniaturas */}
-            <div>
-              <div className="mb-1 flex items-center justify-between">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">🩻 Exames de imagem</div>
-                {onEdit && (
-                  <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Imagem</button>
-                )}
-              </div>
-              {(patient.imaging?.length ?? 0) === 0 ? (
-                <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum exame de imagem registrado.</div>
-              ) : (
-                <ul className="space-y-1">
-                  {patient.imaging!.slice().reverse().map((im) => {
-                    const icon = im.conclusion === "critico" ? "🔴" : im.conclusion === "alterado" ? "🟡" : im.conclusion === "normal" ? "🟢" : "🩻";
+ <div>
+ <div className="mb-1 flex items-center justify-between">
+ <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames de imagem</div> {onEdit && (
+ <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Imagem</button> )}
+ </div> {(patient.imaging?.length ?? 0) === 0 ? (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum exame de imagem registrado.</div> ) : (
+ <ul className="space-y-1"> {patient.imaging!.slice().reverse().map((im) => {
+                    const icon = im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : "";
                     return (
-                      <li key={im.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                            <span>{icon}</span><span>{im.modality} · {im.region}</span>
-                          </div>
-                          <span className="font-mono text-[10px] text-muted-foreground">
-                            {formatDateBR(im.performedAt)}
-                            {im.status && <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">{im.status === "concluido" ? "✅ Concluído" : "🕒 Solicitado"}</span>}
-                          </span>
+ <li key={im.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <div className="flex items-center justify-between gap-2">
+ <div className="flex items-center gap-1.5 font-semibold text-foreground">
+ <span>{icon}</span><span>{im.modality} · {im.region}</span>
+ </div>
+ <span className="font-mono text-[10px] text-muted-foreground"> {formatDateBR(im.performedAt)}
+                            {im.status && <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">{im.status === "concluido" ? " Concluído" : " Solicitado"}</span>}
+ </span>
 
-                        </div>
-                        {im.summary && <div className="mt-0.5 text-[10.5px] text-muted-foreground">{im.summary}</div>}
+ </div> {im.summary && <div className="mt-0.5 text-[10.5px] text-muted-foreground">{im.summary}</div>}
                         {im.reportedBy && <div className="mt-0.5 text-[9px] text-muted-foreground">— {im.reportedBy}</div>}
                         {im.images && im.images.length > 0 && (
-                          <div className="mt-1.5 flex flex-wrap gap-1">
-                            {im.images.map((img) => (
-                              <button
+ <div className="mt-1.5 flex flex-wrap gap-1"> {im.images.map((img) => (
+ <button
                                 key={img.id}
                                 onClick={(e) => { e.stopPropagation(); setZoomImg(img.dataUrl); }}
                                 className="group relative h-14 w-14 overflow-hidden rounded border border-border bg-surface-2 transition-transform hover:scale-105"
                                 title={img.caption ?? "Ampliar"}
                               >
-                                <img src={img.dataUrl} alt={img.caption ?? "Imagem do exame"} className="h-full w-full object-cover" />
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </li>
-                    );
+ <img src={img.dataUrl} alt={img.caption ?? "Imagem do exame"} className="h-full w-full object-cover" />
+ </button> ))}
+ </div> )}
+ </li> );
                   })}
-                </ul>
-              )}
-            </div>
-          </div>
-
-
-
-          {/* 6 */}
-          <div onClick={colClick("sup")}>
-            <ColTitle>Estado atual</ColTitle>
-
-            {/* Sinais vitais (linhas) */}
-            <div className="mt-2">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                🩺 Sinais vitais
-              </div>
-              <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5">
-                {vitalRows.map((r) => (
-                  <div key={r.label} className="flex items-baseline justify-between gap-2 text-[11px]">
-                    <span className="font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
-                    <span className={`font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}>{r.v.text}</span>
-                  </div>
-                ))}
+ </ul> )}
+ </div>
+ </div> {/* 6 */}
+ <div onClick={colClick("sup")}>
+ <ColTitle>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
+ <div className="mt-2">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
+ </div>
+ <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5"> {vitalRows.map((r) => (
+ <div key={r.label} className="flex items-baseline justify-between gap-2 text-[11px]">
+ <span className="font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
+ <span className={`font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}>{r.v.text}</span>
+ </div> ))}
                 {crcl && (
-                  <div className="mt-1 flex items-baseline justify-between gap-2 border-t border-border/50 pt-1 text-[11px]">
-                    <span className="font-bold uppercase tracking-wider text-muted-foreground">ClCr (Cockcroft)</span>
-                    <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL · ${crcl.ageYears}a · ${crcl.weightKg}kg`}>
-                      {crcl.value} mL/min
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bristol — linhas temporais */}
-            <div className="mt-4">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                💩 Escala de Bristol
-              </div>
-              {(patient.state.stools?.length ?? 0) > 0 ? (
-                <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5 text-[11px]">
-                  {patient.state.stools!.map((st) => {
+ <div className="mt-1 flex items-baseline justify-between gap-2 border-t border-border/50 pt-1 text-[11px]">
+ <span className="font-bold uppercase tracking-wider text-muted-foreground">ClCr (Cockcroft)</span>
+ <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL · ${crcl.ageYears}a · ${crcl.weightKg}kg`}> {crcl.value} mL/min
+ </span>
+ </div> )}
+ </div>
+ </div> {/* Bristol — linhas temporais */}
+ <div className="mt-4">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
+ </div> {(patient.state.stools?.length ?? 0) > 0 ? (
+ <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5 text-[11px]"> {patient.state.stools!.map((st) => {
                     const m = bristolMeta(st.bristol);
                     return (
-                      <div key={st.id} className="flex items-baseline justify-between gap-2">
-                        <span className={`font-semibold ${m?.className ?? "text-foreground"}`}>{m ? `Tipo ${m.value}` : "—"}</span>
-                        <span className="font-mono font-bold text-muted-foreground">{st.volume ?? "—"}</span>
-                        <span className="text-[9.5px] text-muted-foreground">{st.at ? new Date(st.at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}</span>
-                      </div>
-                    );
+ <div key={st.id} className="flex items-baseline justify-between gap-2">
+ <span className={`font-semibold ${m?.className ?? "text-foreground"}`}>{m ? `Tipo ${m.value}` : "—"}</span>
+ <span className="font-mono font-bold text-muted-foreground">{st.volume ?? "—"}</span>
+ <span className="text-[9.5px] text-muted-foreground">{st.at ? new Date(st.at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+ </div> );
                   })}
-                </div>
-              ) : (
-                <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                  Sem evacuação registrada.
-                </div>
-              )}
-            </div>
-
-            {/* Balanço hídrico — linhas */}
-            <div className="mt-4">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                💧 Balanço hídrico
-              </div>
-              {(!patient.state.fluidBalance || (!patient.state.fluidBalance.intake?.length && !patient.state.fluidBalance.output?.length && !patient.state.fluidBalance.drains?.length)) ? (
-                <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                  Sem registros de entradas / saídas / drenos.
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5 text-[11px] font-mono font-semibold">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
-                      <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-sans font-bold uppercase tracking-wider text-clinical-attention">Saídas</span>
-                      <span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-sans font-bold uppercase tracking-wider text-clinical-device">Drenos</span>
-                      <span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
-                    </div>
-                    <div className={`flex items-baseline justify-between gap-2 border-t border-border pt-1 text-[12px] font-bold ${
+ </div> ) : (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem evacuação registrada.
+ </div> )}
+ </div> {/* Balanço hídrico — linhas */}
+ <div className="mt-4">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Balanço hídrico
+ </div> {(!patient.state.fluidBalance || (!patient.state.fluidBalance.intake?.length && !patient.state.fluidBalance.output?.length && !patient.state.fluidBalance.drains?.length)) ? (
+ <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem registros de entradas / saídas / drenos.
+ </div> ) : (
+ <div className="space-y-1">
+ <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5 text-[11px] font-mono font-semibold">
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
+ <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
+ </div>
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="font-sans font-bold uppercase tracking-wider text-clinical-attention">Saídas</span>
+ <span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
+ </div>
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="font-sans font-bold uppercase tracking-wider text-clinical-device">Drenos</span>
+ <span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
+ </div>
+ <div className={`flex items-baseline justify-between gap-2 border-t border-border pt-1 text-[12px] font-bold ${
                       fluidBalance.balance > 500 ? "text-clinical-attention"
                       : fluidBalance.balance < -500 ? "text-clinical-critical"
                       : "text-clinical-stable"
                     }`}>
-                      <span className="font-sans uppercase tracking-wider">BH</span>
-                      <span>
-                        {bhRate != null
+ <span className="font-sans uppercase tracking-wider">BH</span>
+ <span> {bhRate != null
                           ? `${bhRate >= 0 ? "+" : ""}${bhRate.toFixed(2)} mL/kg/h`
                           : "—"}
-                        <span className="ml-1 text-[10px] font-normal text-muted-foreground">
-                          ({fluidBalance.balance >= 0 ? "+" : ""}{fluidBalance.balance} mL/24h)
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
-                    <ul className="mt-1 space-y-0.5 text-[10.5px]">
-                      {patient.state.fluidBalance!.drains!.map((d) => (
-                        <li key={d.id} className="flex items-center justify-between rounded border border-border bg-surface px-2 py-0.5">
-                          <span className="truncate">
-                            <span className="font-semibold text-foreground">{d.name}</span>
-                            {d.site ? <span className="text-muted-foreground"> · {d.site}</span> : null}
-                          </span>
-                          <span className="shrink-0 font-mono text-clinical-device">{d.volumeMl} mL</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-
-
-          {/* 7 - Plano · Metas por sistema orgânico */}
-          <div onClick={colClick("plan")}>
-            <ColTitle>Plano por sistema</ColTitle>
-            {/* Legenda compacta */}
-            <div className="mb-2 flex flex-wrap gap-1">
-              {Array.from(new Set(patient.conducts.map((c) => c.system).filter(Boolean) as string[])).map((sys) => {
+ <span className="ml-1 text-[10px] font-normal text-muted-foreground"> ({fluidBalance.balance >= 0 ? "+" : ""}{fluidBalance.balance} mL/24h)
+ </span>
+ </span>
+ </div>
+ </div> {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
+ <ul className="mt-1 space-y-0.5 text-[10.5px]"> {patient.state.fluidBalance!.drains!.map((d) => (
+ <li key={d.id} className="flex items-center justify-between rounded border border-border bg-surface px-2 py-0.5">
+ <span className="truncate">
+ <span className="font-semibold text-foreground">{d.name}</span> {d.site ? <span className="text-muted-foreground"> · {d.site}</span> : null}
+ </span>
+ <span className="shrink-0 font-mono text-clinical-device">{d.volumeMl} mL</span>
+ </li> ))}
+ </ul> )}
+ </div> )}
+ </div>
+ </div> {/* 7 - Plano · Metas por sistema orgânico */}
+ <div onClick={colClick("plan")}>
+ <ColTitle>Plano por sistema</ColTitle> {/* Legenda compacta */}
+ <div className="mb-2 flex flex-wrap gap-1"> {Array.from(new Set(patient.conducts.map((c) => c.system).filter(Boolean) as string[])).map((sys) => {
                 const meta = CONDUCT_SYSTEM_META[sys as keyof typeof CONDUCT_SYSTEM_META];
                 if (!meta) return null;
                 return (
-                  <span key={sys} className={`rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${meta.borderClass} ${meta.bgClass} ${meta.className}`}>
-                    {meta.icon} {meta.short}
-                  </span>
-                );
+ <span key={sys} className={`rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${meta.borderClass} ${meta.bgClass} ${meta.className}`}> {meta.icon} {meta.short}
+ </span> );
               })}
-            </div>
-            <ul className="space-y-1.5">
-              {[...patient.conducts]
+ </div>
+ <ul className="space-y-1.5"> {[...patient.conducts]
                 .map((c, i) => ({ c, i }))
                 .sort((a, b) => {
                   const order = ["dieta", "fono", "gi", "neuro", "cardio", "resp", "renal", "infec", "hemato", "skin", "other"];
@@ -1426,218 +1148,177 @@ export function PatientRow({
                 .map(({ c, i }) => {
                 const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
                 return (
-                  <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
-                    <div className="flex items-center gap-2">
-                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${c.done ? "bg-clinical-stable" : "bg-clinical-attention"}`} />
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className}`}>
-                        {meta.icon} {meta.label}
-                      </span>
-                      <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
-                    </div>
-                    {c.subItems && c.subItems.length > 0 ? (
-                      <ul className="mt-1.5 ml-2 space-y-1 border-l border-border/60 pl-2">
-                        {c.subItems.map((sub, si) => {
+ <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
+ <div className="flex items-center gap-2">
+ <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${c.done ? "bg-clinical-stable" : "bg-clinical-attention"}`} />
+ <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className}`}> {meta.icon} {meta.label}
+ </span>
+ <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
+ </div> {c.subItems && c.subItems.length > 0 ? (
+ <ul className="mt-1.5 ml-2 space-y-1 border-l border-border/60 pl-2"> {c.subItems.map((sub, si) => {
                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
                           return (
-                            <li key={si} className="flex items-start gap-1.5 text-[11.5px] leading-snug">
-                              <span className={`mt-1 h-1 w-1 shrink-0 rounded-full ${sub.done ? "bg-clinical-stable" : "bg-muted-foreground"}`} />
-                              <span className={`whitespace-pre-wrap break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}>
-                                {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
-                              </span>
-                            </li>
-                          );
+ <li key={si} className="flex items-start gap-1.5 text-[11.5px] leading-snug">
+ <span className={`mt-1 h-1 w-1 shrink-0 rounded-full ${sub.done ? "bg-clinical-stable" : "bg-muted-foreground"}`} />
+ <span className={`whitespace-pre-wrap break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
+ </span>
+ </li> );
                         })}
-                      </ul>
-                    ) : (
-                      <div className="mt-1 text-[10.5px] italic text-muted-foreground">Sem anotações registradas.</div>
-                    )}
-                  </li>
-                );
+ </ul> ) : (
+ <div className="mt-1 text-[10.5px] italic text-muted-foreground">Sem anotações registradas.</div> )}
+ </li> );
               })}
               {patient.conducts.length === 0 && (
-                <li className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                  Nenhum sistema orgânico registrado.
-                </li>
-              )}
-            </ul>
+ <li className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Nenhum sistema orgânico registrado.
+ </li> )}
+ </ul>
 
-            <div className="mt-3">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Metas</div>
-              <ul className="space-y-1">
-                {patient.goals.map((g, i) => (
-                  <li key={i} className="flex items-center gap-2 text-[12px]">
-                    <span className={`h-1.5 w-1.5 rounded-full ${g.met ? "bg-clinical-stable" : "bg-clinical-critical"}`} />
-                    <span className={g.met ? "text-foreground" : "text-clinical-critical"}>{g.text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+ <div className="mt-3">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Metas</div>
+ <ul className="space-y-1"> {patient.goals.map((g, i) => (
+ <li key={i} className="flex items-center gap-2 text-[12px]">
+ <span className={`h-1.5 w-1.5 rounded-full ${g.met ? "bg-clinical-stable" : "bg-clinical-critical"}`} />
+ <span className={g.met ? "text-foreground" : "text-clinical-critical"}>{g.text}</span>
+ </li> ))}
+ </ul>
+ </div>
+ </div>
 
-        </div>
-        </div>
-      )}
+ </div>
+ </div> )}
 
 
 
 
       {/* Anatomical map embedded — visible immediately upon expansion */}
       {open && (
-        <div className="border-t border-border bg-surface/40 px-5 py-5">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              🧍 Mapa anatômico · dispositivos & lesões por pressão
-            </div>
-            <div className="text-[10px] text-muted-foreground">
-              {activeDevices.length} dispositivo(s) · {lppSummary.totalActive} LPP ativa(s)
-            </div>
-          </div>
-          <AnatomicalMap
+ <div className="border-t border-border bg-surface/40 px-5 py-5">
+ <div className="mb-3 flex items-center justify-between">
+ <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Mapa anatômico · dispositivos & lesões por pressão
+ </div>
+ <div className="text-[10px] text-muted-foreground"> {activeDevices.length} dispositivo(s) · {lppSummary.totalActive} LPP ativa(s)
+ </div>
+ </div>
+ <AnatomicalMap
             devices={patient.devices ?? []}
             patient={patient}
             lpp={patient.lpp ?? []}
             onLPPChange={onUpdate ? (next) => onUpdate({ ...patient, lpp: next }) : undefined}
           />
-          <div className="mt-5">
-            <SofaPanel patient={patient} />
-          </div>
-          <div className="mt-5">
-            <OrganIntegrityChart patient={patient} />
+ <div className="mt-5">
+ <SofaPanel patient={patient} />
+ </div>
+ <div className="mt-5">
+ <OrganIntegrityChart patient={patient} />
 
-          </div>
-        </div>
-      )}
+ </div>
+ </div> )}
 
       {/* Medication Analysis Dialog */}
-      <MedicationAnalysisModal
+ <MedicationAnalysisModal
         open={medAnalysisOpen}
         onClose={() => setMedAnalysisOpen(false)}
         patient={patient}
       />
 
-      <AntibioticHistory
+ <AntibioticHistory
         open={atbHistOpen}
         onOpenChange={setAtbHistOpen}
         patient={patient}
         onUpdate={onUpdate}
-      />
-
-
-
-      {/* Pump Monitor Dialog */}
-      <Dialog open={pumpOpen} onOpenChange={setPumpOpen}>
-        <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-clinical-resp" />
-              Central de bombas · {patient.name}
-            </DialogTitle>
-          </DialogHeader>
-          <PumpMonitor patient={patient} onChange={onUpdate} />
-        </DialogContent>
-      </Dialog>
-
-      {/* AI Therapy Suggestions Dialog */}
-      <Dialog open={aiOpen} onOpenChange={setAiOpen}>
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-clinical-attention" />
-              Ajustar terapia · sugestões para {patient.name}
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-[11px] text-muted-foreground">
-            Sugestões baseadas em parâmetros atuais. <b>Não executam ações</b> — exigem confirmação médica.
-          </p>
-          <ul className="mt-2 space-y-2">
-            {suggestions.map((s, i) => {
+      /> {/* Pump Monitor Dialog */}
+ <Dialog open={pumpOpen} onOpenChange={setPumpOpen}>
+ <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
+ <DialogHeader>
+ <DialogTitle className="flex items-center gap-2">
+ <Gauge className="h-4 w-4 text-clinical-resp" /> Central de bombas · {patient.name}
+ </DialogTitle>
+ </DialogHeader>
+ <PumpMonitor patient={patient} onChange={onUpdate} />
+ </DialogContent>
+ </Dialog> {/* AI Therapy Suggestions Dialog */}
+ <Dialog open={aiOpen} onOpenChange={setAiOpen}>
+ <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+ <DialogHeader>
+ <DialogTitle className="flex items-center gap-2">
+ <Sparkles className="h-4 w-4 text-clinical-attention" /> Ajustar terapia · sugestões para {patient.name}
+ </DialogTitle>
+ </DialogHeader>
+ <p className="text-[11px] text-muted-foreground"> Sugestões baseadas em parâmetros atuais. <b>Não executam ações</b> — exigem confirmação médica.
+ </p>
+ <ul className="mt-2 space-y-2"> {suggestions.map((s, i) => {
               const cls = s.severity === "critical" ? "border-clinical-critical/40 bg-clinical-critical/5"
                 : s.severity === "attention" ? "border-clinical-attention/40 bg-clinical-attention/5"
                 : "border-border bg-surface";
               return (
-                <li key={i} className={`rounded-md border p-3 text-[12px] ${cls}`}>
-                  <div className="flex items-center gap-2 font-semibold text-foreground">
-                    <span>{s.icon}</span>
-                    <span>{s.title}</span>
-                  </div>
-                  <div className="mt-1 text-[11px] text-muted-foreground">{s.rationale}</div>
-                </li>
-              );
+ <li key={i} className={`rounded-md border p-3 text-[12px] ${cls}`}>
+ <div className="flex items-center gap-2 font-semibold text-foreground">
+ <span>{s.icon}</span>
+ <span>{s.title}</span>
+ </div>
+ <div className="mt-1 text-[11px] text-muted-foreground">{s.rationale}</div>
+ </li> );
             })}
-          </ul>
-        </DialogContent>
-      </Dialog>
-
-      {/* Anatomical Map Dialog — Devices + Pressure Injuries unificados */}
-      <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-        <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              🧍 Mapa anatômico · {patient.name}
-            </DialogTitle>
-          </DialogHeader>
-          <AnatomicalMap
+ </ul>
+ </DialogContent>
+ </Dialog> {/* Anatomical Map Dialog — Devices + Pressure Injuries unificados */}
+ <Dialog open={mapOpen} onOpenChange={setMapOpen}>
+ <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto">
+ <DialogHeader>
+ <DialogTitle className="flex items-center gap-2"> Mapa anatômico · {patient.name}
+ </DialogTitle>
+ </DialogHeader>
+ <AnatomicalMap
             devices={patient.devices ?? []}
             patient={patient}
             lpp={patient.lpp ?? []}
             onLPPChange={onUpdate ? (next) => onUpdate({ ...patient, lpp: next }) : undefined}
           />
-        </DialogContent>
-      </Dialog>
-
-      {/* Image lightbox for exam attachments */}
-      <Dialog open={!!zoomImg} onOpenChange={(o) => !o && setZoomImg(null)}>
-        <DialogContent className="max-h-[95vh] max-w-4xl overflow-hidden p-2">
-          <DialogHeader>
-            <DialogTitle className="text-[12px]">Imagem do exame</DialogTitle>
-          </DialogHeader>
-          {zoomImg && (
-            <img src={zoomImg} alt="Imagem ampliada" className="mx-auto max-h-[85vh] w-auto rounded" />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Intubation Journey */}
+ </DialogContent>
+ </Dialog> {/* Image lightbox for exam attachments */}
+ <Dialog open={!!zoomImg} onOpenChange={(o) => !o && setZoomImg(null)}>
+ <DialogContent className="max-h-[95vh] max-w-4xl overflow-hidden p-2">
+ <DialogHeader>
+ <DialogTitle className="text-[12px]">Imagem do exame</DialogTitle>
+ </DialogHeader> {zoomImg && (
+ <img src={zoomImg} alt="Imagem ampliada" className="mx-auto max-h-[85vh] w-auto rounded" /> )}
+ </DialogContent>
+ </Dialog> {/* Intubation Journey */}
       {onUpdate && (
-        <IntubationJourney
+ <IntubationJourney
           open={intubOpen}
           onClose={() => setIntubOpen(false)}
           patient={patient}
           onSave={onUpdate}
-        />
-      )}
+        /> )}
 
       {/* SAPS 3 */}
       {onUpdate && (
-        <Saps3Modal
+ <Saps3Modal
           open={saps3Open}
           onClose={() => setSaps3Open(false)}
           patient={patient}
           onSave={onUpdate}
-        />
-      )}
+        /> )}
 
       {/* Discharge readiness check */}
       {onUpdate && (
-        <DischargeCheckModal
+ <DischargeCheckModal
           open={dischargeOpen}
           onClose={() => setDischargeOpen(false)}
           patient={patient}
           onSave={onUpdate}
-        />
-      )}
+        /> )}
 
-    </div>
-  );
+ </div> );
 }
 
 function Row({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex justify-between gap-2">
-      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground/70">{k}</dt>
-      <dd className="text-right text-[12px] text-foreground">{v}</dd>
-    </div>
-  );
+ <div className="flex justify-between gap-2">
+ <dt className="text-[11px] uppercase tracking-wider text-muted-foreground/70">{k}</dt>
+ <dd className="text-right text-[12px] text-foreground">{v}</dd>
+ </div> );
 }
 
 export { Activity };

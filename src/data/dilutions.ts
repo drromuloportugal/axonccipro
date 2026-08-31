@@ -5,10 +5,10 @@
 // ============================================================================
 
 export const DILUTION_SOURCE_NOTE =
-  "Protocolo cadastrado pelo usuário a partir de material institucional.";
+ "Protocolo cadastrado pelo usuário a partir de material institucional.";
 
 export const DILUTION_DISCLAIMER =
-  "Os padrões de diluição são configuráveis. Confirme o protocolo institucional, a apresentação comercial e a prescrição antes da administração.";
+ "Os padrões de diluição são configuráveis. Confirme o protocolo institucional, a apresentação comercial e a prescrição antes da administração.";
 
 export type MassUnit = "mg" | "mcg" | "g" | "U";
 
@@ -456,25 +456,25 @@ export interface DoseRange { min: number; usual: number; max: number }
 const R = (min: number, usual: number, max: number): DoseRange => ({ min, usual, max });
 
 export const DOSE_RANGES: Record<string, Partial<Record<DoseUnit, DoseRange>>> = {
-  NORA:       { "mcg/kg/min": R(0.01, 0.1, 3), "mcg/min": R(1, 8, 100) },
+  NORA: { "mcg/kg/min": R(0.01, 0.1, 3), "mcg/min": R(1, 8, 100) },
   NORA_LIGHT: { "mcg/kg/min": R(0.01, 0.05, 1), "mcg/min": R(1, 4, 60) },
-  VASO:       { "U/min": R(0.01, 0.03, 0.06), "U/h": R(0.6, 1.8, 3.6) },
-  DOBU_PURA:  { "mcg/kg/min": R(2, 5, 20) },
-  DOBU:       { "mcg/kg/min": R(2, 5, 20) },
-  DOPA:       { "mcg/kg/min": R(2, 5, 20) },
-  NPS:        { "mcg/kg/min": R(0.3, 1, 10) },
-  NTG:        { "mcg/kg/min": R(0.1, 1, 5), "mcg/min": R(5, 40, 200) },
-  CLON:       { "mcg/h": R(10, 40, 120), "mcg/kg/h": R(0.1, 0.5, 2) },
-  AMIO:       { "mg/h": R(15, 45, 60), "mg/min": R(0.25, 0.75, 1) },
-  FURO:       { "mg/h": R(2, 10, 40), "mg/kg/h": R(0.05, 0.15, 0.5) },
-  MIDA_PURO:  { "mg/kg/h": R(0.02, 0.1, 0.3), "mcg/kg/min": R(0.3, 1.5, 5) },
-  MIDA:       { "mg/kg/h": R(0.02, 0.1, 0.3), "mcg/kg/min": R(0.3, 1.5, 5) },
-  FENT_PURO:  { "mcg/kg/h": R(0.5, 2, 10), "mcg/h": R(25, 100, 500) },
-  FENT:       { "mcg/kg/h": R(0.5, 2, 10), "mcg/h": R(25, 100, 500) },
-  PROP:       { "mcg/kg/min": R(5, 25, 80), "mg/kg/h": R(0.3, 1.5, 4.8) },
-  DEXME:      { "mcg/kg/h": R(0.2, 0.7, 1.4) },
-  CETA:       { "mg/kg/h": R(0.1, 0.5, 2), "mcg/kg/min": R(1.7, 8, 33) },
-  ROCU:       { "mcg/kg/min": R(4, 8, 16), "mg/kg/h": R(0.24, 0.5, 1) },
+  VASO: { "U/min": R(0.01, 0.03, 0.06), "U/h": R(0.6, 1.8, 3.6) },
+  DOBU_PURA: { "mcg/kg/min": R(2, 5, 20) },
+  DOBU: { "mcg/kg/min": R(2, 5, 20) },
+  DOPA: { "mcg/kg/min": R(2, 5, 20) },
+  NPS: { "mcg/kg/min": R(0.3, 1, 10) },
+  NTG: { "mcg/kg/min": R(0.1, 1, 5), "mcg/min": R(5, 40, 200) },
+  CLON: { "mcg/h": R(10, 40, 120), "mcg/kg/h": R(0.1, 0.5, 2) },
+  AMIO: { "mg/h": R(15, 45, 60), "mg/min": R(0.25, 0.75, 1) },
+  FURO: { "mg/h": R(2, 10, 40), "mg/kg/h": R(0.05, 0.15, 0.5) },
+  MIDA_PURO: { "mg/kg/h": R(0.02, 0.1, 0.3), "mcg/kg/min": R(0.3, 1.5, 5) },
+  MIDA: { "mg/kg/h": R(0.02, 0.1, 0.3), "mcg/kg/min": R(0.3, 1.5, 5) },
+  FENT_PURO: { "mcg/kg/h": R(0.5, 2, 10), "mcg/h": R(25, 100, 500) },
+  FENT: { "mcg/kg/h": R(0.5, 2, 10), "mcg/h": R(25, 100, 500) },
+  PROP: { "mcg/kg/min": R(5, 25, 80), "mg/kg/h": R(0.3, 1.5, 4.8) },
+  DEXME: { "mcg/kg/h": R(0.2, 0.7, 1.4) },
+  CETA: { "mg/kg/h": R(0.1, 0.5, 2), "mcg/kg/min": R(1.7, 8, 33) },
+  ROCU: { "mcg/kg/min": R(4, 8, 16), "mg/kg/h": R(0.24, 0.5, 1) },
 };
 
 export function getDoseRange(code: string, unit: DoseUnit): DoseRange | undefined {
