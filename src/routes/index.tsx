@@ -547,7 +547,7 @@ function Passometro() {
         ) : (
           <>
             {/* Navegação lateral */}
-            <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur">
+            <div className="sticky z-20 flex items-center gap-3 border-b border-border bg-background/95 px-5 py-2 backdrop-blur" style={{ top: headerHeight || 0 }}>
               <button
                 type="button"
                 onClick={() => goTo(current - 1)}
