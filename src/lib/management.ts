@@ -38,7 +38,9 @@ export function onMechanicalVentilation(p: Patient): boolean {
 export function onVasoactive(p: Patient): boolean {
   const dva = p.state?.dva;
   if (dva && dva.trim() && !/^n(ã|a)o$|^sem|^-$/i.test(dva.trim())) return true;
-  return (p.pumpInfusions ?? []).some((i) => i.category === "vasoativa" && i.status !== "stopped");
+  return (p.medications ?? []).some(
+    (m) => m.active !== false && m.pump?.category === "vasoativa" && m.pump?.status !== "stopped",
+  );
 }
 
 export function lengthOfStay(p: Patient): number {
