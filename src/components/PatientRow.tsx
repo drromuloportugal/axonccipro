@@ -282,7 +282,7 @@ export function PatientRow({
  <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
-        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] gap-0 px-4 py-4 text-left font-semibold [&>div:nth-child(odd)]:bg-[rgba(0,120,58,0.07)] [&>div:nth-child(even)]:bg-[rgba(0,166,80,0.12)] [&>div]:py-2 [&>div]:rounded-md [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:bg-[rgba(0,148,68,0.2)]"
+        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-3 px-5 py-4 text-left font-semibold [&>div]:rounded-lg [&>div]:border [&>div]:border-border [&>div]:bg-card [&>div]:px-3 [&>div]:py-3 [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-border-strong/40"
       > {/* 1 - Identificação */}
  <div onClick={colClick("id")} className="flex min-w-0 flex-col px-3 first:pl-0 last:pr-0 [&:not(:first-child)]:border-l-2 [&:not(:first-child)]:border-border-strong">
 
