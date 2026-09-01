@@ -9,7 +9,7 @@ import { ExamsMatrix } from "@/components/ExamsMatrix";
 import { DilutionCenter } from "@/components/DilutionCenter";
 import { ManagementDashboard } from "@/components/ManagementDashboard";
 import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
-import unimedLogo from "@/assets/unimed-logo.png.asset.json";
+import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
 import { stripEmojiDeep } from "@/lib/text";
@@ -346,27 +346,29 @@ function Passometro() {
 
   return (
  <div className="min-h-screen bg-background text-foreground">
-      {/* Header — centered Unimed logo, tools tucked inside a circular hamburger menu */}
+      {/* Header — centered Axon logo, tools tucked inside a circular hamburger menu */}
  <header
         ref={headerRef}
-        className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-black/40 transition-transform duration-300 ease-out ${
+        className={`no-print fixed left-0 right-0 top-0 z-20 border-b border-white/20 transition-transform duration-300 ease-out ${
           headerHidden ? "-translate-y-full" : "translate-y-0"
         }`}
         style={{
-          background: "oklch(0.21 0.008 260)",
-          boxShadow: "0 2px 8px rgba(15, 23, 42, 0.25)",
+          background:
+            "linear-gradient(100deg, color-mix(in oklab, oklch(0.5 0.16 155) 72%, transparent), color-mix(in oklab, oklch(0.35 0.05 240) 30%, transparent) 45%, color-mix(in oklab, oklch(0.5 0.16 235) 72%, transparent))",
+          backdropFilter: "blur(14px) saturate(150%)",
+          boxShadow: "0 2px 18px rgba(15, 23, 42, 0.35)",
         }}
       >
  <div className="relative flex items-center justify-center px-6 py-4">
           {/* Logo — centered, spans the header width */}
  <div className="flex min-w-0 flex-1 items-center justify-center">
  <img
-              src={unimedLogo.url}
-              alt="Unimed"
+              src={axonLogo.url}
+              alt="Axon Critical Care Intelligence"
               className="h-auto w-auto max-w-full object-contain"
               style={{
-                maxHeight: "3.5rem",
-                filter: "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45))",
+                maxHeight: "4rem",
+                filter: "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
               }}
             />
  </div>
