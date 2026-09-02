@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Patient, Severity, TimelineKind, InvasiveDevice, Medication } from "@/data/patients";
-import { ChevronDown, ChevronRight, Activity, CircleDot, Pencil, Printer, Gauge, Sparkles, Download, Trash2, LogOut, Archive, FileText } from "lucide-react";
+import { ChevronDown, ChevronRight, Activity, CircleDot, Pencil, Printer, Gauge, Sparkles, Download, Trash2, LogOut, Archive, FileText, History, Pill } from "lucide-react";
 import { generateFamilyReport } from "@/lib/familyReport";
 import { exportPatient } from "@/lib/patientIO";
 import {
