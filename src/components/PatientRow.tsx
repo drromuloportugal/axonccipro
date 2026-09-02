@@ -376,7 +376,14 @@ export function PatientRow({
                 .filter(Boolean).join(" · ")}
  </div> )}
 
+          {/* Gestão — scores */}
+          <div className="mt-2 border-t border-border/60 pt-1.5" onClick={(e) => e.stopPropagation()}>
+            <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>⚙️ Gestão</div>
+            <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+          </div>
+
           {/* Procedimentos & eventos — movidos para o rodapé da coluna 01 */}
+
           {patient.procedures.length > 0 && (
  <div className="mt-2 border-t border-border/60 pt-1.5">
  <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
