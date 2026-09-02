@@ -886,23 +886,26 @@ export function PatientRow({
  <div onClick={colClick("med")}>
  <div className="mb-2 flex items-center justify-between gap-2">
  <ColTitle tone={3}>💊 Medicações</ColTitle>
- <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
- <button
+  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <button
                   type="button"
                   onClick={() => setMedAnalysisOpen(true)}
-                  className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20"
+                  className="rounded-md border border-primary/40 bg-primary/10 p-1.5 text-primary hover:bg-primary/20"
                   title="Análise Medicamentosa (IA)"
-                > Análise
- </button>
- <button
+                  aria-label="Análise Medicamentosa (IA)"
+                >
+                <Pill className="h-4 w-4" />
+              </button>
+              <button
                   type="button"
                   onClick={() => setAtbHistOpen(true)}
-                  className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-0.5 text-[10px] font-semibold text-clinical-attention hover:bg-clinical-attention/20"
+                  className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 p-1.5 text-clinical-attention hover:bg-clinical-attention/20"
                   title="Histórico de antimicrobianos administrados"
-                > Histórico
- </button>
-
- </div>
+                  aria-label="Histórico de antimicrobianos administrados"
+                >
+                <History className="h-4 w-4" />
+              </button>
+            </div>
  </div>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
  <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
