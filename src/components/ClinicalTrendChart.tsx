@@ -300,12 +300,30 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                   tick={{ fontSize: 10 }}
                   stroke="hsl(var(--border))"
                 />
-                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--border))" width={38} />
-                <Tooltip
-                  labelFormatter={(t) => new Date(Number(t)).toLocaleString("pt-BR")}
-                  contentStyle={{ fontSize: 11 }}
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  stroke="hsl(var(--border))"
+                  width={mode === "index" ? 56 : 44}
+                  domain={mode === "index" ? [-1.2, 2.2] : ["auto", "auto"]}
+                  ticks={mode === "index" ? [-1, 0, 1, 2] : undefined}
+                  tickFormatter={
+                    mode === "index"
+                      ? (v: number) => (v === 0 ? "Ref mín" : v === 1 ? "Ref máx" : v.toFixed(1))
+                      : undefined
+                  }
                 />
+                {mode === "index" && (
+                  <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.08} />
+                )}
+                {mode === "index" && (
+                  <>
+                    <ReferenceLine y={0} stroke="#16a34a" strokeDasharray="4 4" />
+                    <ReferenceLine y={1} stroke="#16a34a" strokeDasharray="4 4" />
+                  </>
+                )}
+                <Tooltip content={<TrendTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
+
                 {visible.map((s) => (
                   <Line
                     key={s.key}
