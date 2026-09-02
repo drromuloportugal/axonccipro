@@ -1,13 +1,17 @@
 // Sequência temporal dos itens da coluna 6 (estado atual): sinais vitais
 // seriados, exames laboratoriais, gasometria e balanço hídrico.
-// Permite isolar itens (seleção) e agrupar resultados por categoria.
+// Eixo Y padrão: índice de referência individual de cada parâmetro
+// (0 = limite inferior, 1 = limite superior), permitindo comparar curvas
+// com escalas totalmente diferentes na mesma área de plotagem.
 
 import { useMemo, useState } from "react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend,
+  CartesianGrid, Tooltip, Legend, ReferenceArea, ReferenceLine,
 } from "recharts";
 import type { Patient } from "@/data/patients";
+import { labByCode, labByLabel } from "@/lib/clinical";
+
 
 type GroupKey = "vitals" | "lab" | "gaso" | "fluid";
 
