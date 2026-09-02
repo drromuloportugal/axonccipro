@@ -141,6 +141,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   const all = useMemo(() => buildSeries(patient), [patient]);
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set<GroupKey>(["vitals", "lab", "gaso", "fluid"]));
   const [isolated, setIsolated] = useState<Set<string>>(new Set());
+  const [mode, setMode] = useState<"index" | "raw">("index");
 
   const visible = useMemo(() => {
     const byGroup = all.filter((s) => groups.has(s.group));
@@ -152,12 +153,13 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
     for (const s of visible) {
       for (const p of s.points) {
         const row = byTime.get(p.t) ?? { t: p.t };
-        row[s.key] = p.v;
+        row[s.key] = mode === "index" ? toIndex(p.v, s.ref) : p.v;
+        row[`${s.key}#raw`] = p.v;
         byTime.set(p.t, row);
       }
     }
     return Array.from(byTime.values()).sort((a, b) => (a.t as number) - (b.t as number));
-  }, [visible]);
+  }, [visible, mode]);
 
   const toggleGroup = (g: GroupKey) =>
     setGroups((prev) => {
@@ -175,6 +177,44 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
 
   const fmtDate = (t: number) =>
     new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  const byKey = useMemo(() => new Map(visible.map((s) => [s.key, s])), [visible]);
+
+  const TrendTooltip = ({ active, label, payload }: {
+    active?: boolean; label?: number | string;
+    payload?: { dataKey?: string | number; payload?: Record<string, number | string> }[];
+  }) => {
+    if (!active || !payload?.length) return null;
+    const row = payload[0]?.payload ?? {};
+    return (
+      <div className="rounded border border-border bg-card px-2 py-1.5 text-[11px] shadow">
+        <div className="mb-1 font-semibold text-foreground">
+          {new Date(Number(label)).toLocaleString("pt-BR")}
+        </div>
+        {payload.map((p) => {
+          const key = String(p.dataKey ?? "");
+          const s = byKey.get(key);
+          if (!s) return null;
+          const raw = row[`${key}#raw`];
+          const idx = toIndex(Number(raw), s.ref);
+          const status = !s.ref ? "" : idx > 1 ? " acima" : idx < 0 ? " abaixo" : " normal";
+          return (
+            <div key={key} className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+              <span className="text-foreground">{s.label}:</span>
+              <strong>{String(raw)}{s.unit ? ` ${s.unit}` : ""}</strong>
+              {s.ref && (
+                <span className="text-muted-foreground">
+                  (ref {s.ref.low}–{s.ref.high} · índice {idx.toFixed(2)}{status})
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
 
   return (
     <section className="rounded-lg border border-border bg-card p-3">
