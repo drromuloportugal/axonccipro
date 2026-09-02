@@ -277,19 +277,29 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
             {all
               .filter((s) => groups.has(s.group))
               .map((s) => {
-                const on = isolated.size === 0 || isolated.has(s.key);
+                const on = selected.has(s.key);
+                const alt = isAltered(s);
                 return (
                   <button
                     key={s.key}
                     type="button"
-                    onClick={() => toggleIsolate(s.key)}
-                    title="Isolar / incluir este resultado"
+                    onClick={() => toggleSelect(s.key)}
+                    title={alt ? "Último valor fora da faixa de referência" : "Selecionar este resultado"}
                     className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-opacity ${
-                      on ? "border-border bg-surface text-foreground" : "border-border/60 bg-surface-2 text-muted-foreground opacity-60"
+                      on ? "border-border bg-surface text-foreground" : "border-border/60 bg-surface-2 text-muted-foreground opacity-70"
                     }`}
                   >
-                    <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                    <span className="relative flex h-2 w-2 items-center justify-center">
+                      {alt && (
+                        <span
+                          className="absolute inline-flex h-2 w-2 animate-ping rounded-full opacity-75"
+                          style={{ background: "hsl(var(--clinical-critical, 0 70% 50%))" }}
+                        />
+                      )}
+                      <span className="relative h-2 w-2 rounded-full" style={{ background: s.color }} />
+                    </span>
                     {s.label}
+                    {alt && <span className="text-[9px] font-bold text-destructive">alterado</span>}
                   </button>
                 );
               })}
