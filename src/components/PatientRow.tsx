@@ -346,9 +346,6 @@ export function PatientRow({
  <LogOut className="h-3 w-3" /> {dcBtnLabel}
  </button>
 
- <div className="mb-1.5" onClick={(e) => e.stopPropagation()}>
- <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
- </div>
 
   <div className="flex min-w-0 items-center gap-2 border-b-2 border-clinical-critical/70 pb-1.5">
   <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
@@ -379,7 +376,14 @@ export function PatientRow({
                 .filter(Boolean).join(" · ")}
  </div> )}
 
+          {/* Gestão — scores */}
+          <div className="mt-2 border-t border-border/60 pt-1.5" onClick={(e) => e.stopPropagation()}>
+            <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>⚙️ Gestão</div>
+            <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+          </div>
+
           {/* Procedimentos & eventos — movidos para o rodapé da coluna 01 */}
+
           {patient.procedures.length > 0 && (
  <div className="mt-2 border-t border-border/60 pt-1.5">
  <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
@@ -725,9 +729,6 @@ export function PatientRow({
  <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-2.5 px-4 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-md [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:shadow-[0_2px_10px_-2px_oklch(0.15_0.01_260/0.55)] [&>div]:px-3 [&>div]:py-2.5 [&>div]:shadow-sm"> {/* 1 */}
  <div onClick={colClick("id")} className="col-ink">
  <ColTitle tone={0}>🪪 Identificação</ColTitle>
- <div className="mb-2" onClick={(e) => e.stopPropagation()}>
- <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
- </div>
  <dl className="space-y-1 text-muted-foreground">
  <Row k="Médico" v={patient.attending} />
  <Row k="Idade" v={`${computedAge} anos`} />
@@ -754,7 +755,14 @@ export function PatientRow({
  <div className="mt-3">
  <span className={`chip ${kindClass[patient.severity === "critical" ? "critical" : patient.severity === "attention" ? "attention" : "stable"]}`}> {sevLabel[patient.severity]}
  </span>
- </div> {/* Procedimentos & eventos — ao final da coluna 01 */}
+          </div> {/* Gestão — scores */}
+          <div className="mt-4" onClick={(e) => e.stopPropagation()}>
+            <ColTitle tone={5}>⚙️ Gestão</ColTitle>
+            <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+          </div>
+
+          {/* Procedimentos & eventos — ao final da coluna 01 */}
+
             {patient.procedures.length > 0 && (
  <div className="mt-4">
  <ColTitle tone={0}>🗓️ Procedimentos & eventos</ColTitle>
