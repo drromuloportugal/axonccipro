@@ -257,3 +257,32 @@
 @utility title-green-6 { background: transparent; }
 @utility title-green-7 { background: transparent; }
 
+/* Pastéis suaves para caixas de diagnóstico na coluna 2 */
+@utility pastel-current {
+  background-color: oklch(0.93 0.03 20);
+  border-color: oklch(0.85 0.05 20);
+}
+@utility pastel-current-head {
+  background-color: oklch(0.88 0.04 20);
+}
+@utility pastel-inactive {
+  background-color: oklch(0.94 0.01 260);
+  border-color: oklch(0.86 0.02 260);
+}
+@utility pastel-inactive-head {
+  background-color: oklch(0.88 0.015 260);
+}
+@utility pastel-previous {
+  background-color: oklch(0.93 0.03 220);
+  border-color: oklch(0.85 0.05 220);
+}
+@utility pastel-previous-head {
+  background-color: oklch(0.88 0.04 220);
+}
+@utility pastel-complication {
+  background-color: oklch(0.93 0.035 80);
+  border-color: oklch(0.85 0.055 80);
+}
+@utility pastel-complication-head {
+  background-color: oklch(0.88 0.045 80);
+}
