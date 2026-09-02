@@ -430,6 +430,15 @@ function Passometro() {
                   onChange={(e) => handleImportFiles(e.target.files)}
                 />
 
+                {/* Sair da conta */}
+                <button
+                  onClick={handleSignOut}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-strong bg-muted px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-muted/70"
+                  title="Encerrar a sessão desta conta"
+                >
+                  Sair da conta
+                </button>
+
                 {/* Gestão */}
   <button
                   onClick={() => {
