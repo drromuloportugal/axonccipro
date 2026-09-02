@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
 import { patients as seedPatients } from "@/data/patients";
 import type { Patient, Severity } from "@/data/patients";
@@ -12,22 +13,26 @@ import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Men
 import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
-import { checkGate } from "@/lib/gate.functions";
 
 import { toast } from "sonner";
 import { useRef } from "react";
 
 export const Route = createFileRoute("/")({
-
+  ssr: false,
   head: () => ({
     meta: [
       { title: "PASSÔMETRO — Painel UTI" },
       { name: "description", content: "Painel clínico de passagem de plantão para pacientes críticos em UTI." },
       { property: "og:title", content: "PASSÔMETRO — Painel UTI" },
       { property: "og:description", content: "Centro de comando clínico para acompanhamento de pacientes críticos." },
+      { name: "robots", content: "noindex" },
     ],
   }),
-  loader: () => checkGate(),
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/auth" });
+    return { user: data.user };
+  },
   component: Passometro,
 });
 
@@ -181,6 +186,13 @@ function Passometro() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [managementOpen, setManagementOpen] = useState(false);
+
+  const router = useRouter();
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    await router.navigate({ to: "/auth", replace: true });
+  };
+
 
   const bedNumber = (bed: string) => {
     const m = String(bed).match(/(\d+)/);
@@ -417,6 +429,15 @@ function Passometro() {
                   className="hidden"
                   onChange={(e) => handleImportFiles(e.target.files)}
                 />
+
+                {/* Sair da conta */}
+                <button
+                  onClick={handleSignOut}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-strong bg-muted px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-muted/70"
+                  title="Encerrar a sessão desta conta"
+                >
+                  Sair da conta
+                </button>
 
                 {/* Gestão */}
   <button
