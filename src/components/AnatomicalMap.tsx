@@ -542,6 +542,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
   const addedIds = new Set(diff?.added.map((d) => d.id) ?? []);
 
+  if (!mounted) {
+    return <div className="min-h-[420px] rounded-lg border border-border bg-surface" aria-hidden />;
+  }
+
   return (
  <div className="grid gap-4 lg:grid-cols-[1fr_340px]"> {/* Left: dual-view SVG body */}
  <div className="rounded-lg border border-border bg-surface p-3">
