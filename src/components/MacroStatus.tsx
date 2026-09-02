@@ -49,7 +49,9 @@ export function macroFlags(p: Patient): MacroFlag[] {
     out.push({ key: "dva", tone: "critical", Icon: HeartPulse, short: "DVA", label: "Em droga vasoativa" });
   }
   const dialysis = devices.some((d) => d.typeCode === "HD_CAT")
-    || /crrt|hemodi|di(á|a)lise|hdi|secc/i.test(`${p.state?.renal ?? ""} ${devices.map((d) => d.label ?? "").join(" ")}`);
+    || /crrt|hemodi|di(á|a)lise|hdi|secc/i.test(
+      `${p.state?.notes ?? ""} ${devices.map((d) => `${d.typeCode} ${d.notes ?? ""}`).join(" ")}`,
+    );
   if (dialysis) {
     out.push({ key: "trs", tone: "neuro", Icon: Droplets, short: "TRS", label: "Terapia renal substitutiva" });
   }
@@ -70,12 +72,12 @@ export function macroFlags(p: Patient): MacroFlag[] {
   if (devices.some((d) => d.category === "venous_central")) {
     out.push({ key: "cvc", tone: "device", Icon: Syringe, short: "CVC", label: "Acesso venoso central" });
   }
-  const lpp = summarizeLPP(p.pressureInjuries);
+  const lpp = summarizeLPP(p.lpp);
   if (lpp.totalActive > 0) {
     out.push({ key: "lpp", tone: "attention", Icon: Bandage, short: `LPP ${lpp.totalActive}`, label: `${lpp.totalActive} lesão(ões) por pressão ativa(s)` });
   }
-  if (/febr|hipertermi/i.test(p.state?.temp ?? "")) {
-    out.push({ key: "temp", tone: "critical", Icon: Thermometer, short: "FEBRE", label: "Temperatura alterada" });
+  if (typeof p.state?.temp === "number" && p.state.temp >= 37.8) {
+    out.push({ key: "temp", tone: "critical", Icon: Thermometer, short: "FEBRE", label: `Temperatura elevada (${p.state?.temp} °C)` });
   }
   const los = lengthOfStay(p);
   if (los >= 14) {

@@ -36,6 +36,7 @@ import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
+import { MacroStatusBar } from "@/components/MacroStatus";
 
 import { Pill } from "lucide-react";
 
@@ -353,6 +354,10 @@ export function PatientRow({
   <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
   <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
   </div>
+
+ <div className="mt-1.5">
+ <MacroStatusBar patient={patient} compact />
+ </div>
 
 
  <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground">
@@ -676,6 +681,9 @@ export function PatientRow({
  <span className="font-mono text-muted-foreground">· {patient.bed}</span>
  <span className="text-muted-foreground">· {sevLabel[patient.severity]}</span>
  </button>
+ <div className="min-w-0 flex-1">
+ <MacroStatusBar patient={patient} compact />
+ </div>
  <div className="flex items-center gap-1"> {onPrint && (
  <button type="button" onClick={() => onPrint(patient)}
                 className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Imprimir">
