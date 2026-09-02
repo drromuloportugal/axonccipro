@@ -15,16 +15,16 @@ import { labByCode, labByLabel } from "@/lib/clinical";
 
 type GroupKey = "vitals" | "lab" | "gaso" | "fluid";
 
-const GROUP_META: Record<GroupKey, { label: string; color: string }> = {
-  vitals: { label: "Sinais vitais", color: "#0ea5e9" },
-  lab: { label: "Laboratoriais", color: "#16a34a" },
-  gaso: { label: "Gasometria", color: "#7c3aed" },
-  fluid: { label: "Balanço hídrico", color: "#f59e0b" },
+const GROUP_META: Record<GroupKey, { label: string; bg: string; text: string }> = {
+  vitals: { label: "Sinais vitais", bg: "#bae6fd", text: "#075985" },
+  lab: { label: "Laboratoriais", bg: "#bbf7d0", text: "#166534" },
+  gaso: { label: "Gasometria", bg: "#ddd6fe", text: "#6d28d9" },
+  fluid: { label: "Balanço hídrico", bg: "#fde68a", text: "#92400e" },
 };
 
 const PALETTE = [
-  "#0ea5e9", "#16a34a", "#dc2626", "#7c3aed", "#f59e0b", "#0891b2",
-  "#db2777", "#65a30d", "#ea580c", "#4f46e5", "#0d9488", "#b91c1c",
+  "#fca5a5", "#fdba74", "#fcd34d", "#bef264", "#86efac", "#67e8f9",
+  "#93c5fd", "#c4b5fd", "#f0abfc", "#fda4af", "#7dd3fc", "#a7f3d0",
 ];
 
 interface Ref { low: number; high: number }
@@ -226,7 +226,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   return (
     <section className="rounded-lg border border-border bg-card p-3">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex items-center rounded-md bg-clinical-neutral px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white">
+        <div className="pastel-neutral inline-flex items-center rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
           Sequência temporal de resultados
         </div>
         <div className="flex flex-wrap items-center gap-1">
@@ -238,9 +238,9 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                 type="button"
                 onClick={() => toggleGroup(g)}
                 className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-colors ${
-                  on ? "border-transparent text-white" : "border-border bg-surface text-muted-foreground"
+                  on ? "border-transparent" : "border-border bg-surface text-muted-foreground"
                 }`}
-                style={on ? { background: GROUP_META[g].color } : undefined}
+                style={on ? { background: GROUP_META[g].bg, color: GROUP_META[g].text, borderColor: GROUP_META[g].bg } : undefined}
               >
                 {GROUP_META[g].label}
               </button>
@@ -337,14 +337,14 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                 />
                 {mode === "index" && (
                   <>
-                    <ReferenceArea y1={-1.2} y2={0} fill="#0ea5e9" fillOpacity={0.07}
-                      label={{ value: "Abaixo da referência", position: "insideBottomLeft", fontSize: 9, fill: "#0369a1" }} />
-                    <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.1}
-                      label={{ value: "Faixa de referência", position: "insideLeft", fontSize: 9, fill: "#15803d" }} />
-                    <ReferenceArea y1={1} y2={2.2} fill="#dc2626" fillOpacity={0.07}
-                      label={{ value: "Acima da referência", position: "insideTopLeft", fontSize: 9, fill: "#b91c1c" }} />
-                    <ReferenceLine y={0} stroke="#16a34a" strokeDasharray="4 4" />
-                    <ReferenceLine y={1} stroke="#16a34a" strokeDasharray="4 4" />
+                    <ReferenceArea y1={-1.2} y2={0} fill="#bae6fd" fillOpacity={0.45}
+                      label={{ value: "Abaixo da referência", position: "insideBottomLeft", fontSize: 9, fill: "#075985" }} />
+                    <ReferenceArea y1={0} y2={1} fill="#bbf7d0" fillOpacity={0.5}
+                      label={{ value: "Faixa de referência", position: "insideLeft", fontSize: 9, fill: "#166534" }} />
+                    <ReferenceArea y1={1} y2={2.2} fill="#fecaca" fillOpacity={0.45}
+                      label={{ value: "Acima da referência", position: "insideTopLeft", fontSize: 9, fill: "#991b1b" }} />
+                    <ReferenceLine y={0} stroke="#86efac" strokeDasharray="4 4" />
+                    <ReferenceLine y={1} stroke="#86efac" strokeDasharray="4 4" />
                   </>
                 )}
                 <Tooltip content={<TrendTooltip />} />
