@@ -1357,10 +1357,13 @@ function MedicationsList({
  </select>
  <input className={inputCls} value={m.freq}
             onChange={(e) => updItem(i, { freq: e.target.value })} placeholder="Freq" />
- <label className="flex items-center gap-1 whitespace-nowrap text-[11px] text-muted-foreground">
- <input type="checkbox" checked={m.active !== false}
-              onChange={(e) => updItem(i, { active: e.target.checked })} /> Ativo
- </label>
+  <span className={`text-[12px] ${m.active !== false ? "text-clinical-stable" : "text-clinical-neutral"}`} title={m.active !== false ? "Ativo" : "Suspenso"} aria-hidden="true">
+    {m.active !== false ? "●" : "○"}
+  </span>
+  <label className="flex items-center gap-1 whitespace-nowrap text-[11px] text-muted-foreground">
+  <input type="checkbox" checked={m.active !== false}
+               onChange={(e) => updItem(i, { active: e.target.checked })} /> Ativo
+  </label>
  <button onClick={() => del(i)} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
  <Trash2 className="h-3.5 w-3.5" />
  </button>
