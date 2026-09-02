@@ -79,7 +79,7 @@
   --destructive-foreground: oklch(0.99 0 0);
 
   --border: oklch(0.9 0.008 250);
-  --border-strong: oklch(0.32 0.012 260); /* contornos grafite */
+  --border-strong: oklch(0.18 0.008 260); /* contornos quase pretos */
   --input: oklch(0.9 0.008 250);
   --ring: oklch(0.55 0.14 230);
 
@@ -222,10 +222,16 @@
 }
 
 /* Caixas de texto coloridas sempre com fonte preta */
-[class*="bg-clinical-"]:not([class*="/10"]):not([class*="/15"]),
 .title-box,
-.chip {
-  color: oklch(0.14 0.008 260);
+.bg-clinical-stable,
+.bg-clinical-attention,
+.bg-clinical-critical,
+.bg-clinical-resp,
+.bg-clinical-neuro,
+.bg-clinical-nutri,
+.bg-clinical-device,
+.bg-clinical-neutral {
+  color: oklch(0.14 0.008 260) !important;
 }
 
 
