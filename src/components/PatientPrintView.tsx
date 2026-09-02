@@ -1,7 +1,7 @@
 import type { Patient, Severity, Medication } from "@/data/patients";
 import { PrintAnatomicalMap } from "@/components/PrintAnatomicalMap";
 import {
-  examInsight, bucketBadge, trendBadge, generateEstadoAtual,
+  examInsight, bucketBadge, trendArrow, generateEstadoAtual,
   computeAge, computeBMI,
   antibioticProgress, atbAlertBadge, detectAntibiotic,
   deviceRisk, formatDeviceDays,
@@ -214,12 +214,12 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <tbody>{labExams.map((e, i) => {
                     const ins = examInsight(e, patient.sex);
                     const b = ins.bucket ? bucketBadge(ins.bucket) : null;
-                    const t = trendBadge(ins.trend);
+                    const t = trendArrow(ins.movement, ins.trend);
                     return (
  <tr key={i} className="border-b border-gray-200">
  <td className="py-0.5 text-gray-600">{e.label}</td>
   <td className="py-0.5 text-right font-mono">{e.value} {e.unit ?? ""}</td>
-  <td className="py-0.5 pl-1 text-right text-gray-500">{t.label}</td>
+  <td className="py-0.5 pl-1 text-right text-gray-700">{t.arrow}</td>
  </tr> );
                   })}
  </tbody>

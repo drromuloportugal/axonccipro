@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, Activity, CircleDot, Pencil, Printer, Gauge,
 import { generateFamilyReport } from "@/lib/familyReport";
 import { exportPatient } from "@/lib/patientIO";
 import {
-  examInsight, bucketBadge, trendBadge,
+  examInsight, bucketBadge, trendArrow,
   computeAge, computeBMI, computeCrCl, daysSinceAdmission,
   antibioticProgress, atbAlertBadge, detectAntibiotic,
   deviceRisk,
@@ -1117,12 +1117,12 @@ export function PatientRow({
                     {rows.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
-                      const t = trendBadge(ins.trend);
+                      const t = trendArrow(ins.movement, ins.trend);
                       return (
  <tr key={i} className="border-b border-border/50 last:border-0">
  <td className="py-1 text-muted-foreground">{e.label}</td>
  <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
-  <td className="py-1 text-right text-[10px]" title={t.label}>{t.label}</td>
+  <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
  </tbody>
