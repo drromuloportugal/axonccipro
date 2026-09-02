@@ -187,6 +187,13 @@ function Passometro() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [managementOpen, setManagementOpen] = useState(false);
 
+  const router = useRouter();
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    await router.navigate({ to: "/auth", replace: true });
+  };
+
+
   const bedNumber = (bed: string) => {
     const m = String(bed).match(/(\d+)/);
     return m ? Number(m[1]) : Number.POSITIVE_INFINITY;
