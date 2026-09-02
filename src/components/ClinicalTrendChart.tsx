@@ -137,16 +137,23 @@ function buildSeries(patient: Patient): SeriesDef[] {
 }
 
 
+// Série alterada = último valor fora da faixa de referência.
+function isAltered(s: SeriesDef): boolean {
+  if (!s.ref || !s.points.length) return false;
+  const last = s.points[s.points.length - 1].v;
+  return last < s.ref.low || last > s.ref.high;
+}
+
 export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   const all = useMemo(() => buildSeries(patient), [patient]);
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set<GroupKey>(["vitals", "lab", "gaso", "fluid"]));
-  const [isolated, setIsolated] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<"index" | "raw">("index");
 
-  const visible = useMemo(() => {
-    const byGroup = all.filter((s) => groups.has(s.group));
-    return isolated.size ? byGroup.filter((s) => isolated.has(s.key)) : byGroup;
-  }, [all, groups, isolated]);
+  const visible = useMemo(
+    () => all.filter((s) => groups.has(s.group) && selected.has(s.key)),
+    [all, groups, selected],
+  );
 
   const data = useMemo(() => {
     const byTime = new Map<number, Record<string, number | string>>();
