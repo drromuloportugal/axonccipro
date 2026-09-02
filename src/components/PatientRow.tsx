@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, Activity, CircleDot, Pencil, Printer, Gauge,
 import { generateFamilyReport } from "@/lib/familyReport";
 import { exportPatient } from "@/lib/patientIO";
 import {
-  examInsight, bucketBadge, trendBadge,
+  examInsight, bucketBadge, trendArrow,
   computeAge, computeBMI, computeCrCl, daysSinceAdmission,
   antibioticProgress, atbAlertBadge, detectAntibiotic,
   deviceRisk,
@@ -784,9 +784,9 @@ export function PatientRow({
  <ol className="relative ml-2 space-y-1.5 border-l border-border pl-3"> {list.map((d, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
- <div className={`rounded-md border px-2 py-1 ${g.box}`}>
- <div className="text-[11px] text-muted-foreground">{d.date}</div>
- <div className={`text-[12px] ${g.text}`}>{d.label}</div> {d.detail && <div className="text-[10.5px] text-muted-foreground">{d.detail}</div>}
+ <div className={`rounded-md border px-2 py-1 text-ink ${g.box}`}>
+ <div className="text-[11px] text-ink">{d.date}</div>
+ <div className="text-[12px] font-semibold text-ink">{d.label}</div> {d.detail && <div className="text-[10.5px] text-ink">{d.detail}</div>}
  </div>
  </li> ))}
  </ol>
@@ -1117,12 +1117,12 @@ export function PatientRow({
                     {rows.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
-                      const t = trendBadge(ins.trend);
+                      const t = trendArrow(ins.movement, ins.trend);
                       return (
  <tr key={i} className="border-b border-border/50 last:border-0">
  <td className="py-1 text-muted-foreground">{e.label}</td>
  <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
-  <td className="py-1 text-right text-[10px]" title={t.label}>{t.label}</td>
+  <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
  </tbody>
