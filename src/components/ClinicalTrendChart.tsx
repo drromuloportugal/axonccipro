@@ -175,8 +175,8 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
       return next;
     });
 
-  const toggleIsolate = (k: string) =>
-    setIsolated((prev) => {
+  const toggleSelect = (k: string) =>
+    setSelected((prev: Set<string>) => {
       const next = new Set(prev);
       if (next.has(k)) next.delete(k); else next.add(k);
       return next;
