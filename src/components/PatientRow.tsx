@@ -34,6 +34,7 @@ import { IntubationJourney } from "@/components/IntubationJourney";
 import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeCheck";
 import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
 import { FisherModal, FisherButton } from "@/components/FisherPanel";
+import { HuntHessModal, HuntHessButton } from "@/components/HuntHessPanel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -163,6 +164,7 @@ export function PatientRow({
   const [dischargeOpen, setDischargeOpen] = useState(false);
   const [saps3Open, setSaps3Open] = useState(false);
   const [fisherOpen, setFisherOpen] = useState(false);
+  const [huntHessOpen, setHuntHessOpen] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready" ? "bg-clinical-stable/20 text-clinical-stable hover:bg-clinical-stable/30"
@@ -384,6 +386,7 @@ export function PatientRow({
             <div className="flex flex-wrap items-start gap-1">
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact />
+              <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
             </div>
           </div>
 
@@ -766,6 +769,7 @@ export function PatientRow({
             <div className="flex flex-wrap items-start gap-1.5">
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} />
+              <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
             </div>
           </div>
 
@@ -1428,6 +1432,15 @@ export function PatientRow({
  <FisherModal
           open={fisherOpen}
           onClose={() => setFisherOpen(false)}
+          patient={patient}
+          onSave={onUpdate}
+        /> )}
+
+      {/* Escala de Hunt-Hess */}
+      {onUpdate && (
+        <HuntHessModal
+          open={huntHessOpen}
+          onClose={() => setHuntHessOpen(false)}
           patient={patient}
           onSave={onUpdate}
         /> )}

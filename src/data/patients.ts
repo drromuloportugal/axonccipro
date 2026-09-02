@@ -474,6 +474,7 @@ export interface Patient {
   dischargeCheck?: DischargeCheck;
   saps3?: Saps3Record;
   fisher?: import("@/components/FisherPanel").FisherRecord;
+  huntHess?: import("@/components/HuntHessPanel").HuntHessRecord;
 
 
 
