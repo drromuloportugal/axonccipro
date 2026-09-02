@@ -35,6 +35,7 @@ import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeChec
 import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
 import { FisherModal, FisherButton } from "@/components/FisherPanel";
 import { HuntHessModal, HuntHessButton } from "@/components/HuntHessPanel";
+import { WfnsModal, WfnsButton } from "@/components/WfnsPanel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -165,6 +166,7 @@ export function PatientRow({
   const [saps3Open, setSaps3Open] = useState(false);
   const [fisherOpen, setFisherOpen] = useState(false);
   const [huntHessOpen, setHuntHessOpen] = useState(false);
+  const [wfnsOpen, setWfnsOpen] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready" ? "bg-clinical-stable/20 text-clinical-stable hover:bg-clinical-stable/30"
@@ -387,6 +389,7 @@ export function PatientRow({
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact />
               <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
+              <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
             </div>
           </div>
 
@@ -770,6 +773,7 @@ export function PatientRow({
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} />
               <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
+              <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
             </div>
           </div>
 
@@ -1441,6 +1445,15 @@ export function PatientRow({
         <HuntHessModal
           open={huntHessOpen}
           onClose={() => setHuntHessOpen(false)}
+          patient={patient}
+          onSave={onUpdate}
+        /> )}
+
+      {/* Escala WFNS */}
+      {onUpdate && (
+        <WfnsModal
+          open={wfnsOpen}
+          onClose={() => setWfnsOpen(false)}
           patient={patient}
           onSave={onUpdate}
         /> )}
