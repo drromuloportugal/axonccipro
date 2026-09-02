@@ -305,6 +305,12 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
               })}
           </div>
 
+          {selected.size === 0 && (
+            <div className="mb-2 rounded border border-dashed border-border/60 px-3 py-2 text-center text-[11px] text-muted-foreground">
+              Selecione um ou mais parâmetros acima para exibir as curvas.
+            </div>
+          )}
+
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
