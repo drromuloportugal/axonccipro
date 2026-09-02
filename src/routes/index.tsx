@@ -13,7 +13,6 @@ import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Men
 import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
-import { checkGate } from "@/lib/gate.functions";
 
 import { toast } from "sonner";
 import { useRef } from "react";
