@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type {
   InvasiveDevice, Patient, InfectionFocus, Culture, LPPLesion, LPPStage,
 } from "@/data/patients";
@@ -482,6 +482,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   const [showInfections, setShowInfections] = useState(true);
   const [showDevices, setShowDevices] = useState(true);
   const [showLPP, setShowLPP] = useState(true);
+
+  // Cores/contadores derivam do tempo atual: renderizar só após hidratar.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const lppList = lpp ?? [];
   const lppSummary = useMemo(() => summarizeLPP(lppList), [lppList]);

@@ -844,7 +844,7 @@ export function PatientRow({
  <ul className="space-y-1"> {list.map((d) => {
                         const r = deviceRisk(d);
                         return (
- <li key={d.id} className="rounded-md border border-border bg-surface px-2 pb-1.5 pt-1.5 text-[11px]" title={r.semaphoreHint ?? r.label}>
+ <li key={d.id} className="rounded-md border border-border bg-surface px-2 pb-1.5 pt-1.5 text-[11px]" title={mounted ? (r.semaphoreHint ?? r.label) : undefined}>
  <div className="flex items-baseline justify-between gap-2">
  <span className="f-var">{deviceShort(d)}</span> {mounted && (
   <span className={`f-var text-[10px] ${r.className}`}> {Math.floor(r.days)}/{r.max}d
