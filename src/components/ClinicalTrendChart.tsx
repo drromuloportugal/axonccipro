@@ -1,13 +1,17 @@
 // Sequência temporal dos itens da coluna 6 (estado atual): sinais vitais
 // seriados, exames laboratoriais, gasometria e balanço hídrico.
-// Permite isolar itens (seleção) e agrupar resultados por categoria.
+// Eixo Y padrão: índice de referência individual de cada parâmetro
+// (0 = limite inferior, 1 = limite superior), permitindo comparar curvas
+// com escalas totalmente diferentes na mesma área de plotagem.
 
 import { useMemo, useState } from "react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend,
+  CartesianGrid, Tooltip, Legend, ReferenceArea, ReferenceLine,
 } from "recharts";
 import type { Patient } from "@/data/patients";
+import { labByCode, labByLabel } from "@/lib/clinical";
+
 
 type GroupKey = "vitals" | "lab" | "gaso" | "fluid";
 
@@ -23,22 +27,52 @@ const PALETTE = [
   "#db2777", "#65a30d", "#ea580c", "#4f46e5", "#0d9488", "#b91c1c",
 ];
 
+interface Ref { low: number; high: number }
+
 interface SeriesDef {
   key: string;
   label: string;
   unit?: string;
   group: GroupKey;
   color: string;
+  ref?: Ref;
   points: { t: number; v: number }[];
 }
 
 const isGaso = (code?: string, label?: string) =>
   /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
 
+// Faixas de referência dos sinais vitais / balanço (adulto crítico).
+const VITAL_REFS: Record<string, Ref> = {
+  temp: { low: 36, high: 37.8 },
+  spo2: { low: 92, high: 100 },
+  fc: { low: 60, high: 100 },
+  pam: { low: 65, high: 100 },
+  pas: { low: 100, high: 140 },
+  pad: { low: 60, high: 90 },
+  fr: { low: 12, high: 20 },
+  glicemia: { low: 70, high: 180 },
+  bristol: { low: 3, high: 5 },
+  bh: { low: -500, high: 500 },
+};
+
 function num(s?: string): number | undefined {
   if (!s) return undefined;
   const n = parseFloat(String(s).replace(/\./g, "").replace(",", "."));
   return Number.isNaN(n) ? undefined : n;
+}
+
+// Índice de referência: 0 = limite inferior, 1 = limite superior.
+// Fora da faixa, mantém a mesma escala relativa (largura da faixa),
+// com compressão logarítmica suave para não distorcer o gráfico.
+function toIndex(v: number, ref?: Ref): number {
+  if (!ref || !(ref.high > ref.low)) return v;
+  const span = ref.high - ref.low;
+  const raw = (v - ref.low) / span;
+  if (raw >= 0 && raw <= 1) return raw;
+  const over = raw > 1 ? raw - 1 : -raw;
+  const compressed = Math.log10(1 + over * 9); // 1 faixa de excesso => 1.0
+  return raw > 1 ? 1 + compressed : -compressed;
 }
 
 function buildSeries(patient: Patient): SeriesDef[] {
@@ -73,10 +107,15 @@ function buildSeries(patient: Patient): SeriesDef[] {
       .filter((p) => Number.isFinite(p.t))
       .sort((a, b) => a.t - b.t);
     if (points.length) {
-      out.push({ key: `v:${String(d.key)}`, label: d.label, unit: d.unit, group: d.group ?? "vitals", color: "", points });
+      out.push({
+        key: `v:${String(d.key)}`, label: d.label, unit: d.unit,
+        group: d.group ?? "vitals", color: "",
+        ref: VITAL_REFS[String(d.key)], points,
+      });
     }
   }
 
+  const sex = patient.sex;
   for (const e of patient.exams) {
     const group: GroupKey = isGaso(e.code, e.label) ? "gaso" : "lab";
     const hist = (e.history ?? [])
@@ -86,17 +125,23 @@ function buildSeries(patient: Patient): SeriesDef[] {
     if (e.takenAt && last != null) hist.push({ t: new Date(e.takenAt).getTime(), v: last });
     const points = hist.filter((p) => Number.isFinite(p.t)).sort((a, b) => a.t - b.t);
     if (points.length > 0) {
-      out.push({ key: `e:${e.code ?? e.label}`, label: e.label, unit: e.unit, group, color: "", points });
+      const def = (e.code ? labByCode(e.code) : undefined) ?? labByLabel(e.label);
+      const defRef = def ? (sex === "F" && def.refF ? def.refF : def.ref) : undefined;
+      const ref: Ref | undefined = defRef ? { low: defRef.low, high: defRef.high } : undefined;
+
+      out.push({ key: `e:${e.code ?? e.label}`, label: e.label, unit: e.unit ?? def?.unit, group, color: "", ref, points });
     }
   }
 
   return out.map((s, i) => ({ ...s, color: PALETTE[i % PALETTE.length] }));
 }
 
+
 export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   const all = useMemo(() => buildSeries(patient), [patient]);
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set<GroupKey>(["vitals", "lab", "gaso", "fluid"]));
   const [isolated, setIsolated] = useState<Set<string>>(new Set());
+  const [mode, setMode] = useState<"index" | "raw">("index");
 
   const visible = useMemo(() => {
     const byGroup = all.filter((s) => groups.has(s.group));
@@ -108,12 +153,13 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
     for (const s of visible) {
       for (const p of s.points) {
         const row = byTime.get(p.t) ?? { t: p.t };
-        row[s.key] = p.v;
+        row[s.key] = mode === "index" ? toIndex(p.v, s.ref) : p.v;
+        row[`${s.key}#raw`] = p.v;
         byTime.set(p.t, row);
       }
     }
     return Array.from(byTime.values()).sort((a, b) => (a.t as number) - (b.t as number));
-  }, [visible]);
+  }, [visible, mode]);
 
   const toggleGroup = (g: GroupKey) =>
     setGroups((prev) => {
@@ -131,6 +177,44 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
 
   const fmtDate = (t: number) =>
     new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  const byKey = useMemo(() => new Map(visible.map((s) => [s.key, s])), [visible]);
+
+  const TrendTooltip = ({ active, label, payload }: {
+    active?: boolean; label?: number | string;
+    payload?: { dataKey?: string | number; payload?: Record<string, number | string> }[];
+  }) => {
+    if (!active || !payload?.length) return null;
+    const row = payload[0]?.payload ?? {};
+    return (
+      <div className="rounded border border-border bg-card px-2 py-1.5 text-[11px] shadow">
+        <div className="mb-1 font-semibold text-foreground">
+          {new Date(Number(label)).toLocaleString("pt-BR")}
+        </div>
+        {payload.map((p) => {
+          const key = String(p.dataKey ?? "");
+          const s = byKey.get(key);
+          if (!s) return null;
+          const raw = row[`${key}#raw`];
+          const idx = toIndex(Number(raw), s.ref);
+          const status = !s.ref ? "" : idx > 1 ? " acima" : idx < 0 ? " abaixo" : " normal";
+          return (
+            <div key={key} className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+              <span className="text-foreground">{s.label}:</span>
+              <strong>{String(raw)}{s.unit ? ` ${s.unit}` : ""}</strong>
+              {s.ref && (
+                <span className="text-muted-foreground">
+                  (ref {s.ref.low}–{s.ref.high} · índice {idx.toFixed(2)}{status})
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
 
   return (
     <section className="rounded-lg border border-border bg-card p-3">
@@ -155,6 +239,15 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
               </button>
             );
           })}
+          <button
+            type="button"
+            onClick={() => setMode((m) => (m === "index" ? "raw" : "index"))}
+            title="Alternar entre índice de referência e valor absoluto"
+            className="rounded-md border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-foreground hover:bg-surface-3"
+          >
+            {mode === "index" ? "Eixo: índice de referência" : "Eixo: valor absoluto"}
+          </button>
+
           {isolated.size > 0 && (
             <button
               type="button"
@@ -207,12 +300,30 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                   tick={{ fontSize: 10 }}
                   stroke="hsl(var(--border))"
                 />
-                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--border))" width={38} />
-                <Tooltip
-                  labelFormatter={(t) => new Date(Number(t)).toLocaleString("pt-BR")}
-                  contentStyle={{ fontSize: 11 }}
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  stroke="hsl(var(--border))"
+                  width={mode === "index" ? 56 : 44}
+                  domain={mode === "index" ? [-1.2, 2.2] : ["auto", "auto"]}
+                  ticks={mode === "index" ? [-1, 0, 1, 2] : undefined}
+                  tickFormatter={
+                    mode === "index"
+                      ? (v: number) => (v === 0 ? "Ref mín" : v === 1 ? "Ref máx" : v.toFixed(1))
+                      : undefined
+                  }
                 />
+                {mode === "index" && (
+                  <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.08} />
+                )}
+                {mode === "index" && (
+                  <>
+                    <ReferenceLine y={0} stroke="#16a34a" strokeDasharray="4 4" />
+                    <ReferenceLine y={1} stroke="#16a34a" strokeDasharray="4 4" />
+                  </>
+                )}
+                <Tooltip content={<TrendTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
+
                 {visible.map((s) => (
                   <Line
                     key={s.key}
