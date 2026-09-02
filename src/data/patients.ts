@@ -473,6 +473,7 @@ export interface Patient {
   intubations?: IntubationRecord[];
   dischargeCheck?: DischargeCheck;
   saps3?: Saps3Record;
+  fisher?: import("@/components/FisherPanel").FisherRecord;
 
 
 
