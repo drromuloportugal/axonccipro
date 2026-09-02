@@ -346,9 +346,6 @@ export function PatientRow({
  <LogOut className="h-3 w-3" /> {dcBtnLabel}
  </button>
 
- <div className="mb-1.5" onClick={(e) => e.stopPropagation()}>
- <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
- </div>
 
   <div className="flex min-w-0 items-center gap-2 border-b-2 border-clinical-critical/70 pb-1.5">
   <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
