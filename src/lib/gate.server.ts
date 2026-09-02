@@ -10,7 +10,12 @@ function sessionConfig() {
       secret && secret.length >= 32 ? secret : "passometro-uti-sessao-segura-2026-chave-local",
     name: "passometro-gate",
     maxAge: 60 * 60 * 12,
-    cookie: { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" },
+    cookie: {
+      httpOnly: true,
+      secure: process.env["NODE_ENV"] === "production",
+      sameSite: "lax" as const,
+      path: "/",
+    },
   };
 }
 
