@@ -1336,6 +1336,7 @@ function MedicationsList({
 
   const renderRow = (m: Medication, i: number) => {
     const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
+    const active = m.active !== false;
     return (
  <li key={i} className="rounded-md border border-border bg-surface p-3 text-[12px]">
  <div className="grid grid-cols-[auto_1.4fr_0.8fr_1fr_0.8fr_auto_auto] items-center gap-2">
@@ -1357,10 +1358,14 @@ function MedicationsList({
  </select>
  <input className={inputCls} value={m.freq}
             onChange={(e) => updItem(i, { freq: e.target.value })} placeholder="Freq" />
- <label className="flex items-center gap-1 whitespace-nowrap text-[11px] text-muted-foreground">
- <input type="checkbox" checked={m.active !== false}
-              onChange={(e) => updItem(i, { active: e.target.checked })} /> Ativo
- </label>
+  <button
+    type="button"
+    onClick={() => updItem(i, { active: !active })}
+    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${active ? "border-clinical-stable/50 bg-clinical-stable/10 text-clinical-stable" : "border-clinical-neutral/50 bg-clinical-neutral/10 text-clinical-neutral"}`}
+    title={active ? "Ativo — clique para suspender" : "Suspenso — clique para ativar"}
+  >
+    {active ? "●" : "○"} {active ? "Ativo" : "Suspenso"}
+  </button>
  <button onClick={() => del(i)} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
  <Trash2 className="h-3.5 w-3.5" />
  </button>

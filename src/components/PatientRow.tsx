@@ -802,10 +802,10 @@ export function PatientRow({
  <div onClick={colClick("hist")}>
  <ColTitle tone={1}>📋 História clínica</ColTitle>
  <div className="space-y-3"> {([
-                 { cat: "current", label: "Diagnósticos atuais", box: "border-clinical-attention/50 bg-clinical-attention/10", text: "text-clinical-attention", head: "bg-clinical-attention" },
-                 { cat: "inactive", label: "Diagnósticos inativos", box: "border-border bg-surface-2", text: "text-muted-foreground", head: "bg-clinical-neutral" },
-                 { cat: "previous", label: "Diagnósticos pregressos", box: "border-clinical-resp/50 bg-clinical-resp/10", text: "text-clinical-resp", head: "bg-clinical-resp" },
-                 { cat: "complication", label: "Complicações", box: "border-clinical-critical/50 bg-clinical-critical/10", text: "text-clinical-critical", head: "bg-clinical-critical" },
+                 { cat: "current", label: "Diagnósticos atuais", box: "pastel-current", text: "text-ink", head: "pastel-current-head" },
+                 { cat: "inactive", label: "Diagnósticos inativos", box: "pastel-inactive", text: "text-ink", head: "pastel-inactive-head" },
+                 { cat: "previous", label: "Diagnósticos pregressos", box: "pastel-previous", text: "text-ink", head: "pastel-previous-head" },
+                 { cat: "complication", label: "Complicações", box: "pastel-complication", text: "text-ink", head: "pastel-complication-head" },
                ] as const).map((g) => {
                  const list = patient.diagnoses.filter((d) => (d.category ?? "current") === g.cat);
                  if (!list.length) return null;
@@ -970,8 +970,10 @@ export function PatientRow({
  <span>{isAtb ? "" : ""}</span>
  <span className="font-semibold text-foreground">{m.name}</span>
  </div>
- <span className={`chip text-[9px] ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}> {m.active === false ? "Suspenso" : "Ativo"}
- </span>
+  <span className={`chip text-[9px] ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`} title={m.active === false ? "Suspenso" : "Ativo"}>
+    <span className="mr-0.5">{m.active === false ? "○" : "●"}</span>
+    {m.active === false ? "Suspenso" : "Ativo"}
+  </span>
  </div>
  <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
  </div> {m.mlPerHour !== undefined && (
@@ -1004,8 +1006,8 @@ export function PatientRow({
  <div className="mb-3">
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Culturas microbiológicas</div> {onEdit && (
- <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "cult"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Cultura</button> )}
+  <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "cult"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar cultura">+</button> )}
  </div> {(patient.cultures?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma cultura registrada.</div> ) : (
  <ul className="space-y-1"> {patient.cultures!.slice().reverse().map((c) => {
@@ -1051,8 +1053,8 @@ export function PatientRow({
  <div>
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames de imagem</div> {onEdit && (
- <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Imagem</button> )}
+  <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar imagem">+</button> )}
  </div> {(patient.imaging?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum exame de imagem registrado.</div> ) : (
  <ul className="space-y-1"> {patient.imaging!.slice().reverse().map((im) => {
@@ -1089,8 +1091,8 @@ export function PatientRow({
  <div className="mt-2">
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Eletroencefalograma</div> {onEdit && (
- <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ EEG</button> )}
+  <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar EEG">+</button> )}
  </div> {(patient.eeg?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum EEG registrado.</div> ) : (
  <ul className="space-y-1"> {patient.eeg!.slice().reverse().map((eeg) => (
@@ -1109,8 +1111,8 @@ export function PatientRow({
  <div className="mt-2">
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Hemotransfusão</div> {onEdit && (
- <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3">+ Hemotransfusão</button> )}
+  <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
+                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar hemotransfusão">+</button> )}
  </div> {(patient.hemotransfusions?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma hemotransfusão registrada.</div> ) : (
  <ul className="space-y-1"> {patient.hemotransfusions!.slice().reverse().map((h) => (
