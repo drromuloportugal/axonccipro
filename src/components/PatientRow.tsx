@@ -970,8 +970,10 @@ export function PatientRow({
  <span>{isAtb ? "" : ""}</span>
  <span className="font-semibold text-foreground">{m.name}</span>
  </div>
- <span className={`chip text-[9px] ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}> {m.active === false ? "Suspenso" : "Ativo"}
- </span>
+  <span className={`chip text-[9px] ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`} title={m.active === false ? "Suspenso" : "Ativo"}>
+    <span className="mr-0.5">{m.active === false ? "○" : "●"}</span>
+    {m.active === false ? "Suspenso" : "Ativo"}
+  </span>
  </div>
  <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
  </div> {m.mlPerHour !== undefined && (
