@@ -127,12 +127,8 @@ function buildSeries(patient: Patient): SeriesDef[] {
     if (points.length > 0) {
       const def = (e.code ? labByCode(e.code) : undefined) ?? labByLabel(e.label);
       const defRef = def ? (sex === "F" && def.refF ? def.refF : def.ref) : undefined;
-      const ref: Ref | undefined =
-        e.refLow != null && e.refHigh != null
-          ? { low: e.refLow, high: e.refHigh }
-          : defRef
-            ? { low: defRef.low, high: defRef.high }
-            : undefined;
+      const ref: Ref | undefined = defRef ? { low: defRef.low, high: defRef.high } : undefined;
+
       out.push({ key: `e:${e.code ?? e.label}`, label: e.label, unit: e.unit ?? def?.unit, group, color: "", ref, points });
     }
   }
