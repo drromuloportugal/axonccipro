@@ -36,6 +36,7 @@ import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
 import { FisherModal, FisherButton } from "@/components/FisherPanel";
 import { HuntHessModal, HuntHessButton } from "@/components/HuntHessPanel";
 import { WfnsModal, WfnsButton } from "@/components/WfnsPanel";
+import { IchScoreModal, IchScoreButton } from "@/components/IchScorePanel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -167,6 +168,7 @@ export function PatientRow({
   const [fisherOpen, setFisherOpen] = useState(false);
   const [huntHessOpen, setHuntHessOpen] = useState(false);
   const [wfnsOpen, setWfnsOpen] = useState(false);
+  const [ichOpen, setIchOpen] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready" ? "bg-clinical-stable/20 text-clinical-stable hover:bg-clinical-stable/30"
@@ -390,6 +392,7 @@ export function PatientRow({
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact />
               <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
               <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
+              <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
             </div>
           </div>
 
@@ -774,6 +777,7 @@ export function PatientRow({
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} />
               <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
               <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+              <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
             </div>
           </div>
 
@@ -1454,6 +1458,15 @@ export function PatientRow({
         <WfnsModal
           open={wfnsOpen}
           onClose={() => setWfnsOpen(false)}
+          patient={patient}
+          onSave={onUpdate}
+        /> )}
+
+      {/* ICH Score */}
+      {onUpdate && (
+        <IchScoreModal
+          open={ichOpen}
+          onClose={() => setIchOpen(false)}
           patient={patient}
           onSave={onUpdate}
         /> )}

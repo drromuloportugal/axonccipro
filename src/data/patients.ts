@@ -476,6 +476,7 @@ export interface Patient {
   fisher?: import("@/components/FisherPanel").FisherRecord;
   huntHess?: import("@/components/HuntHessPanel").HuntHessRecord;
   wfns?: import("@/components/WfnsPanel").WfnsRecord;
+  ichScore?: import("@/components/IchScorePanel").IchRecord;
 
 
 
