@@ -79,7 +79,7 @@
   --destructive-foreground: oklch(0.99 0 0);
 
   --border: oklch(0.9 0.008 250);
-  --border-strong: oklch(0.32 0.012 260); /* contornos grafite */
+  --border-strong: oklch(0.18 0.008 260); /* contornos quase pretos */
   --input: oklch(0.9 0.008 250);
   --ring: oklch(0.55 0.14 230);
 
@@ -199,16 +199,41 @@
 #print-area { display: none; }
 @media print { #print-area { display: block; } }
 
-/* Campos fixos (rótulos) vs campos variáveis (dados) */
+/* Campos fixos (rótulos) vs campos variáveis (dados) — famílias distintas */
 @utility f-fixed {
-  font-family: var(--font-sans);
-  font-weight: 500;
+  font-family: "Archivo", "Inter", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--color-muted-foreground);
 }
 @utility f-var {
   font-family: var(--font-mono);
   font-weight: 700;
+  letter-spacing: 0;
 }
+
+/* Tinta preta para caixas coloridas */
+@utility text-ink { color: oklch(0.14 0.008 260); }
+
+/* Coluna 1: todo o texto em preto, mantendo distinção de fontes */
+.col-ink,
+.col-ink * {
+  color: oklch(0.14 0.008 260) !important;
+}
+
+/* Caixas de texto coloridas sempre com fonte preta */
+.title-box,
+.bg-clinical-stable,
+.bg-clinical-attention,
+.bg-clinical-critical,
+.bg-clinical-resp,
+.bg-clinical-neuro,
+.bg-clinical-nutri,
+.bg-clinical-device,
+.bg-clinical-neutral {
+  color: oklch(0.14 0.008 260) !important;
+}
+
 
 /* Cabeçalhos de seção no padrão ESCUDO: texto escuro compacto com sublinhado grosso */
 @utility title-box {

@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type {
   InvasiveDevice, Patient, InfectionFocus, Culture, LPPLesion, LPPStage,
 } from "@/data/patients";
@@ -483,6 +483,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   const [showDevices, setShowDevices] = useState(true);
   const [showLPP, setShowLPP] = useState(true);
 
+  // Cores/contadores derivam do tempo atual: renderizar só após hidratar.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const lppList = lpp ?? [];
   const lppSummary = useMemo(() => summarizeLPP(lppList), [lppList]);
 
@@ -537,6 +541,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   }, [compare, previousDevices, active, devices]);
 
   const addedIds = new Set(diff?.added.map((d) => d.id) ?? []);
+
+  if (!mounted) {
+    return <div className="min-h-[420px] rounded-lg border border-border bg-surface" aria-hidden />;
+  }
 
   return (
  <div className="grid gap-4 lg:grid-cols-[1fr_340px]"> {/* Left: dual-view SVG body */}
