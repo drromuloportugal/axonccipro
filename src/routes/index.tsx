@@ -18,16 +18,21 @@ import { toast } from "sonner";
 import { useRef } from "react";
 
 export const Route = createFileRoute("/")({
-
+  ssr: false,
   head: () => ({
     meta: [
       { title: "PASSÔMETRO — Painel UTI" },
       { name: "description", content: "Painel clínico de passagem de plantão para pacientes críticos em UTI." },
       { property: "og:title", content: "PASSÔMETRO — Painel UTI" },
       { property: "og:description", content: "Centro de comando clínico para acompanhamento de pacientes críticos." },
+      { name: "robots", content: "noindex" },
     ],
   }),
-  loader: () => checkGate(),
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/auth" });
+    return { user: data.user };
+  },
   component: Passometro,
 });
 
