@@ -137,16 +137,23 @@ function buildSeries(patient: Patient): SeriesDef[] {
 }
 
 
+// Série alterada = último valor fora da faixa de referência.
+function isAltered(s: SeriesDef): boolean {
+  if (!s.ref || !s.points.length) return false;
+  const last = s.points[s.points.length - 1].v;
+  return last < s.ref.low || last > s.ref.high;
+}
+
 export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   const all = useMemo(() => buildSeries(patient), [patient]);
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set<GroupKey>(["vitals", "lab", "gaso", "fluid"]));
-  const [isolated, setIsolated] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<"index" | "raw">("index");
 
-  const visible = useMemo(() => {
-    const byGroup = all.filter((s) => groups.has(s.group));
-    return isolated.size ? byGroup.filter((s) => isolated.has(s.key)) : byGroup;
-  }, [all, groups, isolated]);
+  const visible = useMemo(
+    () => all.filter((s) => groups.has(s.group) && selected.has(s.key)),
+    [all, groups, selected],
+  );
 
   const data = useMemo(() => {
     const byTime = new Map<number, Record<string, number | string>>();
@@ -168,8 +175,8 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
       return next;
     });
 
-  const toggleIsolate = (k: string) =>
-    setIsolated((prev) => {
+  const toggleSelect = (k: string) =>
+    setSelected((prev: Set<string>) => {
       const next = new Set(prev);
       if (next.has(k)) next.delete(k); else next.add(k);
       return next;
@@ -248,13 +255,13 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
             {mode === "index" ? "Eixo: índice de referência" : "Eixo: valor absoluto"}
           </button>
 
-          {isolated.size > 0 && (
+          {selected.size > 0 && (
             <button
               type="button"
-              onClick={() => setIsolated(new Set())}
+              onClick={() => setSelected(new Set())}
               className="rounded-md border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-foreground hover:bg-surface-3"
             >
-              Limpar isolamento ({isolated.size})
+              Limpar seleção ({selected.size})
             </button>
           )}
         </div>
@@ -270,23 +277,39 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
             {all
               .filter((s) => groups.has(s.group))
               .map((s) => {
-                const on = isolated.size === 0 || isolated.has(s.key);
+                const on = selected.has(s.key);
+                const alt = isAltered(s);
                 return (
                   <button
                     key={s.key}
                     type="button"
-                    onClick={() => toggleIsolate(s.key)}
-                    title="Isolar / incluir este resultado"
+                    onClick={() => toggleSelect(s.key)}
+                    title={alt ? "Último valor fora da faixa de referência" : "Selecionar este resultado"}
                     className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-opacity ${
-                      on ? "border-border bg-surface text-foreground" : "border-border/60 bg-surface-2 text-muted-foreground opacity-60"
+                      on ? "border-border bg-surface text-foreground" : "border-border/60 bg-surface-2 text-muted-foreground opacity-70"
                     }`}
                   >
-                    <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                    <span className="relative flex h-2 w-2 items-center justify-center">
+                      {alt && (
+                        <span
+                          className="absolute inline-flex h-2 w-2 animate-ping rounded-full opacity-75"
+                          style={{ background: "hsl(var(--clinical-critical, 0 70% 50%))" }}
+                        />
+                      )}
+                      <span className="relative h-2 w-2 rounded-full" style={{ background: s.color }} />
+                    </span>
                     {s.label}
+                    {alt && <span className="text-[9px] font-bold text-destructive">alterado</span>}
                   </button>
                 );
               })}
           </div>
+
+          {selected.size === 0 && (
+            <div className="mb-2 rounded border border-dashed border-border/60 px-3 py-2 text-center text-[11px] text-muted-foreground">
+              Selecione um ou mais parâmetros acima para exibir as curvas.
+            </div>
+          )}
 
           <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -313,10 +336,13 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                   }
                 />
                 {mode === "index" && (
-                  <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.08} />
-                )}
-                {mode === "index" && (
                   <>
+                    <ReferenceArea y1={-1.2} y2={0} fill="#0ea5e9" fillOpacity={0.07}
+                      label={{ value: "Abaixo da referência", position: "insideBottomLeft", fontSize: 9, fill: "#0369a1" }} />
+                    <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.1}
+                      label={{ value: "Faixa de referência", position: "insideLeft", fontSize: 9, fill: "#15803d" }} />
+                    <ReferenceArea y1={1} y2={2.2} fill="#dc2626" fillOpacity={0.07}
+                      label={{ value: "Acima da referência", position: "insideTopLeft", fontSize: 9, fill: "#b91c1c" }} />
                     <ReferenceLine y={0} stroke="#16a34a" strokeDasharray="4 4" />
                     <ReferenceLine y={1} stroke="#16a34a" strokeDasharray="4 4" />
                   </>
