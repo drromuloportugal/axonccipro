@@ -117,8 +117,29 @@ export function examInsight(e: ExamRow, sex: "M" | "F" = "M") {
   const series = value !== null && (!history.length || history[0] !== value) ? [value, ...history] : history;
   const bucket = value !== null ? classifyLab(code, value, sex) : null;
   const trend = computeTrend(code, series);
-  return { code, value, bucket, trend };
+  const movement: "up" | "down" | "flat" =
+    series.length >= 2 && series[0] !== series[1] ? (series[0] > series[1] ? "up" : "down") : "flat";
+  return { code, value, bucket, trend, movement };
 }
+
+// Seta de movimento do resultado (sobe / desce / estável), colorida pelo
+// significado clínico da tendência.
+export function trendArrow(
+  movement: "up" | "down" | "flat",
+  trend: TrendDirection,
+) {
+  const arrow = movement === "up" ? "▲" : movement === "down" ? "▼" : "—";
+  const className =
+    trend === "improving"
+      ? "text-clinical-stable"
+      : trend === "worsening"
+        ? "text-clinical-critical"
+        : "text-clinical-neutral";
+  const label =
+    movement === "up" ? "Em elevação" : movement === "down" ? "Em queda" : "Sem variação";
+  return { arrow, className, label };
+}
+
 
 // ============================================================================
 // DRUGS — UTI catalog with institutional dilutions + infusion calculator
