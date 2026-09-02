@@ -199,16 +199,35 @@
 #print-area { display: none; }
 @media print { #print-area { display: block; } }
 
-/* Campos fixos (rótulos) vs campos variáveis (dados) */
+/* Campos fixos (rótulos) vs campos variáveis (dados) — famílias distintas */
 @utility f-fixed {
-  font-family: var(--font-sans);
-  font-weight: 500;
+  font-family: "Archivo", "Inter", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--color-muted-foreground);
 }
 @utility f-var {
   font-family: var(--font-mono);
   font-weight: 700;
+  letter-spacing: 0;
 }
+
+/* Tinta preta para caixas coloridas */
+@utility text-ink { color: oklch(0.14 0.008 260); }
+
+/* Coluna 1: todo o texto em preto, mantendo distinção de fontes */
+.col-ink,
+.col-ink * {
+  color: oklch(0.14 0.008 260) !important;
+}
+
+/* Caixas de texto coloridas sempre com fonte preta */
+[class*="bg-clinical-"]:not([class*="/10"]):not([class*="/15"]),
+.title-box,
+.chip {
+  color: oklch(0.14 0.008 260);
+}
+
 
 /* Cabeçalhos de seção no padrão ESCUDO: texto escuro compacto com sublinhado grosso */
 @utility title-box {
