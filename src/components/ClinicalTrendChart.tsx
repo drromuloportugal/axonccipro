@@ -27,22 +27,52 @@ const PALETTE = [
   "#db2777", "#65a30d", "#ea580c", "#4f46e5", "#0d9488", "#b91c1c",
 ];
 
+interface Ref { low: number; high: number }
+
 interface SeriesDef {
   key: string;
   label: string;
   unit?: string;
   group: GroupKey;
   color: string;
+  ref?: Ref;
   points: { t: number; v: number }[];
 }
 
 const isGaso = (code?: string, label?: string) =>
   /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(code ?? label ?? "");
 
+// Faixas de referência dos sinais vitais / balanço (adulto crítico).
+const VITAL_REFS: Record<string, Ref> = {
+  temp: { low: 36, high: 37.8 },
+  spo2: { low: 92, high: 100 },
+  fc: { low: 60, high: 100 },
+  pam: { low: 65, high: 100 },
+  pas: { low: 100, high: 140 },
+  pad: { low: 60, high: 90 },
+  fr: { low: 12, high: 20 },
+  glicemia: { low: 70, high: 180 },
+  bristol: { low: 3, high: 5 },
+  bh: { low: -500, high: 500 },
+};
+
 function num(s?: string): number | undefined {
   if (!s) return undefined;
   const n = parseFloat(String(s).replace(/\./g, "").replace(",", "."));
   return Number.isNaN(n) ? undefined : n;
+}
+
+// Índice de referência: 0 = limite inferior, 1 = limite superior.
+// Fora da faixa, mantém a mesma escala relativa (largura da faixa),
+// com compressão logarítmica suave para não distorcer o gráfico.
+function toIndex(v: number, ref?: Ref): number {
+  if (!ref || !(ref.high > ref.low)) return v;
+  const span = ref.high - ref.low;
+  const raw = (v - ref.low) / span;
+  if (raw >= 0 && raw <= 1) return raw;
+  const over = raw > 1 ? raw - 1 : -raw;
+  const compressed = Math.log10(1 + over * 9); // 1 faixa de excesso => 1.0
+  return raw > 1 ? 1 + compressed : -compressed;
 }
 
 function buildSeries(patient: Patient): SeriesDef[] {
@@ -77,10 +107,15 @@ function buildSeries(patient: Patient): SeriesDef[] {
       .filter((p) => Number.isFinite(p.t))
       .sort((a, b) => a.t - b.t);
     if (points.length) {
-      out.push({ key: `v:${String(d.key)}`, label: d.label, unit: d.unit, group: d.group ?? "vitals", color: "", points });
+      out.push({
+        key: `v:${String(d.key)}`, label: d.label, unit: d.unit,
+        group: d.group ?? "vitals", color: "",
+        ref: VITAL_REFS[String(d.key)], points,
+      });
     }
   }
 
+  const sex = patient.sex;
   for (const e of patient.exams) {
     const group: GroupKey = isGaso(e.code, e.label) ? "gaso" : "lab";
     const hist = (e.history ?? [])
@@ -90,12 +125,21 @@ function buildSeries(patient: Patient): SeriesDef[] {
     if (e.takenAt && last != null) hist.push({ t: new Date(e.takenAt).getTime(), v: last });
     const points = hist.filter((p) => Number.isFinite(p.t)).sort((a, b) => a.t - b.t);
     if (points.length > 0) {
-      out.push({ key: `e:${e.code ?? e.label}`, label: e.label, unit: e.unit, group, color: "", points });
+      const def = (e.code ? labByCode(e.code) : undefined) ?? labByLabel(e.label);
+      const defRef = def ? (sex === "F" && def.refF ? def.refF : def.ref) : undefined;
+      const ref: Ref | undefined =
+        e.refLow != null && e.refHigh != null
+          ? { low: e.refLow, high: e.refHigh }
+          : defRef
+            ? { low: defRef.low, high: defRef.high }
+            : undefined;
+      out.push({ key: `e:${e.code ?? e.label}`, label: e.label, unit: e.unit ?? def?.unit, group, color: "", ref, points });
     }
   }
 
   return out.map((s, i) => ({ ...s, color: PALETTE[i % PALETTE.length] }));
 }
+
 
 export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   const all = useMemo(() => buildSeries(patient), [patient]);
