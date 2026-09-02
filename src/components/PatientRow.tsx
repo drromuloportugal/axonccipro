@@ -33,6 +33,7 @@ import { SofaPanel } from "@/components/SofaPanel";
 import { IntubationJourney } from "@/components/IntubationJourney";
 import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeCheck";
 import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
+import { FisherModal, FisherButton } from "@/components/FisherPanel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -161,6 +162,7 @@ export function PatientRow({
   const [intubOpen, setIntubOpen] = useState(false);
   const [dischargeOpen, setDischargeOpen] = useState(false);
   const [saps3Open, setSaps3Open] = useState(false);
+  const [fisherOpen, setFisherOpen] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready" ? "bg-clinical-stable/20 text-clinical-stable hover:bg-clinical-stable/30"
@@ -379,7 +381,10 @@ export function PatientRow({
           {/* Gestão — scores */}
           <div className="mt-2 border-t border-border/60 pt-1.5" onClick={(e) => e.stopPropagation()}>
             <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>⚙️ Gestão</div>
-            <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+            <div className="flex flex-wrap items-start gap-1">
+              <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact />
+            </div>
           </div>
 
           {/* Procedimentos & eventos — movidos para o rodapé da coluna 01 */}
@@ -758,7 +763,10 @@ export function PatientRow({
           </div> {/* Gestão — scores */}
           <div className="mt-4" onClick={(e) => e.stopPropagation()}>
             <ColTitle tone={5}>⚙️ Gestão</ColTitle>
-            <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+            <div className="flex flex-wrap items-start gap-1.5">
+              <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} />
+            </div>
           </div>
 
           {/* Procedimentos & eventos — ao final da coluna 01 */}
@@ -1411,6 +1419,15 @@ export function PatientRow({
  <Saps3Modal
           open={saps3Open}
           onClose={() => setSaps3Open(false)}
+          patient={patient}
+          onSave={onUpdate}
+        /> )}
+
+      {/* Escala de Fisher */}
+      {onUpdate && (
+ <FisherModal
+          open={fisherOpen}
+          onClose={() => setFisherOpen(false)}
           patient={patient}
           onSave={onUpdate}
         /> )}
