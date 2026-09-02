@@ -330,10 +330,13 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                   }
                 />
                 {mode === "index" && (
-                  <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.08} />
-                )}
-                {mode === "index" && (
                   <>
+                    <ReferenceArea y1={-1.2} y2={0} fill="#0ea5e9" fillOpacity={0.07}
+                      label={{ value: "Abaixo da referência", position: "insideBottomLeft", fontSize: 9, fill: "#0369a1" }} />
+                    <ReferenceArea y1={0} y2={1} fill="#16a34a" fillOpacity={0.1}
+                      label={{ value: "Faixa de referência", position: "insideLeft", fontSize: 9, fill: "#15803d" }} />
+                    <ReferenceArea y1={1} y2={2.2} fill="#dc2626" fillOpacity={0.07}
+                      label={{ value: "Acima da referência", position: "insideTopLeft", fontSize: 9, fill: "#b91c1c" }} />
                     <ReferenceLine y={0} stroke="#16a34a" strokeDasharray="4 4" />
                     <ReferenceLine y={1} stroke="#16a34a" strokeDasharray="4 4" />
                   </>
