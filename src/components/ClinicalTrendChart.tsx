@@ -255,13 +255,13 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
             {mode === "index" ? "Eixo: índice de referência" : "Eixo: valor absoluto"}
           </button>
 
-          {isolated.size > 0 && (
+          {selected.size > 0 && (
             <button
               type="button"
-              onClick={() => setIsolated(new Set())}
+              onClick={() => setSelected(new Set())}
               className="rounded-md border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-foreground hover:bg-surface-3"
             >
-              Limpar isolamento ({isolated.size})
+              Limpar seleção ({selected.size})
             </button>
           )}
         </div>
