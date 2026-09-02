@@ -26,6 +26,7 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Centro de comando clínico para acompanhamento de pacientes críticos." },
     ],
   }),
+  loader: () => checkGate(),
   component: Passometro,
 });
 
