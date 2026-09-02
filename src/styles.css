@@ -266,11 +266,11 @@
   background-color: oklch(0.88 0.04 20);
 }
 @utility pastel-inactive {
-  background-color: oklch(0.94 0.01 260);
-  border-color: oklch(0.86 0.02 260);
+  background-color: oklch(0.95 0.02 280);
+  border-color: oklch(0.87 0.035 280);
 }
 @utility pastel-inactive-head {
-  background-color: oklch(0.88 0.015 260);
+  background-color: oklch(0.91 0.025 280);
 }
 @utility pastel-previous {
   background-color: oklch(0.93 0.03 220);
@@ -285,4 +285,10 @@
 }
 @utility pastel-complication-head {
   background-color: oklch(0.88 0.045 80);
+}
+
+/* Pastel neutro para caixas de texto sem cor de risco */
+@utility pastel-neutral {
+  background-color: oklch(0.95 0.012 250);
+  border-color: oklch(0.88 0.018 250);
 }
