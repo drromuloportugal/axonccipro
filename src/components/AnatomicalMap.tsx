@@ -233,10 +233,8 @@ function BodyPanel({
 // ============================================================================
 
 export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPChange }: Props) {
-  const [selected, setSelected] = useState<InvasiveDevice | null>(null);
   const [compare, setCompare] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
-  const [selectedFocus, setSelectedFocus] = useState<InfectionFocus | null>(null);
   const [editingLPP, setEditingLPP] = useState<LPPLesion | null>(null);
   const [creatingLPP, setCreatingLPP] = useState<
     | { view: "anterior" | "posterior" | "lateral_d" | "lateral_e"; site: string; siteLabel: string }
@@ -358,21 +356,21 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
  <div className="grid items-start gap-2 lg:grid-cols-[minmax(150px,1fr)_auto_auto_minmax(150px,1fr)]">
  <EquipmentBoard patient={patient} devices={devices} side="left" />
- <BodyPanel
+  <BodyPanel
             label="Anterior" view="anterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={setSelected}
+            addedIds={addedIds} onSelect={() => {}}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={setSelectedFocus}
+            heatmap={heatmap} onSelectFocus={() => {}}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
             alertDeviceIds={expiredIds}
           />
- <BodyPanel
+  <BodyPanel
             label="Posterior" view="posterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={setSelected}
+            addedIds={addedIds} onSelect={() => {}}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={setSelectedFocus}
+            heatmap={heatmap} onSelectFocus={() => {}}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
             alertDeviceIds={expiredIds}
           />
@@ -387,10 +385,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                .map((d) => ({ d, def: deviceTypeByCode(d.typeCode), tc: deviceTimeColor(d) }))
                .sort((a, b) => b.tc.days - a.tc.days)
                .map(({ d, def, tc }) => (
- <li key={d.id} className={`flex items-center gap-2 ${expiredIds.has(d.id) ? "alert-outline px-1.5 py-0.5" : ""}`} title={expiredIds.has(d.id) ? "Tempo de permanência excedido" : undefined}>
- <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: tc.color }} />
- <button onClick={() => setSelected(d)} className="flex-1 truncate text-left text-foreground hover:underline"> {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
- </button>
+  <li key={d.id} className={`flex items-center gap-2 ${expiredIds.has(d.id) ? "alert-outline px-1.5 py-0.5" : ""}`} title={expiredIds.has(d.id) ? "Tempo de permanência excedido" : undefined}>
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: tc.color }} />
+  <span className="flex-1 truncate text-left text-foreground"> {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
+  </span>
  <span className="shrink-0 font-mono text-muted-foreground" suppressHydrationWarning> {Math.floor(tc.days)}d {Math.round(tc.hours % 24)}h
  </span>
  </li> ))}
@@ -435,10 +433,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                const status = STATUS_COLOR[f.status];
                const fmt = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
                return (
-  <li key={f.id} className={`flex items-center gap-2 ${f.unstable ? "alert-outline px-1.5 py-0.5" : ""}`} title={f.unstable ? "Infecção instável" : undefined}>
+   <li key={f.id} className={`flex items-center gap-2 ${f.unstable ? "alert-outline px-1.5 py-0.5" : ""}`} title={f.unstable ? "Infecção instável" : undefined}>
   <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: status.hex }} />
-  <button onClick={() => setSelectedFocus(f)} className="flex-1 truncate text-left text-foreground hover:underline"> {meta?.label ?? f.site}{f.unstable ? " · instável" : ""}
-  </button>
+  <span className="flex-1 truncate text-left text-foreground"> {meta?.label ?? f.site}{f.unstable ? " · instável" : ""}
+  </span>
   <span className={`shrink-0 font-mono ${status.className}`}>{status.label}
   </span>
   <span className="shrink-0 font-mono text-muted-foreground">{fmt(f.startedAt)}
@@ -449,112 +447,133 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   </div>
 
 
- </div> {/* Right: enxuto — indicadores unificados, detalhe e seções recolhíveis */}
-  <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
- <div className="anat-map-box p-2">
-  <div className="grid grid-cols-3 divide-x divide-border">
- <IndicatorBlock title="Dispositivos">
- <IndicatorPair label="Ativos"value={active.length} />
- <IndicatorPair label="Vencidos" value={expired.length} tone={expired.length ? "danger" : "default"} />
- <IndicatorPair label="S/ revisão" value={unreviewed.length} tone={unreviewed.length ? "warn" : "default"} />
- </IndicatorBlock>
- <IndicatorBlock title="Infecção"> {summary ? (
- <>
- <IndicatorPair label="Focos"value={summary.active} tone={summary.active ? "danger" : "default"} />
- <IndicatorPair label="Cult. pend." value={summary.pendingCultures} tone={summary.pendingCultures ? "warn" : "default"} />
- <IndicatorPair label="ATB ativo" value={summary.activeAntibiotics} tone={summary.activeAntibiotics ? "warn" : "default"} />
- </> ) : (
- <div className="px-2 text-[11px] text-muted-foreground">—</div> )}
- </IndicatorBlock>
- <IndicatorBlock title="LPP">
- <IndicatorPair label="Ativas" value={lppSummary.totalActive} tone={lppSummary.totalActive ? "warn" : "default"} />
- <IndicatorPair label="E3+E4" value={lppSummary.byStage["3"] + lppSummary.byStage["4"]} tone={(lppSummary.byStage["3"] + lppSummary.byStage["4"]) ? "danger" : "default"} />
- <IndicatorPair label="Resolv." value={lppSummary.resolved.length} tone="ok" />
- </IndicatorBlock>
- </div>
- </div> {/* Painel de detalhe contextual */}
-        {selectedFocus
-          ? <FocusPanel focus={selectedFocus} cultures={cultures}
-                        meds={patient?.medications ?? []}
-                        devices={active}
-                        onClose={() => setSelectedFocus(null)} /> : selected
-            ? <DetailPanel device={selected} patient={patient} onClose={() => setSelected(null)} /> : <div className="anat-map-box border-dashed p-3 text-center text-[11px] text-muted-foreground"> Toque em um marcador para ver detalhes.
- </div>}
+ </div> {/* Right: painel de rolagem lateral com detalhes permanentes */}
+  <div className="space-y-2.5">
+    {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
+    <div className="anat-map-box p-2">
+      <div className="grid grid-cols-3 divide-x divide-border">
+        <IndicatorBlock title="Dispositivos">
+          <IndicatorPair label="Ativos" value={active.length} />
+          <IndicatorPair label="Vencidos" value={expired.length} tone={expired.length ? "danger" : "default"} />
+          <IndicatorPair label="S/ revisão" value={unreviewed.length} tone={unreviewed.length ? "warn" : "default"} />
+        </IndicatorBlock>
+        <IndicatorBlock title="Infecção"> {summary ? (
+          <>
+            <IndicatorPair label="Focos" value={summary.active} tone={summary.active ? "danger" : "default"} />
+            <IndicatorPair label="Cult. pend." value={summary.pendingCultures} tone={summary.pendingCultures ? "warn" : "default"} />
+            <IndicatorPair label="ATB ativo" value={summary.activeAntibiotics} tone={summary.activeAntibiotics ? "warn" : "default"} />
+          </> ) : (
+          <div className="px-2 text-[11px] text-muted-foreground">—</div> )}
+        </IndicatorBlock>
+        <IndicatorBlock title="LPP">
+          <IndicatorPair label="Ativas" value={lppSummary.totalActive} tone={lppSummary.totalActive ? "warn" : "default"} />
+          <IndicatorPair label="E3+E4" value={lppSummary.byStage["3"] + lppSummary.byStage["4"]} tone={(lppSummary.byStage["3"] + lppSummary.byStage["4"]) ? "danger" : "default"} />
+          <IndicatorPair label="Resolv." value={lppSummary.resolved.length} tone="ok" />
+        </IndicatorBlock>
+      </div>
+    </div>
 
-        {compare && diff && (
- <div className="anat-map-box px-2 py-1.5 text-[11px]">
-  <span className="text-clinical-stable">+{diff.added.length} adicionados</span>
- <span className="mx-2 text-muted-foreground">·</span>
- <span className="text-clinical-critical">−{diff.removed.length} removidos</span>
- <span className="ml-2 text-[10px] text-muted-foreground">vs. semana anterior</span>
- </div> )}
+    {/* Painel de rolagem lateral: detalhes de invasões, LPP e infecções */}
+    <div className="anat-map-box max-h-[min(75vh,760px)] overflow-y-auto p-2">
+      <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Detalhes clínicos
+      </div>
+      <div className="space-y-2.5">
+        {/* Alertas de dispositivos */}
+        <AlertsList devices={active} />
 
-        {/* Alertas — visíveis se existirem, sem container quando vazio */}
- <AlertsList devices={active} /> {/* Sugestões IRAS — collapsible */}
+        {/* Invasões ativas — detalhes completos */}
+        {active.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <NeedleIcon size={13} weight="duotone" /> Invasões ativas
+            </div>
+            {active
+              .map((d) => ({ d, tc: deviceTimeColor(d) }))
+              .sort((a, b) => b.tc.days - a.tc.days)
+              .map(({ d }) => (
+                <DetailPanel key={d.id} device={d} patient={patient} />
+              ))}
+          </div>
+        )}
+
+        {/* Lesões por pressão — detalhes */}
+        {lppSummary.active.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão
+            </div>
+            {lppSummary.active
+              .slice()
+              .sort((a, b) => String(b.stage).localeCompare(String(a.stage)))
+              .map((l) => (
+                <LPPCard key={l.id} lesion={l} />
+              ))}
+          </div>
+        )}
+
+        {/* Infecções ativas — detalhes completos */}
+        {infections.filter((i) => !i.resolvedAt).length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <VirusIcon size={13} weight="duotone" /> Infecções ativas
+            </div>
+            {infections
+              .filter((i) => !i.resolvedAt)
+              .map((f) => (
+                <FocusPanel
+                  key={f.id}
+                  focus={f}
+                  cultures={cultures}
+                  meds={patient?.medications ?? []}
+                  devices={active}
+                />
+              ))}
+          </div>
+        )}
+
+        {/* Sugestões IRAS */}
         {deviceHints.length > 0 && (
- <details className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
-  <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention"> Avaliar IRAS · {deviceHints.length}
- </summary>
- <ul className="space-y-1 px-2 pb-2 text-[11px]"> {deviceHints.map((h, i) => {
+          <details className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
+            <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention">
+              Avaliar IRAS · {deviceHints.length}
+            </summary>
+            <ul className="space-y-1 px-2 pb-2 text-[11px]">
+              {deviceHints.map((h, i) => {
                 const def = deviceTypeByCode(h.device.typeCode);
                 return (
- <li key={i}>
- <span className="font-semibold">{def?.label ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
- <span className="ml-1 text-muted-foreground" suppressHydrationWarning>— {h.reasons.join(" · ")}</span>
- </li> );
+                  <li key={i}>
+                    <span className="font-semibold">{def?.label ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
+                    <span className="ml-1 text-muted-foreground" suppressHydrationWarning>— {h.reasons.join(" · ")}</span>
+                  </li>
+                );
               })}
- <li className="text-[10px] italic text-muted-foreground">Apoio à decisão clínica.</li>
- </ul>
- </details> )}
+              <li className="text-[10px] italic text-muted-foreground">Apoio à decisão clínica.</li>
+            </ul>
+          </details>
+        )}
 
-        {/* LPP — lista detalhada agora dentro de collapsible para enxugar */}
-        {(lppList.length > 0 || onLPPChange) && (
- <details className="anat-map-box" open={lppList.length > 0 && lppList.length <= 3}>
-  <summary className="flex cursor-pointer select-none items-center justify-between px-2 py-1.5">
- <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Lesões por pressão
- </span>
- <span className="text-[10px] text-muted-foreground">
- <b className="text-foreground">{lppSummary.totalActive}</b> ativ. · {lppSummary.resolved.length} resolv.
- </span>
- </summary>
- <div className="px-2 pb-2"> {lppList.length === 0 ? (
- <div className="text-[11px] text-muted-foreground">Nenhuma lesão registrada.</div> ) : (
- <ul className="space-y-1"> {lppList.map((l) => {
-                    const meta = STAGE_META[l.stage];
-                    const def = LPP_SITE_BY_KEY[l.site];
-                    return (
- <li key={l.id} className="flex items-center gap-2 rounded border border-border bg-surface-2 px-2 py-1 text-[11px]">
- <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                              style={{ background: meta.color, opacity: l.resolvedAt ? 0.3 : 1 }} />
- <div className="min-w-0 flex-1">
- <div className={`truncate ${l.resolvedAt ? "text-muted-foreground line-through" : "text-foreground"}`}> {l.siteLabel ?? def?.label ?? l.site} · <span className={meta.className}>{meta.short}</span> {l.count > 1 && <span> ×{l.count}</span>}
- </div>
- <div className="text-[9px] text-muted-foreground"> {new Date(l.identifiedAt).toLocaleDateString("pt-BR")} · {l.professional}
- </div>
- </div> {onLPPChange && (
- <>
- <button onClick={() => setEditingLPP(l)} className="rounded px-1.5 py-0.5 text-[10px] hover:bg-surface-3"> Editar
- </button>
- <button onClick={() => removeLesion(l.id)} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
- <Trash2 className="h-3 w-3" />
- </button>
- </> )}
- </li> );
-                  })}
- </ul> )}
- </div>
- </details> )}
-
-        {/* Linha do tempo — collapsible (fechada por padrão) */}
+        {/* Linha do tempo infecciosa */}
         {timeline.length > 0 && (
- <details className="anat-map-box">
-  <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Linha do tempo infecciosa · {timeline.length}
- </summary>
- <div className="px-2 pb-2">
- <TimelinePanel events={timeline} />
- </div>
- </details> )}
- </div> {onLPPChange && (
+          <details className="anat-map-box">
+            <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Linha do tempo infecciosa · {timeline.length}
+            </summary>
+            <div className="px-2 pb-2">
+              <TimelinePanel events={timeline} />
+            </div>
+          </details>
+        )}
+
+        {/* Empty state */}
+        {active.length === 0 && lppSummary.active.length === 0 && infections.filter((i) => !i.resolvedAt).length === 0 && (
+          <div className="rounded-md border border-dashed border-border p-3 text-center text-[11px] text-muted-foreground">
+            Nenhuma invasão, lesão ou infecção ativa registrada.
+          </div>
+        )}
+      </div>
+    </div>
+  </div> {onLPPChange && (
  <PressureInjuryForm
           open={!!creatingLPP || !!editingLPP}
           editing={editingLPP}
@@ -586,7 +605,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: "def
  </div> );
 }
 
-function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; patient?: Patient | null; onClose: () => void }) {
+function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; patient?: Patient | null; onClose?: () => void }) {
   const def = deviceTypeByCode(device.typeCode);
   const tc = deviceTimeColor(device);
   const max = device.recommendedMaxDays ?? def?.recommendedMaxDays ?? 7;
@@ -602,15 +621,14 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   return (
  <div className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
- <div className="flex items-center gap-2">
- <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
- <div>
- <div className="font-semibold text-foreground">{def?.label ?? device.typeCode}</div>
- 
- </div>
- </div>
-  <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
- </div>
+  <div className="flex items-center gap-2">
+  <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
+  <div>
+  <div className="font-semibold text-foreground">{def?.label ?? device.typeCode}</div>
+  </div>
+  </div>
+   {onClose && <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>}
+  </div>
 
  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
  <Field k="Sítio anatômico" v={device.site} />
@@ -645,6 +663,39 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   <li key={i} className={a.level === "danger" ? "text-clinical-critical" : a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {a.text}
  </li> ))}
  </ul> )}
+ </div> );
+}
+
+function LPPCard({ lesion }: { lesion: LPPLesion }) {
+  const meta = STAGE_META[lesion.stage];
+  const def = LPP_SITE_BY_KEY[lesion.site];
+  const severe = ["3", "4", "NC", "LTP"].includes(String(lesion.stage));
+  return (
+ <div className={`anat-map-box p-2.5 text-[11px] ${severe ? "alert-outline" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
+  <div className="mb-1.5 flex items-start justify-between gap-2">
+  <div className="flex items-center gap-2">
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
+  <div>
+  <div className="font-semibold text-foreground">{def?.label ?? lesion.site}</div>
+  <div className={`text-[10px] uppercase tracking-wider ${meta.className}`}>{meta.label}</div>
+  </div>
+  </div>
+  {lesion.count > 1 && <span className="shrink-0 rounded-sm bg-surface-2 px-1 py-0.5 text-[10px] font-semibold text-muted-foreground">×{lesion.count}</span>}
+  </div>
+  <dl className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+  <dt className="text-muted-foreground">Identificada em</dt>
+  <dd className="font-mono">{new Date(lesion.identifiedAt).toLocaleDateString("pt-BR")}</dd>
+  <dt className="text-muted-foreground">Profissional</dt>
+  <dd className="font-mono">{lesion.professional}</dd>
+  {lesion.resolvedAt && (
+  <>
+  <dt className="text-muted-foreground">Resolvida em</dt>
+  <dd className="font-mono">{new Date(lesion.resolvedAt).toLocaleDateString("pt-BR")}</dd>
+  </>)}
+  </dl>
+  {lesion.notes && (
+  <div className="mt-1.5 rounded-sm bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted-foreground">{lesion.notes}</div>
+  )}
  </div> );
 }
 
@@ -716,7 +767,7 @@ function FocusPanel({
   cultures: Culture[];
   meds: import("@/data/patients").Medication[];
   devices: InvasiveDevice[];
-  onClose: () => void;
+  onClose?: () => void;
 }) {
   const meta = SITE_META[focus.site];
   const status = STATUS_COLOR[focus.status];
@@ -729,14 +780,14 @@ function FocusPanel({
  <div className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
- <div>
- <div className="font-semibold text-foreground">{meta.label}</div>
- <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
- </div>
- </div>
- </div>
-  <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
- </div>
+  <div>
+  <div className="font-semibold text-foreground">{meta.label}</div>
+  <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
+  </div>
+  </div>
+  </div>
+   {onClose && <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>}
+  </div>
 
  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
  <dt className="text-muted-foreground">Início</dt>
