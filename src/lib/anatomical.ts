@@ -114,8 +114,8 @@ const POS = {
   cervical: { x: 100, y: 92 },
   hemitoraxD:{x: 55, y: 165 },
   hemitoraxE:{x: 145, y: 165 },
-  pelvis: { x: 100, y: 283 },
-  belowPelvis:{x:100, y: 326 },
+  pelvis: { x: 100, y: 272 },
+  belowPelvis:{x:100, y: 318 },
   stomach: { x: 105, y: 200 },
   abdLeftPt:{ x: 125, y: 235 }, // patient left abdomen = viewer right
   abdLowerPt:{x: 110, y: 268 },
