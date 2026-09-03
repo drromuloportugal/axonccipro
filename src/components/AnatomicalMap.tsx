@@ -385,10 +385,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                .map((d) => ({ d, def: deviceTypeByCode(d.typeCode), tc: deviceTimeColor(d) }))
                .sort((a, b) => b.tc.days - a.tc.days)
                .map(({ d, def, tc }) => (
- <li key={d.id} className={`flex items-center gap-2 ${expiredIds.has(d.id) ? "alert-outline px-1.5 py-0.5" : ""}`} title={expiredIds.has(d.id) ? "Tempo de permanência excedido" : undefined}>
- <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: tc.color }} />
- <button onClick={() => setSelected(d)} className="flex-1 truncate text-left text-foreground hover:underline"> {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
- </button>
+  <li key={d.id} className={`flex items-center gap-2 ${expiredIds.has(d.id) ? "alert-outline px-1.5 py-0.5" : ""}`} title={expiredIds.has(d.id) ? "Tempo de permanência excedido" : undefined}>
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: tc.color }} />
+  <span className="flex-1 truncate text-left text-foreground"> {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
+  </span>
  <span className="shrink-0 font-mono text-muted-foreground" suppressHydrationWarning> {Math.floor(tc.days)}d {Math.round(tc.hours % 24)}h
  </span>
  </li> ))}
