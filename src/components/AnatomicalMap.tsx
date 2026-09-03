@@ -605,7 +605,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: "def
  </div> );
 }
 
-function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; patient?: Patient | null; onClose: () => void }) {
+function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; patient?: Patient | null; onClose?: () => void }) {
   const def = deviceTypeByCode(device.typeCode);
   const tc = deviceTimeColor(device);
   const max = device.recommendedMaxDays ?? def?.recommendedMaxDays ?? 7;
@@ -621,15 +621,14 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   return (
  <div className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
- <div className="flex items-center gap-2">
- <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
- <div>
- <div className="font-semibold text-foreground">{def?.label ?? device.typeCode}</div>
- 
- </div>
- </div>
-  <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
- </div>
+  <div className="flex items-center gap-2">
+  <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
+  <div>
+  <div className="font-semibold text-foreground">{def?.label ?? device.typeCode}</div>
+  </div>
+  </div>
+   {onClose && <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>}
+  </div>
 
  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
  <Field k="Sítio anatômico" v={device.site} />
