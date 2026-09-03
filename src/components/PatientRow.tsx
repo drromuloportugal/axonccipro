@@ -552,10 +552,11 @@ export function PatientRow({
  <span className="w-2 text-right">{r.v.level === "grave" && <span className="alert-dot" title="Alteração grave" />}</span>
  </div> ))}
               {crcl && (
- <div className="mt-0.5 flex items-baseline justify-between gap-1 border-t border-border/50 pt-0.5 text-[10px]">
- <span className="font-semibold text-muted-foreground">ClCr</span>
- <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL`}> {crcl.value} mL/min
+ <div className="mt-0.5 grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 border-t border-border/50 pt-0.5 text-[10px]">
+ <span className="f-fixed font-semibold text-muted-foreground">ClCr</span>
+ <span className="text-right font-mono font-bold tabular-nums text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL`}> {crcl.value}
  </span>
+ <span className="w-2" />
  </div> )}
  </div>
  </div> {/* Laboratoriais + Gasometria (compacto) */}
