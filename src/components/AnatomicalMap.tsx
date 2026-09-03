@@ -616,7 +616,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: "def
  </div> );
 }
 
-function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; patient?: Patient | null; onClose?: () => void }) {
+function DetailPanel({ id, device, patient, onClose }: { id?: string; device: InvasiveDevice; patient?: Patient | null; onClose?: () => void }) {
   const def = deviceTypeByCode(device.typeCode);
   const tc = deviceTimeColor(device);
   const max = device.recommendedMaxDays ?? def?.recommendedMaxDays ?? 7;
@@ -630,7 +630,7 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   const lastReview = device.lastReviewedAt ? new Date(device.lastReviewedAt) : null;
 
   return (
- <div className="anat-map-box p-3 text-[12px]">
+  <div id={id} className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
   <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
