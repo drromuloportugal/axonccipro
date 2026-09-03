@@ -126,7 +126,9 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
           </li>
         ))}
       </ul>
-
+      </div>
+      )}
     </div>
+
   );
 }
