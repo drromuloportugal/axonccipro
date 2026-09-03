@@ -521,8 +521,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
         {/* Linha do tempo — collapsible (fechada por padrão) */}
         {timeline.length > 0 && (
- <details className="rounded-md border border-border bg-surface">
- <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Linha do tempo infecciosa · {timeline.length}
+ <details className="anat-map-box">
+  <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Linha do tempo infecciosa · {timeline.length}
  </summary>
  <div className="px-2 pb-2">
  <TimelinePanel events={timeline} />
