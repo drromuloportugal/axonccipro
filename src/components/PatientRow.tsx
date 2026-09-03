@@ -14,6 +14,7 @@ import {
   organDonationLabel, directiveLabel,
 } from "@/lib/clinical";
 import { currentVitalsSummary } from "@/components/SmartMonitoring";
+import type { VitalSummaryEntry } from "@/components/SmartMonitoring";
 
 
 import { summarizeLPP, STAGE_META } from "@/lib/lpp";
