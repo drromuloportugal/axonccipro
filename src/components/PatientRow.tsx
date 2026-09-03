@@ -546,13 +546,15 @@ export function PatientRow({
  <ColHead label="📈 Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
- <div> {vitalRows.map((r) => (
- <div key={r.label} className="grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 py-[1px] text-[10px]">
+ <div className="space-y-0.5"> {vitalRows.map((r) => {
+              const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
+              return (
+ <div key={r.label} className={`grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? "Sinal vital alterado" : undefined}>
  <span className="f-fixed font-semibold text-muted-foreground">{r.label}</span>
  <span className={`truncate text-right font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}> {r.v.text.split("·")[0].trim()}
  </span>
  <span className="w-2 text-right">{r.v.level === "grave" && <span className="alert-dot" title="Alteração grave" />}</span>
- </div> ))}
+ </div> ); })}
               {crcl && (
  <div className="mt-0.5 grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 border-t border-border/50 pt-0.5 text-[10px]">
  <span className="f-fixed font-semibold text-muted-foreground">ClCr</span>
