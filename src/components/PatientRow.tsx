@@ -834,14 +834,48 @@ export function PatientRow({
  </ol>
  </div> );
                })}
-               {patient.diagnoses.length === 0 && (
- <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem diagnósticos registrados.</div> )}
- </div>
- <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
-              {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
-              {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
- </div>
- </div> {/* 3 - Dispositivos Invasivos */}
+                {patient.diagnoses.length === 0 && (
+  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem diagnósticos registrados.</div> )}
+  </div>
+
+              {/* Medicações de uso prévio domiciliar */}
+              {patient.pastMedications && patient.pastMedications.length > 0 && (
+                <div className="mt-3">
+                  <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
+                    💊 Uso prévio domiciliar · {patient.pastMedications.length}
+                  </div>
+                  <ul className="space-y-1.5">
+                    {patient.pastMedications.map((pm) => (
+                      <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-foreground">{pm.name}</span>
+                          <span className={`shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
+                            pm.status === "em uso domiciliar"
+                              ? "bg-clinical-stable/15 text-clinical-stable"
+                              : pm.status === "alergia/reação"
+                                ? "bg-clinical-critical/15 text-clinical-critical"
+                                : "bg-clinical-neutral/15 text-clinical-neutral"
+                          }`}>
+                            {pm.status ?? "uso prévio"}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {pm.dose} · {pm.route} · {pm.freq}
+                        </div>
+                        {pm.period && <div className="text-[10px] text-muted-foreground">Período: {pm.period}</div>}
+                        {pm.reason && <div className="text-[10px] text-muted-foreground">Indicação: {pm.reason}</div>}
+                        {pm.notes && <div className="text-[10px] text-muted-foreground">{pm.notes}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+  <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
+               {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
+               {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
+  </div>
+  </div> {/* 3 - Dispositivos Invasivos */}
  <div onClick={colClick("proc")}>
  <div>
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
