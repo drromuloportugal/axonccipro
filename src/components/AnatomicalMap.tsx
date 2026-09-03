@@ -483,8 +483,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
         {/* LPP — lista detalhada agora dentro de collapsible para enxugar */}
         {(lppList.length > 0 || onLPPChange) && (
- <details className="rounded-md border border-border bg-surface" open={lppList.length > 0 && lppList.length <= 3}>
- <summary className="flex cursor-pointer select-none items-center justify-between px-2 py-1.5">
+ <details className="anat-map-box" open={lppList.length > 0 && lppList.length <= 3}>
+  <summary className="flex cursor-pointer select-none items-center justify-between px-2 py-1.5">
  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Lesões por pressão
  </span>
  <span className="text-[10px] text-muted-foreground">
