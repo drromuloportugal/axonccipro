@@ -700,9 +700,9 @@ function FocusPanel({
   const fmt = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
   return (
- <div className="rounded-md border border-border bg-surface p-3 text-[12px]">
- <div className="mb-2 flex items-start justify-between gap-2">
- <div className="flex items-center gap-2">
+ <div className="anat-map-box p-3 text-[12px]">
+  <div className="mb-2 flex items-start justify-between gap-2">
+  <div className="flex items-center gap-2">
  <div>
  <div className="font-semibold text-foreground">{meta.label}</div>
  <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
