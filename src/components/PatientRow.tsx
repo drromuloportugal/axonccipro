@@ -834,14 +834,48 @@ export function PatientRow({
  </ol>
  </div> );
                })}
-               {patient.diagnoses.length === 0 && (
- <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem diagnósticos registrados.</div> )}
- </div>
- <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
-              {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
-              {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
- </div>
- </div> {/* 3 - Dispositivos Invasivos */}
+                {patient.diagnoses.length === 0 && (
+  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem diagnósticos registrados.</div> )}
+  </div>
+
+              {/* Medicações de uso prévio domiciliar */}
+              {patient.pastMedications && patient.pastMedications.length > 0 && (
+                <div className="mt-3">
+                  <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
+                    💊 Uso prévio domiciliar · {patient.pastMedications.length}
+                  </div>
+                  <ul className="space-y-1.5">
+                    {patient.pastMedications.map((pm) => (
+                      <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-foreground">{pm.name}</span>
+                          <span className={`shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
+                            pm.status === "em uso domiciliar"
+                              ? "bg-clinical-stable/15 text-clinical-stable"
+                              : pm.status === "alergia/reação"
+                                ? "bg-clinical-critical/15 text-clinical-critical"
+                                : "bg-clinical-neutral/15 text-clinical-neutral"
+                          }`}>
+                            {pm.status ?? "uso prévio"}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {pm.dose} · {pm.route} · {pm.freq}
+                        </div>
+                        {pm.period && <div className="text-[10px] text-muted-foreground">Período: {pm.period}</div>}
+                        {pm.reason && <div className="text-[10px] text-muted-foreground">Indicação: {pm.reason}</div>}
+                        {pm.notes && <div className="text-[10px] text-muted-foreground">{pm.notes}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+  <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
+               {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
+               {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
+  </div>
+  </div> {/* 3 - Dispositivos Invasivos */}
  <div onClick={colClick("proc")}>
  <div>
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -1023,28 +1057,8 @@ export function PatientRow({
               });
             })()}
             {patient.medications.length === 0 && (
- <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
-            {/* Histórico medicamentoso — linha do tempo de todas as prescrições */}
-            {patient.medications.length > 0 && (
- <div className="mt-2">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Histórico medicamentoso</div>
- <ul className="ios-inset max-h-56 space-y-1 overflow-y-auto px-2 py-1.5">
-                  {[...patient.medications]
-                    .sort((a, b) => (b.start ?? "").localeCompare(a.start ?? ""))
-                    .map((m, i) => (
- <li key={`hist-${m.name}-${i}`} className="flex items-start justify-between gap-2 border-b border-border/40 py-1 last:border-b-0 text-[11px]">
- <span className="min-w-0">
- <span className="f-var block truncate font-semibold text-foreground">{m.name}</span>
- <span className="f-fixed block text-[10px] text-muted-foreground">{m.dose} · {m.route} · {m.freq}</span>
- <span className="f-fixed block text-[10px] text-muted-foreground">{m.start}{m.end ? ` → ${m.end}` : " → em curso"}</span>
- </span>
- <span className={`shrink-0 text-[10px] font-semibold ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}>
-                          {m.active === false ? "Suspenso" : "Ativo"}
- </span>
- </li> ))}
- </ul>
- </div> )}
- </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
+  <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
+  </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
  <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
  <div className="mb-3">
