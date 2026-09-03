@@ -41,6 +41,16 @@ function examValue(patient: Patient | undefined, codes: string[]): { value: stri
   return undefined;
 }
 
+/** Converte "7,32" / "12.4 mg" em número. */
+function num(v?: string): number | undefined {
+  if (!v) return undefined;
+  const n = parseFloat(v.replace(",", "."));
+  return Number.isFinite(n) ? n : undefined;
+}
+function outOf(v: number | undefined, min: number, max: number): boolean {
+  return typeof v === "number" && (v < min || v > max);
+}
+
 function has(devices: InvasiveDevice[], codes: string[]): InvasiveDevice | undefined {
   return devices.find((d) => !d.removedAt && codes.includes(d.typeCode));
 }
@@ -67,7 +77,7 @@ function MonitorCard({
         {readouts.map((r) => (
           <div key={r.label} className="flex flex-col leading-tight">
             <span className="f-fixed text-[8.5px] uppercase">{r.label}</span>
-            <span className={`f-var text-[12px] ${r.alert ? "text-clinical-critical" : "text-foreground"}`}>
+            <span className={`f-var text-[12px] ${r.alert ? "alert-value" : "text-foreground"}`} title={r.alert ? "Valor alterado" : undefined}>
               {r.value}
               {r.unit ? <span className="ml-0.5 text-[8px] font-semibold opacity-70">{r.unit}</span> : null}
             </span>
@@ -107,7 +117,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
       tone: "bg-clinical-resp/20 text-ink", side: "left",
       readouts: [
         { label: "FC", value: fmt(fc), unit: "bpm", alert: typeof fc === "number" && (fc > 120 || fc < 50) },
-        { label: "PA", value: pas && pad ? `${fmt(pas)}/${fmt(pad)}` : "—", unit: "mmHg" },
+        { label: "PA", value: pas && pad ? `${fmt(pas)}/${fmt(pad)}` : "—", unit: "mmHg", alert: outOf(pas, 90, 160) || outOf(pad, 50, 100) },
         { label: "PAM", value: fmt(pam), unit: "mmHg", alert: typeof pam === "number" && pam < 65 },
         { label: "SpO₂", value: fmt(spo2), unit: "%", alert: typeof spo2 === "number" && spo2 < 92 },
         { label: "Temp", value: fmt(temp, 1), unit: "°C", alert: typeof temp === "number" && temp >= 37.8 },
@@ -160,7 +170,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
       tone: "bg-clinical-critical/15 text-ink", side: "right",
       readouts: [
         { label: "PAI", value: pai ? (pai.site ?? pai.typeCode) : "—" },
-        { label: "PAM", value: fmt(latest(vs?.pam) ?? st?.pam), unit: "mmHg" },
+        { label: "PAM", value: fmt(latest(vs?.pam) ?? st?.pam), unit: "mmHg", alert: outOf(latest(vs?.pam) ?? st?.pam, 65, 110) },
         { label: "DVA", value: st?.dva ?? "—", alert: !!st?.dva },
         { label: "Cateter", value: swan ? "Swan-Ganz" : "—" },
       ],
@@ -178,11 +188,11 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
       key: "abg", title: "Gasometria arterial", icon: FlaskConical,
       tone: "bg-clinical-nutri/20 text-ink", side: "right",
       readouts: [
-        { label: "pH", value: ph?.value ?? "—", alert: ph?.critical },
-        { label: "PaCO₂", value: paco2?.value ?? "—", unit: paco2?.unit, alert: paco2?.critical },
-        { label: "PaO₂", value: pao2?.value ?? "—", unit: pao2?.unit, alert: pao2?.critical },
-        { label: "HCO₃⁻", value: hco3?.value ?? "—", unit: hco3?.unit, alert: hco3?.critical },
-        { label: "Lactato", value: lac?.value ?? "—", unit: lac?.unit, alert: lac?.critical },
+        { label: "pH", value: ph?.value ?? "—", alert: ph?.critical || outOf(num(ph?.value), 7.35, 7.45) },
+        { label: "PaCO₂", value: paco2?.value ?? "—", unit: paco2?.unit, alert: paco2?.critical || outOf(num(paco2?.value), 35, 45) },
+        { label: "PaO₂", value: pao2?.value ?? "—", unit: pao2?.unit, alert: pao2?.critical || outOf(num(pao2?.value), 60, 120) },
+        { label: "HCO₃⁻", value: hco3?.value ?? "—", unit: hco3?.unit, alert: hco3?.critical || outOf(num(hco3?.value), 22, 26) },
+        { label: "Lactato", value: lac?.value ?? "—", unit: lac?.unit, alert: lac?.critical || outOf(num(lac?.value), 0, 2) },
         { label: "FiO₂", value: fmt(st?.fio2), unit: "%" },
       ],
     });
@@ -241,8 +251,8 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
       key: "neuro", title: neuro ? `Neuromonitorização · ${neuro.typeCode}` : "Avaliação neurológica",
       icon: Brain, tone: "bg-clinical-neuro/15 text-ink", side: "right",
       readouts: [
-        { label: "Glasgow", value: fmt(st?.glasgow) },
-        { label: "RASS", value: fmt(st?.rass) },
+        { label: "Glasgow", value: fmt(st?.glasgow), alert: typeof st?.glasgow === "number" && st.glasgow < 12 },
+        { label: "RASS", value: fmt(st?.rass), alert: typeof st?.rass === "number" && (st.rass <= -4 || st.rass >= 2) },
         { label: "Dispositivo", value: neuro?.typeCode ?? "—" },
         { label: "Sítio", value: neuro?.site ?? "—" },
       ],
