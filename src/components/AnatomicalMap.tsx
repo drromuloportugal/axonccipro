@@ -424,9 +424,9 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
 
  </div> {/* Right: enxuto — indicadores unificados, detalhe e seções recolhíveis */}
- <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
- <div className="rounded-md border border-border bg-surface p-2">
- <div className="grid grid-cols-3 divide-x divide-border">
+  <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
+ <div className="anat-map-box p-2">
+  <div className="grid grid-cols-3 divide-x divide-border">
  <IndicatorBlock title="Dispositivos">
  <IndicatorPair label="Ativos"value={active.length} />
  <IndicatorPair label="Vencidos" value={expired.length} tone={expired.length ? "danger" : "default"} />
