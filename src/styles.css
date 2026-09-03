@@ -355,13 +355,37 @@
 /* Contorno vermelho piscante em caixas de alerta */
 @utility alert-outline {
   border: 1.5px solid rgb(220 38 38 / 0.85) !important;
+  border-radius: 0.65rem !important;
   animation: alert-blink 1.4s ease-in-out infinite;
 }
 
 /* Contorno vermelho estático */
 @utility alert-outline-static {
   border: 1.5px solid rgb(220 38 38 / 0.8) !important;
+  border-radius: 0.65rem !important;
   box-shadow: 0 0 0 2px rgb(220 38 38 / 0.12);
+}
+
+/* Valor com alerta vermelho piscante (monitores) */
+@utility alert-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  border: 1.5px solid rgb(220 38 38 / 0.85);
+  border-radius: 0.5rem;
+  padding: 0 0.3rem;
+  color: rgb(185 28 28);
+  background: rgb(220 38 38 / 0.08);
+  animation: alert-blink 1.3s ease-in-out infinite;
+}
+
+/* Marcadores SVG com alteração — pisca */
+.svg-alert-blink {
+  animation: svg-alert-blink 1.2s ease-in-out infinite;
+}
+@keyframes svg-alert-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 @keyframes alert-blink {
