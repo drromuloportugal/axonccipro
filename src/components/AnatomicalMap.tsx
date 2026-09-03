@@ -487,7 +487,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
     </div>
 
     {/* Painel de rolagem lateral: detalhes de invasões, LPP e infecções */}
-    <div className="anat-map-box max-h-[min(75vh,760px)] overflow-y-auto p-2">
+    <div ref={scrollContainerRef} className="anat-map-box max-h-[min(75vh,760px)] overflow-y-auto p-2">
       <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         Detalhes clínicos
       </div>
