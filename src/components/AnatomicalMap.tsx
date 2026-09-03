@@ -456,8 +456,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </div>}
 
         {compare && diff && (
- <div className="rounded-md border border-border bg-surface-2 px-2 py-1.5 text-[11px]">
- <span className="text-clinical-stable">+{diff.added.length} adicionados</span>
+ <div className="anat-map-box px-2 py-1.5 text-[11px]">
+  <span className="text-clinical-stable">+{diff.added.length} adicionados</span>
  <span className="mx-2 text-muted-foreground">·</span>
  <span className="text-clinical-critical">−{diff.removed.length} removidos</span>
  <span className="ml-2 text-[10px] text-muted-foreground">vs. semana anterior</span>
