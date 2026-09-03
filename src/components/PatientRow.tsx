@@ -1134,16 +1134,13 @@ export function PatientRow({
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
-                  const parts = r.v.text.split("·");
-                  const val = parts[0].trim();
-                  const qual = parts.slice(1).join("·").trim();
+                  const val = r.v.text.split("·")[0].trim();
                   const crit = r.v.level === "grave";
                   return (
  <div key={r.label} className="grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px]">
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
  <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
  <span className="flex items-center justify-end gap-1 text-right">
- <span className={`text-[10px] ${VITAL_LEVEL_TXT[r.v.level]}`}>{qual}</span>
                         {crit && <span className="alert-dot" title="Alteração grave" aria-label="Alteração grave" />}
  </span>
  </div> );
