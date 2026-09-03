@@ -123,7 +123,7 @@ function DeviceCompact({ d, mounted }: { d: InvasiveDevice; mounted: boolean }) 
   const def = deviceTypeByCode(d.typeCode);
   const tip = `${def?.label ?? d.typeCode} · ${days}d · ${r.label}${r.semaphoreHint ? `\n${r.semaphoreHint}` : ""}`;
   return (
- <div className="ios-inset px-1.5 pb-1 pt-1" title={tip}>
+ <div className={`ios-inset px-1.5 pb-1 pt-1 ${mounted && r.days > r.max ? "alert-outline" : ""}`} title={tip}>
  <div className="flex items-baseline justify-between gap-1">
  <span className="min-w-0 flex-1 truncate f-var text-[11px] leading-snug">{deviceShort(d)}</span> {mounted && (
  <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{days}/{r.max}d</span> )}
@@ -516,7 +516,7 @@ export function PatientRow({
  <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
                 return (
- <div key={c.id} className="flex items-center gap-1 text-[10.5px] leading-snug" title={c.organism ?? c.source}>
+ <div key={c.id} className={`flex items-center gap-1 rounded-md text-[10.5px] leading-snug ${r.label === "Positiva" ? "alert-outline-static px-1 py-0.5" : ""}`} title={c.organism ?? c.source}>
  <span className="min-w-0 flex-1 truncate">
  <span className="font-semibold text-foreground"> {c.source}</span> {c.organism ? <span className="text-muted-foreground"> · {c.organism}</span> : null}
  </span>
@@ -544,17 +544,19 @@ export function PatientRow({
  <ColHead label="📈 Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
- <div className="space-y-0.5"> {vitalRows.map((r) => (
- <div key={r.label} className="flex items-baseline justify-between gap-1 text-[10px]">
- <span className="font-semibold text-muted-foreground">{r.label}</span>
- <span className={`truncate font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}> {r.v.text.split("·")[0].trim()}
+ <div> {vitalRows.map((r) => (
+ <div key={r.label} className="grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 py-[1px] text-[10px]">
+ <span className="f-fixed font-semibold text-muted-foreground">{r.label}</span>
+ <span className={`truncate text-right font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}> {r.v.text.split("·")[0].trim()}
  </span>
+ <span className="w-2 text-right">{r.v.level === "grave" && <span className="alert-dot" title="Alteração grave" />}</span>
  </div> ))}
               {crcl && (
- <div className="mt-0.5 flex items-baseline justify-between gap-1 border-t border-border/50 pt-0.5 text-[10px]">
- <span className="font-semibold text-muted-foreground">ClCr</span>
- <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL`}> {crcl.value} mL/min
+ <div className="mt-0.5 grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 border-t border-border/50 pt-0.5 text-[10px]">
+ <span className="f-fixed font-semibold text-muted-foreground">ClCr</span>
+ <span className="text-right font-mono font-bold tabular-nums text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL`}> {crcl.value}
  </span>
+ <span className="w-2" />
  </div> )}
  </div>
  </div> {/* Laboratoriais + Gasometria (compacto) */}
@@ -876,7 +878,7 @@ export function PatientRow({
  <ul className="space-y-1"> {list.map((d) => {
                         const r = deviceRisk(d);
                         return (
- <li key={d.id} className="ios-inset px-2 pb-1.5 pt-1.5 text-[11px]" title={mounted ? (r.semaphoreHint ?? r.label) : undefined}>
+ <li key={d.id} className={`ios-inset px-2 pb-1.5 pt-1.5 text-[11px] ${mounted && r.days > r.max ? "alert-outline" : ""}`} title={mounted ? (r.semaphoreHint ?? r.label) : undefined}>
  <div className="flex items-baseline justify-between gap-2">
  <span className="f-var">{deviceShort(d)}</span> {mounted && (
   <span className={`f-var text-[10px] ${r.className}`}> {Math.floor(r.days)}/{r.max}d
@@ -1014,7 +1016,7 @@ export function PatientRow({
                     const r = cultureResultBadge(c);
                     const alerts = detectCultureAlerts(c);
                     return (
- <li key={c.id} className="ios-inset px-2 py-1.5 text-[11px]">
+ <li key={c.id} className={`ios-inset px-2 py-1.5 text-[11px] ${r.label === "Positiva" ? "alert-outline-static" : ""}`}>
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
   <span className="truncate">{c.source}</span>
@@ -1131,16 +1133,26 @@ export function PatientRow({
  <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
- <div className="space-y-0.5 ios-inset px-2 py-1.5"> {vitalRows.map((r) => (
- <div key={r.label} className="flex items-baseline justify-between gap-2 text-[11px]">
- <span className="font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
- <span className={`font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}>{r.v.text}</span>
- </div> ))}
-                {crcl && (
- <div className="mt-1 flex items-baseline justify-between gap-2 border-t border-border/50 pt-1 text-[11px]">
- <span className="font-bold uppercase tracking-wider text-muted-foreground">ClCr (Cockcroft)</span>
- <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL · ${crcl.ageYears}a · ${crcl.weightKg}kg`}> {crcl.value} mL/min
+ <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
+                  const parts = r.v.text.split("·");
+                  const val = parts[0].trim();
+                  const qual = parts.slice(1).join("·").trim();
+                  const crit = r.v.level === "grave";
+                  return (
+ <div key={r.label} className="grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px]">
+ <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
+ <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
+ <span className="flex items-center justify-end gap-1 text-right">
+ <span className={`text-[10px] ${VITAL_LEVEL_TXT[r.v.level]}`}>{qual}</span>
+                        {crit && <span className="alert-dot" title="Alteração grave" aria-label="Alteração grave" />}
  </span>
+ </div> );
+                })}
+                {crcl && (
+ <div className="mt-1 grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 border-t border-border/50 pt-1 text-[11px]">
+ <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">ClCr</span>
+ <span className="font-mono font-bold tabular-nums text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL · ${crcl.ageYears}a · ${crcl.weightKg}kg`}>{crcl.value}</span>
+ <span className="text-right text-[10px] text-muted-foreground">mL/min</span>
  </div> )}
  </div>
  </div> {/* Laboratoriais + Gasometria (movidos da coluna 5) */}
