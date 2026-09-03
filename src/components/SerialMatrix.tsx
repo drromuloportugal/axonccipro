@@ -160,18 +160,19 @@ export function SerialMatrix({
     return Array.from(set).filter(Boolean).sort();
   }, [series, custom, exams, extraDates]);
 
-  const setCustom = (id: string, date: string, raw: string) => {
+  const setCustom = (id: string, date: string, field: MinMax, raw: string) => {
     const value = parseNum(raw);
     const next = custom.map((c) => {
       if (c.id !== id) return c;
       const arr = [...(c.readings ?? [])];
       const idx = arr.findIndex((r) => dayKey(r.at) === date);
-      if (value == null) {
-        if (idx >= 0) arr.splice(idx, 1);
-      } else if (idx >= 0) {
-        arr[idx] = { ...arr[idx], value, at: arr[idx].at ?? atFor(date) };
-      } else {
-        arr.push({ id: uid(), value, at: atFor(date) });
+      const patch = field === "max" ? { value } : { min: value ?? undefined };
+      if (idx >= 0) {
+        const merged = { ...arr[idx], ...patch, at: arr[idx].at ?? atFor(date) } as VitalReading;
+        if (merged.value == null && merged.min == null) arr.splice(idx, 1);
+        else arr[idx] = merged;
+      } else if (value != null) {
+        arr.push({ id: uid(), at: atFor(date), ...patch } as VitalReading);
       }
       arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
       return { ...c, readings: arr };
