@@ -279,14 +279,10 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
               </button>
             );
           })}
-          <button
-            type="button"
-            onClick={() => setMode((m) => (m === "index" ? "raw" : "index"))}
-            title="Alternar entre índice de referência e valor absoluto"
-            className="rounded-md border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-foreground hover:bg-surface-3"
-          >
-            {mode === "index" ? "Eixo: índice de referência" : "Eixo: valor absoluto"}
-          </button>
+          <span className="rounded-md border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-foreground">
+            Eixo: índice de referência
+          </span>
+
 
           {selected.size > 0 && (
             <button
