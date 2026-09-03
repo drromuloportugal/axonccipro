@@ -54,7 +54,7 @@ export const SITE_META: Record<InfectionSite, SiteMeta> = {
   IRC: { label: "Infecção relacionada a cateter", short: "IRC", system: "vascular", icon: "", view: "anterior", anchor: { x: 72, y: 108 }, radius: 16 },
 
   // Urinário
-  ITU: { label: "ITU", short: "ITU", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 290 }, radius: 18 },
+  ITU: { label: "ITU", short: "ITU", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 272 }, radius: 18 },
   PIELONEFRITE: { label: "Pielonefrite", short: "Pielo", system: "urinario", icon: "", view: "posterior", anchor: { x: 85, y: 250 }, radius: 16 },
   INF_SVD: { label: "Infecção por SVD", short: "Inf SVD", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 305 }, radius: 16 },
 
