@@ -666,6 +666,39 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
  </div> );
 }
 
+function LPPCard({ lesion }: { lesion: LPPLesion }) {
+  const meta = STAGE_META[lesion.stage];
+  const def = LPP_SITE_BY_KEY[lesion.site];
+  const severe = ["3", "4", "NC", "LTP"].includes(String(lesion.stage));
+  return (
+ <div className={`anat-map-box p-2.5 text-[11px] ${severe ? "alert-outline" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
+  <div className="mb-1.5 flex items-start justify-between gap-2">
+  <div className="flex items-center gap-2">
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
+  <div>
+  <div className="font-semibold text-foreground">{def?.label ?? lesion.site}</div>
+  <div className={`text-[10px] uppercase tracking-wider ${meta.className}`}>{meta.label}</div>
+  </div>
+  </div>
+  {lesion.count > 1 && <span className="shrink-0 rounded-sm bg-surface-2 px-1 py-0.5 text-[10px] font-semibold text-muted-foreground">×{lesion.count}</span>}
+  </div>
+  <dl className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+  <dt className="text-muted-foreground">Identificada em</dt>
+  <dd className="font-mono">{new Date(lesion.identifiedAt).toLocaleDateString("pt-BR")}</dd>
+  <dt className="text-muted-foreground">Profissional</dt>
+  <dd className="font-mono">{lesion.professional}</dd>
+  {lesion.resolvedAt && (
+  <>
+  <dt className="text-muted-foreground">Resolvida em</dt>
+  <dd className="font-mono">{new Date(lesion.resolvedAt).toLocaleDateString("pt-BR")}</dd>
+  </>)}
+  </dl>
+  {lesion.notes && (
+  <div className="mt-1.5 rounded-sm bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted-foreground">{lesion.notes}</div>
+  )}
+ </div> );
+}
+
 function Field({ k, v }: { k: string; v?: string | null }) {
   return (
  <>
