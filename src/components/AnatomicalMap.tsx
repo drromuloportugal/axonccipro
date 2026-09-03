@@ -396,8 +396,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </li> ))}
  </ul> )}
  </div> {/* LPP e classificações */}
- <div className="mt-2 rounded-md border border-border bg-surface-2 p-2">
- <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+ <div className="anat-map-box mt-2 p-2">
+  <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
  <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão · {lppSummary.totalActive}
  </div> {lppSummary.active.length === 0 ? (
  <div className="text-[11px] text-muted-foreground">Nenhuma lesão por pressão ativa registrada.</div> ) : (
