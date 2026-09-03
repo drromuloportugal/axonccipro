@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   InvasiveDevice, Patient, InfectionFocus, Culture, LPPLesion, LPPStage,
 } from "@/data/patients";
@@ -250,6 +250,17 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollToId = (id: string) => {
+    const container = scrollContainerRef.current;
+    const el = document.getElementById(id);
+    if (!container || !el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const top = container.scrollTop + (elRect.top - containerRect.top) - 16;
+    container.scrollTo({ top, behavior: "smooth" });
+  };
+
   const lppList = lpp ?? [];
   const lppSummary = useMemo(() => summarizeLPP(lppList), [lppList]);
 
@@ -359,19 +370,21 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   <BodyPanel
             label="Anterior" view="anterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={() => {}}
+            addedIds={addedIds}
+            onSelect={(d) => scrollToId(`detail-${d.id}`)}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={() => {}}
-            lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
+            heatmap={heatmap} onSelectFocus={(f) => scrollToId(`focus-${f.id}`)}
+            lpp={visibleLPP} onEditLesion={(l) => scrollToId(`lpp-${l.id}`)}
             alertDeviceIds={expiredIds}
           />
   <BodyPanel
             label="Posterior" view="posterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={() => {}}
+            addedIds={addedIds}
+            onSelect={(d) => scrollToId(`detail-${d.id}`)}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={() => {}}
-            lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
+            heatmap={heatmap} onSelectFocus={(f) => scrollToId(`focus-${f.id}`)}
+            lpp={visibleLPP} onEditLesion={(l) => scrollToId(`lpp-${l.id}`)}
             alertDeviceIds={expiredIds}
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
@@ -474,7 +487,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
     </div>
 
     {/* Painel de rolagem lateral: detalhes de invasões, LPP e infecções */}
-    <div className="anat-map-box max-h-[min(75vh,760px)] overflow-y-auto p-2">
+    <div ref={scrollContainerRef} className="anat-map-box max-h-[min(75vh,760px)] overflow-y-auto p-2">
       <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         Detalhes clínicos
       </div>
@@ -489,7 +502,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               .map((d) => ({ d, tc: deviceTimeColor(d) }))
               .sort((a, b) => b.tc.days - a.tc.days)
               .map(({ d }) => (
-                <DetailPanel key={d.id} device={d} patient={patient} />
+                <DetailPanel key={d.id} id={`detail-${d.id}`} device={d} patient={patient} />
               ))}
           </div>
         )}
@@ -504,7 +517,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               .slice()
               .sort((a, b) => String(b.stage).localeCompare(String(a.stage)))
               .map((l) => (
-                <LPPCard key={l.id} lesion={l} />
+                <LPPCard key={l.id} id={`lpp-${l.id}`} lesion={l} />
               ))}
           </div>
         )}
@@ -520,6 +533,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               .map((f) => (
                 <FocusPanel
                   key={f.id}
+                  id={`focus-${f.id}`}
                   focus={f}
                   cultures={cultures}
                   meds={patient?.medications ?? []}
@@ -602,7 +616,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: "def
  </div> );
 }
 
-function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; patient?: Patient | null; onClose?: () => void }) {
+function DetailPanel({ id, device, patient, onClose }: { id?: string; device: InvasiveDevice; patient?: Patient | null; onClose?: () => void }) {
   const def = deviceTypeByCode(device.typeCode);
   const tc = deviceTimeColor(device);
   const max = device.recommendedMaxDays ?? def?.recommendedMaxDays ?? 7;
@@ -616,7 +630,7 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   const lastReview = device.lastReviewedAt ? new Date(device.lastReviewedAt) : null;
 
   return (
- <div className="anat-map-box p-3 text-[12px]">
+  <div id={id} className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
   <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
@@ -663,12 +677,12 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
  </div> );
 }
 
-function LPPCard({ lesion }: { lesion: LPPLesion }) {
+function LPPCard({ id, lesion }: { id?: string; lesion: LPPLesion }) {
   const meta = STAGE_META[lesion.stage];
   const def = LPP_SITE_BY_KEY[lesion.site];
   const severe = ["3", "4", "NC", "LTP"].includes(String(lesion.stage));
   return (
- <div className={`anat-map-box p-2.5 text-[11px] ${severe ? "alert-outline" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
+  <div id={id} className={`anat-map-box p-2.5 text-[11px] ${severe ? "alert-outline" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
   <div className="mb-1.5 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
   <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
@@ -739,8 +753,9 @@ function IndicatorPair({ label, value, tone = "default" }: { label: string; valu
 }
 
 function FocusPanel({
-  focus, cultures, meds, devices, onClose,
+  id, focus, cultures, meds, devices, onClose,
 }: {
+  id?: string;
   focus: InfectionFocus;
   cultures: Culture[];
   meds: import("@/data/patients").Medication[];
@@ -755,7 +770,7 @@ function FocusPanel({
   const fmt = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
   return (
- <div className="anat-map-box p-3 text-[12px]">
+  <div id={id} className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
   <div>
