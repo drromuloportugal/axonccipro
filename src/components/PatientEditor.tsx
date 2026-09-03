@@ -2256,7 +2256,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
  <div className="space-y-3">
  <div className="rounded-md border border-dashed border-border bg-surface-2/40 p-3">
  <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Adicionar exame de imagem</div>
- <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_auto] gap-2">
+ <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_1.2fr_auto] gap-2">
  <select className={inputCls} value={modality} onChange={(e) => setModality(e.target.value as ImagingModality)}> {IMAGING_MODALITIES.map((m) => <option key={m.code} value={m.code}>{m.code} — {m.label}</option>)}
  </select>
  <input className={inputCls} placeholder="Região (ex.: Tórax, Crânio, Abdome)" value={region} onChange={(e) => setRegion(e.target.value)} />
