@@ -1175,8 +1175,12 @@ export function PatientRow({
                       const abn = !!ins.bucket && ins.bucket !== "normal";
                       return (
  <tr key={i} className="border-b border-border/50 last:border-0">
- <td className={`py-1 text-muted-foreground ${abn ? "alert-outline" : ""}`} title={abn ? `Resultado alterado · ${b?.label}` : undefined}>{e.label}</td>
- <td className={`py-1 font-mono ${abn ? "alert-outline " : ""}${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
+ <td className="py-1 text-muted-foreground" title={abn ? `Resultado alterado · ${b?.label}` : undefined}>
+ <span className={abn ? "alert-outline inline-block px-1.5" : ""}>{e.label}</span>
+ </td>
+ <td className="py-1 font-mono">
+ <span className={`${abn ? "alert-outline inline-block px-1.5 " : ""}${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</span>
+ </td>
   <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
