@@ -479,9 +479,6 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         Detalhes clínicos
       </div>
       <div className="space-y-2.5">
-        {/* Alertas de dispositivos */}
-        <AlertsList devices={active} />
-
         {/* Invasões ativas — detalhes completos */}
         {active.length > 0 && (
           <div className="space-y-2">
@@ -532,12 +529,12 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
           </div>
         )}
 
-        {/* Sugestões IRAS */}
+        {/* Sugestões IRAS — sempre expandidas */}
         {deviceHints.length > 0 && (
-          <details className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
-            <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention">
+          <div className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
+            <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention">
               Avaliar IRAS · {deviceHints.length}
-            </summary>
+            </div>
             <ul className="space-y-1 px-2 pb-2 text-[11px]">
               {deviceHints.map((h, i) => {
                 const def = deviceTypeByCode(h.device.typeCode);
@@ -550,19 +547,19 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               })}
               <li className="text-[10px] italic text-muted-foreground">Apoio à decisão clínica.</li>
             </ul>
-          </details>
+          </div>
         )}
 
-        {/* Linha do tempo infecciosa */}
+        {/* Linha do tempo infecciosa — sempre expandida */}
         {timeline.length > 0 && (
-          <details className="anat-map-box">
-            <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="anat-map-box">
+            <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Linha do tempo infecciosa · {timeline.length}
-            </summary>
+            </div>
             <div className="px-2 pb-2">
               <TimelinePanel events={timeline} />
             </div>
-          </details>
+          </div>
         )}
 
         {/* Empty state */}
@@ -705,25 +702,6 @@ function Field({ k, v }: { k: string; v?: string | null }) {
  <dt className="text-muted-foreground">{k}</dt>
  <dd className="font-mono text-foreground">{v ?? "—"}</dd>
  </> );
-}
-
-function AlertsList({ devices }: { devices: InvasiveDevice[] }) {
-  const rows = devices.flatMap((d) => {
-    const def = deviceTypeByCode(d.typeCode);
-    const max = d.recommendedMaxDays ?? def?.recommendedMaxDays ?? 7;
-    return deviceAlerts(d, max).map((a) => ({ d, a, def }));
-  });
-  if (!rows.length) {
-    return <div className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px] text-clinical-stable">Sem alertas de dispositivos.</div>;
-  }
-  return (
- <div className="anat-map-box p-2">
-  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
- <ul className="space-y-0.5 text-[11px]"> {rows.map((r, i) => (
-  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.label ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
- </li> ))}
- </ul>
- </div> );
 }
 
 function Mini({ label, value, tone }: { label: string; value: number; tone: "default" | "ok" | "warn" | "danger" }) {
