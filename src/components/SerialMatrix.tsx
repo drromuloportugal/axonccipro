@@ -349,7 +349,7 @@ export function SerialMatrix({
           </thead>
           <tbody>
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                 Sinais vitais · Bristol · Balanço hídrico
               </td>
             </tr>
@@ -400,7 +400,7 @@ export function SerialMatrix({
               </tr>
             ))}
             <tr className="border-t border-border/60">
-              <td colSpan={dates.length + 2} className="px-2 py-1.5">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1.5">
                 <span className="flex flex-wrap items-center gap-1.5">
                   <select
                     className="h-7 w-48 rounded border border-border bg-background px-1 text-[11px]"
@@ -443,13 +443,13 @@ export function SerialMatrix({
             </tr>
 
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                 Exames laboratoriais
               </td>
             </tr>
             {labExams.length === 0 && (
               <tr>
-                <td colSpan={dates.length + 2} className="px-2 py-2 text-[11px] italic text-muted-foreground">
+                <td colSpan={dates.length * 2 + 2} className="px-2 py-2 text-[11px] italic text-muted-foreground">
                   Nenhum exame cadastrado — selecione um parâmetro abaixo.
                 </td>
               </tr>
@@ -487,7 +487,7 @@ export function SerialMatrix({
               );
             })}
             <tr className="border-t border-border/60">
-              <td colSpan={dates.length + 2} className="px-2 py-1.5">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1.5">
                 <span className="flex flex-wrap items-center gap-1.5">
                   <select
                     className="h-7 w-52 rounded border border-border bg-background px-1 text-[11px]"
@@ -530,7 +530,7 @@ export function SerialMatrix({
             </tr>
 
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                 Gasometria arterial
               </td>
             </tr>
