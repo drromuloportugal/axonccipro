@@ -194,7 +194,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
     if (!active || !payload?.length) return null;
     const row = payload[0]?.payload ?? {};
     return (
-      <div className="rounded border border-border bg-card px-2 py-1.5 text-[11px] shadow">
+      <div className="glass-panel rounded-md px-2 py-1.5 text-[11px]">
         <div className="mb-1 font-semibold text-foreground">
           {new Date(Number(label)).toLocaleString("pt-BR")}
         </div>
@@ -223,8 +223,39 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   };
 
 
+  const ActiveValueDot = (props: {
+    cx?: number; cy?: number; stroke?: string; dataKey?: string | number;
+    payload?: Record<string, number | string>;
+  }) => {
+    const { cx, cy, stroke, dataKey, payload } = props;
+    if (cx == null || cy == null) return null;
+    const s = byKey.get(String(dataKey ?? ""));
+    const raw = payload?.[`${String(dataKey)}#raw`];
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={7} fill={stroke} fillOpacity={0.22} />
+        <circle cx={cx} cy={cy} r={3.5} fill={stroke} stroke="#fff" strokeWidth={1.5} />
+        {raw != null && (
+          <text
+            x={cx}
+            y={cy - 11}
+            textAnchor="middle"
+            fontSize={10}
+            fontWeight={700}
+            fill="hsl(var(--foreground))"
+            paintOrder="stroke"
+            stroke="rgba(255,255,255,0.85)"
+            strokeWidth={3}
+          >
+            {String(raw)}{s?.unit ? ` ${s.unit}` : ""}
+          </text>
+        )}
+      </g>
+    );
+  };
+
   return (
-    <section className="rounded-lg border border-border bg-card p-3">
+    <section className="glass-panel rounded-lg p-3">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="pastel-neutral inline-flex items-center rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
           Sequência temporal de resultados
@@ -311,7 +342,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
             </div>
           )}
 
-          <div className="h-[280px] w-full">
+          <div className="glass-panel h-[280px] w-full rounded-md p-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -359,6 +390,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                     stroke={s.color}
                     strokeWidth={1.8}
                     dot={{ r: 2 }}
+                    activeDot={<ActiveValueDot />}
                     connectNulls
                   />
                 ))}

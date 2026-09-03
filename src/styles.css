@@ -292,3 +292,15 @@
   background-color: oklch(0.95 0.012 250);
   border-color: oklch(0.88 0.018 250);
 }
+
+/* Painel translúcido estilo vidro para o mapa temporal */
+@utility glass-panel {
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklab, white 62%, transparent),
+    color-mix(in oklab, oklch(0.93 0.03 200) 42%, transparent)
+  );
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid color-mix(in oklab, white 55%, transparent);
+  box-shadow: 0 8px 28px -14px oklch(0.25 0.03 240 / 0.45), inset 0 1px 0 color-mix(in oklab, white 70%, transparent);
+}
