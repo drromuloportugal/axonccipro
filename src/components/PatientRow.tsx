@@ -516,7 +516,7 @@ export function PatientRow({
  <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
                 return (
- <div key={c.id} className="flex items-center gap-1 text-[10.5px] leading-snug" title={c.organism ?? c.source}>
+ <div key={c.id} className={`flex items-center gap-1 rounded-md text-[10.5px] leading-snug ${r.label === "Positiva" ? "alert-outline-static px-1 py-0.5" : ""}`} title={c.organism ?? c.source}>
  <span className="min-w-0 flex-1 truncate">
  <span className="font-semibold text-foreground"> {c.source}</span> {c.organism ? <span className="text-muted-foreground"> · {c.organism}</span> : null}
  </span>
