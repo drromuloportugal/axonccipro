@@ -1,6 +1,7 @@
 // Parecer técnico resumido de gasometria arterial (coluna 6).
 // Extrai os valores dos exames do paciente e aplica a calculadora pura.
 
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Patient } from "@/data/patients";
 import { computeAbg, type AbgCourse } from "@/lib/bloodgas";
