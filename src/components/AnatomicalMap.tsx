@@ -233,10 +233,8 @@ function BodyPanel({
 // ============================================================================
 
 export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPChange }: Props) {
-  const [selected, setSelected] = useState<InvasiveDevice | null>(null);
   const [compare, setCompare] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
-  const [selectedFocus, setSelectedFocus] = useState<InfectionFocus | null>(null);
   const [editingLPP, setEditingLPP] = useState<LPPLesion | null>(null);
   const [creatingLPP, setCreatingLPP] = useState<
     | { view: "anterior" | "posterior" | "lateral_d" | "lateral_e"; site: string; siteLabel: string }
