@@ -704,25 +704,6 @@ function Field({ k, v }: { k: string; v?: string | null }) {
  </> );
 }
 
-function AlertsList({ devices }: { devices: InvasiveDevice[] }) {
-  const rows = devices.flatMap((d) => {
-    const def = deviceTypeByCode(d.typeCode);
-    const max = d.recommendedMaxDays ?? def?.recommendedMaxDays ?? 7;
-    return deviceAlerts(d, max).map((a) => ({ d, a, def }));
-  });
-  if (!rows.length) {
-    return <div className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px] text-clinical-stable">Sem alertas de dispositivos.</div>;
-  }
-  return (
- <div className="anat-map-box p-2">
-  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
- <ul className="space-y-0.5 text-[11px]"> {rows.map((r, i) => (
-  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.label ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
- </li> ))}
- </ul>
- </div> );
-}
-
 function Mini({ label, value, tone }: { label: string; value: number; tone: "default" | "ok" | "warn" | "danger" }) {
   const cls =
     tone === "danger" ? "text-clinical-critical"
