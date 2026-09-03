@@ -937,6 +937,18 @@ export function PatientRow({
  </ul>
  </details> )}
  </div>
+            {/* Procedimentos & eventos — exibidos na coluna 03 */}
+            {patient.procedures.length > 0 && (
+ <div className="mt-4">
+ <ColTitle tone={2}>🗓️ Procedimentos & eventos</ColTitle>
+ <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
+ <li key={i} className="relative">
+ <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
+ <div className="text-[11px] text-muted-foreground">{p.date}</div>
+ <div className={`text-[12px] ${kindClass[p.kind]}`}>{p.label}</div> {p.detail && <div className="text-[11px] text-muted-foreground">{p.detail}</div>}
+ </li> ))}
+ </ol>
+ </div> )}
  </div> {/* 4 — Medicações agrupadas por classe */}
  <div onClick={colClick("med")}>
  <div className="mb-2 flex items-center justify-between gap-2">
