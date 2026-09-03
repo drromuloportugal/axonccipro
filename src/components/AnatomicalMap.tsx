@@ -16,7 +16,7 @@ import { EquipmentBoard } from "@/components/EquipmentBoard";
 import bodyAnterior from "@/assets/body-anterior.jpg.asset.json";
 import bodyPosterior from "@/assets/body-posterior.jpg.asset.json";
 import { Plus, Trash2 } from "lucide-react";
-import { NeedleIcon, BandaidsIcon } from "@phosphor-icons/react";
+import { NeedleIcon, BandaidsIcon, VirusIcon } from "@phosphor-icons/react";
 
 interface Props {
   devices: InvasiveDevice[];
@@ -395,13 +395,13 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </span>
  </li> ))}
  </ul> )}
- </div> {/* LPP e classificações */}
- <div className="anat-map-box mt-2 p-2">
-  <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
- <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão · {lppSummary.totalActive}
- </div> {lppSummary.active.length === 0 ? (
- <div className="text-[11px] text-muted-foreground">Nenhuma lesão por pressão ativa registrada.</div> ) : (
- <ul className="space-y-0.5 text-[11px]"> {lppSummary.active
+  </div> {/* LPP e classificações */}
+  <div className="anat-map-box mt-2 p-2">
+   <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+  <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão · {lppSummary.totalActive}
+  </div> {lppSummary.active.length === 0 ? (
+  <div className="text-[11px] text-muted-foreground">Nenhuma lesão por pressão ativa registrada.</div> ) : (
+  <ul className="space-y-0.5 text-[11px]"> {lppSummary.active
              .slice()
              .sort((a, b) => String(b.stage).localeCompare(String(a.stage)))
              .map((l) => {
@@ -409,18 +409,44 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                const site = LPP_SITE_BY_KEY[l.site];
                const severe = ["3", "4", "NC", "LTP"].includes(String(l.stage));
                return (
- <li key={l.id} className={`flex items-center gap-2 ${severe ? "alert-outline px-1.5 py-0.5" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
- <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
- <button
+  <li key={l.id} className={`flex items-center gap-2 ${severe ? "alert-outline px-1.5 py-0.5" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
+  <button
                      onClick={() => onLPPChange && setEditingLPP(l)}
                      className="flex-1 truncate text-left text-foreground hover:underline"
                    > {site?.label ?? l.site}{l.count > 1 ? ` ×${l.count}` : ""}
- </button>
- <span className="shrink-0 font-semibold" style={{ color: meta.color }}>{meta.label}</span>
- </li> );
+  </button>
+  <span className="shrink-0 font-semibold" style={{ color: meta.color }}>{meta.label}</span>
+  </li> );
              })}
- </ul> )}
- </div>
+  </ul> )}
+  </div>
+
+  {/* Infecções ativas — detalhamento abaixo de invasões e LPP */}
+  <div className="anat-map-box mt-2 p-2">
+   <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+  <VirusIcon size={13} weight="duotone" /> Infecções ativas · {infections.filter((i) => !i.resolvedAt).length}
+  </div> {infections.filter((i) => !i.resolvedAt).length === 0 ? (
+  <div className="text-[11px] text-muted-foreground">Nenhuma infecção ativa registrada.</div> ) : (
+  <ul className="space-y-0.5 text-[11px]"> {infections
+             .filter((i) => !i.resolvedAt)
+             .map((f) => {
+               const meta = SITE_META[f.site];
+               const status = STATUS_COLOR[f.status];
+               const fmt = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
+               return (
+  <li key={f.id} className={`flex items-center gap-2 ${f.unstable ? "alert-outline px-1.5 py-0.5" : ""}`} title={f.unstable ? "Infecção instável" : undefined}>
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: status.hex }} />
+  <button onClick={() => setSelectedFocus(f)} className="flex-1 truncate text-left text-foreground hover:underline"> {meta?.label ?? f.site}{f.unstable ? " · instável" : ""}
+  </button>
+  <span className={`shrink-0 font-mono ${status.className}`}>{status.label}
+  </span>
+  <span className="shrink-0 font-mono text-muted-foreground">{fmt(f.startedAt)}
+  </span>
+  </li> );
+             })}
+  </ul> )}
+  </div>
 
 
  </div> {/* Right: enxuto — indicadores unificados, detalhe e seções recolhíveis */}
