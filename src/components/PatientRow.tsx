@@ -1062,11 +1062,15 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum exame de imagem registrado.</div> ) : (
  <ul className="space-y-1"> {patient.imaging!.slice().reverse().map((im) => {
                     const icon = im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : "";
+                    const bad = im.outcome === "mau";
                     return (
- <li key={im.id} className="ios-inset px-2 py-1.5 text-[11px]">
+ <li key={im.id} className={`ios-inset px-2 py-1.5 text-[11px] ${bad ? "alert-outline" : ""}`} title={bad ? "Mau resultado esperado" : undefined}>
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
  <span>{icon}</span><span>{im.modality} · {im.region}</span>
+                            {im.outcome && (
+ <span className={`rounded px-1 py-px text-[8.5px] font-bold uppercase tracking-wider ${bad ? "bg-clinical-critical/15 text-clinical-critical" : "bg-clinical-stable/15 text-clinical-stable"}`}> {bad ? "Mau resultado" : "Bom resultado"}
+ </span> )}
  </div>
  <span className="font-mono text-[10px] text-muted-foreground"> {formatDateBR(im.performedAt)}
                             {im.status && <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">{im.status === "concluido" ? " Concluído" : " Solicitado"}</span>}
