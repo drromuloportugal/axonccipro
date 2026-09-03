@@ -414,18 +414,7 @@ export function PatientRow({
             </div>
           </div>
 
-          {/* Procedimentos & eventos — movidos para o rodapé da coluna 01 */}
-
-          {patient.procedures.length > 0 && (
- <div className="mt-2 border-t border-border/60 pt-1.5">
- <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
- </div>
- <div className="flex flex-wrap gap-1"> {patient.procedures.slice(-3).map((p, i) => (
- <Chip key={i} kind={p.kind}>{p.label}</Chip> ))}
-                {patient.procedures.length > 3 && (
- <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
- </div>
- </div> )}
+          {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
  </div> {/* 2 - História */}
  <div onClick={colClick("hist")} className="flex min-w-0 flex-col">
 
@@ -460,6 +449,16 @@ export function PatientRow({
             {activeDevices.length === 0 && (
  <span className="text-[11px] italic text-muted-foreground/60">Sem dispositivos</span> )}
  </div>
+          {patient.procedures.length > 0 && (
+ <div className="mt-2 border-t border-border/60 pt-1.5">
+ <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
+ </div>
+ <div className="flex flex-wrap gap-1"> {patient.procedures.slice(-3).map((p, i) => (
+ <Chip key={i} kind={p.kind}>{p.label}</Chip> ))}
+                {patient.procedures.length > 3 && (
+ <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
+ </div>
+ </div> )}
  </div> {/* 4 - Medicações com dashboard de bombas */}
  <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5">
  <ColHead
@@ -808,19 +807,7 @@ export function PatientRow({
             </div>
           </div>
 
-          {/* Procedimentos & eventos — ao final da coluna 01 */}
-
-            {patient.procedures.length > 0 && (
- <div className="mt-4">
- <ColTitle tone={0}>🗓️ Procedimentos & eventos</ColTitle>
- <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
- <li key={i} className="relative">
- <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
- <div className="text-[11px] text-muted-foreground">{p.date}</div>
- <div className={`text-[12px] ${kindClass[p.kind]}`}>{p.label}</div> {p.detail && <div className="text-[11px] text-muted-foreground">{p.detail}</div>}
- </li> ))}
- </ol>
- </div> )}
+          {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
  </div> {/* 2 */}
  <div onClick={colClick("hist")}>
  <ColTitle tone={1}>📋 História clínica</ColTitle>
@@ -937,6 +924,18 @@ export function PatientRow({
  </ul>
  </details> )}
  </div>
+            {/* Procedimentos & eventos — exibidos na coluna 03 */}
+            {patient.procedures.length > 0 && (
+ <div className="mt-4">
+ <ColTitle tone={2}>🗓️ Procedimentos & eventos</ColTitle>
+ <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
+ <li key={i} className="relative">
+ <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
+ <div className="text-[11px] text-muted-foreground">{p.date}</div>
+ <div className={`text-[12px] ${kindClass[p.kind]}`}>{p.label}</div> {p.detail && <div className="text-[11px] text-muted-foreground">{p.detail}</div>}
+ </li> ))}
+ </ol>
+ </div> )}
  </div> {/* 4 — Medicações agrupadas por classe */}
  <div onClick={colClick("med")}>
  <div className="mb-2 flex items-center justify-between gap-2">
