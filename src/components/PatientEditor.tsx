@@ -560,12 +560,23 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  </Tabs>
 
  <DialogFooter className="mt-4 flex items-center justify-between sm:justify-between">
- <Button variant="outline" onClick={onClose}>Cancelar</Button>
+ <div className="flex items-center gap-2">
+ <Button variant="outline" size="icon" onClick={undo} disabled={pastRef.current.length === 0}
+     title="Desfazer alteração" aria-label="Desfazer alteração">
+ <Undo2 className="h-4 w-4" />
+ </Button>
+ <Button variant="outline" size="icon" onClick={redo} disabled={futureRef.current.length === 0}
+     title="Refazer alteração" aria-label="Refazer alteração">
+ <Redo2 className="h-4 w-4" />
+ </Button>
+ <Button variant="ghost" onClick={onClose}>Descartar</Button>
+ </div>
  <div className="flex gap-2">
  <StepNav tab={tab} setTab={setTab} />
- <Button onClick={save}>Salvar paciente</Button>
+ <Button onClick={save}>Salvar e fechar</Button>
  </div>
  </DialogFooter>
+
  </DialogContent>
  </Dialog> );
 }
