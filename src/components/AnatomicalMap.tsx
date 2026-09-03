@@ -554,7 +554,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: "def
     : tone === "warn" ? "text-clinical-attention border-clinical-attention/30 bg-clinical-attention/5"
     : "text-foreground";
   return (
- <div className={`rounded-md border border-border bg-surface px-2 py-1.5 text-center ${cls}`}>
+ <div className={`anat-map-box px-2 py-1.5 text-center ${cls}`}>
  <div className="text-lg font-semibold leading-none">{value}</div>
  <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
  </div> );
