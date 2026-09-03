@@ -674,6 +674,10 @@ function Passometro() {
                       setPatients((prev) => prev.filter((x) => x.id !== pt.id));
                       toast.success("Paciente removido", { description: `${pt.name} (${pt.bed}) foi removido do sistema.` });
                     }}
+                    onDischarge={(pt) => {
+                      handleSave(pt);
+                      toast.success("Alta concedida", { description: `${pt.name} (${pt.bed}) foi movido para a aba Altas concedidas.` });
+                    }}
                   />
                 </section>
               ))}
