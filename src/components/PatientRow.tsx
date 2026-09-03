@@ -414,18 +414,7 @@ export function PatientRow({
             </div>
           </div>
 
-          {/* Procedimentos & eventos — movidos para o rodapé da coluna 01 */}
-
-          {patient.procedures.length > 0 && (
- <div className="mt-2 border-t border-border/60 pt-1.5">
- <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
- </div>
- <div className="flex flex-wrap gap-1"> {patient.procedures.slice(-3).map((p, i) => (
- <Chip key={i} kind={p.kind}>{p.label}</Chip> ))}
-                {patient.procedures.length > 3 && (
- <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
- </div>
- </div> )}
+          {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
  </div> {/* 2 - História */}
  <div onClick={colClick("hist")} className="flex min-w-0 flex-col">
 
