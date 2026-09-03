@@ -378,7 +378,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
  </div> {/* Invasões ativas e tempo de permanência */}
- <div className="mt-3 rounded-md border border-border bg-surface-2 p-2">
+ <div className="anat-map-box mt-3 p-2">
   <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
  <NeedleIcon size={13} weight="duotone" /> Invasões ativas · {active.length}
  </div> {active.length === 0 ? (
