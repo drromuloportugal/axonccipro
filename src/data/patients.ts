@@ -422,6 +422,10 @@ export interface Patient {
   bed: string;
   archived?: boolean;
   archivedAt?: string;          // ISO
+  /** Alta concedida após a checagem de alta. */
+  discharged?: boolean;
+  dischargedAt?: string;        // ISO
+  dischargedBy?: string;
   age: number;
   sex: "M" | "F";
   weight: number;
