@@ -448,7 +448,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                 const def = deviceTypeByCode(h.device.typeCode);
                 return (
  <li key={i}>
- <span className="font-semibold">{def?.code ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
+ <span className="font-semibold">{def?.label ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
  <span className="ml-1 text-muted-foreground" suppressHydrationWarning>— {h.reasons.join(" · ")}</span>
  </li> );
               })}
@@ -555,7 +555,7 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
  <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
  <div>
  <div className="font-semibold text-foreground">{def?.label ?? device.typeCode}</div>
- <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{def?.code ?? device.typeCode}</div>
+ 
  </div>
  </div>
   <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
@@ -618,7 +618,7 @@ function AlertsList({ devices }: { devices: InvasiveDevice[] }) {
  <div className="rounded-md border border-border bg-surface p-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
  <ul className="space-y-0.5 text-[11px]"> {rows.map((r, i) => (
-  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.code ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
+  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.label ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
  </li> ))}
  </ul>
  </div> );
@@ -701,7 +701,7 @@ function FocusPanel({
  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Dispositivos relacionados</div>
  <ul className="mt-1 space-y-0.5 text-[11px]"> {related.map((d) => {
               const def = deviceTypeByCode(d.typeCode);
-              return <li key={d.id}>● {def?.code ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}</li>;
+              return <li key={d.id}>● {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}</li>;
             })}
  </ul>
  </div> )}

@@ -23,8 +23,8 @@ export const LPP_SITES: LPPSiteDef[] = [
   // Tronco
   { key: "escapula_d", label: "Escápula direita", region: "Tronco", view: "posterior", side: "D", x: 78, y: 130 },
   { key: "escapula_e", label: "Escápula esquerda",region: "Tronco", view: "posterior", side: "E", x: 122, y: 130 },
-  { key: "sacro", label: "Sacro", region: "Tronco", view: "posterior", side: "central", x: 100, y: 280 },
-  { key: "coccix", label: "Cóccix", region: "Tronco", view: "posterior", side: "central", x: 100, y: 298 },
+  { key: "sacro", label: "Sacro", region: "Tronco", view: "posterior", side: "central", x: 100, y: 266 },
+  { key: "coccix", label: "Cóccix", region: "Tronco", view: "posterior", side: "central", x: 100, y: 282 },
   { key: "torax_ant", label: "Tórax (anterior)", region: "Tronco", view: "anterior", side: "central", x: 100, y: 150 },
   { key: "costela_d", label: "Costelas D", region: "Tronco", view: "anterior", side: "D", x: 82, y: 175 },
   { key: "costela_e", label: "Costelas E", region: "Tronco", view: "anterior", side: "E", x: 118, y: 175 },
