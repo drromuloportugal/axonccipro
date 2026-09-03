@@ -345,7 +345,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </div>
 
 
- <div className="grid grid-cols-2 gap-2">
+ <div className="grid items-start gap-2 lg:grid-cols-[minmax(150px,1fr)_auto_auto_minmax(150px,1fr)]">
+ <EquipmentBoard patient={patient} devices={devices} side="left" />
  <BodyPanel
             label="Anterior" view="anterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
@@ -362,6 +363,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
             heatmap={heatmap} onSelectFocus={setSelectedFocus}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
           />
+ <EquipmentBoard patient={patient} devices={devices} side="right" />
  </div> {/* Compact legend — collapsible to reduce noise */}
  <details className="mt-3 text-[10px] text-muted-foreground">
  <summary className="cursor-pointer select-none font-semibold uppercase tracking-wider hover:text-foreground"> Legenda
