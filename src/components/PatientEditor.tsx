@@ -149,16 +149,49 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
   const [allergiesTxt, setAllergiesTxt] = useState("");
   const [tab, setTab] = useState(initialTab ?? "id");
 
+  const pRef = useRef<Patient>(p);
+  const pastRef = useRef<Patient[]>([]);
+  const futureRef = useRef<Patient[]>([]);
+  const [, setTick] = useState(0);
+
   useEffect(() => {
     const base = initial ?? emptyPatient();
     setP(base);
+    pRef.current = base;
+    pastRef.current = [];
+    futureRef.current = [];
+    setTick((t) => t + 1);
     setAllergiesTxt(base.allergies.join(", "));
     setTab(initialTab ?? "id");
   }, [initial, open, initialTab]);
 
-  const upd = <K extends keyof Patient>(k: K, v: Patient[K]) => setP((prev) => ({ ...prev, [k]: v }));
-  const updState = <K extends keyof Patient["state"]>(k: K, v: Patient["state"][K]) => setP((prev) => ({ ...prev, state: { ...prev.state, [k]: v } }));
-  const updOrigin = (patch: Partial<PatientOrigin>) => setP((prev) => ({ ...prev, origin: { ...(prev.origin ?? { type: "Hospital" }), ...patch } }));
+  const commit = (next: Patient) => {
+    pastRef.current = [...pastRef.current.slice(-99), pRef.current];
+    futureRef.current = [];
+    pRef.current = next;
+    setP(next);
+    setTick((t) => t + 1);
+  };
+  const undo = () => {
+    const prev = pastRef.current.pop();
+    if (!prev) return;
+    futureRef.current = [...futureRef.current, pRef.current];
+    pRef.current = prev;
+    setP(prev);
+    setTick((t) => t + 1);
+  };
+  const redo = () => {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    pastRef.current = [...pastRef.current, pRef.current];
+    pRef.current = next;
+    setP(next);
+    setTick((t) => t + 1);
+  };
+
+  const upd = <K extends keyof Patient>(k: K, v: Patient[K]) => commit({ ...pRef.current, [k]: v });
+  const updState = <K extends keyof Patient["state"]>(k: K, v: Patient["state"][K]) => commit({ ...pRef.current, state: { ...pRef.current.state, [k]: v } });
+  const updOrigin = (patch: Partial<PatientOrigin>) => commit({ ...pRef.current, origin: { ...(pRef.current.origin ?? { type: "Hospital" }), ...patch } });
 
   const bmi = computeBMI(p.weight, p.height);
   const computedAge = computeAge(p.birthDate);
@@ -172,8 +205,9 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
   };
 
   return (
- <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+ <Dialog open={open} onOpenChange={(o) => { if (!o) save(); }}>
  <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto">
+
  <DialogHeader>
  <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
  </DialogHeader>
