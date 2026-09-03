@@ -2142,6 +2142,12 @@ const CONCLUSION_OPTIONS: { code: NonNullable<ImagingExam["conclusion"]>; label:
   { code: "pendente", label: "Pendente", icon: "" },
 ];
 
+const OUTCOME_OPTIONS: { code: NonNullable<ImagingExam["outcome"]> | ""; label: string }[] = [
+  { code: "", label: "Resultado: não classificado" },
+  { code: "bom", label: "Bom resultado esperado" },
+  { code: "mau", label: "Mau resultado esperado" },
+];
+
 function EegList({ items, onChange }: { items: EegRecord[]; onChange: (v: EegRecord[]) => void }) {
   const [performedAt, setPerformedAt] = useState(new Date().toISOString().slice(0, 10));
   const [report, setReport] = useState("");
