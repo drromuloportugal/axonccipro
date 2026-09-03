@@ -314,7 +314,7 @@ export function PatientRow({
  </div> );
 
   return (
- <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
+ <div className="border-b border-border last:border-b-0 bg-soft-blue-gradient"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
         className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-2.5 px-4 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-3.5 [&>div]:py-3 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
