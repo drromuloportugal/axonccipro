@@ -314,7 +314,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
   return (
  <div className="grid gap-4 lg:grid-cols-[1fr_340px]"> {/* Left: dual-view SVG body */}
- <div className="rounded-lg border border-border bg-surface p-3">
+ <div className="anat-map-panel rounded-lg p-3">
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Vista anterior · posterior
  </div>
