@@ -206,7 +206,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
 
   return (
  <Dialog open={open} onOpenChange={(o) => { if (!o) save(); }}>
- <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto">
+ <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto bg-soft-blue-gradient">
 
  <DialogHeader>
  <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
