@@ -72,12 +72,13 @@ function Passometro() {
       const y = window.scrollY;
       const delta = y - lastScrollY.current;
       if (y < 60) {
+        // Sempre visível quando estiver no topo da página.
         setHeaderHidden(false);
       } else if (delta > 8) {
+        // Ao rolar para baixo, oculta o HEAD até voltar ao topo.
         setHeaderHidden(true);
-      } else if (delta < -8) {
-        setHeaderHidden(false);
       }
+      // Rolar para cima mantém oculto até atingir o topo.
       lastScrollY.current = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
