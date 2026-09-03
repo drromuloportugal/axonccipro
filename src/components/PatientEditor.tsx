@@ -2231,6 +2231,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
   const [summary, setSummary] = useState("");
   const [conclusion, setConclusion] = useState<ImagingExam["conclusion"]>("alterado");
   const [status, setStatus] = useState<NonNullable<ImagingExam["status"]>>("solicitado");
+  const [outcome, setOutcome] = useState<ImagingExam["outcome"] | "">("");
   const [reportedBy, setReportedBy] = useState("");
 
   const add = () => {
@@ -2242,6 +2243,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
         modality, region: region.trim(),
         performedAt, summary: summary.trim() || undefined,
         conclusion, status,
+        outcome: outcome || undefined,
         reportedBy: reportedBy.trim() || undefined,
       },
     ]);
