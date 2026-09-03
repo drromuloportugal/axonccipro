@@ -147,8 +147,10 @@ function isAltered(s: SeriesDef): boolean {
 export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   const all = useMemo(() => buildSeries(patient), [patient]);
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set<GroupKey>(["vitals", "lab", "gaso", "fluid"]));
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [mode, setMode] = useState<"index" | "raw">("index");
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(buildSeries(patient).filter(isAltered).map((s) => s.key)),
+  );
+  const mode = "index" as const;
 
   const visible = useMemo(
     () => all.filter((s) => groups.has(s.group) && selected.has(s.key)),
