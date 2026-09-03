@@ -346,9 +346,23 @@ export function SerialMatrix({
               </th>
               <th className="px-1 py-1.5 text-left font-semibold text-muted-foreground">Un.</th>
               {dates.map((d) => (
-                <th key={d} className="min-w-[74px] px-1 py-1.5 text-center font-mono font-bold">
+                <th key={d} colSpan={2} className="min-w-[148px] border-l border-border/60 px-1 py-1.5 text-center font-mono font-bold">
                   {fmtCol(d)}
                 </th>
+              ))}
+            </tr>
+            <tr>
+              <th className="sticky left-0 z-20 bg-surface-2" />
+              <th />
+              {dates.map((d) => (
+                <Fragment key={d}>
+                  <th className="border-l border-border/60 px-1 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Máx
+                  </th>
+                  <th className="px-1 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Mín
+                  </th>
+                </Fragment>
               ))}
             </tr>
           </thead>
