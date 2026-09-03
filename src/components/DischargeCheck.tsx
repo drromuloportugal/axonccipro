@@ -178,8 +178,8 @@ function Card({
 
 // ---------- Main component ----------
 export function DischargeCheckModal({
-  open, onClose, patient, onSave,
-}: { open: boolean; onClose: () => void; patient: Patient; onSave: (p: Patient) => void }) {
+  open, onClose, patient, onSave, onDischarge,
+}: { open: boolean; onClose: () => void; patient: Patient; onSave: (p: Patient) => void; onDischarge?: (p: Patient) => void }) {
   const [dc, setDc] = useState<DischargeCheck>(patient.dischargeCheck ?? {});
 
   useEffect(() => {
