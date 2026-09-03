@@ -1510,6 +1510,7 @@ export function PatientRow({
           onClose={() => setDischargeOpen(false)}
           patient={patient}
           onSave={onUpdate}
+          onDischarge={onDischarge}
         /> )}
 
  </div> );
