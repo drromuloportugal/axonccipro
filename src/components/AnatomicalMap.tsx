@@ -677,12 +677,12 @@ function DetailPanel({ id, device, patient, onClose }: { id?: string; device: In
  </div> );
 }
 
-function LPPCard({ lesion }: { lesion: LPPLesion }) {
+function LPPCard({ id, lesion }: { id?: string; lesion: LPPLesion }) {
   const meta = STAGE_META[lesion.stage];
   const def = LPP_SITE_BY_KEY[lesion.site];
   const severe = ["3", "4", "NC", "LTP"].includes(String(lesion.stage));
   return (
- <div className={`anat-map-box p-2.5 text-[11px] ${severe ? "alert-outline" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
+  <div id={id} className={`anat-map-box p-2.5 text-[11px] ${severe ? "alert-outline" : ""}`} title={severe ? "Lesão de maior gravidade" : undefined}>
   <div className="mb-1.5 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
   <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
