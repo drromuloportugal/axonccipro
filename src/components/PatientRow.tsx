@@ -55,6 +55,18 @@ const VITAL_LEVEL_TXT: Record<string, string> = {
   na: "text-muted-foreground",
 };
 
+/** Formata o último registro do sinal vital: máximo (linha de cima) e mínimo (linha de baixo). */
+function vitalMinMax(v: VitalSummaryEntry): { max: string; min: string | null } {
+  const dec = v.dec ?? 0;
+  const unit = v.unit ? ` ${v.unit}` : "";
+  const fmt = (n?: number) => (typeof n === "number" && Number.isFinite(n) ? `${n.toFixed(dec)}${unit}` : null);
+  const max = fmt(v.max);
+  const min = fmt(v.min);
+  if (!max && !min) return { max: v.text.split("·")[0].trim() || "—", min: null };
+  if (max && min && max === min) return { max, min: null };
+  return { max: max ?? min ?? "—", min: max ? min : null };
+}
+
 const kindClass: Record<string, string> = {
   resp: "text-clinical-resp",
   stable: "text-clinical-stable",
