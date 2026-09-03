@@ -1131,16 +1131,26 @@ export function PatientRow({
  <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
- <div className="space-y-0.5 ios-inset px-2 py-1.5"> {vitalRows.map((r) => (
- <div key={r.label} className="flex items-baseline justify-between gap-2 text-[11px]">
- <span className="font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
- <span className={`font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}>{r.v.text}</span>
- </div> ))}
-                {crcl && (
- <div className="mt-1 flex items-baseline justify-between gap-2 border-t border-border/50 pt-1 text-[11px]">
- <span className="font-bold uppercase tracking-wider text-muted-foreground">ClCr (Cockcroft)</span>
- <span className="font-mono font-bold text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL · ${crcl.ageYears}a · ${crcl.weightKg}kg`}> {crcl.value} mL/min
+ <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
+                  const parts = r.v.text.split("·");
+                  const val = parts[0].trim();
+                  const qual = parts.slice(1).join("·").trim();
+                  const crit = r.v.level === "critical";
+                  return (
+ <div key={r.label} className="grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px]">
+ <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
+ <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
+ <span className="flex items-center justify-end gap-1 text-right">
+ <span className={`text-[10px] ${VITAL_LEVEL_TXT[r.v.level]}`}>{qual}</span>
+                        {crit && <span className="alert-dot" title="Alteração grave" aria-label="Alteração grave" />}
  </span>
+ </div> );
+                })}
+                {crcl && (
+ <div className="mt-1 grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 border-t border-border/50 pt-1 text-[11px]">
+ <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">ClCr</span>
+ <span className="font-mono font-bold tabular-nums text-foreground" title={`Cockcroft-Gault · Cr ${crcl.creat} mg/dL · ${crcl.ageYears}a · ${crcl.weightKg}kg`}>{crcl.value}</span>
+ <span className="text-right text-[10px] text-muted-foreground">mL/min</span>
  </div> )}
  </div>
  </div> {/* Laboratoriais + Gasometria (movidos da coluna 5) */}
