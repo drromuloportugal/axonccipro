@@ -567,8 +567,9 @@ export function PatientRow({
             const rows = (list: typeof patient.exams) => list.map((e, i) => {
               const ins = examInsight(e, patient.sex);
               const b = ins.bucket ? bucketBadge(ins.bucket) : null;
+              const abn = !!ins.bucket && ins.bucket !== "normal";
               return (
- <div key={i} className="flex items-baseline justify-between gap-1 text-[10px]">
+ <div key={i} className={`flex items-baseline justify-between gap-1 rounded text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? `Resultado alterado · ${b?.label}` : undefined}>
  <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
  <span className={`shrink-0 font-mono font-bold ${b?.className ?? "text-foreground"}`}>{e.value}</span>
  </div> );
