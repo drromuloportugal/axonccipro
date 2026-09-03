@@ -466,8 +466,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         {/* Alertas — visíveis se existirem, sem container quando vazio */}
  <AlertsList devices={active} /> {/* Sugestões IRAS — collapsible */}
         {deviceHints.length > 0 && (
- <details className="rounded-md border border-clinical-attention/30 bg-clinical-attention/5">
- <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention"> Avaliar IRAS · {deviceHints.length}
+ <details className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
+  <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention"> Avaliar IRAS · {deviceHints.length}
  </summary>
  <ul className="space-y-1 px-2 pb-2 text-[11px]"> {deviceHints.map((h, i) => {
                 const def = deviceTypeByCode(h.device.typeCode);
