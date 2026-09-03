@@ -1143,8 +1143,9 @@ export function PatientRow({
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
                   const val = r.v.text.split("·")[0].trim();
                   const crit = r.v.level === "grave";
+                  const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
                   return (
- <div key={r.label} className="grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px]">
+ <div key={r.label} className={`grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px] ${abn ? "alert-outline px-1.5" : ""}`} title={abn ? "Sinal vital alterado" : undefined}>
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
  <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
  <span className="flex items-center justify-end gap-1 text-right">
