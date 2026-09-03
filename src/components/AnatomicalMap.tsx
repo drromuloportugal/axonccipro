@@ -84,7 +84,7 @@ function Marker({ x, y, shape, color, onClick, highlight }: {
 function BodyPanel({
   label, view, active, removed, addedIds, onSelect,
   infections, focusedDeviceIds, heatmap, onSelectFocus,
-  lpp, onEditLesion,
+  lpp, onEditLesion, alertDeviceIds,
 }: {
   label: string;
   view: AnatView;
@@ -98,6 +98,8 @@ function BodyPanel({
   onSelectFocus?: (f: InfectionFocus) => void;
   lpp?: LPPLesion[];
   onEditLesion?: (l: LPPLesion) => void;
+  /** Dispositivos com tempo de permanência excedido — marcador pisca. */
+  alertDeviceIds?: Set<string>;
 }) {
   const infForView = (infections ?? []).filter((i) => SITE_META[i.site]?.view === view);
   const lppForView = (lpp ?? []).filter((l) => l.view === view);
@@ -174,8 +176,11 @@ function BodyPanel({
           const ms = deviceMarkers(d, view);
           const tc = deviceTimeColor(d);
           const dim = heatmap && focusedDeviceIds && !focusedDeviceIds.has(d.id);
+          const alert = !!alertDeviceIds?.has(d.id);
           return ms.map((m, i) => (
- <g key={`${d.id}-${i}`} opacity={dim ? 0.18 : 1}>
+ <g key={`${d.id}-${i}`} opacity={dim ? 0.18 : 1} className={alert ? "svg-alert-blink" : undefined}>
+              {alert && (
+ <circle cx={m.x} cy={m.y} r={13} fill="none" stroke="rgb(220 38 38)" strokeWidth={2} strokeDasharray="3 2" /> )}
  <Marker
                 {...m}
                 color={tc.color}
@@ -199,9 +204,13 @@ function BodyPanel({
               return `${(x + r * Math.cos(rad)).toFixed(2)},${(y + r * Math.sin(rad)).toFixed(2)}`;
             })
             .join(" ");
+          const severe = !isResolved && ["3", "4", "NC", "LTP"].includes(String(l.stage));
           return (
  <g key={`lpp-${l.id}`} style={{ cursor: onEditLesion ? "pointer" : "default" }}
+               className={severe ? "svg-alert-blink" : undefined}
                onClick={(e) => { e.stopPropagation(); onEditLesion?.(l); }}>
+              {severe && (
+ <circle cx={x} cy={y} r={13} fill="none" stroke="rgb(220 38 38)" strokeWidth={2} strokeDasharray="3 2" /> )}
  <polygon points={pts} fill="white" opacity={0.95}
                        style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,.35))" }} />
  <polygon points={pts}
@@ -355,6 +364,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
             heatmap={heatmap} onSelectFocus={setSelectedFocus}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
+            alertDeviceIds={expiredIds}
           />
  <BodyPanel
             label="Posterior" view="posterior"
@@ -363,6 +373,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
             heatmap={heatmap} onSelectFocus={setSelectedFocus}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
+            alertDeviceIds={expiredIds}
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
  </div> {/* Invasões ativas e tempo de permanência */}
