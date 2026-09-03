@@ -145,6 +145,7 @@ export function PatientRow({
   onUpdate,
   onDelete,
   onArchive,
+  onDischarge,
   defaultOpen = false,
 }: {
   patient: Patient;
@@ -153,6 +154,7 @@ export function PatientRow({
   onUpdate?: (p: Patient) => void;
   onDelete?: (p: Patient) => void;
   onArchive?: (p: Patient) => void;
+  onDischarge?: (p: Patient) => void;
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -528,7 +530,7 @@ export function PatientRow({
           {/* 4) Imagem */}
           {(patient.imaging?.length ?? 0) > 0 && (
  <div className="mt-1 space-y-0.5"> {patient.imaging!.slice(0, 2).map((im) => (
- <div key={im.id} className="flex items-center gap-1 text-[10.5px] leading-snug">
+ <div key={im.id} className={`flex items-center gap-1 rounded text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline px-1" : ""}`} title={im.outcome === "mau" ? "Mau resultado esperado" : undefined}>
  <span className="shrink-0"> {im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : ""}
  </span>
  <span className="min-w-0 flex-1 truncate" title={im.summary}>
@@ -567,8 +569,9 @@ export function PatientRow({
             const rows = (list: typeof patient.exams) => list.map((e, i) => {
               const ins = examInsight(e, patient.sex);
               const b = ins.bucket ? bucketBadge(ins.bucket) : null;
+              const abn = !!ins.bucket && ins.bucket !== "normal";
               return (
- <div key={i} className="flex items-baseline justify-between gap-1 text-[10px]">
+ <div key={i} className={`flex items-baseline justify-between gap-1 rounded text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? `Resultado alterado · ${b?.label}` : undefined}>
  <span className="min-w-0 flex-1 truncate text-muted-foreground">{e.label}</span>
  <span className={`shrink-0 font-mono font-bold ${b?.className ?? "text-foreground"}`}>{e.value}</span>
  </div> );
@@ -1061,11 +1064,15 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum exame de imagem registrado.</div> ) : (
  <ul className="space-y-1"> {patient.imaging!.slice().reverse().map((im) => {
                     const icon = im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : "";
+                    const bad = im.outcome === "mau";
                     return (
- <li key={im.id} className="ios-inset px-2 py-1.5 text-[11px]">
+ <li key={im.id} className={`ios-inset px-2 py-1.5 text-[11px] ${bad ? "alert-outline" : ""}`} title={bad ? "Mau resultado esperado" : undefined}>
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
  <span>{icon}</span><span>{im.modality} · {im.region}</span>
+                            {im.outcome && (
+ <span className={`rounded px-1 py-px text-[8.5px] font-bold uppercase tracking-wider ${bad ? "bg-clinical-critical/15 text-clinical-critical" : "bg-clinical-stable/15 text-clinical-stable"}`}> {bad ? "Mau resultado" : "Bom resultado"}
+ </span> )}
  </div>
  <span className="font-mono text-[10px] text-muted-foreground"> {formatDateBR(im.performedAt)}
                             {im.status && <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">{im.status === "concluido" ? " Concluído" : " Solicitado"}</span>}
@@ -1134,16 +1141,13 @@ export function PatientRow({
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
-                  const parts = r.v.text.split("·");
-                  const val = parts[0].trim();
-                  const qual = parts.slice(1).join("·").trim();
+                  const val = r.v.text.split("·")[0].trim();
                   const crit = r.v.level === "grave";
                   return (
  <div key={r.label} className="grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px]">
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
  <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
  <span className="flex items-center justify-end gap-1 text-right">
- <span className={`text-[10px] ${VITAL_LEVEL_TXT[r.v.level]}`}>{qual}</span>
                         {crit && <span className="alert-dot" title="Alteração grave" aria-label="Alteração grave" />}
  </span>
  </div> );
@@ -1167,10 +1171,11 @@ export function PatientRow({
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                       const t = trendArrow(ins.movement, ins.trend);
+                      const abn = !!ins.bucket && ins.bucket !== "normal";
                       return (
  <tr key={i} className="border-b border-border/50 last:border-0">
- <td className="py-1 text-muted-foreground">{e.label}</td>
- <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
+ <td className={`py-1 text-muted-foreground ${abn ? "alert-outline" : ""}`} title={abn ? `Resultado alterado · ${b?.label}` : undefined}>{e.label}</td>
+ <td className={`py-1 font-mono ${abn ? "alert-outline " : ""}${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
   <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
@@ -1505,6 +1510,7 @@ export function PatientRow({
           onClose={() => setDischargeOpen(false)}
           patient={patient}
           onSave={onUpdate}
+          onDischarge={onDischarge}
         /> )}
 
  </div> );

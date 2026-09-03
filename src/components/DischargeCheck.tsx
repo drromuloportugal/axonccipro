@@ -178,8 +178,8 @@ function Card({
 
 // ---------- Main component ----------
 export function DischargeCheckModal({
-  open, onClose, patient, onSave,
-}: { open: boolean; onClose: () => void; patient: Patient; onSave: (p: Patient) => void }) {
+  open, onClose, patient, onSave, onDischarge,
+}: { open: boolean; onClose: () => void; patient: Patient; onSave: (p: Patient) => void; onDischarge?: (p: Patient) => void }) {
   const [dc, setDc] = useState<DischargeCheck>(patient.dischargeCheck ?? {});
 
   useEffect(() => {
@@ -588,12 +588,39 @@ export function DischargeCheckModal({
  </Card>
  </div>
 
- <div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 text-[11px] text-muted-foreground">
+ <div className="flex items-center justify-between gap-3 border-t border-border bg-surface-2 px-4 py-2 text-[11px] text-muted-foreground">
  <span>Salvamento automático ativo.</span>
+ <div className="flex items-center gap-2">
+            {onDischarge && (
  <button
-            type="button" onClick={onClose}
-            className="rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:bg-primary/90"
-          >Fechar</button>
+                type="button"
+                disabled={activeBlockerIds.length > 0 || dc.finalization?.fit !== "sim"}
+                title={
+                  activeBlockerIds.length > 0
+                    ? "Existem impedimentos ativos."
+                    : dc.finalization?.fit !== "sim"
+                      ? "Marque o paciente como apto para alta na checagem."
+                      : "Conceder alta e mover para a aba Altas"
+                }
+                onClick={() => {
+                  if (!window.confirm(`Conceder alta para ${patient.name} (${patient.bed})?`)) return;
+                  const now = new Date().toISOString();
+                  onDischarge({
+                    ...patient,
+                    discharged: true,
+                    dischargedAt: now,
+                    dischargedBy: dc.finalization?.responsible,
+                    dischargeCheck: { ...dc, updatedAt: now },
+                  });
+                  onClose();
+                }}
+                className="rounded-md bg-clinical-stable/20 px-3 py-1.5 text-[12px] font-semibold text-clinical-stable hover:bg-clinical-stable/30 disabled:cursor-not-allowed disabled:opacity-40"
+              >Conceder alta</button> )}
+ <button
+              type="button" onClick={onClose}
+              className="rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:bg-primary/90"
+            >Fechar</button>
+ </div>
  </div>
  </DialogContent>
  <DischargeReportModal

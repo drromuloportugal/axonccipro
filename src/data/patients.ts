@@ -157,6 +157,8 @@ export interface ImagingExam {
   performedAt: string;     // ISO date / datetime
   summary?: string;        // resumo do achado / impressão
   conclusion?: "normal" | "alterado" | "critico" | "pendente";
+  /** Expectativa do resultado: bom (esperado) ou mau (desfavorável). */
+  outcome?: "bom" | "mau";
   /** Status de solicitação: solicitado ou concluído. */
   status?: "solicitado" | "concluido";
   reportedBy?: string;
@@ -420,6 +422,10 @@ export interface Patient {
   bed: string;
   archived?: boolean;
   archivedAt?: string;          // ISO
+  /** Alta concedida após a checagem de alta. */
+  discharged?: boolean;
+  dischargedAt?: string;        // ISO
+  dischargedBy?: string;
   age: number;
   sex: "M" | "F";
   weight: number;

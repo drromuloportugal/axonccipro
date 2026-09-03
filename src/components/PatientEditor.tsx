@@ -2142,6 +2142,12 @@ const CONCLUSION_OPTIONS: { code: NonNullable<ImagingExam["conclusion"]>; label:
   { code: "pendente", label: "Pendente", icon: "" },
 ];
 
+const OUTCOME_OPTIONS: { code: NonNullable<ImagingExam["outcome"]> | ""; label: string }[] = [
+  { code: "", label: "Resultado: não classificado" },
+  { code: "bom", label: "Bom resultado esperado" },
+  { code: "mau", label: "Mau resultado esperado" },
+];
+
 function EegList({ items, onChange }: { items: EegRecord[]; onChange: (v: EegRecord[]) => void }) {
   const [performedAt, setPerformedAt] = useState(new Date().toISOString().slice(0, 10));
   const [report, setReport] = useState("");
@@ -2225,6 +2231,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
   const [summary, setSummary] = useState("");
   const [conclusion, setConclusion] = useState<ImagingExam["conclusion"]>("alterado");
   const [status, setStatus] = useState<NonNullable<ImagingExam["status"]>>("solicitado");
+  const [outcome, setOutcome] = useState<ImagingExam["outcome"] | "">("");
   const [reportedBy, setReportedBy] = useState("");
 
   const add = () => {
@@ -2236,6 +2243,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
         modality, region: region.trim(),
         performedAt, summary: summary.trim() || undefined,
         conclusion, status,
+        outcome: outcome || undefined,
         reportedBy: reportedBy.trim() || undefined,
       },
     ]);
@@ -2248,7 +2256,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
  <div className="space-y-3">
  <div className="rounded-md border border-dashed border-border bg-surface-2/40 p-3">
  <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Adicionar exame de imagem</div>
- <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_auto] gap-2">
+ <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_1.2fr_auto] gap-2">
  <select className={inputCls} value={modality} onChange={(e) => setModality(e.target.value as ImagingModality)}> {IMAGING_MODALITIES.map((m) => <option key={m.code} value={m.code}>{m.code} — {m.label}</option>)}
  </select>
  <input className={inputCls} placeholder="Região (ex.: Tórax, Crânio, Abdome)" value={region} onChange={(e) => setRegion(e.target.value)} />
@@ -2256,6 +2264,8 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
  <select className={inputCls} value={status} onChange={(e) => setStatus(e.target.value as NonNullable<ImagingExam["status"]>)}> {STATUS_OPTIONS.map((s) => <option key={s.code} value={s.code}>{s.icon} {s.label}</option>)}
  </select>
  <select className={inputCls} value={conclusion} onChange={(e) => setConclusion(e.target.value as ImagingExam["conclusion"])}> {CONCLUSION_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.icon} {c.label}</option>)}
+ </select>
+ <select className={inputCls} value={outcome ?? ""} onChange={(e) => setOutcome(e.target.value as ImagingExam["outcome"] | "")}> {OUTCOME_OPTIONS.map((o) => <option key={o.code} value={o.code}>{o.label}</option>)}
  </select>
  <Button size="sm" onClick={add}><Plus className="mr-1 h-3.5 w-3.5" />Adicionar</Button>
  </div>
@@ -2282,7 +2292,7 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
           };
           return (
  <li key={im.id} className="rounded-md border border-border bg-surface p-2 text-[12px]">
- <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_auto] gap-2">
+ <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_1.2fr_auto] gap-2">
  <select className={inputCls} value={im.modality}
                   onChange={(e) => updItem(im.id, { modality: e.target.value as ImagingModality })}> {IMAGING_MODALITIES.map((m) => <option key={m.code} value={m.code}>{m.code}</option>)}
  </select>
@@ -2295,6 +2305,9 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
  </select>
  <select className={inputCls} value={im.conclusion ?? "pendente"}
                   onChange={(e) => updItem(im.id, { conclusion: e.target.value as ImagingExam["conclusion"] })}> {CONCLUSION_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.icon} {c.label}</option>)}
+ </select>
+ <select className={inputCls} value={im.outcome ?? ""}
+                  onChange={(e) => updItem(im.id, { outcome: (e.target.value || undefined) as ImagingExam["outcome"] })}> {OUTCOME_OPTIONS.map((o) => <option key={o.code} value={o.code}>{o.label}</option>)}
  </select>
  <div className="flex items-center gap-1">
  <label className="cursor-pointer rounded border border-border bg-surface px-1.5 py-1 text-[10px] font-semibold hover:bg-surface-3" title="Anexar imagem">

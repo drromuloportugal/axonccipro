@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
   component: Passometro,
 });
 
-type Filter = "all" | Severity;
+type Filter = "all" | Severity | "discharged";
 
 function Passometro() {
   const [query, setQuery] = useState("");
@@ -200,7 +200,15 @@ function Passometro() {
   };
 
   const active = useMemo(
-    () => patients.filter((p) => !p.archived).sort((a, b) => bedNumber(a.bed) - bedNumber(b.bed) || a.bed.localeCompare(b.bed)),
+    () => patients.filter((p) => !p.archived && !p.discharged).sort((a, b) => bedNumber(a.bed) - bedNumber(b.bed) || a.bed.localeCompare(b.bed)),
+    [patients],
+  );
+
+  const discharged = useMemo(
+    () =>
+      patients
+        .filter((p) => p.discharged && !p.archived)
+        .sort((a, b) => (b.dischargedAt ?? "").localeCompare(a.dischargedAt ?? "")),
     [patients],
   );
 
@@ -213,12 +221,13 @@ function Passometro() {
   );
 
   const filtered = useMemo(() => {
-    return active.filter((p) => {
-      if (filter !== "all" && p.severity !== filter) return false;
+    const base = filter === "discharged" ? discharged : active;
+    return base.filter((p) => {
+      if (filter !== "all" && filter !== "discharged" && p.severity !== filter) return false;
       if (query && !`${p.name} ${p.bed}`.toLowerCase().includes(query.toLowerCase())) return false;
       return true;
     });
-  }, [query, filter, active]);
+  }, [query, filter, active, discharged]);
 
   // Deck horizontal de pacientes — desliza lado a lado
   const deckRef = useRef<HTMLDivElement | null>(null);
@@ -573,6 +582,7 @@ function Passometro() {
                { v: "critical", label: "Críticos", count: counts.critical, c: "text-clinical-critical" },
                { v: "attention", label: "Atenção", count: counts.attention, c: "text-clinical-attention" },
                { v: "stable", label: "Estáveis", count: counts.stable, c: "text-clinical-stable" },
+               { v: "discharged", label: "Altas concedidas", count: discharged.length, c: "text-primary" },
              ] as { v: Filter; label: string; count: number; c: string }[]
            ).map((f) => (
   <button
@@ -663,6 +673,10 @@ function Passometro() {
                     onDelete={(pt) => {
                       setPatients((prev) => prev.filter((x) => x.id !== pt.id));
                       toast.success("Paciente removido", { description: `${pt.name} (${pt.bed}) foi removido do sistema.` });
+                    }}
+                    onDischarge={(pt) => {
+                      handleSave(pt);
+                      toast.success("Alta concedida", { description: `${pt.name} (${pt.bed}) foi movido para a aba Altas concedidas.` });
                     }}
                   />
                 </section>
