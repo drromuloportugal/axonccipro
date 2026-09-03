@@ -383,7 +383,32 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </span>
  </li> ))}
  </ul> )}
+ </div> {/* LPP e classificações */}
+ <div className="mt-2 rounded-md border border-border bg-surface-2 p-2">
+ <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+ <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão · {lppSummary.totalActive}
+ </div> {lppSummary.active.length === 0 ? (
+ <div className="text-[11px] text-muted-foreground">Nenhuma lesão por pressão ativa registrada.</div> ) : (
+ <ul className="space-y-0.5 text-[11px]"> {lppSummary.active
+             .slice()
+             .sort((a, b) => String(b.stage).localeCompare(String(a.stage)))
+             .map((l) => {
+               const meta = STAGE_META[l.stage];
+               const site = LPP_SITE_BY_KEY[l.site];
+               return (
+ <li key={l.id} className="flex items-center gap-2">
+ <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: meta.color }} />
+ <button
+                     onClick={() => onLPPChange && setEditingLPP(l)}
+                     className="flex-1 truncate text-left text-foreground hover:underline"
+                   > {site?.label ?? l.site}{l.count > 1 ? ` ×${l.count}` : ""}
+ </button>
+ <span className="shrink-0 font-semibold" style={{ color: meta.color }}>{meta.label}</span>
+ </li> );
+             })}
+ </ul> )}
  </div>
+
 
  </div> {/* Right: enxuto — indicadores unificados, detalhe e seções recolhíveis */}
  <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
