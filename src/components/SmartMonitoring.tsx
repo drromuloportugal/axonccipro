@@ -206,7 +206,16 @@ function Card({
 
 // ---------- Resumo de sinais vitais (reutilizável na coluna 6) ----------
 
-export interface VitalSummaryEntry { level: Level; text: string }
+export interface VitalSummaryEntry {
+  level: Level;
+  text: string;
+  /** Último valor máximo registrado. */
+  max?: number;
+  /** Último valor mínimo registrado (quando informado). */
+  min?: number;
+  unit?: string;
+  dec?: number;
+}
 export interface VitalSummary {
   temp: VitalSummaryEntry;
   spo2: VitalSummaryEntry;
