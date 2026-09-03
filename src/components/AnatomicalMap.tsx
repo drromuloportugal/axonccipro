@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   InvasiveDevice, Patient, InfectionFocus, Culture, LPPLesion, LPPStage,
 } from "@/data/patients";
