@@ -250,6 +250,17 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollToId = (id: string) => {
+    const container = scrollContainerRef.current;
+    const el = document.getElementById(id);
+    if (!container || !el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const top = container.scrollTop + (elRect.top - containerRect.top) - 16;
+    container.scrollTo({ top, behavior: "smooth" });
+  };
+
   const lppList = lpp ?? [];
   const lppSummary = useMemo(() => summarizeLPP(lppList), [lppList]);
 
