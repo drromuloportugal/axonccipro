@@ -194,7 +194,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
     if (!active || !payload?.length) return null;
     const row = payload[0]?.payload ?? {};
     return (
-      <div className="rounded border border-border bg-card px-2 py-1.5 text-[11px] shadow">
+      <div className="glass-panel rounded-md px-2 py-1.5 text-[11px]">
         <div className="mb-1 font-semibold text-foreground">
           {new Date(Number(label)).toLocaleString("pt-BR")}
         </div>
@@ -342,7 +342,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
             </div>
           )}
 
-          <div className="h-[280px] w-full">
+          <div className="glass-panel h-[280px] w-full rounded-md p-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -390,6 +390,7 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
                     stroke={s.color}
                     strokeWidth={1.8}
                     dot={{ r: 2 }}
+                    activeDot={<ActiveValueDot />}
                     connectNulls
                   />
                 ))}
