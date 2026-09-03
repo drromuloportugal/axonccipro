@@ -1,6 +1,7 @@
 // Parecer técnico resumido de gasometria arterial (coluna 6).
 // Extrai os valores dos exames do paciente e aplica a calculadora pura.
 
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Patient } from "@/data/patients";
 import { computeAbg, type AbgCourse } from "@/lib/bloodgas";
@@ -25,6 +26,8 @@ const TONE: Record<string, string> = {
 
 export function BloodGasPanel({ patient }: { patient: Patient }) {
   const [course, setCourse] = useState<AbgCourse>("undefined");
+  const [open, setOpen] = useState(false);
+
 
   const input = useMemo(() => ({
     ph: pick(patient, /^p?H$|^pH\b/i),
@@ -43,21 +46,33 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
 
   return (
     <div className="mt-2 rounded border-2 border-foreground/70 bg-surface px-2 py-2">
-      <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-clinical-resp">
-          Parecer técnico da gasometria
-        </span>
-        <select
-          value={course}
-          onChange={(e) => setCourse(e.target.value as AbgCourse)}
-          onClick={(e) => e.stopPropagation()}
-          className="rounded border border-border bg-card px-1 py-0.5 text-[9.5px] font-semibold text-foreground"
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+          aria-expanded={open}
+          className="flex flex-1 items-center gap-1 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-clinical-resp"
         >
-          <option value="undefined">Curso indefinido</option>
-          <option value="acute">Agudo</option>
-          <option value="chronic">Crônico</option>
-        </select>
+          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          Parecer técnico da gasometria
+        </button>
+        {open && (
+          <select
+            value={course}
+            onChange={(e) => setCourse(e.target.value as AbgCourse)}
+            onClick={(e) => e.stopPropagation()}
+            className="rounded border border-border bg-card px-1 py-0.5 text-[9.5px] font-semibold text-foreground"
+          >
+            <option value="undefined">Curso indefinido</option>
+            <option value="acute">Agudo</option>
+            <option value="chronic">Crônico</option>
+          </select>
+        )}
       </div>
+
+      {open && (
+      <div className="mt-1">
+
 
       {!r.complete && (
         <div className="mb-1 rounded border border-dashed border-border/60 px-2 py-1 text-[10px] text-muted-foreground">
@@ -112,7 +127,9 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
           </li>
         ))}
       </ul>
-
+      </div>
+      )}
     </div>
+
   );
 }
