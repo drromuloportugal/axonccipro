@@ -563,7 +563,10 @@ export interface Patient {
 
 export interface VitalReading {
   id: string;
+  /** Valor máximo registrado naquele momento/dia. */
   value?: number;
+  /** Valor mínimo registrado naquele momento/dia (opcional). */
+  min?: number;
   at?: string; // ISO datetime
 }
 

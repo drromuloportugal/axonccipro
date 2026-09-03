@@ -1,10 +1,12 @@
 // Preenchimento seriado em forma de tabela: cada item é uma linha, cada data é uma coluna.
 // Cobre sinais vitais, escala de Bristol, balanço hídrico, exames laboratoriais e gasometria arterial.
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import type { ExamRow, Patient, VitalReading } from "@/data/patients";
 
 type SeriesKey = keyof NonNullable<Patient["state"]["vitalSeries"]>;
+/** Coluna de preenchimento: valor máximo ou mínimo da data. */
+type MinMax = "max" | "min";
 
 const VITAL_ROWS: { key: SeriesKey; label: string; unit: string; step?: string }[] = [
   { key: "temp", label: "Temperatura", unit: "°C", step: "0.1" },
@@ -160,18 +162,19 @@ export function SerialMatrix({
     return Array.from(set).filter(Boolean).sort();
   }, [series, custom, exams, extraDates]);
 
-  const setCustom = (id: string, date: string, raw: string) => {
+  const setCustom = (id: string, date: string, field: MinMax, raw: string) => {
     const value = parseNum(raw);
     const next = custom.map((c) => {
       if (c.id !== id) return c;
       const arr = [...(c.readings ?? [])];
       const idx = arr.findIndex((r) => dayKey(r.at) === date);
-      if (value == null) {
-        if (idx >= 0) arr.splice(idx, 1);
-      } else if (idx >= 0) {
-        arr[idx] = { ...arr[idx], value, at: arr[idx].at ?? atFor(date) };
-      } else {
-        arr.push({ id: uid(), value, at: atFor(date) });
+      const patch = field === "max" ? { value } : { min: value ?? undefined };
+      if (idx >= 0) {
+        const merged = { ...arr[idx], ...patch, at: arr[idx].at ?? atFor(date) } as VitalReading;
+        if (merged.value == null && merged.min == null) arr.splice(idx, 1);
+        else arr[idx] = merged;
+      } else if (value != null) {
+        arr.push({ id: uid(), at: atFor(date), ...patch } as VitalReading);
       }
       arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
       return { ...c, readings: arr };
@@ -212,24 +215,26 @@ export function SerialMatrix({
 
   const removeExam = (e: ExamRow) => onChangeExams(exams.filter((x) => x !== e));
 
-  const setVital = (key: SeriesKey, date: string, raw: string) => {
+  const setVital = (key: SeriesKey, date: string, field: MinMax, raw: string) => {
     const value = parseNum(raw);
     const arr = [...(series[key] ?? [])];
     const idx = arr.findIndex((r) => dayKey(r.at) === date);
-    if (value == null) {
-      if (idx >= 0) arr.splice(idx, 1);
-    } else if (idx >= 0) {
-      arr[idx] = { ...arr[idx], value, at: arr[idx].at ?? atFor(date) };
-    } else {
-      arr.push({ id: uid(), value, at: atFor(date) } as VitalReading);
+    const patch = field === "max" ? { value } : { min: value ?? undefined };
+    if (idx >= 0) {
+      const merged = { ...arr[idx], ...patch, at: arr[idx].at ?? atFor(date) } as VitalReading;
+      if (merged.value == null && merged.min == null) arr.splice(idx, 1);
+      else arr[idx] = merged;
+    } else if (value != null) {
+      arr.push({ id: uid(), at: atFor(date), ...patch } as VitalReading);
     }
     arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
     onChangeState("vitalSeries", { ...series, [key]: arr });
   };
 
-  const getVital = (key: SeriesKey, date: string) => {
+  const getVital = (key: SeriesKey, date: string, field: MinMax) => {
     const r = (series[key] ?? []).find((x) => dayKey(x.at) === date);
-    return r?.value ?? "";
+    const v = field === "max" ? r?.value : r?.min;
+    return v ?? "";
   };
 
   const examPoints = (e: ExamRow) => {
@@ -341,15 +346,29 @@ export function SerialMatrix({
               </th>
               <th className="px-1 py-1.5 text-left font-semibold text-muted-foreground">Un.</th>
               {dates.map((d) => (
-                <th key={d} className="min-w-[74px] px-1 py-1.5 text-center font-mono font-bold">
+                <th key={d} colSpan={2} className="min-w-[148px] border-l border-border/60 px-1 py-1.5 text-center font-mono font-bold">
                   {fmtCol(d)}
                 </th>
+              ))}
+            </tr>
+            <tr>
+              <th className="sticky left-0 z-20 bg-surface-2" />
+              <th />
+              {dates.map((d) => (
+                <Fragment key={d}>
+                  <th className="border-l border-border/60 px-1 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Máx
+                  </th>
+                  <th className="px-1 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Mín
+                  </th>
+                </Fragment>
               ))}
             </tr>
           </thead>
           <tbody>
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                 Sinais vitais · Bristol · Balanço hídrico
               </td>
             </tr>
@@ -358,15 +377,28 @@ export function SerialMatrix({
                 <td className="sticky left-0 z-10 bg-card px-2 py-1 font-semibold">{row.label}</td>
                 <td className="px-1 py-1 text-[10px] text-muted-foreground">{row.unit}</td>
                 {dates.map((d) => (
-                  <td key={d} className="px-1 py-1">
-                    <input
-                      type="number"
-                      step={row.step ?? "1"}
-                      className={cellCls}
-                      value={getVital(row.key, d)}
-                      onChange={(e) => setVital(row.key, d, e.target.value)}
-                    />
-                  </td>
+                  <Fragment key={d}>
+                    <td className="border-l border-border/60 px-1 py-1">
+                      <input
+                        type="number"
+                        step={row.step ?? "1"}
+                        className={cellCls}
+                        title="Valor máximo"
+                        value={getVital(row.key, d, "max")}
+                        onChange={(e) => setVital(row.key, d, "max", e.target.value)}
+                      />
+                    </td>
+                    <td className="px-1 py-1">
+                      <input
+                        type="number"
+                        step={row.step ?? "1"}
+                        className={cellCls}
+                        title="Valor mínimo"
+                        value={getVital(row.key, d, "min")}
+                        onChange={(e) => setVital(row.key, d, "min", e.target.value)}
+                      />
+                    </td>
+                  </Fragment>
                 ))}
               </tr>
             ))}
@@ -386,21 +418,37 @@ export function SerialMatrix({
                   </span>
                 </td>
                 <td className="px-1 py-1 text-[10px] text-muted-foreground">{c.unit ?? ""}</td>
-                {dates.map((d) => (
-                  <td key={d} className="px-1 py-1">
-                    <input
-                      type="number"
-                      step="any"
-                      className={cellCls}
-                      value={(c.readings ?? []).find((r) => dayKey(r.at) === d)?.value ?? ""}
-                      onChange={(e) => setCustom(c.id, d, e.target.value)}
-                    />
-                  </td>
-                ))}
+                {dates.map((d) => {
+                  const r = (c.readings ?? []).find((x) => dayKey(x.at) === d);
+                  return (
+                    <Fragment key={d}>
+                      <td className="border-l border-border/60 px-1 py-1">
+                        <input
+                          type="number"
+                          step="any"
+                          className={cellCls}
+                          title="Valor máximo"
+                          value={r?.value ?? ""}
+                          onChange={(e) => setCustom(c.id, d, "max", e.target.value)}
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="any"
+                          className={cellCls}
+                          title="Valor mínimo"
+                          value={r?.min ?? ""}
+                          onChange={(e) => setCustom(c.id, d, "min", e.target.value)}
+                        />
+                      </td>
+                    </Fragment>
+                  );
+                })}
               </tr>
             ))}
             <tr className="border-t border-border/60">
-              <td colSpan={dates.length + 2} className="px-2 py-1.5">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1.5">
                 <span className="flex flex-wrap items-center gap-1.5">
                   <select
                     className="h-7 w-48 rounded border border-border bg-background px-1 text-[11px]"
@@ -443,13 +491,13 @@ export function SerialMatrix({
             </tr>
 
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                 Exames laboratoriais
               </td>
             </tr>
             {labExams.length === 0 && (
               <tr>
-                <td colSpan={dates.length + 2} className="px-2 py-2 text-[11px] italic text-muted-foreground">
+                <td colSpan={dates.length * 2 + 2} className="px-2 py-2 text-[11px] italic text-muted-foreground">
                   Nenhum exame cadastrado — selecione um parâmetro abaixo.
                 </td>
               </tr>
@@ -473,7 +521,7 @@ export function SerialMatrix({
                   </td>
                   <td className="px-1 py-1 text-[10px] text-muted-foreground">{e.unit ?? ""}</td>
                   {dates.map((d) => (
-                    <td key={d} className="px-1 py-1">
+                    <td key={d} colSpan={2} className="px-1 py-1">
                       <input
                         type="number"
                         step="any"
@@ -487,7 +535,7 @@ export function SerialMatrix({
               );
             })}
             <tr className="border-t border-border/60">
-              <td colSpan={dates.length + 2} className="px-2 py-1.5">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1.5">
                 <span className="flex flex-wrap items-center gap-1.5">
                   <select
                     className="h-7 w-52 rounded border border-border bg-background px-1 text-[11px]"
@@ -530,7 +578,7 @@ export function SerialMatrix({
             </tr>
 
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                 Gasometria arterial
               </td>
             </tr>
@@ -542,7 +590,7 @@ export function SerialMatrix({
                   <td className="sticky left-0 z-10 bg-card px-2 py-1 font-semibold">{g.label}</td>
                   <td className="px-1 py-1 text-[10px] text-muted-foreground">{g.unit}</td>
                   {dates.map((d) => (
-                    <td key={d} className="px-1 py-1">
+                    <td key={d} colSpan={2} className="px-1 py-1">
                       <input
                         type="number"
                         step={g.step}

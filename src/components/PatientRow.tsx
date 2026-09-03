@@ -14,6 +14,7 @@ import {
   organDonationLabel, directiveLabel,
 } from "@/lib/clinical";
 import { currentVitalsSummary } from "@/components/SmartMonitoring";
+import type { VitalSummaryEntry } from "@/components/SmartMonitoring";
 
 
 import { summarizeLPP, STAGE_META } from "@/lib/lpp";
@@ -53,6 +54,18 @@ const VITAL_LEVEL_TXT: Record<string, string> = {
   grave: "text-clinical-critical",
   na: "text-muted-foreground",
 };
+
+/** Formata o último registro do sinal vital: máximo (linha de cima) e mínimo (linha de baixo). */
+function vitalMinMax(v: VitalSummaryEntry): { max: string; min: string | null } {
+  const dec = v.dec ?? 0;
+  const unit = v.unit ? ` ${v.unit}` : "";
+  const fmt = (n?: number) => (typeof n === "number" && Number.isFinite(n) ? `${n.toFixed(dec)}${unit}` : null);
+  const max = fmt(v.max);
+  const min = fmt(v.min);
+  if (!max && !min) return { max: v.text.split("·")[0].trim() || "—", min: null };
+  if (max && min && max === min) return { max, min: null };
+  return { max: max ?? min ?? "—", min: max ? min : null };
+}
 
 const kindClass: Record<string, string> = {
   resp: "text-clinical-resp",
@@ -548,10 +561,13 @@ export function PatientRow({
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
  <div className="space-y-0.5"> {vitalRows.map((r) => {
               const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
+              const mm = vitalMinMax(r.v);
               return (
- <div key={r.label} className={`grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? "Sinal vital alterado" : undefined}>
+ <div key={r.label} className={`grid grid-cols-[34px_1fr_auto] items-center gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? "Sinal vital alterado (último registro)" : undefined}>
  <span className="f-fixed font-semibold text-muted-foreground">{r.label}</span>
- <span className={`truncate text-right font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}> {r.v.text.split("·")[0].trim()}
+ <span className={`flex flex-col items-end leading-tight font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>
+ <span title="Valor máximo">{mm.max}</span>
+              {mm.min ? <span className="opacity-80" title="Valor mínimo">{mm.min}</span> : null}
  </span>
  <span className="w-2 text-right">{r.v.level === "grave" && <span className="alert-dot" title="Alteração grave" />}</span>
  </div> ); })}
@@ -1009,6 +1025,26 @@ export function PatientRow({
             })()}
             {patient.medications.length === 0 && (
  <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
+            {/* Histórico medicamentoso — linha do tempo de todas as prescrições */}
+            {patient.medications.length > 0 && (
+ <div className="mt-2">
+ <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Histórico medicamentoso</div>
+ <ul className="ios-inset max-h-56 space-y-1 overflow-y-auto px-2 py-1.5">
+                  {[...patient.medications]
+                    .sort((a, b) => (b.start ?? "").localeCompare(a.start ?? ""))
+                    .map((m, i) => (
+ <li key={`hist-${m.name}-${i}`} className="flex items-start justify-between gap-2 border-b border-border/40 py-1 last:border-b-0 text-[11px]">
+ <span className="min-w-0">
+ <span className="f-var block truncate font-semibold text-foreground">{m.name}</span>
+ <span className="f-fixed block text-[10px] text-muted-foreground">{m.dose} · {m.route} · {m.freq}</span>
+ <span className="f-fixed block text-[10px] text-muted-foreground">{m.start}{m.end ? ` → ${m.end}` : " → em curso"}</span>
+ </span>
+ <span className={`shrink-0 text-[10px] font-semibold ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}>
+                          {m.active === false ? "Suspenso" : "Ativo"}
+ </span>
+ </li> ))}
+ </ul>
+ </div> )}
  </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
  <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
@@ -1145,18 +1181,21 @@ export function PatientRow({
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
-                  const val = r.v.text.split("·")[0].trim();
-                  const crit = r.v.level === "grave";
-                  const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
-                  return (
- <div key={r.label} className={`grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px] ${abn ? "alert-outline px-1.5" : ""}`} title={abn ? "Sinal vital alterado" : undefined}>
+                   const crit = r.v.level === "grave";
+                   const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
+                   const mm = vitalMinMax(r.v);
+                   return (
+ <div key={r.label} className={`grid grid-cols-[46px_1fr_auto] items-center gap-x-2 py-[3px] text-[11px] ${abn ? "alert-outline px-1.5" : ""}`} title={abn ? "Sinal vital alterado (último registro)" : undefined}>
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
- <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
+ <span className={`flex flex-col leading-tight font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>
+ <span title="Valor máximo">{mm.max}</span>
+                        {mm.min ? <span className="opacity-80" title="Valor mínimo">{mm.min}</span> : null}
+ </span>
  <span className="flex items-center justify-end gap-1 text-right">
                         {crit && <span className="alert-dot" title="Alteração grave" aria-label="Alteração grave" />}
  </span>
  </div> );
-                })}
+                 })}
                 {crcl && (
  <div className="mt-1 grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 border-t border-border/50 pt-1 text-[11px]">
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">ClCr</span>

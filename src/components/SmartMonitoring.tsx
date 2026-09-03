@@ -206,7 +206,16 @@ function Card({
 
 // ---------- Resumo de sinais vitais (reutilizável na coluna 6) ----------
 
-export interface VitalSummaryEntry { level: Level; text: string }
+export interface VitalSummaryEntry {
+  level: Level;
+  text: string;
+  /** Último valor máximo registrado. */
+  max?: number;
+  /** Último valor mínimo registrado (quando informado). */
+  min?: number;
+  unit?: string;
+  dec?: number;
+}
 export interface VitalSummary {
   temp: VitalSummaryEntry;
   spo2: VitalSummaryEntry;
@@ -249,45 +258,59 @@ function classifyPAD(v?: number): { level: Level; text: string } {
   return { level: "grave", text: `${v} mmHg · HAS grave` };
 }
 
+/**
+ * Resumo dos sinais vitais.
+ * Regra: a classificação e o alerta consideram SOMENTE o último registro
+ * (máximo e mínimo daquele registro), não a série inteira.
+ */
 export function currentVitalsSummary(patient: Patient): VitalSummary {
   const s = patient.state;
   const series = s.vitalSeries ?? {};
-  const nums = (arr?: VitalReading[]) => (arr ?? []).map((r) => r.value).filter((v): v is number => typeof v === "number" && !Number.isNaN(v));
-  const mm = (arr?: VitalReading[], fbMin?: number, fbMax?: number) => {
-    const v = nums(arr);
-    return v.length ? { min: Math.min(...v), max: Math.max(...v) } : { min: fbMin, max: fbMax };
+
+  /** Último registro da série (por data), com máximo e mínimo. */
+  const lastMM = (arr?: VitalReading[], fbMin?: number, fbMax?: number) => {
+    const valid = (arr ?? []).filter((r) => typeof r.value === "number" && !Number.isNaN(r.value));
+    if (!valid.length) return { min: fbMin, max: fbMax };
+    const sorted = [...valid].sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
+    const last = sorted[sorted.length - 1]!;
+    const max = last.value;
+    const min = typeof last.min === "number" && !Number.isNaN(last.min) ? last.min : undefined;
+    return { min, max };
   };
+
   const range = (
     r: { min?: number; max?: number },
     fn: (v?: number) => { level: Level; text: string },
     unit: string,
     dec = 0,
   ): VitalSummaryEntry => {
-    if (r.min == null && r.max == null) return { level: "na", text: "—" };
+    if (r.min == null && r.max == null) return { level: "na", text: "—", unit, dec };
     const a = fn(r.min), b = fn(r.max);
     const lvl = worst(a.level, b.level);
     const fmt = (v?: number) => (v == null ? "—" : v.toFixed(dec));
     const txt = r.min != null && r.max != null && r.min !== r.max
-      ? `${fmt(r.min)}–${fmt(r.max)} ${unit}`
+      ? `${fmt(r.max)}–${fmt(r.min)} ${unit}`
       : `${fmt(r.max ?? r.min)} ${unit}`;
     const hint = (lvl === a.level ? a.text : b.text).split("·").slice(1).join("·").trim();
-    return { level: lvl, text: hint ? `${txt} · ${hint}` : txt };
+    return { level: lvl, text: hint ? `${txt} · ${hint}` : txt, max: r.max, min: r.min, unit, dec };
   };
 
-  const tempR = mm(series.temp, s.temp, s.tempMax ?? s.temp);
-  const spo2R = mm(series.spo2, s.spo2, s.spo2);
-  const fcR   = mm(series.fc, s.fcMin, s.fcMax);
-  const pamR  = mm(series.pam, s.pam, s.pam);
-  const gliR  = mm(series.glicemia, s.glicemia, s.glicemia);
-  const frR   = mm(series.fr, s.fr, s.fr);
-  const pasR  = mm(series.pas, s.pas, s.pas);
-  const padR  = mm(series.pad, s.pad, s.pad);
+  const tempR = lastMM(series.temp, undefined, s.tempMax ?? s.temp);
+  const spo2R = lastMM(series.spo2, undefined, s.spo2);
+  const fcR   = lastMM(series.fc, s.fcMin, s.fcMax);
+  const pamR  = lastMM(series.pam, undefined, s.pam);
+  const gliR  = lastMM(series.glicemia, undefined, s.glicemia);
+  const frR   = lastMM(series.fr, undefined, s.fr);
+  const pasR  = lastMM(series.pas, undefined, s.pas);
+  const padR  = lastMM(series.pad, undefined, s.pad);
+
+  const classifyFCOne = (v?: number) => classifyFC(v, v);
 
   return {
     temp: range(tempR, classifyTemp, "°C", 1),
     spo2: range(spo2R, classifySpO2, "%"),
     resp: classifyResp(s.vent),
-    fc: classifyFC(fcR.min, fcR.max),
+    fc: range(fcR, classifyFCOne, "bpm"),
     bp: range(pamR, classifyPAM, "mmHg"),
     gli: range(gliR, classifyGlicemia, "mg/dL"),
     fr: range(frR, classifyFR, "ipm"),
