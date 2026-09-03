@@ -356,21 +356,21 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
  <div className="grid items-start gap-2 lg:grid-cols-[minmax(150px,1fr)_auto_auto_minmax(150px,1fr)]">
  <EquipmentBoard patient={patient} devices={devices} side="left" />
- <BodyPanel
+  <BodyPanel
             label="Anterior" view="anterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={setSelected}
+            addedIds={addedIds} onSelect={() => {}}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={setSelectedFocus}
+            heatmap={heatmap} onSelectFocus={() => {}}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
             alertDeviceIds={expiredIds}
           />
- <BodyPanel
+  <BodyPanel
             label="Posterior" view="posterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={setSelected}
+            addedIds={addedIds} onSelect={() => {}}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={setSelectedFocus}
+            heatmap={heatmap} onSelectFocus={() => {}}
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
             alertDeviceIds={expiredIds}
           />
