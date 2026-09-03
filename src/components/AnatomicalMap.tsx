@@ -452,7 +452,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                         meds={patient?.medications ?? []}
                         devices={active}
                         onClose={() => setSelectedFocus(null)} /> : selected
-            ? <DetailPanel device={selected} patient={patient} onClose={() => setSelected(null)} /> : <div className="rounded-md border border-dashed border-border p-3 text-center text-[11px] text-muted-foreground"> Toque em um marcador para ver detalhes.
+            ? <DetailPanel device={selected} patient={patient} onClose={() => setSelected(null)} /> : <div className="anat-map-box border-dashed p-3 text-center text-[11px] text-muted-foreground"> Toque em um marcador para ver detalhes.
  </div>}
 
         {compare && diff && (
