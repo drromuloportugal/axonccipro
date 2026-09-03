@@ -358,15 +358,28 @@ export function SerialMatrix({
                 <td className="sticky left-0 z-10 bg-card px-2 py-1 font-semibold">{row.label}</td>
                 <td className="px-1 py-1 text-[10px] text-muted-foreground">{row.unit}</td>
                 {dates.map((d) => (
-                  <td key={d} className="px-1 py-1">
-                    <input
-                      type="number"
-                      step={row.step ?? "1"}
-                      className={cellCls}
-                      value={getVital(row.key, d)}
-                      onChange={(e) => setVital(row.key, d, e.target.value)}
-                    />
-                  </td>
+                  <Fragment key={d}>
+                    <td className="border-l border-border/60 px-1 py-1">
+                      <input
+                        type="number"
+                        step={row.step ?? "1"}
+                        className={cellCls}
+                        title="Valor máximo"
+                        value={getVital(row.key, d, "max")}
+                        onChange={(e) => setVital(row.key, d, "max", e.target.value)}
+                      />
+                    </td>
+                    <td className="px-1 py-1">
+                      <input
+                        type="number"
+                        step={row.step ?? "1"}
+                        className={cellCls}
+                        title="Valor mínimo"
+                        value={getVital(row.key, d, "min")}
+                        onChange={(e) => setVital(row.key, d, "min", e.target.value)}
+                      />
+                    </td>
+                  </Fragment>
                 ))}
               </tr>
             ))}
@@ -386,17 +399,33 @@ export function SerialMatrix({
                   </span>
                 </td>
                 <td className="px-1 py-1 text-[10px] text-muted-foreground">{c.unit ?? ""}</td>
-                {dates.map((d) => (
-                  <td key={d} className="px-1 py-1">
-                    <input
-                      type="number"
-                      step="any"
-                      className={cellCls}
-                      value={(c.readings ?? []).find((r) => dayKey(r.at) === d)?.value ?? ""}
-                      onChange={(e) => setCustom(c.id, d, e.target.value)}
-                    />
-                  </td>
-                ))}
+                {dates.map((d) => {
+                  const r = (c.readings ?? []).find((x) => dayKey(x.at) === d);
+                  return (
+                    <Fragment key={d}>
+                      <td className="border-l border-border/60 px-1 py-1">
+                        <input
+                          type="number"
+                          step="any"
+                          className={cellCls}
+                          title="Valor máximo"
+                          value={r?.value ?? ""}
+                          onChange={(e) => setCustom(c.id, d, "max", e.target.value)}
+                        />
+                      </td>
+                      <td className="px-1 py-1">
+                        <input
+                          type="number"
+                          step="any"
+                          className={cellCls}
+                          title="Valor mínimo"
+                          value={r?.min ?? ""}
+                          onChange={(e) => setCustom(c.id, d, "min", e.target.value)}
+                        />
+                      </td>
+                    </Fragment>
+                  );
+                })}
               </tr>
             ))}
             <tr className="border-t border-border/60">
