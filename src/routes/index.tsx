@@ -582,6 +582,7 @@ function Passometro() {
                { v: "critical", label: "Críticos", count: counts.critical, c: "text-clinical-critical" },
                { v: "attention", label: "Atenção", count: counts.attention, c: "text-clinical-attention" },
                { v: "stable", label: "Estáveis", count: counts.stable, c: "text-clinical-stable" },
+               { v: "discharged", label: "Altas concedidas", count: discharged.length, c: "text-primary" },
              ] as { v: Filter; label: string; count: number; c: string }[]
            ).map((f) => (
   <button
