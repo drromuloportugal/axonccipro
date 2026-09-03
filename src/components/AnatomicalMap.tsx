@@ -502,7 +502,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               .map((d) => ({ d, tc: deviceTimeColor(d) }))
               .sort((a, b) => b.tc.days - a.tc.days)
               .map(({ d }) => (
-                <DetailPanel key={d.id} device={d} patient={patient} />
+                <DetailPanel key={d.id} id={`detail-${d.id}`} device={d} patient={patient} />
               ))}
           </div>
         )}
@@ -517,7 +517,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               .slice()
               .sort((a, b) => String(b.stage).localeCompare(String(a.stage)))
               .map((l) => (
-                <LPPCard key={l.id} lesion={l} />
+                <LPPCard key={l.id} id={`lpp-${l.id}`} lesion={l} />
               ))}
           </div>
         )}
@@ -533,6 +533,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               .map((f) => (
                 <FocusPanel
                   key={f.id}
+                  id={`focus-${f.id}`}
                   focus={f}
                   cultures={cultures}
                   meds={patient?.medications ?? []}
