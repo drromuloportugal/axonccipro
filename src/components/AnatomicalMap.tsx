@@ -364,40 +364,25 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
             lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
- </div> {/* Compact legend — collapsible to reduce noise */}
- <details className="mt-3 text-[10px] text-muted-foreground">
- <summary className="cursor-pointer select-none font-semibold uppercase tracking-wider hover:text-foreground"> Legenda
- </summary>
- <div className="mt-2 space-y-1.5">
- <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
- <span className="font-semibold uppercase tracking-wider">Tempo:</span>
- <Legend color="hsl(142 70% 45%)" label="0–3 d" />
- <Legend color="hsl(45 95% 55%)"label="4–7 d" />
- <Legend color="hsl(25 90% 55%)"label="8–10 d" />
- <Legend color="hsl(0 80% 55%)"label=">10 d" />
- <Legend color="hsl(280 60% 60%)" label="Sem revisão" />
+ </div> {/* Invasões ativas e tempo de permanência */}
+ <div className="mt-3 rounded-md border border-border bg-surface-2 p-2">
+ <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Invasões ativas · {active.length}
+ </div> {active.length === 0 ? (
+ <div className="text-[11px] text-muted-foreground">Nenhuma invasão ativa registrada.</div> ) : (
+ <ul className="space-y-0.5 text-[11px]"> {active
+               .map((d) => ({ d, def: deviceTypeByCode(d.typeCode), tc: deviceTimeColor(d) }))
+               .sort((a, b) => b.tc.days - a.tc.days)
+               .map(({ d, def, tc }) => (
+ <li key={d.id} className="flex items-center gap-2">
+ <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: tc.color }} />
+ <button onClick={() => setSelected(d)} className="flex-1 truncate text-left text-foreground hover:underline"> {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}
+ </button>
+ <span className="shrink-0 font-mono text-muted-foreground" suppressHydrationWarning> {Math.floor(tc.days)}d {Math.round(tc.hours % 24)}h
+ </span>
+ </li> ))}
+ </ul> )}
  </div>
- <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
- <span className="font-semibold uppercase tracking-wider">Forma:</span>
- <span>● CVC/PICC</span><span>▲ PAI/PVP</span><span>■ Dreno</span>
- <span>◆ DVE/DLE/ECMO</span><span>○ TQT/Estomia</span>
- <span> LPP</span><span>◌ Foco infeccioso</span>
- </div> {infections.length > 0 && (
- <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
- <span className="font-semibold uppercase tracking-wider">Foco:</span>
- <Legend color={STATUS_COLOR.suspeito.hex}   label="Suspeito" />
- <Legend color={STATUS_COLOR.provavel.hex}   label="Provável" />
- <Legend color={STATUS_COLOR.confirmado.hex} label="Confirmado" />
- <Legend color={STATUS_COLOR.resolvido.hex}  label="Resolvido" />
- <span>· pulsando = instável</span>
- </div> )}
-            {(lppList.length > 0 || onLPPChange) && (
- <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
- <span className="font-semibold uppercase tracking-wider">LPP:</span> {(["1", "2", "3", "4", "NC", "LTP"] as LPPStage[]).map((s) => (
- <Legend key={s} color={STAGE_META[s].color} label={STAGE_META[s].short} /> ))}
- </div> )}
- </div>
- </details>
+
  </div> {/* Right: enxuto — indicadores unificados, detalhe e seções recolhíveis */}
  <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
  <div className="rounded-md border border-border bg-surface p-2">
@@ -448,7 +433,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                 const def = deviceTypeByCode(h.device.typeCode);
                 return (
  <li key={i}>
- <span className="font-semibold">{def?.code ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
+ <span className="font-semibold">{def?.label ?? h.device.typeCode}</span> {h.device.site ? ` · ${h.device.site}` : ""}
  <span className="ml-1 text-muted-foreground" suppressHydrationWarning>— {h.reasons.join(" · ")}</span>
  </li> );
               })}
@@ -555,7 +540,7 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
  <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
  <div>
  <div className="font-semibold text-foreground">{def?.label ?? device.typeCode}</div>
- <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{def?.code ?? device.typeCode}</div>
+ 
  </div>
  </div>
   <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
@@ -618,7 +603,7 @@ function AlertsList({ devices }: { devices: InvasiveDevice[] }) {
  <div className="rounded-md border border-border bg-surface p-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
  <ul className="space-y-0.5 text-[11px]"> {rows.map((r, i) => (
-  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.code ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
+  <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.label ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
  </li> ))}
  </ul>
  </div> );
@@ -701,7 +686,7 @@ function FocusPanel({
  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Dispositivos relacionados</div>
  <ul className="mt-1 space-y-0.5 text-[11px]"> {related.map((d) => {
               const def = deviceTypeByCode(d.typeCode);
-              return <li key={d.id}>● {def?.code ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}</li>;
+              return <li key={d.id}>● {def?.label ?? d.typeCode}{d.site ? ` · ${d.site}` : ""}</li>;
             })}
  </ul>
  </div> )}
