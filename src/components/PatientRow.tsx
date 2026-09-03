@@ -1164,10 +1164,11 @@ export function PatientRow({
                       const ins = examInsight(e, patient.sex);
                       const b = ins.bucket ? bucketBadge(ins.bucket) : null;
                       const t = trendArrow(ins.movement, ins.trend);
+                      const abn = !!ins.bucket && ins.bucket !== "normal";
                       return (
  <tr key={i} className="border-b border-border/50 last:border-0">
- <td className="py-1 text-muted-foreground">{e.label}</td>
- <td className={`py-1 font-mono ${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
+ <td className={`py-1 text-muted-foreground ${abn ? "alert-outline" : ""}`} title={abn ? `Resultado alterado · ${b?.label}` : undefined}>{e.label}</td>
+ <td className={`py-1 font-mono ${abn ? "alert-outline " : ""}${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</td>
   <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
