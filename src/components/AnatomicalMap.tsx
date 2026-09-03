@@ -753,8 +753,9 @@ function IndicatorPair({ label, value, tone = "default" }: { label: string; valu
 }
 
 function FocusPanel({
-  focus, cultures, meds, devices, onClose,
+  id, focus, cultures, meds, devices, onClose,
 }: {
+  id?: string;
   focus: InfectionFocus;
   cultures: Culture[];
   meds: import("@/data/patients").Medication[];
@@ -769,7 +770,7 @@ function FocusPanel({
   const fmt = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
   return (
- <div className="anat-map-box p-3 text-[12px]">
+  <div id={id} className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
   <div>
