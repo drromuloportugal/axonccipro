@@ -1057,28 +1057,8 @@ export function PatientRow({
               });
             })()}
             {patient.medications.length === 0 && (
- <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
-            {/* Histórico medicamentoso — linha do tempo de todas as prescrições */}
-            {patient.medications.length > 0 && (
- <div className="mt-2">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Histórico medicamentoso</div>
- <ul className="ios-inset max-h-56 space-y-1 overflow-y-auto px-2 py-1.5">
-                  {[...patient.medications]
-                    .sort((a, b) => (b.start ?? "").localeCompare(a.start ?? ""))
-                    .map((m, i) => (
- <li key={`hist-${m.name}-${i}`} className="flex items-start justify-between gap-2 border-b border-border/40 py-1 last:border-b-0 text-[11px]">
- <span className="min-w-0">
- <span className="f-var block truncate font-semibold text-foreground">{m.name}</span>
- <span className="f-fixed block text-[10px] text-muted-foreground">{m.dose} · {m.route} · {m.freq}</span>
- <span className="f-fixed block text-[10px] text-muted-foreground">{m.start}{m.end ? ` → ${m.end}` : " → em curso"}</span>
- </span>
- <span className={`shrink-0 text-[10px] font-semibold ${m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}`}>
-                          {m.active === false ? "Suspenso" : "Ativo"}
- </span>
- </li> ))}
- </ul>
- </div> )}
- </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
+  <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
+  </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
  <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
  <div className="mb-3">
