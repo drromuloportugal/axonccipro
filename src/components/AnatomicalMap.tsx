@@ -370,19 +370,21 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   <BodyPanel
             label="Anterior" view="anterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={() => {}}
+            addedIds={addedIds}
+            onSelect={(d) => scrollToId(`detail-${d.id}`)}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={() => {}}
-            lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
+            heatmap={heatmap} onSelectFocus={(f) => scrollToId(`focus-${f.id}`)}
+            lpp={visibleLPP} onEditLesion={(l) => scrollToId(`lpp-${l.id}`)}
             alertDeviceIds={expiredIds}
           />
   <BodyPanel
             label="Posterior" view="posterior"
             active={visibleDevices} removed={compare ? diff?.removed ?? [] : []}
-            addedIds={addedIds} onSelect={() => {}}
+            addedIds={addedIds}
+            onSelect={(d) => scrollToId(`detail-${d.id}`)}
             infections={visibleInfections} focusedDeviceIds={focusedDeviceIds}
-            heatmap={heatmap} onSelectFocus={() => {}}
-            lpp={visibleLPP} onEditLesion={onLPPChange ? setEditingLPP : undefined}
+            heatmap={heatmap} onSelectFocus={(f) => scrollToId(`focus-${f.id}`)}
+            lpp={visibleLPP} onEditLesion={(l) => scrollToId(`lpp-${l.id}`)}
             alertDeviceIds={expiredIds}
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
