@@ -574,8 +574,8 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   const lastReview = device.lastReviewedAt ? new Date(device.lastReviewedAt) : null;
 
   return (
- <div className="rounded-md border border-border bg-surface p-3 text-[12px]">
- <div className="mb-2 flex items-start justify-between gap-2">
+ <div className="anat-map-box p-3 text-[12px]">
+  <div className="mb-2 flex items-start justify-between gap-2">
  <div className="flex items-center gap-2">
  <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
  <div>
