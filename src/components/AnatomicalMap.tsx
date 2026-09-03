@@ -16,7 +16,7 @@ import { EquipmentBoard } from "@/components/EquipmentBoard";
 import bodyAnterior from "@/assets/body-anterior.jpg.asset.json";
 import bodyPosterior from "@/assets/body-posterior.jpg.asset.json";
 import { Plus, Trash2 } from "lucide-react";
-import { NeedleIcon, BandaidsIcon } from "@phosphor-icons/react";
+import { NeedleIcon, BandaidsIcon, VirusIcon } from "@phosphor-icons/react";
 
 interface Props {
   devices: InvasiveDevice[];
