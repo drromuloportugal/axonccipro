@@ -473,7 +473,7 @@ export function SerialMatrix({
                   </td>
                   <td className="px-1 py-1 text-[10px] text-muted-foreground">{e.unit ?? ""}</td>
                   {dates.map((d) => (
-                    <td key={d} className="px-1 py-1">
+                    <td key={d} colSpan={2} className="px-1 py-1">
                       <input
                         type="number"
                         step="any"
