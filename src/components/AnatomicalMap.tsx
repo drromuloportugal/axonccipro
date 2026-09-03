@@ -479,9 +479,6 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         Detalhes clínicos
       </div>
       <div className="space-y-2.5">
-        {/* Alertas de dispositivos */}
-        <AlertsList devices={active} />
-
         {/* Invasões ativas — detalhes completos */}
         {active.length > 0 && (
           <div className="space-y-2">
@@ -532,12 +529,12 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
           </div>
         )}
 
-        {/* Sugestões IRAS */}
+        {/* Sugestões IRAS — sempre expandidas */}
         {deviceHints.length > 0 && (
-          <details className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
-            <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention">
+          <div className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
+            <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention">
               Avaliar IRAS · {deviceHints.length}
-            </summary>
+            </div>
             <ul className="space-y-1 px-2 pb-2 text-[11px]">
               {deviceHints.map((h, i) => {
                 const def = deviceTypeByCode(h.device.typeCode);
@@ -550,19 +547,19 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
               })}
               <li className="text-[10px] italic text-muted-foreground">Apoio à decisão clínica.</li>
             </ul>
-          </details>
+          </div>
         )}
 
-        {/* Linha do tempo infecciosa */}
+        {/* Linha do tempo infecciosa — sempre expandida */}
         {timeline.length > 0 && (
-          <details className="anat-map-box">
-            <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="anat-map-box">
+            <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Linha do tempo infecciosa · {timeline.length}
-            </summary>
+            </div>
             <div className="px-2 pb-2">
               <TimelinePanel events={timeline} />
             </div>
-          </details>
+          </div>
         )}
 
         {/* Empty state */}
