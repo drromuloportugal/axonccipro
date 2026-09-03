@@ -212,24 +212,26 @@ export function SerialMatrix({
 
   const removeExam = (e: ExamRow) => onChangeExams(exams.filter((x) => x !== e));
 
-  const setVital = (key: SeriesKey, date: string, raw: string) => {
+  const setVital = (key: SeriesKey, date: string, field: MinMax, raw: string) => {
     const value = parseNum(raw);
     const arr = [...(series[key] ?? [])];
     const idx = arr.findIndex((r) => dayKey(r.at) === date);
-    if (value == null) {
-      if (idx >= 0) arr.splice(idx, 1);
-    } else if (idx >= 0) {
-      arr[idx] = { ...arr[idx], value, at: arr[idx].at ?? atFor(date) };
-    } else {
-      arr.push({ id: uid(), value, at: atFor(date) } as VitalReading);
+    const patch = field === "max" ? { value } : { min: value ?? undefined };
+    if (idx >= 0) {
+      const merged = { ...arr[idx], ...patch, at: arr[idx].at ?? atFor(date) } as VitalReading;
+      if (merged.value == null && merged.min == null) arr.splice(idx, 1);
+      else arr[idx] = merged;
+    } else if (value != null) {
+      arr.push({ id: uid(), at: atFor(date), ...patch } as VitalReading);
     }
     arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
     onChangeState("vitalSeries", { ...series, [key]: arr });
   };
 
-  const getVital = (key: SeriesKey, date: string) => {
+  const getVital = (key: SeriesKey, date: string, field: MinMax) => {
     const r = (series[key] ?? []).find((x) => dayKey(x.at) === date);
-    return r?.value ?? "";
+    const v = field === "max" ? r?.value : r?.min;
+    return v ?? "";
   };
 
   const examPoints = (e: ExamRow) => {
