@@ -460,6 +460,16 @@ export function PatientRow({
             {activeDevices.length === 0 && (
  <span className="text-[11px] italic text-muted-foreground/60">Sem dispositivos</span> )}
  </div>
+          {patient.procedures.length > 0 && (
+ <div className="mt-2 border-t border-border/60 pt-1.5">
+ <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground"> Procedimentos & eventos
+ </div>
+ <div className="flex flex-wrap gap-1"> {patient.procedures.slice(-3).map((p, i) => (
+ <Chip key={i} kind={p.kind}>{p.label}</Chip> ))}
+                {patient.procedures.length > 3 && (
+ <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
+ </div>
+ </div> )}
  </div> {/* 4 - Medicações com dashboard de bombas */}
  <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5">
  <ColHead
