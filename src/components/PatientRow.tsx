@@ -123,7 +123,7 @@ function DeviceCompact({ d, mounted }: { d: InvasiveDevice; mounted: boolean }) 
   const def = deviceTypeByCode(d.typeCode);
   const tip = `${def?.label ?? d.typeCode} · ${days}d · ${r.label}${r.semaphoreHint ? `\n${r.semaphoreHint}` : ""}`;
   return (
- <div className="rounded-md border border-border bg-surface px-1.5 pb-1 pt-1" title={tip}>
+ <div className="ios-inset px-1.5 pb-1 pt-1" title={tip}>
  <div className="flex items-baseline justify-between gap-1">
  <span className="min-w-0 flex-1 truncate f-var text-[11px] leading-snug">{deviceShort(d)}</span> {mounted && (
  <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{days}/{r.max}d</span> )}
@@ -315,7 +315,7 @@ export function PatientRow({
  <div className="border-b border-border last:border-b-0"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
-        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-2.5 px-4 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-md [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:shadow-[0_2px_10px_-2px_oklch(0.15_0.01_260/0.55)] [&>div]:px-3 [&>div]:py-2.5 [&>div]:shadow-sm [&>div]:cursor-pointer [&>div]:transition-colors [&>div:hover]:border-foreground/30"
+        className="grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-2.5 px-4 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-3.5 [&>div]:py-3 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
       > {/* 1 - Identificação */}
  <div onClick={colClick("id")} className="col-ink flex min-w-0 flex-col px-3 first:pl-0 last:pr-0">
 
@@ -542,7 +542,7 @@ export function PatientRow({
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
  <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1">
  <ColHead label="📈 Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
- <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
  <div className="space-y-0.5"> {vitalRows.map((r) => (
  <div key={r.label} className="flex items-baseline justify-between gap-1 text-[10px]">
@@ -573,19 +573,19 @@ export function PatientRow({
             });
             return (
  <> {lab.length > 0 && (
- <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">Laboratoriais</div>
  <div className="space-y-0.5">{rows(lab)}</div>
  </div> )}
                 {gaso.length > 0 && (
- <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-clinical-resp">Gasometria</div>
  <div className="space-y-0.5">{rows(gaso)}</div>
  </div> )}
  </> );
           })()} {/* Escala de Bristol — linhas temporais */}
           {(patient.state.stools?.length ?? 0) > 0 && (
- <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Bristol</div>
  <div className="space-y-0.5"> {patient.state.stools!.map((st) => {
                   const m = bristolMeta(st.bristol);
@@ -600,7 +600,7 @@ export function PatientRow({
  </div> )}
           {/* Balanço hídrico — linhas */}
           {patient.state.fluidBalance && (fluidBalance.totalIntake || fluidBalance.totalOutput || fluidBalance.totalDrains) ? (
- <div className="rounded border border-border bg-surface px-1.5 py-1">
+ <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Balanço hídrico</div>
  <div className="space-y-0.5 text-[10px] font-mono font-semibold">
  <div className="flex items-baseline justify-between gap-1">
@@ -739,11 +739,11 @@ export function PatientRow({
  <LogOut className="h-3.5 w-3.5" /> {dcBtnLabel}
  </button>
  <button type="button" onClick={() => setOpen(false)}
-              className="ml-1 rounded border border-border bg-surface px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground"> Recolher
+              className="ml-1 ios-inset px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground"> Recolher
  </button>
  </div>
  </div>
- <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-2.5 px-4 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:rounded-md [&>div]:border-2 [&>div]:border-border-strong [&>div]:bg-card [&>div]:shadow-[0_2px_10px_-2px_oklch(0.15_0.01_260/0.55)] [&>div]:px-3 [&>div]:py-2.5 [&>div]:shadow-sm"> {/* 1 */}
+ <div className="grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-2.5 px-4 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-3.5 [&>div]:py-3"> {/* 1 */}
  <div onClick={colClick("id")} className="col-ink">
  <ColTitle tone={0}>🪪 Identificação</ColTitle>
  <dl className="space-y-1 text-muted-foreground">
@@ -760,7 +760,7 @@ export function PatientRow({
               {patient.organDonation && patient.organDonation !== "unknown" && (
  <Row k="Doação órgãos" v={organDonationLabel[patient.organDonation]} /> )}
  </dl> {patient.origin && (
- <div className="mt-2 rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <div className="mt-2 ios-inset px-2 py-1.5 text-[11px]">
  <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Origem</div>
  <div className="text-foreground">{patient.origin.name ?? patient.origin.type}</div>
  <div className="text-muted-foreground"> {patient.origin.type}
@@ -876,7 +876,7 @@ export function PatientRow({
  <ul className="space-y-1"> {list.map((d) => {
                         const r = deviceRisk(d);
                         return (
- <li key={d.id} className="rounded-md border border-border bg-surface px-2 pb-1.5 pt-1.5 text-[11px]" title={mounted ? (r.semaphoreHint ?? r.label) : undefined}>
+ <li key={d.id} className="ios-inset px-2 pb-1.5 pt-1.5 text-[11px]" title={mounted ? (r.semaphoreHint ?? r.label) : undefined}>
  <div className="flex items-baseline justify-between gap-2">
  <span className="f-var">{deviceShort(d)}</span> {mounted && (
   <span className={`f-var text-[10px] ${r.className}`}> {Math.floor(r.days)}/{r.max}d
@@ -896,7 +896,7 @@ export function PatientRow({
               })}
 
               {removedDevices.length > 0 && (
- <details className="mt-1 rounded-md border border-border bg-surface-2/40 p-1.5" onClick={(e) => e.stopPropagation()}>
+ <details className="mt-1 ios-inset p-1.5" onClick={(e) => e.stopPropagation()}>
  <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Histórico de invasões ({removedDevices.length})
  </summary>
  <ul className="mt-1 space-y-1"> {removedDevices.map((d) => {
@@ -906,7 +906,7 @@ export function PatientRow({
                         Math.floor((new Date(d.removedAt!).getTime() - new Date(d.insertedAt).getTime()) / 86400000),
                       );
                       return (
- <li key={d.id} className="rounded border border-border/60 bg-surface px-1.5 py-1 text-[10px] text-muted-foreground">
+ <li key={d.id} className="ios-inset px-1.5 py-1 text-[10px] text-muted-foreground">
   <span className="f-var">{deviceShort(d)}</span> {" · "}
                           {formatDateBR(d.insertedAt)} → {formatDateBR(d.removedAt!)} ({days}d)
  </li> );
@@ -964,7 +964,7 @@ export function PatientRow({
                         const prog = isAtb ? antibioticProgress(m) : null;
                         const alert = prog ? atbAlertBadge(prog.alert) : null;
                         return (
- <li key={i} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[12px]">
+ <li key={i} className="ios-inset px-2 py-1.5 text-[12px]">
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5">
  <span>{isAtb ? "" : ""}</span>
@@ -1007,14 +1007,14 @@ export function PatientRow({
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Culturas microbiológicas</div> {onEdit && (
   <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "cult"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar cultura">+</button> )}
+                    className="ios-inset px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar cultura">+</button> )}
  </div> {(patient.cultures?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma cultura registrada.</div> ) : (
  <ul className="space-y-1"> {patient.cultures!.slice().reverse().map((c) => {
                     const r = cultureResultBadge(c);
                     const alerts = detectCultureAlerts(c);
                     return (
- <li key={c.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <li key={c.id} className="ios-inset px-2 py-1.5 text-[11px]">
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
   <span className="truncate">{c.source}</span>
@@ -1054,13 +1054,13 @@ export function PatientRow({
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames de imagem</div> {onEdit && (
   <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar imagem">+</button> )}
+                    className="ios-inset px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar imagem">+</button> )}
  </div> {(patient.imaging?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum exame de imagem registrado.</div> ) : (
  <ul className="space-y-1"> {patient.imaging!.slice().reverse().map((im) => {
                     const icon = im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : "";
                     return (
- <li key={im.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <li key={im.id} className="ios-inset px-2 py-1.5 text-[11px]">
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
  <span>{icon}</span><span>{im.modality} · {im.region}</span>
@@ -1092,11 +1092,11 @@ export function PatientRow({
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Eletroencefalograma</div> {onEdit && (
   <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar EEG">+</button> )}
+                    className="ios-inset px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar EEG">+</button> )}
  </div> {(patient.eeg?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhum EEG registrado.</div> ) : (
  <ul className="space-y-1"> {patient.eeg!.slice().reverse().map((eeg) => (
- <li key={eeg.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <li key={eeg.id} className="ios-inset px-2 py-1.5 text-[11px]">
  <div className="flex items-center justify-between gap-2">
  <span className="font-semibold text-foreground">EEG</span>
  <span className="font-mono text-[10px] text-muted-foreground">{formatDateBR(eeg.performedAt)}</span>
@@ -1112,11 +1112,11 @@ export function PatientRow({
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Hemotransfusão</div> {onEdit && (
   <button onClick={(e) => { e.stopPropagation(); onEdit(patient, "exam"); }}
-                    className="rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar hemotransfusão">+</button> )}
+                    className="ios-inset px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3" title="Adicionar hemotransfusão">+</button> )}
  </div> {(patient.hemotransfusions?.length ?? 0) === 0 ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Nenhuma hemotransfusão registrada.</div> ) : (
  <ul className="space-y-1"> {patient.hemotransfusions!.slice().reverse().map((h) => (
- <li key={h.id} className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px]">
+ <li key={h.id} className="ios-inset px-2 py-1.5 text-[11px]">
  <div className="flex items-center justify-between gap-2">
  <span className="font-semibold text-foreground">{h.component}</span>
  <span className="font-mono text-[10px] text-muted-foreground">{formatDateBR(h.date)}</span>
@@ -1131,7 +1131,7 @@ export function PatientRow({
  <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
- <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5"> {vitalRows.map((r) => (
+ <div className="space-y-0.5 ios-inset px-2 py-1.5"> {vitalRows.map((r) => (
  <div key={r.label} className="flex items-baseline justify-between gap-2 text-[11px]">
  <span className="font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
  <span className={`font-mono font-bold ${VITAL_LEVEL_TXT[r.v.level]}`}>{r.v.text}</span>
@@ -1183,7 +1183,7 @@ export function PatientRow({
  <div className="mt-4">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
  </div> {(patient.state.stools?.length ?? 0) > 0 ? (
- <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5 text-[11px]"> {patient.state.stools!.map((st) => {
+ <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px]"> {patient.state.stools!.map((st) => {
                     const m = bristolMeta(st.bristol);
                     return (
  <div key={st.id} className="flex items-baseline justify-between gap-2">
@@ -1202,7 +1202,7 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem registros de entradas / saídas / drenos.
  </div> ) : (
  <div className="space-y-1">
- <div className="space-y-0.5 rounded border border-border bg-surface px-2 py-1.5 text-[11px] font-mono font-semibold">
+ <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px] font-mono font-semibold">
  <div className="flex items-baseline justify-between gap-2">
  <span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
  <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
@@ -1230,7 +1230,7 @@ export function PatientRow({
  </div>
  </div> {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
  <ul className="mt-1 space-y-0.5 text-[10.5px]"> {patient.state.fluidBalance!.drains!.map((d) => (
- <li key={d.id} className="flex items-center justify-between rounded border border-border bg-surface px-2 py-0.5">
+ <li key={d.id} className="flex items-center justify-between ios-inset px-2 py-0.5">
  <span className="truncate">
  <span className="font-semibold text-foreground">{d.name}</span> {d.site ? <span className="text-muted-foreground"> · {d.site}</span> : null}
  </span>
