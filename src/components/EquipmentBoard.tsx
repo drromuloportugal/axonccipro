@@ -67,7 +67,7 @@ function MonitorCard({
   footer?: string;
 }) {
   return (
-    <div className="rounded-md border-2 border-border-strong bg-surface shadow-[0_2px_8px_-4px_rgba(0,0,0,0.55)]">
+    <div className="rounded-md border-2 border-border-strong bg-surface shadow-[0_4px_12px_-6px_oklch(0.25_0.04_240/0.28)]">
       <div className={`flex items-center gap-1.5 border-b-2 border-border-strong px-2 py-1 ${tone}`}>
         <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.2} />
         <span className="truncate text-[10px] font-bold uppercase tracking-[0.08em]">{title}</span>

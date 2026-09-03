@@ -554,7 +554,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: "def
     : tone === "warn" ? "text-clinical-attention border-clinical-attention/30 bg-clinical-attention/5"
     : "text-foreground";
   return (
- <div className={`rounded-md border border-border bg-surface px-2 py-1.5 text-center ${cls}`}>
+ <div className={`anat-map-box px-2 py-1.5 text-center ${cls}`}>
  <div className="text-lg font-semibold leading-none">{value}</div>
  <div className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
  </div> );
@@ -640,8 +640,8 @@ function AlertsList({ devices }: { devices: InvasiveDevice[] }) {
     return <div className="rounded-md border border-border bg-surface px-2 py-1.5 text-[11px] text-clinical-stable">Sem alertas de dispositivos.</div>;
   }
   return (
- <div className="rounded-md border border-border bg-surface p-2">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
+ <div className="anat-map-box p-2">
+  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alertas</div>
  <ul className="space-y-0.5 text-[11px]"> {rows.map((r, i) => (
   <li key={i} className={r.a.level === "danger" ? "text-clinical-critical" : r.a.level === "warn" ? "text-clinical-attention" : "text-clinical-neuro"}> {r.def?.label ?? r.d.typeCode}{r.d.site ? ` · ${r.d.site}` : ""} — {r.a.text}
  </li> ))}
@@ -700,9 +700,9 @@ function FocusPanel({
   const fmt = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
   return (
- <div className="rounded-md border border-border bg-surface p-3 text-[12px]">
- <div className="mb-2 flex items-start justify-between gap-2">
- <div className="flex items-center gap-2">
+ <div className="anat-map-box p-3 text-[12px]">
+  <div className="mb-2 flex items-start justify-between gap-2">
+  <div className="flex items-center gap-2">
  <div>
  <div className="font-semibold text-foreground">{meta.label}</div>
  <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
