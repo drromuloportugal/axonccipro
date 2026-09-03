@@ -25,6 +25,8 @@ const TONE: Record<string, string> = {
 
 export function BloodGasPanel({ patient }: { patient: Patient }) {
   const [course, setCourse] = useState<AbgCourse>("undefined");
+  const [open, setOpen] = useState(false);
+
 
   const input = useMemo(() => ({
     ph: pick(patient, /^p?H$|^pH\b/i),
