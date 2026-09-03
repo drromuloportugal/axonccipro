@@ -1,10 +1,12 @@
 // Preenchimento seriado em forma de tabela: cada item é uma linha, cada data é uma coluna.
 // Cobre sinais vitais, escala de Bristol, balanço hídrico, exames laboratoriais e gasometria arterial.
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import type { ExamRow, Patient, VitalReading } from "@/data/patients";
 
 type SeriesKey = keyof NonNullable<Patient["state"]["vitalSeries"]>;
+/** Coluna de preenchimento: valor máximo ou mínimo da data. */
+type MinMax = "max" | "min";
 
 const VITAL_ROWS: { key: SeriesKey; label: string; unit: string; step?: string }[] = [
   { key: "temp", label: "Temperatura", unit: "°C", step: "0.1" },
