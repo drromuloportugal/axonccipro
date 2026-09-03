@@ -1146,18 +1146,21 @@ export function PatientRow({
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
-                  const val = r.v.text.split("·")[0].trim();
-                  const crit = r.v.level === "grave";
-                  const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
-                  return (
- <div key={r.label} className={`grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px] ${abn ? "alert-outline px-1.5" : ""}`} title={abn ? "Sinal vital alterado" : undefined}>
+                   const crit = r.v.level === "grave";
+                   const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
+                   const mm = vitalMinMax(r.v);
+                   return (
+ <div key={r.label} className={`grid grid-cols-[46px_1fr_auto] items-center gap-x-2 py-[3px] text-[11px] ${abn ? "alert-outline px-1.5" : ""}`} title={abn ? "Sinal vital alterado (último registro)" : undefined}>
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
- <span className={`font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>{val}</span>
+ <span className={`flex flex-col leading-tight font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>
+ <span title="Valor máximo">{mm.max}</span>
+                        {mm.min ? <span className="opacity-80" title="Valor mínimo">{mm.min}</span> : null}
+ </span>
  <span className="flex items-center justify-end gap-1 text-right">
                         {crit && <span className="alert-dot" title="Alteração grave" aria-label="Alteração grave" />}
  </span>
  </div> );
-                })}
+                 })}
                 {crcl && (
  <div className="mt-1 grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 border-t border-border/50 pt-1 text-[11px]">
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">ClCr</span>
