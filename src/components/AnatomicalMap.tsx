@@ -734,7 +734,7 @@ function FocusPanel({
   cultures: Culture[];
   meds: import("@/data/patients").Medication[];
   devices: InvasiveDevice[];
-  onClose: () => void;
+  onClose?: () => void;
 }) {
   const meta = SITE_META[focus.site];
   const status = STATUS_COLOR[focus.status];
@@ -747,14 +747,14 @@ function FocusPanel({
  <div className="anat-map-box p-3 text-[12px]">
   <div className="mb-2 flex items-start justify-between gap-2">
   <div className="flex items-center gap-2">
- <div>
- <div className="font-semibold text-foreground">{meta.label}</div>
- <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
- </div>
- </div>
- </div>
-  <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>
- </div>
+  <div>
+  <div className="font-semibold text-foreground">{meta.label}</div>
+  <div className={`text-[10px] uppercase tracking-wider ${status.className}`}> ● {status.label}{focus.unstable ? " · instável" : ""}
+  </div>
+  </div>
+  </div>
+   {onClose && <button onClick={onClose} className="text-[11px] text-muted-foreground hover:text-foreground" aria-label="Fechar">Fechar</button>}
+  </div>
 
  <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
  <dt className="text-muted-foreground">Início</dt>
