@@ -1406,11 +1406,13 @@ function MedicationsList({
   <button
     type="button"
     onClick={() => updItem(i, { active: !active })}
-    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${active ? "border-clinical-stable/50 bg-clinical-stable/10 text-clinical-stable" : "border-clinical-neutral/50 bg-clinical-neutral/10 text-clinical-neutral"}`}
+    className={`inline-flex h-7 w-7 items-center justify-center rounded-full border ${active ? "border-clinical-stable/50 bg-clinical-stable/10 text-clinical-stable" : "border-clinical-neutral/50 bg-clinical-neutral/10 text-clinical-neutral"}`}
     title={active ? "Ativo — clique para suspender" : "Suspenso — clique para ativar"}
+    aria-label={active ? "Medicação ativa" : "Medicação suspensa"}
   >
-    {active ? "●" : "○"} {active ? "Ativo" : "Suspenso"}
+    {active ? <CircleCheck className="h-4 w-4" /> : <CirclePause className="h-4 w-4" />}
   </button>
+
  <button onClick={() => del(i)} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
  <Trash2 className="h-3.5 w-3.5" />
  </button>
