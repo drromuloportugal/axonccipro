@@ -305,6 +305,32 @@
   box-shadow: 0 8px 28px -14px oklch(0.25 0.03 240 / 0.45), inset 0 1px 0 color-mix(in oklab, white 70%, transparent);
 }
 
+/* Painel translúcido azul claro para o mapa anatômico */
+@utility anat-map-panel {
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, oklch(0.92 0.02 220) 58%, transparent),
+    color-mix(in oklab, oklch(0.96 0.01 230) 78%, transparent)
+  );
+  backdrop-filter: blur(12px) saturate(130%);
+  border: 1px solid color-mix(in oklab, oklch(0.7 0.04 230) 22%, transparent);
+  box-shadow:
+    0 2px 4px oklch(0.2 0.02 240 / 0.04),
+    0 12px 32px -18px oklch(0.25 0.03 240 / 0.35),
+    inset 0 1px 0 color-mix(in oklab, white 72%, transparent);
+}
+
+/* Caixa interna do mapa anatômico com sombra leve */
+@utility anat-map-box {
+  background: color-mix(in oklab, white 86%, transparent);
+  border: 1px solid color-mix(in oklab, oklch(0.75 0.03 230) 18%, transparent);
+  border-radius: 0.625rem;
+  box-shadow:
+    0 1px 2px oklch(0.2 0.02 240 / 0.05),
+    0 6px 14px -10px oklch(0.25 0.03 240 / 0.28),
+    inset 0 1px 0 color-mix(in oklab, white 80%, transparent);
+}
+
 /* Superfícies estilo iOS: vidro fosco, borda hairline e sombra em camadas */
 @utility ios-card {
   border-radius: 1rem;

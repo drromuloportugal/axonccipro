@@ -314,7 +314,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
   return (
  <div className="grid gap-4 lg:grid-cols-[1fr_340px]"> {/* Left: dual-view SVG body */}
- <div className="rounded-lg border border-border bg-surface p-3">
+ <div className="anat-map-panel rounded-lg p-3">
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> Vista anterior · posterior
  </div>
@@ -378,7 +378,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
  </div> {/* Invasões ativas e tempo de permanência */}
- <div className="mt-3 rounded-md border border-border bg-surface-2 p-2">
+ <div className="anat-map-box mt-3 p-2">
   <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
  <NeedleIcon size={13} weight="duotone" /> Invasões ativas · {active.length}
  </div> {active.length === 0 ? (
@@ -396,8 +396,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </li> ))}
  </ul> )}
  </div> {/* LPP e classificações */}
- <div className="mt-2 rounded-md border border-border bg-surface-2 p-2">
- <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+ <div className="anat-map-box mt-2 p-2">
+  <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
  <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão · {lppSummary.totalActive}
  </div> {lppSummary.active.length === 0 ? (
  <div className="text-[11px] text-muted-foreground">Nenhuma lesão por pressão ativa registrada.</div> ) : (
@@ -424,9 +424,9 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
 
  </div> {/* Right: enxuto — indicadores unificados, detalhe e seções recolhíveis */}
- <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
- <div className="rounded-md border border-border bg-surface p-2">
- <div className="grid grid-cols-3 divide-x divide-border">
+  <div className="space-y-2.5"> {/* Indicadores: uma única faixa cobrindo Dispositivos · Infecção · LPP */}
+ <div className="anat-map-box p-2">
+  <div className="grid grid-cols-3 divide-x divide-border">
  <IndicatorBlock title="Dispositivos">
  <IndicatorPair label="Ativos"value={active.length} />
  <IndicatorPair label="Vencidos" value={expired.length} tone={expired.length ? "danger" : "default"} />
@@ -452,12 +452,12 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                         meds={patient?.medications ?? []}
                         devices={active}
                         onClose={() => setSelectedFocus(null)} /> : selected
-            ? <DetailPanel device={selected} patient={patient} onClose={() => setSelected(null)} /> : <div className="rounded-md border border-dashed border-border p-3 text-center text-[11px] text-muted-foreground"> Toque em um marcador para ver detalhes.
+            ? <DetailPanel device={selected} patient={patient} onClose={() => setSelected(null)} /> : <div className="anat-map-box border-dashed p-3 text-center text-[11px] text-muted-foreground"> Toque em um marcador para ver detalhes.
  </div>}
 
         {compare && diff && (
- <div className="rounded-md border border-border bg-surface-2 px-2 py-1.5 text-[11px]">
- <span className="text-clinical-stable">+{diff.added.length} adicionados</span>
+ <div className="anat-map-box px-2 py-1.5 text-[11px]">
+  <span className="text-clinical-stable">+{diff.added.length} adicionados</span>
  <span className="mx-2 text-muted-foreground">·</span>
  <span className="text-clinical-critical">−{diff.removed.length} removidos</span>
  <span className="ml-2 text-[10px] text-muted-foreground">vs. semana anterior</span>
@@ -466,8 +466,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         {/* Alertas — visíveis se existirem, sem container quando vazio */}
  <AlertsList devices={active} /> {/* Sugestões IRAS — collapsible */}
         {deviceHints.length > 0 && (
- <details className="rounded-md border border-clinical-attention/30 bg-clinical-attention/5">
- <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention"> Avaliar IRAS · {deviceHints.length}
+ <details className="anat-map-box border-clinical-attention/30 bg-clinical-attention/5">
+  <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-clinical-attention"> Avaliar IRAS · {deviceHints.length}
  </summary>
  <ul className="space-y-1 px-2 pb-2 text-[11px]"> {deviceHints.map((h, i) => {
                 const def = deviceTypeByCode(h.device.typeCode);
@@ -483,8 +483,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
         {/* LPP — lista detalhada agora dentro de collapsible para enxugar */}
         {(lppList.length > 0 || onLPPChange) && (
- <details className="rounded-md border border-border bg-surface" open={lppList.length > 0 && lppList.length <= 3}>
- <summary className="flex cursor-pointer select-none items-center justify-between px-2 py-1.5">
+ <details className="anat-map-box" open={lppList.length > 0 && lppList.length <= 3}>
+  <summary className="flex cursor-pointer select-none items-center justify-between px-2 py-1.5">
  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Lesões por pressão
  </span>
  <span className="text-[10px] text-muted-foreground">
@@ -521,8 +521,8 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
 
         {/* Linha do tempo — collapsible (fechada por padrão) */}
         {timeline.length > 0 && (
- <details className="rounded-md border border-border bg-surface">
- <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Linha do tempo infecciosa · {timeline.length}
+ <details className="anat-map-box">
+  <summary className="cursor-pointer select-none px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> Linha do tempo infecciosa · {timeline.length}
  </summary>
  <div className="px-2 pb-2">
  <TimelinePanel events={timeline} />
@@ -574,8 +574,8 @@ function DetailPanel({ device, patient, onClose }: { device: InvasiveDevice; pat
   const lastReview = device.lastReviewedAt ? new Date(device.lastReviewedAt) : null;
 
   return (
- <div className="rounded-md border border-border bg-surface p-3 text-[12px]">
- <div className="mb-2 flex items-start justify-between gap-2">
+ <div className="anat-map-box p-3 text-[12px]">
+  <div className="mb-2 flex items-start justify-between gap-2">
  <div className="flex items-center gap-2">
  <span className="inline-block h-3 w-3 rounded-full" style={{ background: tc.color }} />
  <div>
