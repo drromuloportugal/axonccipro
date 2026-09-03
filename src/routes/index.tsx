@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
   component: Passometro,
 });
 
-type Filter = "all" | Severity;
+type Filter = "all" | Severity | "discharged";
 
 function Passometro() {
   const [query, setQuery] = useState("");
