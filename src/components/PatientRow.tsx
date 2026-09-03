@@ -1014,7 +1014,7 @@ export function PatientRow({
                     const r = cultureResultBadge(c);
                     const alerts = detectCultureAlerts(c);
                     return (
- <li key={c.id} className="ios-inset px-2 py-1.5 text-[11px]">
+ <li key={c.id} className={`ios-inset px-2 py-1.5 text-[11px] ${r.label === "Positiva" ? "alert-outline-static" : ""}`}>
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5 font-semibold text-foreground">
   <span className="truncate">{c.source}</span>
