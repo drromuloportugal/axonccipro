@@ -223,8 +223,39 @@ export function ClinicalTrendChart({ patient }: { patient: Patient }) {
   };
 
 
+  const ActiveValueDot = (props: {
+    cx?: number; cy?: number; stroke?: string; dataKey?: string | number;
+    payload?: Record<string, number | string>;
+  }) => {
+    const { cx, cy, stroke, dataKey, payload } = props;
+    if (cx == null || cy == null) return null;
+    const s = byKey.get(String(dataKey ?? ""));
+    const raw = payload?.[`${String(dataKey)}#raw`];
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={7} fill={stroke} fillOpacity={0.22} />
+        <circle cx={cx} cy={cy} r={3.5} fill={stroke} stroke="#fff" strokeWidth={1.5} />
+        {raw != null && (
+          <text
+            x={cx}
+            y={cy - 11}
+            textAnchor="middle"
+            fontSize={10}
+            fontWeight={700}
+            fill="hsl(var(--foreground))"
+            paintOrder="stroke"
+            stroke="rgba(255,255,255,0.85)"
+            strokeWidth={3}
+          >
+            {String(raw)}{s?.unit ? ` ${s.unit}` : ""}
+          </text>
+        )}
+      </g>
+    );
+  };
+
   return (
-    <section className="rounded-lg border border-border bg-card p-3">
+    <section className="glass-panel rounded-lg p-3">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="pastel-neutral inline-flex items-center rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-foreground">
           Sequência temporal de resultados
