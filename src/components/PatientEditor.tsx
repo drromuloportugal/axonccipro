@@ -216,7 +216,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  <TabsList className="grid w-full grid-cols-9">
  <TabsTrigger value="id">1 · Identif.</TabsTrigger>
  <TabsTrigger value="hist">2 · História</TabsTrigger>
- <TabsTrigger value="proc">3 · Intervenções</TabsTrigger>
+ <TabsTrigger value="proc">3 · Invasões</TabsTrigger>
  <TabsTrigger value="med">4 · Medicações</TabsTrigger>
  <TabsTrigger value="exam">5a · Imagem</TabsTrigger>
  <TabsTrigger value="cult">5b · Culturas</TabsTrigger>
