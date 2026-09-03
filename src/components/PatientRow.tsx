@@ -528,7 +528,7 @@ export function PatientRow({
           {/* 4) Imagem */}
           {(patient.imaging?.length ?? 0) > 0 && (
  <div className="mt-1 space-y-0.5"> {patient.imaging!.slice(0, 2).map((im) => (
- <div key={im.id} className="flex items-center gap-1 text-[10.5px] leading-snug">
+ <div key={im.id} className={`flex items-center gap-1 rounded text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline px-1" : ""}`} title={im.outcome === "mau" ? "Mau resultado esperado" : undefined}>
  <span className="shrink-0"> {im.conclusion === "critico" ? "" : im.conclusion === "alterado" ? "" : im.conclusion === "normal" ? "" : ""}
  </span>
  <span className="min-w-0 flex-1 truncate" title={im.summary}>
