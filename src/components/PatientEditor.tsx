@@ -2265,6 +2265,8 @@ function ImagingList({ items, onChange }: { items: ImagingExam[]; onChange: (v: 
  </select>
  <select className={inputCls} value={conclusion} onChange={(e) => setConclusion(e.target.value as ImagingExam["conclusion"])}> {CONCLUSION_OPTIONS.map((c) => <option key={c.code} value={c.code}>{c.icon} {c.label}</option>)}
  </select>
+ <select className={inputCls} value={outcome ?? ""} onChange={(e) => setOutcome(e.target.value as ImagingExam["outcome"] | "")}> {OUTCOME_OPTIONS.map((o) => <option key={o.code} value={o.code}>{o.label}</option>)}
+ </select>
  <Button size="sm" onClick={add}><Plus className="mr-1 h-3.5 w-3.5" />Adicionar</Button>
  </div>
  <div className="mt-2 grid grid-cols-[1fr_240px] gap-2">
