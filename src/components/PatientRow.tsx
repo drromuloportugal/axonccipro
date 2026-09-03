@@ -1135,7 +1135,7 @@ export function PatientRow({
                   const parts = r.v.text.split("·");
                   const val = parts[0].trim();
                   const qual = parts.slice(1).join("·").trim();
-                  const crit = r.v.level === "critical";
+                  const crit = r.v.level === "grave";
                   return (
  <div key={r.label} className="grid grid-cols-[46px_1fr_auto] items-baseline gap-x-2 py-[3px] text-[11px]">
  <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">{r.label}</span>
