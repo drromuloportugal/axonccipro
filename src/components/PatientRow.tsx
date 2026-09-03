@@ -123,7 +123,7 @@ function DeviceCompact({ d, mounted }: { d: InvasiveDevice; mounted: boolean }) 
   const def = deviceTypeByCode(d.typeCode);
   const tip = `${def?.label ?? d.typeCode} · ${days}d · ${r.label}${r.semaphoreHint ? `\n${r.semaphoreHint}` : ""}`;
   return (
- <div className="ios-inset px-1.5 pb-1 pt-1" title={tip}>
+ <div className={`ios-inset px-1.5 pb-1 pt-1 ${mounted && r.days > r.max ? "alert-outline" : ""}`} title={tip}>
  <div className="flex items-baseline justify-between gap-1">
  <span className="min-w-0 flex-1 truncate f-var text-[11px] leading-snug">{deviceShort(d)}</span> {mounted && (
  <span className={`shrink-0 f-var text-[10px] ${r.className}`}>{days}/{r.max}d</span> )}
