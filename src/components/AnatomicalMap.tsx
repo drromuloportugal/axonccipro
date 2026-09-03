@@ -436,10 +436,10 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
                const fmt = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
                return (
   <li key={f.id} className={`flex items-center gap-2 ${f.unstable ? "alert-outline px-1.5 py-0.5" : ""}`} title={f.unstable ? "Infecção instável" : undefined}>
-  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: status.color }} />
+  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: status.hex }} />
   <button onClick={() => setSelectedFocus(f)} className="flex-1 truncate text-left text-foreground hover:underline"> {meta?.label ?? f.site}{f.unstable ? " · instável" : ""}
   </button>
-  <span className="shrink-0 font-mono text-muted-foreground">{status.label}
+  <span className={`shrink-0 font-mono ${status.className}`}>{status.label}
   </span>
   <span className="shrink-0 font-mono text-muted-foreground">{fmt(f.startedAt)}
   </span>
