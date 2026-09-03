@@ -145,6 +145,7 @@ export function PatientRow({
   onUpdate,
   onDelete,
   onArchive,
+  onDischarge,
   defaultOpen = false,
 }: {
   patient: Patient;
@@ -153,6 +154,7 @@ export function PatientRow({
   onUpdate?: (p: Patient) => void;
   onDelete?: (p: Patient) => void;
   onArchive?: (p: Patient) => void;
+  onDischarge?: (p: Patient) => void;
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
