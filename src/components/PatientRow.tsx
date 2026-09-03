@@ -549,10 +549,13 @@ export function PatientRow({
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
  <div className="space-y-0.5"> {vitalRows.map((r) => {
               const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
+              const mm = vitalMinMax(r.v);
               return (
- <div key={r.label} className={`grid grid-cols-[34px_1fr_auto] items-baseline gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? "Sinal vital alterado" : undefined}>
+ <div key={r.label} className={`grid grid-cols-[34px_1fr_auto] items-center gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`} title={abn ? "Sinal vital alterado (último registro)" : undefined}>
  <span className="f-fixed font-semibold text-muted-foreground">{r.label}</span>
- <span className={`truncate text-right font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}> {r.v.text.split("·")[0].trim()}
+ <span className={`flex flex-col items-end leading-tight font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}>
+ <span title="Valor máximo">{mm.max}</span>
+              {mm.min ? <span className="opacity-80" title="Valor mínimo">{mm.min}</span> : null}
  </span>
  <span className="w-2 text-right">{r.v.level === "grave" && <span className="alert-dot" title="Alteração grave" />}</span>
  </div> ); })}
