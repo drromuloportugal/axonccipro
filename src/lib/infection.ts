@@ -38,7 +38,7 @@ export interface SiteMeta {
 export const SITE_META: Record<InfectionSite, SiteMeta> = {
   // Respiratório — pulmão direito/esquerdo (centralizado no tórax)
   PAC: { label: "Pneumonia comunitária", short: "PAC", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 139 }, radius: 26 },
-  PAV: { label: "PAV", short: "PAV", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 139 }, radius: 28 },
+  PAV: { label: "PAV", short: "PAV", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 120 }, radius: 28 },
   EMPIEMA: { label: "Empiema pleural", short: "Empiema", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 130, y: 154 }, radius: 18 },
   ABSC_PULM: { label: "Abscesso pulmonar", short: "Abs pulm", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 85, y: 159 }, radius: 14 },
 
