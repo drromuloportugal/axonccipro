@@ -48,7 +48,7 @@ export interface DrugDef {
   group: "vaso" | "sedo" | "outro";
   presentation: DrugPresentation;
   /** unidade base para dose (massa) */
-  baseUnit: "mcg" | "U";
+  baseUnit: "mcg" | "U" | "mg";
   allowedDoseUnits: DoseUnit[];
   dilutions: DilutionPreset[];
 }
@@ -361,9 +361,9 @@ export function computeDoseFromRate(opts: {
 }
 
 /** formata concentração em unidade legível */
-export function formatConcentration(concBasePerMl: number, baseUnit: "mcg" | "U") {
+export function formatConcentration(concBasePerMl: number, baseUnit: "mcg" | "U" | "mg") {
   if (baseUnit === "U") return { value: concBasePerMl, unit: "U/mL" };
-  if (concBasePerMl >= 1000) return { value: concBasePerMl / 1000, unit: "mg/mL" };
+  if (baseUnit === "mg" || concBasePerMl >= 1000) return { value: concBasePerMl / 1000, unit: "mg/mL" };
   return { value: concBasePerMl, unit: "mcg/mL" };
 }
 
