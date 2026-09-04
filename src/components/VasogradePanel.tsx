@@ -152,12 +152,24 @@ export function VasogradeModal({
     setFisherGuided(false); setWfnsGuided(false);
   };
 
-  const calc = () => {
-    setShowResult(true);
-    if (!incomplete) {
-      onSave({ ...patient, vasograde: { fisher, wfns, color, at: new Date().toISOString() } } as Patient);
-    }
-  };
+  // Modos guiados aplicam automaticamente o grau calculado
+  useEffect(() => {
+    if (guidedFisher != null) setFisher(guidedFisher);
+  }, [guidedFisher]);
+  useEffect(() => {
+    if (guidedWfns != null) setWfns(guidedWfns);
+  }, [guidedWfns]);
+
+  // Cálculo/persistência automáticos do VASOGRADE
+  const lastSaved = useRef<string>("");
+  useEffect(() => {
+    if (fisher == null || wfns == null || !color) return;
+    const key = `${fisher}|${wfns}|${color}`;
+    if (lastSaved.current === key) return;
+    lastSaved.current = key;
+    onSave({ ...patient, vasograde: { fisher, wfns, color, at: new Date().toISOString() } } as Patient);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fisher, wfns, color]);
 
   const clear = () => {
     lastSaved.current = "";
