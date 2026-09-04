@@ -1753,12 +1753,19 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
 
   return (
  <div className="space-y-2">
- <div className="grid grid-cols-[140px_1fr_auto] gap-2">
+ <div className="grid grid-cols-[140px_1fr_140px_auto] gap-2">
  <select className={inputCls} value={team} onChange={(e) => setTeam(e.target.value as Conduct["team"])}> {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
  </select>
  <select className={inputCls} value={system} onChange={(e) => setSystem(e.target.value as ConductSystem)}> {CONDUCT_SYSTEM_ORDER.map((s) => (
  <option key={s} value={s}>{CONDUCT_SYSTEM_META[s].icon} {CONDUCT_SYSTEM_META[s].label}</option> ))}
  </select>
+ <input
+                 type="date"
+                 className={inputCls}
+                 value={startedAt}
+                 onChange={(e) => setStartedAt(e.target.value)}
+                 title="Data de início da conduta"
+               />
  <Button size="sm" onClick={add}><Plus className="mr-1 h-3.5 w-3.5" />Adicionar sistema</Button>
  </div>
 
