@@ -288,6 +288,16 @@ export const DRUGS: DrugDef[] = [
       Cardio: { name: "900mg/500mL SG5%", ...ratio(900, 500) },
     },
   },
+  {
+    name: "Hidrocortisona", category: "outros", doseUnit: "mg/h",
+    usual: 10, min: 2.5, max: 50, bic: false,
+    protocols: {
+      Geral: { name: "500mg/100mL SF", ...ratio(500, 100) },
+      Neuro: { name: "500mg/100mL SF", ...ratio(500, 100) },
+      Cardio: { name: "500mg/100mL SF", ...ratio(500, 100) },
+    },
+    notes: "Incompatível com bicarbonato e heparina. Proteger da luz.",
+  },
 ];
 
 export const drugByName = (n: string) => DRUGS.find((d) => d.name.toLowerCase() === n.toLowerCase());
