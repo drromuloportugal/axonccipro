@@ -150,11 +150,15 @@ export function DilutionCenter({
  </div> {filtered.filter((d) => d.group === "vaso").map((d) => (
  <DrugItem key={d.code} d={d} active={d.code === drug?.code} fav={favorites.includes(d.code)}
                 onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
- <div className="px-1 py-1 pt-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Analgésicos · sedativos · BNM
- </div> {filtered.filter((d) => d.group === "sedo").map((d) => (
- <DrugItem key={d.code} d={d} active={d.code === drug?.code} fav={favorites.includes(d.code)}
-                onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
- </div>
+  <div className="px-1 py-1 pt-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Analgésicos · sedativos · BNM
+  </div> {filtered.filter((d) => d.group === "sedo").map((d) => (
+  <DrugItem key={d.code} d={d} active={d.code === drug?.code} fav={favorites.includes(d.code)}
+                 onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
+  <div className="px-1 py-1 pt-2 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground"> Outros
+  </div> {filtered.filter((d) => d.group === "outro").map((d) => (
+  <DrugItem key={d.code} d={d} active={d.code === drug?.code} fav={favorites.includes(d.code)}
+                 onSelect={() => setDrugCode(d.code)} onFav={() => toggleFav(d.code)} /> ))}
+  </div>
  </aside> )}
 
         {tab === "atb" ? (

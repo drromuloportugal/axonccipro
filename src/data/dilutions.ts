@@ -45,10 +45,10 @@ export interface DilutionPreset {
 export interface DrugDef {
   code: string;
   name: string;
-  group: "vaso" | "sedo";
+  group: "vaso" | "sedo" | "outro";
   presentation: DrugPresentation;
   /** unidade base para dose (massa) */
-  baseUnit: "mcg" | "U";
+  baseUnit: "mcg" | "U" | "mg";
   allowedDoseUnits: DoseUnit[];
   dilutions: DilutionPreset[];
 }
@@ -227,6 +227,15 @@ export const DRUG_BANK: DrugDef[] = [
       { id: "padrao", label: "20 mL + 80 mL de SG 5%", drugVolumeMl: 20, diluentMl: 80, diluent: "SG 5%" },
     ],
   },
+  {
+    code: "HIDRO", name: "Hidrocortisona", group: "outro", baseUnit: "mg",
+    presentation: { amount: 500, unit: "mg", volumeMl: 4, label: "500 mg / 4 mL (pó liofilizado)" },
+    allowedDoseUnits: ["mg/h", "mg/kg/h", "mL/h"],
+    dilutions: [
+      { id: "a", label: "4 mL (500 mg) + 96 mL de SF 0,9% (5 mg/mL)", drugVolumeMl: 4, diluentMl: 96, diluent: "SF 0,9%" },
+      { id: "b", label: "4 mL (500 mg) + 246 mL de SF 0,9% (2 mg/mL)", drugVolumeMl: 4, diluentMl: 246, diluent: "SF 0,9%" },
+    ],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -352,9 +361,9 @@ export function computeDoseFromRate(opts: {
 }
 
 /** formata concentração em unidade legível */
-export function formatConcentration(concBasePerMl: number, baseUnit: "mcg" | "U") {
+export function formatConcentration(concBasePerMl: number, baseUnit: "mcg" | "U" | "mg") {
   if (baseUnit === "U") return { value: concBasePerMl, unit: "U/mL" };
-  if (concBasePerMl >= 1000) return { value: concBasePerMl / 1000, unit: "mg/mL" };
+  if (baseUnit === "mg" || concBasePerMl >= 1000) return { value: concBasePerMl / 1000, unit: "mg/mL" };
   return { value: concBasePerMl, unit: "mcg/mL" };
 }
 
