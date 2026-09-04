@@ -136,12 +136,18 @@ function AuthPage() {
           className="rounded-b-md border-2 border-strong bg-card p-6 shadow-lg"
         >
           <h1 className="f-fixed text-lg font-bold uppercase tracking-wide text-foreground">
-            {mode === "login" ? "Entrar" : "Criar conta"}
+            {mode === "login"
+              ? "Entrar"
+              : mode === "signup"
+                ? "Criar conta"
+                : "Esqueci minha senha"}
           </h1>
           <p className="f-fixed mt-1 text-xs text-muted-foreground">
-            Conta individual da equipe assistencial. Os dados dos pacientes são
-            compartilhados entre todos os profissionais.
+            {mode === "reset"
+              ? "Informe seu e-mail cadastrado. Enviaremos um link para você criar uma nova senha."
+              : "Conta individual da equipe assistencial. Os dados dos pacientes são compartilhados entre todos os profissionais."}
           </p>
+
 
           {mode === "signup" && (
             <>
