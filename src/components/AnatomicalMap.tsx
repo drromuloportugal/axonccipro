@@ -62,20 +62,24 @@ function Marker({ x, y, shape, color, onClick, highlight }: {
 }) {
   const ring = highlight === "added" ? "hsl(142 70% 45%)" : highlight === "removed" ? "hsl(0 80% 55%)" : null;
   const common = {
-    fill: color, stroke: "white", strokeWidth: 1.5,
-    style: { cursor: "pointer" as const, filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,.45))" },
+    fill: color, stroke: "white", strokeWidth: 1.1,
+    style: { cursor: "pointer" as const, filter: "drop-shadow(0 1px 1px rgba(0,0,0,.4))" },
     onClick,
   };
   return (
- <g> {ring && <circle cx={x} cy={y} r={13} fill="none" stroke={ring} strokeWidth={1.8} strokeDasharray="2 2" />}
-      {shape === "circle"&& <circle cx={x} cy={y} r={8} {...common} />}
-      {shape === "ring"&& <circle cx={x} cy={y} r={9} fill="none" stroke={color} strokeWidth={3} style={common.style} onClick={onClick} />}
-      {shape === "square"&& <rect x={x - 7} y={y - 7} width={14} height={14} {...common} />}
-      {shape === "diamond"&& <rect x={x - 7} y={y - 7} width={14} height={14} transform={`rotate(45 ${x} ${y})`} {...common} />}
+ <g> {ring && <circle cx={x} cy={y} r={9} fill="none" stroke={ring} strokeWidth={1.4} strokeDasharray="2 2" />}
+      {shape === "circle"&& <circle cx={x} cy={y} r={5} {...common} />}
+      {shape === "ring"&& <g onClick={onClick} style={common.style}>
+ <circle cx={x} cy={y} r={5.4} fill="none" stroke="white" strokeWidth={3.2} />
+ <circle cx={x} cy={y} r={5.4} fill="none" stroke={color} strokeWidth={2} />
+ </g>}
+      {shape === "square"&& <rect x={x - 4.4} y={y - 4.4} width={8.8} height={8.8} rx={1.4} {...common} />}
+      {shape === "diamond"&& <rect x={x - 4.2} y={y - 4.2} width={8.4} height={8.4} rx={1} transform={`rotate(45 ${x} ${y})`} {...common} />}
       {shape === "triangle" && (
- <polygon points={`${x},${y - 9} ${x - 8},${y + 6} ${x + 8},${y + 6}`} {...common} /> )}
+ <polygon points={`${x},${y - 5.8} ${x - 5.2},${y + 3.8} ${x + 5.2},${y + 3.8}`} strokeLinejoin="round" {...common} /> )}
  </g> );
 }
+
 
 // ============================================================================
 // Single-view body panel (anterior or posterior)
