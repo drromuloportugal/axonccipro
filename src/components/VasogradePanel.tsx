@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Patient } from "@/data/patients";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Activity, AlertTriangle, RotateCcw, Calculator, Eraser } from "lucide-react";
@@ -139,7 +139,6 @@ export function VasogradeModal({
   const [ivh, setIvh] = useState<FisherYN | undefined>();
   const [gcs, setGcs] = useState<number | null>(null);
   const [deficit, setDeficit] = useState<WfnsYN | undefined>();
-  const [showResult, setShowResult] = useState<boolean>(saved.color != null);
 
   const guidedFisher = useMemo(() => computeFisher({ sah, ivh }).grade, [sah, ivh]);
   const guidedWfns = useMemo(() => computeWfns({ mode: "total", gcs, motorDeficit: deficit }).grade, [gcs, deficit]);
@@ -149,18 +148,31 @@ export function VasogradeModal({
 
   const reset = () => {
     setFisher(null); setWfns(null); setSah(undefined); setIvh(undefined);
-    setGcs(null); setDeficit(undefined); setShowResult(false);
+    setGcs(null); setDeficit(undefined);
     setFisherGuided(false); setWfnsGuided(false);
   };
 
-  const calc = () => {
-    setShowResult(true);
-    if (!incomplete) {
-      onSave({ ...patient, vasograde: { fisher, wfns, color, at: new Date().toISOString() } } as Patient);
-    }
-  };
+  // Modos guiados aplicam automaticamente o grau calculado
+  useEffect(() => {
+    if (guidedFisher != null) setFisher(guidedFisher);
+  }, [guidedFisher]);
+  useEffect(() => {
+    if (guidedWfns != null) setWfns(guidedWfns);
+  }, [guidedWfns]);
+
+  // Cálculo/persistência automáticos do VASOGRADE
+  const lastSaved = useRef<string>("");
+  useEffect(() => {
+    if (fisher == null || wfns == null || !color) return;
+    const key = `${fisher}|${wfns}|${color}`;
+    if (lastSaved.current === key) return;
+    lastSaved.current = key;
+    onSave({ ...patient, vasograde: { fisher, wfns, color, at: new Date().toISOString() } } as Patient);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fisher, wfns, color]);
 
   const clear = () => {
+    lastSaved.current = "";
     reset();
     onSave({ ...patient, vasograde: undefined } as Patient);
   };
@@ -199,7 +211,7 @@ export function VasogradeModal({
                     type="radio"
                     name="vaso-fisher"
                     checked={fisher === o.v}
-                    onChange={() => { setFisher(o.v); setShowResult(false); }}
+                    onChange={() => { setFisher(o.v); }}
                     className="accent-current"
                   />
                   <span>{o.label}</span>
@@ -219,18 +231,18 @@ export function VasogradeModal({
               <div className="mt-2 space-y-2 rounded-md border border-border bg-background p-2">
                 <div>
                   <div className="mb-1 text-[12px] font-semibold">Espessura da HSA</div>
-                  <Choice name="vaso-sah" options={SAH_OPTS} value={sah} onChange={(v) => { setSah(v); setShowResult(false); }} />
+                  <Choice name="vaso-sah" options={SAH_OPTS} value={sah} onChange={(v) => { setSah(v); }} />
                 </div>
                 <div>
                   <div className="mb-1 text-[12px] font-semibold">Hemorragia intraventricular</div>
-                  <Choice name="vaso-ivh" options={YN_OPTS} value={ivh} onChange={(v) => { setIvh(v); setShowResult(false); }} />
+                  <Choice name="vaso-ivh" options={YN_OPTS} value={ivh} onChange={(v) => { setIvh(v); }} />
                 </div>
                 {guidedFisher != null && (
                   <div className="flex items-center justify-between gap-2 text-[12px] font-semibold">
                     <span>Fisher Modificada calculada: {guidedFisher}</span>
                     <button
                       type="button"
-                      onClick={() => { setFisher(guidedFisher); setShowResult(false); }}
+                      onClick={() => { setFisher(guidedFisher); }}
                       className="rounded-md bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground"
                     >
                       Usar
@@ -259,7 +271,7 @@ export function VasogradeModal({
                     type="radio"
                     name="vaso-wfns"
                     checked={wfns === i + 1}
-                    onChange={() => { setWfns(i + 1); setShowResult(false); }}
+                    onChange={() => { setWfns(i + 1); }}
                     className="accent-current"
                   />
                   <span>WFNS {r}</span>
@@ -284,20 +296,20 @@ export function VasogradeModal({
                     min={3}
                     max={15}
                     value={gcs ?? ""}
-                    onChange={(e) => { setGcs(e.target.value === "" ? null : Number(e.target.value)); setShowResult(false); }}
+                    onChange={(e) => { setGcs(e.target.value === "" ? null : Number(e.target.value)); }}
                     className="w-20 rounded-md border border-border bg-background px-2 py-1 text-[12px]"
                   />
                 </label>
                 <div>
                   <div className="mb-1 text-[12px] font-semibold">Déficit motor</div>
-                  <Choice name="vaso-def" options={YN_OPTS} value={deficit} onChange={(v) => { setDeficit(v); setShowResult(false); }} />
+                  <Choice name="vaso-def" options={YN_OPTS} value={deficit} onChange={(v) => { setDeficit(v); }} />
                 </div>
                 {guidedWfns != null && (
                   <div className="flex items-center justify-between gap-2 text-[12px] font-semibold">
                     <span>WFNS calculada: {WFNS_ROMAN[guidedWfns - 1]}</span>
                     <button
                       type="button"
-                      onClick={() => { setWfns(guidedWfns); setShowResult(false); }}
+                      onClick={() => { setWfns(guidedWfns); }}
                       className="rounded-md bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground"
                     >
                       Usar
@@ -310,13 +322,9 @@ export function VasogradeModal({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={calc}
-            className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-primary-foreground"
-          >
-            <Calculator className="h-3.5 w-3.5" /> Calcular VASOGRADE
-          </button>
+          <div className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-ink">
+            <Calculator className="h-3.5 w-3.5" /> Cálculo automático
+          </div>
           <button
             type="button"
             onClick={clear}
@@ -333,14 +341,14 @@ export function VasogradeModal({
           </button>
         </div>
 
-        {showResult && incomplete && (
+        {incomplete && (
           <div className="flex items-center gap-2 rounded-md border border-clinical-attention/50 bg-clinical-attention/10 px-3 py-2 text-[12px] font-semibold text-ink">
             <AlertTriangle className="h-4 w-4" />
             Avaliação incompleta — determine a Fisher Modificada e a WFNS para calcular o VASOGRADE.
           </div>
         )}
 
-        {showResult && color && wfns != null && fisher != null && (
+        {color && wfns != null && fisher != null && (
           <>
             <div className={`rounded-md border-2 p-4 text-center ${BANNER_CLASS[color]}`}>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">VASOGRADE</div>
@@ -392,7 +400,7 @@ export function VasogradeModal({
                     return (
                       <td
                         key={f}
-                        onClick={() => { setFisher(f); setWfns(i + 1); setShowResult(true); }}
+                        onClick={() => { setFisher(f); setWfns(i + 1); }}
                         className={`cursor-pointer p-2 text-center font-semibold ${CELL_CLASS[c]} ${active ? "ring-2 ring-inset ring-primary" : ""}`}
                       >
                         {VASO_LABEL[c]}
