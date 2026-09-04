@@ -1721,6 +1721,7 @@ const TEAMS: Conduct["team"][] = ["Médica", "Enfermagem", "Fisioterapia", "Nutr
 function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Conduct[]) => void }) {
   const [team, setTeam] = useState<Conduct["team"]>("Médica");
   const [system, setSystem] = useState<ConductSystem>("gi");
+  const [startedAt, setStartedAt] = useState<string>(new Date().toISOString().slice(0, 10));
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
@@ -1728,6 +1729,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
       team, system,
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
+      startedAt,
       subItems: [{ text: "", done: false, color: "default" }],
     }]);
   };
