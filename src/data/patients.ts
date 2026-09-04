@@ -484,6 +484,7 @@ export interface Patient {
   dischargeCheck?: DischargeCheck;
   saps3?: Saps3Record;
   fisher?: import("@/components/FisherPanel").FisherRecord;
+  classicFisher?: import("@/components/FisherPanel").ClassicFisherRecord;
   huntHess?: import("@/components/HuntHessPanel").HuntHessRecord;
   wfns?: import("@/components/WfnsPanel").WfnsRecord;
   ichScore?: import("@/components/IchScorePanel").IchRecord;
