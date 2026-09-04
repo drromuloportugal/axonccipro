@@ -58,7 +58,16 @@ function AuthPage() {
     setError(null);
     setInfo(null);
     try {
-      if (mode === "signup") {
+      if (mode === "reset") {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+          email.trim(),
+          { redirectTo: `${window.location.origin}/reset-password` },
+        );
+        if (resetError) throw resetError;
+        setInfo(
+          "Enviamos um link para seu e-mail. Abra a mensagem para criar uma nova senha.",
+        );
+      } else if (mode === "signup") {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -76,6 +85,7 @@ function AuthPage() {
           setMode("login");
         }
       } else {
+
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
