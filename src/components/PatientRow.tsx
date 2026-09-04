@@ -44,7 +44,7 @@ import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
 import { MacroStatusBar } from "@/components/MacroStatus";
 
-import { Pill, CircleCheck, CirclePause } from "lucide-react";
+import { Pill, CircleCheck, CirclePause, Ban, RotateCcw } from "lucide-react";
 
 
 const VITAL_LEVEL_TXT: Record<string, string> = {
@@ -216,6 +216,29 @@ export function PatientRow({
   const bmi = computeBMI(patient.weight, patient.height);
   const dHosp = daysSinceAdmission(patient.admissionHosp) ?? patient.daysHosp;
   const dICU = daysSinceAdmission(patient.admissionICU) ?? patient.daysICU;
+
+  const finalizeMed = (med: Medication) => {
+    if (!onUpdate) return;
+    const today = new Date();
+    const p = (n: number) => String(n).padStart(2, "0");
+    const end = `${p(today.getDate())}/${p(today.getMonth() + 1)}/${today.getFullYear()}`;
+    onUpdate({
+      ...patient,
+      medications: patient.medications.map((m) =>
+        m === med ? { ...m, active: false, end: m.end ?? end } : m,
+      ),
+    });
+  };
+
+  const reactivateMed = (med: Medication) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      medications: patient.medications.map((m) =>
+        m === med ? { ...m, active: true, end: undefined } : m,
+      ),
+    });
+  };
 
   const toggleConduct = (idx: number) => {
     if (!onUpdate) return;
@@ -1003,10 +1026,10 @@ export function PatientRow({
  </div>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
  <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
- </div> {(() => {
-              // include all meds (active + suspended), grouped by class
+  </div> {(() => {
+              // only meds in use; finished ones go to the history box below
               const allByClass = new Map<string, Medication[]>();
-              for (const m of patient.medications) {
+              for (const m of patient.medications.filter((x) => x.active !== false)) {
                 const cls = medClassOf(m);
                 if (!allByClass.has(cls)) allByClass.set(cls, []);
                 allByClass.get(cls)!.push(m);
@@ -1032,12 +1055,21 @@ export function PatientRow({
  <span>{isAtb ? "" : ""}</span>
  <span className="font-semibold text-foreground">{m.name}</span>
  </div>
-  <span className={m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}
-    title={m.active === false ? "Suspenso" : "Ativo"}
-    aria-label={m.active === false ? "Medicação suspensa" : "Medicação ativa"}>
-    {m.active === false ? <CirclePause className="h-3.5 w-3.5" /> : <CircleCheck className="h-3.5 w-3.5" />}
-  </span>
-
+   <div className="flex shrink-0 items-center gap-1">
+   <span className="text-clinical-stable" title="Ativo" aria-label="Medicação ativa">
+     <CircleCheck className="h-3.5 w-3.5" />
+   </span>
+   {onUpdate && (
+   <button
+     type="button"
+     onClick={(e) => { e.stopPropagation(); finalizeMed(m); }}
+     className="rounded border border-clinical-neutral/40 bg-surface-2/60 p-0.5 text-clinical-neutral hover:bg-surface-3"
+     title="Finalizar medicação"
+     aria-label={`Finalizar ${m.name}`}
+   >
+     <Ban className="h-3.5 w-3.5" />
+   </button> )}
+   </div>
  </div>
  <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
  </div> {m.mlPerHour !== undefined && (
@@ -1064,6 +1096,40 @@ export function PatientRow({
             })()}
             {patient.medications.length === 0 && (
   <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
+            {(() => {
+              const done = patient.medications.filter((m) => m.active === false);
+              if (!done.length) return null;
+              return (
+ <div className="mt-2 rounded-md border border-border bg-surface-2/50 p-2" onClick={(e) => e.stopPropagation()}>
+ <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+ <span>💊 Já utilizados</span>
+ <span className="font-mono">{done.length}</span>
+ </div>
+ <ul className="space-y-1"> {done.map((m, i) => (
+ <li key={i} className="ios-inset flex items-start justify-between gap-2 px-2 py-1 text-[11px]">
+ <div className="min-w-0">
+ <div className="flex items-center gap-1.5">
+ <CirclePause className="h-3 w-3 shrink-0 text-clinical-neutral" />
+ <span className="truncate font-semibold text-foreground">{m.name}</span>
+ </div>
+ <div className="ml-4 font-mono text-[10px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
+ </div>
+ <div className="ml-4 font-mono text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
+ </div>
+ </div> {onUpdate && (
+ <button
+                        type="button"
+                        onClick={() => reactivateMed(m)}
+                        className="shrink-0 rounded border border-clinical-stable/40 bg-surface/60 p-0.5 text-clinical-stable hover:bg-surface-3"
+                        title="Reativar medicação"
+                        aria-label={`Reativar ${m.name}`}
+                      >
+ <RotateCcw className="h-3.5 w-3.5" />
+ </button> )}
+ </li> ))}
+ </ul>
+ </div> );
+            })()}
   </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
  <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
