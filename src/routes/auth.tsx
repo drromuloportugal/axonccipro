@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Lock, User, LogIn, UserPlus, Mail } from "lucide-react";
+import { Lock, User, LogIn, UserPlus, Mail, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import mainLogo from "@/assets/axon-logo.png.asset.json";
 
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
