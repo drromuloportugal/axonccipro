@@ -16,7 +16,6 @@ import { EquipmentBoard } from "@/components/EquipmentBoard";
 import bodyAnterior from "@/assets/body-anterior.jpg.asset.json";
 import bodyPosterior from "@/assets/body-posterior.jpg.asset.json";
 import { Plus, Trash2 } from "lucide-react";
-import { NeedleIcon, BandaidsIcon, VirusIcon } from "@phosphor-icons/react";
 
 interface Props {
   devices: InvasiveDevice[];
@@ -500,7 +499,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         {active.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <NeedleIcon size={13} weight="duotone" /> Invasões ativas
+              <span aria-hidden="true">💉</span> Invasões ativas
             </div>
             {active
               .map((d) => ({ d, tc: deviceTimeColor(d) }))
@@ -515,7 +514,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         {lppSummary.active.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão
+              <span aria-hidden="true">🩹</span> Lesões por pressão
             </div>
             {lppSummary.active
               .slice()
@@ -530,7 +529,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
         {infections.filter((i) => !i.resolvedAt).length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <VirusIcon size={13} weight="duotone" /> Infecções ativas
+              <span aria-hidden="true">🦠</span> Infecções ativas
             </div>
             {infections
               .filter((i) => !i.resolvedAt)
