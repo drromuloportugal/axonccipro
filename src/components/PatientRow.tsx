@@ -44,7 +44,7 @@ import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
 import { MacroStatusBar } from "@/components/MacroStatus";
 
-import { Pill, CircleCheck, CirclePause } from "lucide-react";
+import { Pill, CircleCheck, CirclePause, Ban, RotateCcw } from "lucide-react";
 
 
 const VITAL_LEVEL_TXT: Record<string, string> = {
