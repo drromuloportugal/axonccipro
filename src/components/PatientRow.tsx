@@ -669,32 +669,33 @@ export function PatientRow({
  </div>
 
 
- <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}> {patient.conducts.slice(0, 4).map((c, i) => {
+  <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}> {patient.conducts.slice(0, 4).map((c, i) => {
               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
               const firstAnn = c.subItems?.find((s) => s.text?.trim());
               const annColor = firstAnn?.color ? ANNOTATION_COLOR_META[firstAnn.color] : null;
+              const annDate = firstAnn?.date ?? c.startedAt;
               return (
- <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
- <input
+  <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
+  <input
                      type="checkbox"
                      checked={c.done}
                      onChange={() => toggleConduct(i)}
                      disabled={!onUpdate}
                      className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
                    />
- <span className="min-w-0 flex-1">
+  <span className="min-w-0 flex-1">
   <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
- <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
- <span className="italic text-muted-foreground">Sem anotações</span> )}
+  <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
+  <span className="italic text-muted-foreground">Sem anotações</span> )}
                      {c.subItems && c.subItems.length > 1 && (
- <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
- </span>
- {c.startedAt && (
- <span className="shrink-0 text-[9px] font-mono text-muted-foreground">
-                     {formatDayMonth(c.startedAt)}
+  <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
+  </span>
+  {annDate && (
+  <span className="shrink-0 text-[9px] font-mono text-muted-foreground">
+                     {formatDayMonth(annDate)}
                    </span>
                    )}
- </li> );
+  </li> );
             })}
             {patient.conducts.length > 4 && (
  <li className="text-[10px] text-muted-foreground">+{patient.conducts.length - 4} sistema(s)</li> )}
