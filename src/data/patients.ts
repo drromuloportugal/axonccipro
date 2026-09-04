@@ -194,6 +194,8 @@ export interface ConductSubItem {
   done?: boolean;
   /** Cor de destaque da fonte da anotação. */
   color?: AnnotationColor;
+  /** Data da conduta específica (ISO), similar aos procedimentos/eventos. */
+  date?: string;
 }
 
 export interface Conduct {
