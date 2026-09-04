@@ -109,7 +109,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
     const temp = latest(vs?.temp) ?? st.temp;
     const fr = latest(vs?.fr) ?? st.fr;
     cards.push({
-      key: "monitor", title: "Monitor multiparamétrico", icon: Activity,
+      key: "monitor", title: "Monitor multiparamétrico", icon: "📟",
       tone: "bg-clinical-resp/20 text-ink", side: "left",
       readouts: [
         { label: "FC", value: fmt(fc), unit: "bpm", alert: typeof fc === "number" && (fc > 120 || fc < 50) },
@@ -129,7 +129,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   if (airway || noninv || o2) {
     cards.push({
       key: "vent", title: airway ? "Ventilador mecânico" : noninv ? "Ventilação não invasiva" : "Oxigenoterapia",
-      icon: Wind, tone: "bg-clinical-resp/20 text-ink", side: "left",
+      icon: "🫁", tone: "bg-clinical-resp/20 text-ink", side: "left",
       readouts: [
         { label: "Modo", value: st?.vent || (airway?.typeCode ?? noninv?.typeCode ?? o2?.typeCode ?? "—") },
         { label: "FiO₂", value: fmt(st?.fio2), unit: "%" },
@@ -146,7 +146,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   );
   if (pumps.length) {
     cards.push({
-      key: "pumps", title: `Bombas de infusão (${pumps.length})`, icon: Syringe,
+      key: "pumps", title: `Bombas de infusão (${pumps.length})`, icon: "💉",
       tone: "bg-clinical-device/20 text-ink", side: "right",
       readouts: pumps.slice(0, 6).map((m) => ({
         label: m.name,
@@ -162,7 +162,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   const swan = has(active, ["SWAN"]);
   if (pai || swan) {
     cards.push({
-      key: "hemo", title: "Monitor hemodinâmico", icon: HeartPulse,
+      key: "hemo", title: "Monitor hemodinâmico", icon: "❤️",
       tone: "bg-clinical-critical/15 text-ink", side: "right",
       readouts: [
         { label: "PAI", value: pai ? (pai.site ?? pai.typeCode) : "—" },
@@ -181,7 +181,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   const lac = examValue(patient, ["Lactato", "LAC"]);
   if (ph || paco2 || pao2 || hco3 || lac) {
     cards.push({
-      key: "abg", title: "Gasometria arterial", icon: FlaskConical,
+      key: "abg", title: "Gasometria arterial", icon: "🧪",
       tone: "bg-clinical-nutri/20 text-ink", side: "right",
       readouts: [
         { label: "pH", value: ph?.value ?? "—", alert: ph?.critical || outOf(num(ph?.value), 7.35, 7.45) },
@@ -200,7 +200,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
     const bh = latest(vs?.bh) ?? st?.balancoHidrico;
     cards.push({
       key: "diurese", title: urinary ? `Débito urinário · ${urinary.typeCode}` : "Débito urinário",
-      icon: Droplets, tone: "bg-clinical-nutri/20 text-ink", side: "left",
+      icon: "💧", tone: "bg-clinical-nutri/20 text-ink", side: "left",
       readouts: [
         { label: "Diurese", value: fmt(st?.diurese), unit: "mL/kg/h" },
         { label: "Horária", value: fmt(st?.diureseHoraria), unit: "mL/h" },
@@ -214,7 +214,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   const hd = has(active, ["HD_CAT"]);
   if (hd) {
     cards.push({
-      key: "trs", title: "Terapia renal substitutiva", icon: Waves,
+      key: "trs", title: "Terapia renal substitutiva", icon: "🌊",
       tone: "bg-clinical-neuro/15 text-ink", side: "right",
       readouts: [
         { label: "Acesso", value: hd.site ?? "Cateter HD" },
@@ -229,7 +229,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   const enteral = has(active, ["SNE", "SNG", "GTT", "JTT"]);
   if (enteral) {
     cards.push({
-      key: "nutri", title: `Nutrição enteral · ${enteral.typeCode}`, icon: Utensils,
+      key: "nutri", title: `Nutrição enteral · ${enteral.typeCode}`, icon: "🍽️",
       tone: "bg-clinical-attention/20 text-ink", side: "left",
       readouts: [
         { label: "Dieta", value: st?.dieta || "—" },
@@ -245,7 +245,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   if (neuro || typeof st?.glasgow === "number") {
     cards.push({
       key: "neuro", title: neuro ? `Neuromonitorização · ${neuro.typeCode}` : "Avaliação neurológica",
-      icon: Brain, tone: "bg-clinical-neuro/15 text-ink", side: "right",
+      icon: "🧠", tone: "bg-clinical-neuro/15 text-ink", side: "right",
       readouts: [
         { label: "Glasgow", value: fmt(st?.glasgow), alert: typeof st?.glasgow === "number" && st.glasgow < 12 },
         { label: "RASS", value: fmt(st?.rass), alert: typeof st?.rass === "number" && (st.rass <= -4 || st.rass >= 2) },
@@ -261,7 +261,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
   if (tx) {
     cards.push({
-      key: "tx", title: "Hemotransfusão", icon: Droplet,
+      key: "tx", title: "Hemotransfusão", icon: "🩸",
       tone: "bg-clinical-critical/15 text-ink", side: "left",
       readouts: [
         { label: "Componente", value: tx.component },
