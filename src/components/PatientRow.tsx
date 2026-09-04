@@ -676,19 +676,24 @@ export function PatientRow({
               return (
  <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
  <input
-                    type="checkbox"
-                    checked={c.done}
-                    onChange={() => toggleConduct(i)}
-                    disabled={!onUpdate}
-                    className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
-                  />
+                     type="checkbox"
+                     checked={c.done}
+                     onChange={() => toggleConduct(i)}
+                     disabled={!onUpdate}
+                     className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
+                   />
  <span className="min-w-0 flex-1">
   <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
  <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
  <span className="italic text-muted-foreground">Sem anotações</span> )}
-                    {c.subItems && c.subItems.length > 1 && (
+                     {c.subItems && c.subItems.length > 1 && (
  <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
  </span>
+ {c.startedAt && (
+ <span className="shrink-0 text-[9px] font-mono text-muted-foreground">
+                     {formatDayMonth(c.startedAt)}
+                   </span>
+                   )}
  </li> );
             })}
             {patient.conducts.length > 4 && (
