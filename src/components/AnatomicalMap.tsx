@@ -391,11 +391,11 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
             alertDeviceIds={expiredIds}
           />
  <EquipmentBoard patient={patient} devices={devices} side="right" />
- </div> {/* Invasões ativas e tempo de permanência */}
- <div className="anat-map-box mt-3 p-2">
-  <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
- <NeedleIcon size={13} weight="duotone" /> Invasões ativas · {active.length}
- </div> {active.length === 0 ? (
+  </div> {/* Invasões ativas e tempo de permanência */}
+  <div className="anat-map-box mt-3 p-2">
+   <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+  <span aria-hidden="true">💉</span> Invasões ativas · {active.length}
+  </div> {active.length === 0 ? (
  <div className="text-[11px] text-muted-foreground">Nenhuma invasão ativa registrada.</div> ) : (
  <ul className="space-y-0.5 text-[11px]"> {active
                .map((d) => ({ d, def: deviceTypeByCode(d.typeCode), tc: deviceTimeColor(d) }))
@@ -409,11 +409,11 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </span>
  </li> ))}
  </ul> )}
-  </div> {/* LPP e classificações */}
-  <div className="anat-map-box mt-2 p-2">
-   <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-  <BandaidsIcon size={13} weight="duotone" /> Lesões por pressão · {lppSummary.totalActive}
-  </div> {lppSummary.active.length === 0 ? (
+   </div> {/* LPP e classificações */}
+   <div className="anat-map-box mt-2 p-2">
+    <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+   <span aria-hidden="true">🩹</span> Lesões por pressão · {lppSummary.totalActive}
+   </div> {lppSummary.active.length === 0 ? (
   <div className="text-[11px] text-muted-foreground">Nenhuma lesão por pressão ativa registrada.</div> ) : (
   <ul className="space-y-0.5 text-[11px]"> {lppSummary.active
              .slice()
@@ -439,7 +439,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
   {/* Infecções ativas — detalhamento abaixo de invasões e LPP */}
   <div className="anat-map-box mt-2 p-2">
    <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-  <VirusIcon size={13} weight="duotone" /> Infecções ativas · {infections.filter((i) => !i.resolvedAt).length}
+  <span aria-hidden="true">🦠</span> Infecções ativas · {infections.filter((i) => !i.resolvedAt).length}
   </div> {infections.filter((i) => !i.resolvedAt).length === 0 ? (
   <div className="text-[11px] text-muted-foreground">Nenhuma infecção ativa registrada.</div> ) : (
   <ul className="space-y-0.5 text-[11px]"> {infections
