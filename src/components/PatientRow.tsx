@@ -1032,12 +1032,21 @@ export function PatientRow({
  <span>{isAtb ? "" : ""}</span>
  <span className="font-semibold text-foreground">{m.name}</span>
  </div>
-  <span className={m.active === false ? "text-clinical-neutral" : "text-clinical-stable"}
-    title={m.active === false ? "Suspenso" : "Ativo"}
-    aria-label={m.active === false ? "Medicação suspensa" : "Medicação ativa"}>
-    {m.active === false ? <CirclePause className="h-3.5 w-3.5" /> : <CircleCheck className="h-3.5 w-3.5" />}
-  </span>
-
+   <div className="flex shrink-0 items-center gap-1">
+   <span className="text-clinical-stable" title="Ativo" aria-label="Medicação ativa">
+     <CircleCheck className="h-3.5 w-3.5" />
+   </span>
+   {onUpdate && (
+   <button
+     type="button"
+     onClick={(e) => { e.stopPropagation(); finalizeMed(m); }}
+     className="rounded border border-clinical-neutral/40 bg-surface-2/60 p-0.5 text-clinical-neutral hover:bg-surface-3"
+     title="Finalizar medicação"
+     aria-label={`Finalizar ${m.name}`}
+   >
+     <Ban className="h-3.5 w-3.5" />
+   </button> )}
+   </div>
  </div>
  <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
  </div> {m.mlPerHour !== undefined && (
