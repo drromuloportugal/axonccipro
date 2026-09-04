@@ -1787,6 +1787,13 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
  <select className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
                   value={c.team} onChange={(e) => upd(i, { team: e.target.value as Conduct["team"] })}> {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
  </select>
+ <input
+                  type="date"
+                  className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
+                  value={c.startedAt ? c.startedAt.slice(0, 10) : ""}
+                  onChange={(e) => upd(i, { startedAt: e.target.value || undefined })}
+                  title="Data de início da conduta"
+                />
  <span className={`ml-1 text-[11px] font-bold uppercase tracking-wider ${meta.className}`}> {meta.icon} {meta.label}
  </span>
  <div className="ml-auto flex items-center gap-1">
