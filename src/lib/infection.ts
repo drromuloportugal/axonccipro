@@ -37,42 +37,42 @@ export interface SiteMeta {
 
 export const SITE_META: Record<InfectionSite, SiteMeta> = {
   // Respiratório — pulmão direito/esquerdo (centralizado no tórax)
-  PAC: { label: "Pneumonia comunitária", short: "PAC", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 145 }, radius: 26 },
-  PAV: { label: "PAV", short: "PAV", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 145 }, radius: 28 },
-  EMPIEMA: { label: "Empiema pleural", short: "Empiema", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 130, y: 160 }, radius: 18 },
-  ABSC_PULM: { label: "Abscesso pulmonar", short: "Abs pulm", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 85, y: 165 }, radius: 14 },
+  PAC: { label: "Pneumonia comunitária", short: "PAC", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 139 }, radius: 26 },
+  PAV: { label: "PAV", short: "PAV", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 100, y: 139 }, radius: 28 },
+  EMPIEMA: { label: "Empiema pleural", short: "Empiema", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 130, y: 154 }, radius: 18 },
+  ABSC_PULM: { label: "Abscesso pulmonar", short: "Abs pulm", system: "respiratorio", icon: "", view: "anterior", anchor: { x: 85, y: 159 }, radius: 14 },
 
   // SNC
-  MENINGITE: { label: "Meningite", short: "Mening.", system: "snc", icon: "", view: "anterior", anchor: { x: 100, y: 29 }, radius: 22 },
-  VENTRICULITE: { label: "Ventriculite", short: "Ventric.", system: "snc", icon: "", view: "anterior", anchor: { x: 100, y: 25 }, radius: 18 },
-  INF_DVE: { label: "Infecção por DVE", short: "Inf DVE", system: "snc", icon: "", view: "anterior", anchor: { x: 90, y: 30 }, radius: 18 },
-  ABSC_CEREBRAL: { label: "Abscesso cerebral", short: "Abs SNC", system: "snc", icon: "", view: "anterior", anchor: { x: 110, y: 30 }, radius: 14 },
+  MENINGITE: { label: "Meningite", short: "Mening.", system: "snc", icon: "", view: "anterior", anchor: { x: 100, y: 23 }, radius: 22 },
+  VENTRICULITE: { label: "Ventriculite", short: "Ventric.", system: "snc", icon: "", view: "anterior", anchor: { x: 100, y: 19 }, radius: 18 },
+  INF_DVE: { label: "Infecção por DVE", short: "Inf DVE", system: "snc", icon: "", view: "anterior", anchor: { x: 90, y: 24 }, radius: 18 },
+  ABSC_CEREBRAL: { label: "Abscesso cerebral", short: "Abs SNC", system: "snc", icon: "", view: "anterior", anchor: { x: 110, y: 24 }, radius: 14 },
 
   // Corrente sanguínea
-  BACTEREMIA: { label: "Bacteremia", short: "Bactrem.", system: "vascular", icon: "", view: "anterior", anchor: { x: 100, y: 195 }, radius: 30 },
-  SEPSE: { label: "Sepse", short: "Sepse", system: "vascular", icon: "", view: "anterior", anchor: { x: 100, y: 195 }, radius: 34 },
-  IRC: { label: "Infecção relacionada a cateter", short: "IRC", system: "vascular", icon: "", view: "anterior", anchor: { x: 72, y: 103 }, radius: 16 },
+  BACTEREMIA: { label: "Bacteremia", short: "Bactrem.", system: "vascular", icon: "", view: "anterior", anchor: { x: 100, y: 189 }, radius: 30 },
+  SEPSE: { label: "Sepse", short: "Sepse", system: "vascular", icon: "", view: "anterior", anchor: { x: 100, y: 189 }, radius: 34 },
+  IRC: { label: "Infecção relacionada a cateter", short: "IRC", system: "vascular", icon: "", view: "anterior", anchor: { x: 72, y: 97 }, radius: 16 },
 
   // Urinário
-  ITU: { label: "ITU", short: "ITU", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 267 }, radius: 18 },
-  PIELONEFRITE: { label: "Pielonefrite", short: "Pielo", system: "urinario", icon: "", view: "posterior", anchor: { x: 85, y: 245 }, radius: 16 },
-  INF_SVD: { label: "Infecção por SVD", short: "Inf SVD", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 300 }, radius: 16 },
+  ITU: { label: "ITU", short: "ITU", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 261 }, radius: 18 },
+  PIELONEFRITE: { label: "Pielonefrite", short: "Pielo", system: "urinario", icon: "", view: "posterior", anchor: { x: 85, y: 239 }, radius: 16 },
+  INF_SVD: { label: "Infecção por SVD", short: "Inf SVD", system: "urinario", icon: "", view: "anterior", anchor: { x: 100, y: 294 }, radius: 16 },
 
   // Abdome
-  PERITONITE: { label: "Peritonite", short: "Peritonite", system: "abdome", icon: "", view: "anterior", anchor: { x: 100, y: 230 }, radius: 28 },
-  COLECISTITE: { label: "Colecistite", short: "Colec.", system: "abdome", icon: "", view: "anterior", anchor: { x: 130, y: 210 }, radius: 14 },
-  DIVERTICULITE: { label: "Diverticulite", short: "Divertic.", system: "abdome", icon: "", view: "anterior", anchor: { x: 75, y: 255 }, radius: 14 },
-  ABSC_ABD: { label: "Abscesso abdominal", short: "Abs abd", system: "abdome", icon: "", view: "anterior", anchor: { x: 110, y: 245 }, radius: 16 },
-  FISTULA_INF: { label: "Fístula infectada", short: "Fístula", system: "abdome", icon: "", view: "anterior", anchor: { x: 125, y: 235 }, radius: 12 },
+  PERITONITE: { label: "Peritonite", short: "Peritonite", system: "abdome", icon: "", view: "anterior", anchor: { x: 100, y: 224 }, radius: 28 },
+  COLECISTITE: { label: "Colecistite", short: "Colec.", system: "abdome", icon: "", view: "anterior", anchor: { x: 130, y: 204 }, radius: 14 },
+  DIVERTICULITE: { label: "Diverticulite", short: "Divertic.", system: "abdome", icon: "", view: "anterior", anchor: { x: 75, y: 249 }, radius: 14 },
+  ABSC_ABD: { label: "Abscesso abdominal", short: "Abs abd", system: "abdome", icon: "", view: "anterior", anchor: { x: 110, y: 239 }, radius: 16 },
+  FISTULA_INF: { label: "Fístula infectada", short: "Fístula", system: "abdome", icon: "", view: "anterior", anchor: { x: 125, y: 229 }, radius: 12 },
 
   // Pele e partes moles
-  CELULITE: { label: "Celulite", short: "Celulite", system: "pele", icon: "", view: "anterior", anchor: { x: 35, y: 245 }, radius: 14 },
-  FASCEITE: { label: "Fasceíte necrotizante", short: "Fasceíte", system: "pele", icon: "", view: "anterior", anchor: { x: 165, y: 245 }, radius: 14 },
-  LPP_INF: { label: "LPP infectada", short: "LPP", system: "pele", icon: "", view: "posterior", anchor: { x: 100, y: 300 }, radius: 14 },
+  CELULITE: { label: "Celulite", short: "Celulite", system: "pele", icon: "", view: "anterior", anchor: { x: 35, y: 239 }, radius: 14 },
+  FASCEITE: { label: "Fasceíte necrotizante", short: "Fasceíte", system: "pele", icon: "", view: "anterior", anchor: { x: 165, y: 239 }, radius: 14 },
+  LPP_INF: { label: "LPP infectada", short: "LPP", system: "pele", icon: "", view: "posterior", anchor: { x: 100, y: 294 }, radius: 14 },
 
   // Ossos e articulações
-  OSTEOMIELITE: { label: "Osteomielite", short: "Osteomi.", system: "osseo", icon: "", view: "anterior", anchor: { x: 115, y: 415 }, radius: 12 },
-  ARTRITE_SEPTICA: { label: "Artrite séptica", short: "Artrite", system: "osseo", icon: "", view: "anterior", anchor: { x: 85, y: 385 }, radius: 12 },
+  OSTEOMIELITE: { label: "Osteomielite", short: "Osteomi.", system: "osseo", icon: "", view: "anterior", anchor: { x: 115, y: 409 }, radius: 12 },
+  ARTRITE_SEPTICA: { label: "Artrite séptica", short: "Artrite", system: "osseo", icon: "", view: "anterior", anchor: { x: 85, y: 379 }, radius: 12 },
 };
 
 // ----------------------------------------------------------------------------
