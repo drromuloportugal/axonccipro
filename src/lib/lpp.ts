@@ -16,38 +16,38 @@ export interface LPPSiteDef {
 
 export const LPP_SITES: LPPSiteDef[] = [
   // Cabeça
-  { key: "occipital", label: "Occipital", region: "Cabeça", view: "posterior", side: "central", x: 100, y: 30 },
-  { key: "orelha_d", label: "Orelha direita", region: "Cabeça", view: "lateral_d", side: "D", x: 110, y: 42 },
-  { key: "orelha_e", label: "Orelha esquerda", region: "Cabeça", view: "lateral_e", side: "E", x: 90, y: 42 },
+  { key: "occipital", label: "Occipital", region: "Cabeça", view: "posterior", side: "central", x: 100, y: 25 },
+  { key: "orelha_d", label: "Orelha direita", region: "Cabeça", view: "lateral_d", side: "D", x: 110, y: 37 },
+  { key: "orelha_e", label: "Orelha esquerda", region: "Cabeça", view: "lateral_e", side: "E", x: 90, y: 37 },
 
   // Tronco
-  { key: "escapula_d", label: "Escápula direita", region: "Tronco", view: "posterior", side: "D", x: 78, y: 130 },
-  { key: "escapula_e", label: "Escápula esquerda",region: "Tronco", view: "posterior", side: "E", x: 122, y: 130 },
-  { key: "sacro", label: "Sacro", region: "Tronco", view: "posterior", side: "central", x: 100, y: 246 },
-  { key: "coccix", label: "Cóccix", region: "Tronco", view: "posterior", side: "central", x: 100, y: 261 },
-  { key: "torax_ant", label: "Tórax (anterior)", region: "Tronco", view: "anterior", side: "central", x: 100, y: 150 },
-  { key: "costela_d", label: "Costelas D", region: "Tronco", view: "anterior", side: "D", x: 82, y: 175 },
-  { key: "costela_e", label: "Costelas E", region: "Tronco", view: "anterior", side: "E", x: 118, y: 175 },
+  { key: "escapula_d", label: "Escápula direita", region: "Tronco", view: "posterior", side: "D", x: 78, y: 125 },
+  { key: "escapula_e", label: "Escápula esquerda",region: "Tronco", view: "posterior", side: "E", x: 122, y: 125 },
+  { key: "sacro", label: "Sacro", region: "Tronco", view: "posterior", side: "central", x: 100, y: 241 },
+  { key: "coccix", label: "Cóccix", region: "Tronco", view: "posterior", side: "central", x: 100, y: 256 },
+  { key: "torax_ant", label: "Tórax (anterior)", region: "Tronco", view: "anterior", side: "central", x: 100, y: 145 },
+  { key: "costela_d", label: "Costelas D", region: "Tronco", view: "anterior", side: "D", x: 82, y: 170 },
+  { key: "costela_e", label: "Costelas E", region: "Tronco", view: "anterior", side: "E", x: 118, y: 170 },
 
   // MMSS
-  { key: "cotovelo_d", label: "Cotovelo direito", region: "MMSS", view: "posterior", side: "D", x: 36, y: 198 },
-  { key: "cotovelo_e", label: "Cotovelo esquerdo", region: "MMSS", view: "posterior", side: "E", x: 164, y: 198 },
+  { key: "cotovelo_d", label: "Cotovelo direito", region: "MMSS", view: "posterior", side: "D", x: 36, y: 193 },
+  { key: "cotovelo_e", label: "Cotovelo esquerdo", region: "MMSS", view: "posterior", side: "E", x: 164, y: 193 },
 
   // Pelve
-  { key: "isquio_d", label: "Ísquio direito", region: "Pelve", view: "posterior", side: "D", x: 84, y: 312 },
-  { key: "isquio_e", label: "Ísquio esquerdo", region: "Pelve", view: "posterior", side: "E", x: 116, y: 312 },
-  { key: "trocanter_d", label: "Trocânter direito", region: "Pelve", view: "lateral_d", side: "D", x: 110, y: 300 },
-  { key: "trocanter_e", label: "Trocânter esquerdo",region: "Pelve", view: "lateral_e", side: "E", x: 90, y: 300 },
+  { key: "isquio_d", label: "Ísquio direito", region: "Pelve", view: "posterior", side: "D", x: 84, y: 307 },
+  { key: "isquio_e", label: "Ísquio esquerdo", region: "Pelve", view: "posterior", side: "E", x: 116, y: 307 },
+  { key: "trocanter_d", label: "Trocânter direito", region: "Pelve", view: "lateral_d", side: "D", x: 110, y: 295 },
+  { key: "trocanter_e", label: "Trocânter esquerdo",region: "Pelve", view: "lateral_e", side: "E", x: 90, y: 295 },
 
   // MMII
-  { key: "joelho_d", label: "Joelho direito", region: "MMII", view: "anterior", side: "D", x: 82, y: 388 },
-  { key: "joelho_e", label: "Joelho esquerdo", region: "MMII", view: "anterior", side: "E", x: 118, y: 388 },
-  { key: "maleolo_d", label: "Maléolo direito", region: "MMII", view: "lateral_d", side: "D", x: 108, y: 472 },
-  { key: "maleolo_e", label: "Maléolo esquerdo", region: "MMII", view: "lateral_e", side: "E", x: 92, y: 472 },
-  { key: "calcaneo_d", label: "Calcâneo direito", region: "MMII", view: "posterior", side: "D", x: 84, y: 488 },
-  { key: "calcaneo_e", label: "Calcâneo esquerdo", region: "MMII", view: "posterior", side: "E", x: 116, y: 488 },
-  { key: "dorso_pe_d", label: "Dorso pé direito", region: "MMII", view: "anterior", side: "D", x: 84, y: 488 },
-  { key: "dorso_pe_e", label: "Dorso pé esquerdo", region: "MMII", view: "anterior", side: "E", x: 116, y: 488 },
+  { key: "joelho_d", label: "Joelho direito", region: "MMII", view: "anterior", side: "D", x: 82, y: 383 },
+  { key: "joelho_e", label: "Joelho esquerdo", region: "MMII", view: "anterior", side: "E", x: 118, y: 383 },
+  { key: "maleolo_d", label: "Maléolo direito", region: "MMII", view: "lateral_d", side: "D", x: 108, y: 467 },
+  { key: "maleolo_e", label: "Maléolo esquerdo", region: "MMII", view: "lateral_e", side: "E", x: 92, y: 467 },
+  { key: "calcaneo_d", label: "Calcâneo direito", region: "MMII", view: "posterior", side: "D", x: 84, y: 483 },
+  { key: "calcaneo_e", label: "Calcâneo esquerdo", region: "MMII", view: "posterior", side: "E", x: 116, y: 483 },
+  { key: "dorso_pe_d", label: "Dorso pé direito", region: "MMII", view: "anterior", side: "D", x: 84, y: 483 },
+  { key: "dorso_pe_e", label: "Dorso pé esquerdo", region: "MMII", view: "anterior", side: "E", x: 116, y: 483 },
 ];
 
 export const LPP_SITE_BY_KEY = Object.fromEntries(LPP_SITES.map((s) => [s.key, s]));

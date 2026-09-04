@@ -90,45 +90,45 @@ export interface Marker {
 // Anterior view convention: viewer's LEFT = patient's RIGHT (D).
 // So D (direita do paciente) must sit at LOWER x; E at HIGHER x.
 const POS = {
-  jugularD: { x: 87, y: 72 },
-  jugularE: { x: 113, y: 72 },
-  subclavD: { x: 76, y: 98 },
-  subclavE: { x: 124, y: 98 },
-  femoralD: { x: 85, y: 300 },
-  femoralE: { x: 115, y: 300 },
-  radialD: { x: 34, y: 244 },
-  radialE: { x: 166, y: 244 },
-  braquialD:{ x: 44, y: 188 },
-  braquialE:{ x: 156, y: 188 },
-  pediosaD: { x: 85, y: 468 },
-  pediosaE: { x: 115, y: 468 },
-  basilicaD:{ x: 40, y: 208 },
-  basilicaE:{ x: 160, y: 208 },
-  frontalD: { x: 91, y: 32 },
-  frontalE: { x: 109, y: 32 },
-  topHead: { x: 100, y: 24 },
-  noseD: { x: 97, y: 52 },
-  noseE: { x: 103, y: 52 },
-  mouth: { x: 100, y: 58 },
-  trachea: { x: 100, y: 132 },
-  cervical: { x: 100, y: 88 },
-  hemitoraxD:{x: 58, y: 158 },
-  hemitoraxE:{x: 142, y: 158 },
-  pelvis: { x: 100, y: 262 },
-  belowPelvis:{x:100, y: 305 },
-  stomach: { x: 104, y: 192 },
-  abdLeftPt:{ x: 122, y: 228 }, // patient left abdomen = viewer right
-  abdLowerPt:{x: 108, y: 258 },
-  lombar: { x: 100, y: 268 }, // posterior
-  vbile: { x: 127, y: 208 },
-  handD: { x: 24, y: 274 },
-  handE: { x: 176, y: 274 },
-  forearmD: { x: 32, y: 228 },
-  forearmE: { x: 168, y: 228 },
-  cubitalD: { x: 42, y: 198 },
-  cubitalE: { x: 158, y: 198 },
-  jugExtD: { x: 91, y: 78 },
-  jugExtE: { x: 109, y: 78 },
+  jugularD: { x: 87, y: 67 },
+  jugularE: { x: 113, y: 67 },
+  subclavD: { x: 76, y: 93 },
+  subclavE: { x: 124, y: 93 },
+  femoralD: { x: 85, y: 295 },
+  femoralE: { x: 115, y: 295 },
+  radialD: { x: 34, y: 239 },
+  radialE: { x: 166, y: 239 },
+  braquialD:{ x: 44, y: 183 },
+  braquialE:{ x: 156, y: 183 },
+  pediosaD: { x: 85, y: 463 },
+  pediosaE: { x: 115, y: 463 },
+  basilicaD:{ x: 40, y: 203 },
+  basilicaE:{ x: 160, y: 203 },
+  frontalD: { x: 91, y: 27 },
+  frontalE: { x: 109, y: 27 },
+  topHead: { x: 100, y: 19 },
+  noseD: { x: 97, y: 47 },
+  noseE: { x: 103, y: 47 },
+  mouth: { x: 100, y: 53 },
+  trachea: { x: 100, y: 127 },
+  cervical: { x: 100, y: 83 },
+  hemitoraxD:{x: 58, y: 153 },
+  hemitoraxE:{x: 142, y: 153 },
+  pelvis: { x: 100, y: 257 },
+  belowPelvis:{x:100, y: 300 },
+  stomach: { x: 104, y: 187 },
+  abdLeftPt:{ x: 122, y: 223 }, // patient left abdomen = viewer right
+  abdLowerPt:{x: 108, y: 253 },
+  lombar: { x: 100, y: 263 }, // posterior
+  vbile: { x: 127, y: 203 },
+  handD: { x: 24, y: 269 },
+  handE: { x: 176, y: 269 },
+  forearmD: { x: 32, y: 223 },
+  forearmE: { x: 168, y: 223 },
+  cubitalD: { x: 42, y: 193 },
+  cubitalE: { x: 158, y: 193 },
+  jugExtD: { x: 91, y: 73 },
+  jugExtE: { x: 109, y: 73 },
 };
 
 
@@ -150,7 +150,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
   if (view === "posterior") {
     if (t === "DLE") return [{ ...POS.lombar, shape: "diamond" }];
     if (t === "NEFRO") {
-      const at = side === "E" ? { x: 72, y: 236 } : { x: 128, y: 236 };
+      const at = side === "E" ? { x: 72, y: 231 } : { x: 128, y: 231 };
       return [{ ...at, shape: "ring" }];
     }
     return [];
@@ -245,7 +245,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
       return [{ ...at, shape: "square", line: { x1: at.x, y1: at.y, x2: out.x, y2: out.y } }];
     }
     case "MEDIA": return [{ ...POS.trachea, shape: "square" }];
-    case "PERIC": return [{ x: 96, y: 168, shape: "square" }];
+    case "PERIC": return [{ x: 96, y: 163, shape: "square" }];
     case "KEHR": return [{ ...POS.vbile, shape: "square" }];
     case "PVAC":
     case "HVAC":
