@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Lock, User, LogIn, UserPlus, Mail } from "lucide-react";
+import { Lock, User, LogIn, UserPlus, Mail, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import mainLogo from "@/assets/axon-logo.png.asset.json";
 
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +58,16 @@ function AuthPage() {
     setError(null);
     setInfo(null);
     try {
-      if (mode === "signup") {
+      if (mode === "reset") {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+          email.trim(),
+          { redirectTo: `${window.location.origin}/reset-password` },
+        );
+        if (resetError) throw resetError;
+        setInfo(
+          "Enviamos um link para seu e-mail. Abra a mensagem para criar uma nova senha.",
+        );
+      } else if (mode === "signup") {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -76,6 +85,7 @@ function AuthPage() {
           setMode("login");
         }
       } else {
+
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
@@ -126,12 +136,18 @@ function AuthPage() {
           className="rounded-b-md border-2 border-strong bg-card p-6 shadow-lg"
         >
           <h1 className="f-fixed text-lg font-bold uppercase tracking-wide text-foreground">
-            {mode === "login" ? "Entrar" : "Criar conta"}
+            {mode === "login"
+              ? "Entrar"
+              : mode === "signup"
+                ? "Criar conta"
+                : "Esqueci minha senha"}
           </h1>
           <p className="f-fixed mt-1 text-xs text-muted-foreground">
-            Conta individual da equipe assistencial. Os dados dos pacientes são
-            compartilhados entre todos os profissionais.
+            {mode === "reset"
+              ? "Informe seu e-mail cadastrado. Enviaremos um link para você criar uma nova senha."
+              : "Conta individual da equipe assistencial. Os dados dos pacientes são compartilhados entre todos os profissionais."}
           </p>
+
 
           {mode === "signup" && (
             <>
@@ -170,23 +186,27 @@ function AuthPage() {
             />
           </div>
 
-          <label className="f-fixed mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground">
-            Senha
-          </label>
-          <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
-            <Lock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              name="password"
-              type="password"
-              required
-              minLength={6}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              className="f-var w-full bg-transparent text-sm text-foreground outline-none"
-              placeholder="Senha"
-            />
-          </div>
+          {mode !== "reset" && (
+            <>
+              <label className="f-fixed mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground">
+                Senha
+              </label>
+              <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
+                <Lock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                <input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  className="f-var w-full bg-transparent text-sm text-foreground outline-none"
+                  placeholder="Senha"
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <p className="f-fixed mt-4 border-2 border-destructive/60 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
@@ -206,10 +226,18 @@ function AuthPage() {
           >
             {mode === "login" ? (
               <LogIn className="h-4 w-4" aria-hidden />
-            ) : (
+            ) : mode === "signup" ? (
               <UserPlus className="h-4 w-4" aria-hidden />
+            ) : (
+              <KeyRound className="h-4 w-4" aria-hidden />
             )}
-            {loading ? "Processando..." : mode === "login" ? "Entrar" : "Criar conta"}
+            {loading
+              ? "Processando..."
+              : mode === "login"
+                ? "Entrar"
+                : mode === "signup"
+                  ? "Criar conta"
+                  : "Enviar link de redefinição"}
           </button>
 
           <button
@@ -223,6 +251,19 @@ function AuthPage() {
           >
             {mode === "login" ? "Não tenho conta — criar acesso" : "Já tenho conta — entrar"}
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMode(mode === "reset" ? "login" : "reset");
+              setError(null);
+              setInfo(null);
+            }}
+            className="f-fixed mt-2 w-full text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground underline"
+          >
+            {mode === "reset" ? "Voltar para entrar" : "Esqueci minha senha"}
+          </button>
+
         </form>
       </div>
     </div>
