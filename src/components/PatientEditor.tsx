@@ -1730,7 +1730,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
       startedAt,
-      subItems: [{ text: "", done: false, color: "default" }],
+      subItems: [{ text: "", done: false, color: "default", date: new Date().toISOString().slice(0, 10) }],
     }]);
   };
   const upd = (i: number, patch: Partial<Conduct>) => onChange(items.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
