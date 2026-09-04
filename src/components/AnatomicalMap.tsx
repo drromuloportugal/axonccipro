@@ -62,20 +62,24 @@ function Marker({ x, y, shape, color, onClick, highlight }: {
 }) {
   const ring = highlight === "added" ? "hsl(142 70% 45%)" : highlight === "removed" ? "hsl(0 80% 55%)" : null;
   const common = {
-    fill: color, stroke: "white", strokeWidth: 1.5,
-    style: { cursor: "pointer" as const, filter: "drop-shadow(0 1px 1.5px rgba(0,0,0,.45))" },
+    fill: color, stroke: "white", strokeWidth: 1.1,
+    style: { cursor: "pointer" as const, filter: "drop-shadow(0 1px 1px rgba(0,0,0,.4))" },
     onClick,
   };
   return (
- <g> {ring && <circle cx={x} cy={y} r={13} fill="none" stroke={ring} strokeWidth={1.8} strokeDasharray="2 2" />}
-      {shape === "circle"&& <circle cx={x} cy={y} r={8} {...common} />}
-      {shape === "ring"&& <circle cx={x} cy={y} r={9} fill="none" stroke={color} strokeWidth={3} style={common.style} onClick={onClick} />}
-      {shape === "square"&& <rect x={x - 7} y={y - 7} width={14} height={14} {...common} />}
-      {shape === "diamond"&& <rect x={x - 7} y={y - 7} width={14} height={14} transform={`rotate(45 ${x} ${y})`} {...common} />}
+ <g> {ring && <circle cx={x} cy={y} r={9} fill="none" stroke={ring} strokeWidth={1.4} strokeDasharray="2 2" />}
+      {shape === "circle"&& <circle cx={x} cy={y} r={5} {...common} />}
+      {shape === "ring"&& <g onClick={onClick} style={common.style}>
+ <circle cx={x} cy={y} r={5.4} fill="none" stroke="white" strokeWidth={3.2} />
+ <circle cx={x} cy={y} r={5.4} fill="none" stroke={color} strokeWidth={2} />
+ </g>}
+      {shape === "square"&& <rect x={x - 4.4} y={y - 4.4} width={8.8} height={8.8} rx={1.4} {...common} />}
+      {shape === "diamond"&& <rect x={x - 4.2} y={y - 4.2} width={8.4} height={8.4} rx={1} transform={`rotate(45 ${x} ${y})`} {...common} />}
       {shape === "triangle" && (
- <polygon points={`${x},${y - 9} ${x - 8},${y + 6} ${x + 8},${y + 6}`} {...common} /> )}
+ <polygon points={`${x},${y - 5.8} ${x - 5.2},${y + 3.8} ${x + 5.2},${y + 3.8}`} strokeLinejoin="round" {...common} /> )}
  </g> );
 }
+
 
 // ============================================================================
 // Single-view body panel (anterior or posterior)
@@ -180,7 +184,7 @@ function BodyPanel({
           return ms.map((m, i) => (
  <g key={`${d.id}-${i}`} opacity={dim ? 0.18 : 1} className={alert ? "svg-alert-blink" : undefined}>
               {alert && (
- <circle cx={m.x} cy={m.y} r={13} fill="none" stroke="rgb(220 38 38)" strokeWidth={2} strokeDasharray="3 2" /> )}
+ <circle cx={m.x} cy={m.y} r={9} fill="none" stroke="rgb(220 38 38)" strokeWidth={1.5} strokeDasharray="2.5 2" /> )}
  <Marker
                 {...m}
                 color={tc.color}
@@ -197,7 +201,7 @@ function BodyPanel({
           const x = l.x ?? def?.x ?? 100;
           const y = l.y ?? def?.y ?? 100;
           const isResolved = !!l.resolvedAt;
-          const r = 9;
+          const r = 6.4;
           const pts = [0, 60, 120, 180, 240, 300]
             .map((a) => {
               const rad = (a * Math.PI) / 180;
@@ -210,13 +214,13 @@ function BodyPanel({
                className={severe ? "svg-alert-blink" : undefined}
                onClick={(e) => { e.stopPropagation(); onEditLesion?.(l); }}>
               {severe && (
- <circle cx={x} cy={y} r={13} fill="none" stroke="rgb(220 38 38)" strokeWidth={2} strokeDasharray="3 2" /> )}
+ <circle cx={x} cy={y} r={9.5} fill="none" stroke="rgb(220 38 38)" strokeWidth={1.5} strokeDasharray="2.5 2" /> )}
  <polygon points={pts} fill="white" opacity={0.95}
                        style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,.35))" }} />
  <polygon points={pts}
                        fill={meta.color} fillOpacity={isResolved ? 0.25 : 0.85}
-                       stroke={meta.color} strokeWidth={1.6} strokeLinejoin="round" />
- <circle cx={x} cy={y} r={2} fill="white" opacity={isResolved ? 0.6 : 1} /> {l.count > 1 && (
+                       stroke={meta.color} strokeWidth={1.2} strokeLinejoin="round" />
+ <circle cx={x} cy={y} r={1.6} fill="white" opacity={isResolved ? 0.6 : 1} /> {l.count > 1 && (
  <text x={x + r + 1} y={y - r + 3} textAnchor="start" fontSize="9"
                       fontWeight="700" fill={meta.color} stroke="white" strokeWidth={2}
                       paintOrder="stroke" style={{ pointerEvents: "none" }}> ×{l.count}
