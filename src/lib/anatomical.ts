@@ -223,7 +223,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
       const nose = side === "E" ? POS.noseE : POS.noseD;
       return [{ ...nose, shape: "circle", line: { x1: nose.x, y1: nose.y, x2: POS.stomach.x, y2: POS.stomach.y } }];
     }
-    case "GTT": return [{ ...POS.abdLeftPt, shape: "ring" }];
+    case "GTT": return [{ x: POS.abdLeftPt.x, y: POS.abdLeftPt.y - 45, shape: "ring" }];
     case "JTT": return [{ ...POS.abdLowerPt, shape: "ring" }];
 
     // ── Neuro ─────────────────────────────────────────────────────────
