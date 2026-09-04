@@ -1730,7 +1730,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
       startedAt,
-      subItems: [{ text: "", done: false, color: "default" }],
+      subItems: [{ text: "", done: false, color: "default", date: new Date().toISOString().slice(0, 10) }],
     }]);
   };
   const upd = (i: number, patch: Partial<Conduct>) => onChange(items.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
@@ -1738,7 +1738,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
 
   const addSub = (i: number) => {
     const cur = items[i];
-    const subs = [...(cur.subItems ?? []), { text: "", done: false, color: "default" as const }];
+    const subs = [...(cur.subItems ?? []), { text: "", done: false, color: "default" as const, date: new Date().toISOString().slice(0, 10) }];
     upd(i, { subItems: subs });
   };
   const updSub = (i: number, si: number, patch: Partial<ConductSubItem>) => {
@@ -1805,32 +1805,41 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
  </div>
  </div>
 
- <ul className="space-y-1.5"> {(c.subItems ?? []).map((sub, si) => {
+  <ul className="space-y-1.5"> {(c.subItems ?? []).map((sub, si) => {
                   const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
                   return (
- <li key={si} className="flex items-start gap-2 text-[11px]">
- <input type="checkbox" checked={!!sub.done} className="mt-1.5"
-                        onChange={(e) => updSub(i, si, { done: e.target.checked })} />
- <textarea
-                        className={`flex-1 rounded border border-border/60 bg-background px-2 py-1 text-[12px] leading-snug outline-none focus:border-primary ${colMeta.textClass}`}
-                        placeholder="Anotação — escreva livremente (múltiplas linhas)"
-                        rows={Math.max(2, Math.min(8, (sub.text.match(/\n/g)?.length ?? 0) + 2))}
-                        value={sub.text}
-                        onChange={(e) => updSub(i, si, { text: e.target.value })}
-                      />
- <select
-                        className="mt-0.5 rounded border border-border bg-background px-1 py-1 text-[10px]"
-                        value={sub.color ?? "default"}
-                        onChange={(e) => updSub(i, si, { color: e.target.value as ConductSubItem["color"] })}
-                        title="Cor da fonte"
-                      > {ANNOTATION_COLOR_ORDER.map((col) => (
- <option key={col} value={col}>{ANNOTATION_COLOR_META[col].label}</option> ))}
- </select>
- <span className="mt-1.5 inline-block h-3 w-3 shrink-0 rounded-full border border-border" style={{ backgroundColor: colMeta.swatch }} />
- <button onClick={() => delSub(i, si)} className="mt-0.5 rounded p-1 hover:bg-destructive/10 hover:text-destructive">
- <Trash2 className="h-3 w-3" />
- </button>
- </li> );
+  <li key={si} className="flex items-start gap-2 text-[11px]">
+  <input type="checkbox" checked={!!sub.done} className="mt-1.5"
+                         onChange={(e) => updSub(i, si, { done: e.target.checked })} />
+  <div className="flex flex-1 flex-col gap-1">
+  <input
+                           type="date"
+                           className="w-32 rounded border border-border bg-background px-1.5 py-0.5 text-[10px]"
+                           value={sub.date ?? ""}
+                           onChange={(e) => updSub(i, si, { date: e.target.value || undefined })}
+                           title="Data da conduta específica"
+                         />
+  <textarea
+                           className={`flex-1 rounded border border-border/60 bg-background px-2 py-1 text-[12px] leading-snug outline-none focus:border-primary ${colMeta.textClass}`}
+                           placeholder="Anotação — escreva livremente (múltiplas linhas)"
+                           rows={Math.max(2, Math.min(8, (sub.text.match(/\n/g)?.length ?? 0) + 2))}
+                           value={sub.text}
+                           onChange={(e) => updSub(i, si, { text: e.target.value })}
+                         />
+  </div>
+  <select
+                         className="mt-6 rounded border border-border bg-background px-1 py-1 text-[10px]"
+                         value={sub.color ?? "default"}
+                         onChange={(e) => updSub(i, si, { color: e.target.value as ConductSubItem["color"] })}
+                         title="Cor da fonte"
+                       > {ANNOTATION_COLOR_ORDER.map((col) => (
+  <option key={col} value={col}>{ANNOTATION_COLOR_META[col].label}</option> ))}
+  </select>
+  <span className="mt-6 inline-block h-3 w-3 shrink-0 rounded-full border border-border" style={{ backgroundColor: colMeta.swatch }} />
+  <button onClick={() => delSub(i, si)} className="mt-5 rounded p-1 hover:bg-destructive/10 hover:text-destructive">
+  <Trash2 className="h-3 w-3" />
+  </button>
+  </li> );
                 })}
                 {(c.subItems ?? []).length === 0 && (
  <li className="text-[10px] italic text-muted-foreground">Sem anotações. Use “+ anotação”.</li> )}
