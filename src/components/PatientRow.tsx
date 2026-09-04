@@ -39,6 +39,7 @@ import { HuntHessModal, HuntHessButton } from "@/components/HuntHessPanel";
 import { WfnsModal, WfnsButton } from "@/components/WfnsPanel";
 import { IchScoreModal, IchScoreButton } from "@/components/IchScorePanel";
 import { NihssModal, NihssButton } from "@/components/NihssPanel";
+import { VasogradeModal, VasogradeButton } from "@/components/VasogradePanel";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -186,6 +187,7 @@ export function PatientRow({
   const [wfnsOpen, setWfnsOpen] = useState(false);
   const [ichOpen, setIchOpen] = useState(false);
   const [nihssOpen, setNihssOpen] = useState(false);
+  const [vasoOpen, setVasoOpen] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready" ? "bg-clinical-stable/20 text-clinical-stable hover:bg-clinical-stable/30"
@@ -434,6 +436,7 @@ export function PatientRow({
               <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
               <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
               <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
+              <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
             </div>
           </div>
 
@@ -833,6 +836,7 @@ export function PatientRow({
               <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
               <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
               <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
+              <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
             </div>
           </div>
 
@@ -1643,6 +1647,15 @@ export function PatientRow({
         <NihssModal
           open={nihssOpen}
           onClose={() => setNihssOpen(false)}
+          patient={patient}
+          onSave={onUpdate}
+        /> )}
+
+      {/* VASOGRADE */}
+      {onUpdate && (
+        <VasogradeModal
+          open={vasoOpen}
+          onClose={() => setVasoOpen(false)}
           patient={patient}
           onSave={onUpdate}
         /> )}
