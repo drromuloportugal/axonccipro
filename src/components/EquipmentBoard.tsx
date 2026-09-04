@@ -95,7 +95,7 @@ export function EquipmentBoard({ patient, devices, side }: Props) {
   const active = devices.filter((d) => !d.removedAt);
 
   const cards: {
-    key: string; title: string; icon: LucideIcon; tone: string;
+    key: string; title: string; icon: ReactNode; tone: string;
     readouts: Readout[]; footer?: string; side: "left" | "right";
   }[] = [];
 
