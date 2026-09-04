@@ -150,7 +150,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
   if (view === "posterior") {
     if (t === "DLE") return [{ ...POS.lombar, shape: "diamond" }];
     if (t === "NEFRO") {
-      const at = side === "E" ? { x: 70, y: 245 } : { x: 130, y: 245 };
+      const at = side === "E" ? { x: 72, y: 236 } : { x: 128, y: 236 };
       return [{ ...at, shape: "ring" }];
     }
     return [];
