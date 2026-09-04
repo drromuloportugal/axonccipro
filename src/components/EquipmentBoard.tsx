@@ -54,18 +54,18 @@ function has(devices: InvasiveDevice[], codes: string[]): InvasiveDevice | undef
 // ============================================================================
 
 function MonitorCard({
-  title, icon: Icon, tone, readouts, footer,
+  title, icon, tone, readouts, footer,
 }: {
   title: string;
-  icon: LucideIcon;
+  icon: ReactNode;
   tone: string;
   readouts: Readout[];
   footer?: string;
 }) {
   return (
-    <div className="rounded-md border-2 border-border-strong bg-surface shadow-[0_4px_12px_-6px_oklch(0.25_0.04_240/0.28)]">
-      <div className={`flex items-center gap-1.5 border-b-2 border-border-strong px-2 py-1 ${tone}`}>
-        <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.2} />
+    <div className="anat-map-box">
+      <div className={`flex items-center gap-1.5 border-b border-border/40 px-2 py-1 ${tone}`}>
+        <span className="text-sm leading-none" aria-hidden="true">{icon}</span>
         <span className="truncate text-[10px] font-bold uppercase tracking-[0.08em]">{title}</span>
         <span className="ml-auto h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-clinical-stable" />
       </div>
@@ -81,7 +81,7 @@ function MonitorCard({
         ))}
       </div>
       {footer ? (
-        <div className="border-t border-border px-2 py-1 text-[9px] text-muted-foreground">{footer}</div>
+        <div className="border-t border-border/40 px-2 py-1 text-[9px] text-muted-foreground">{footer}</div>
       ) : null}
     </div>
   );
