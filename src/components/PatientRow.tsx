@@ -217,6 +217,29 @@ export function PatientRow({
   const dHosp = daysSinceAdmission(patient.admissionHosp) ?? patient.daysHosp;
   const dICU = daysSinceAdmission(patient.admissionICU) ?? patient.daysICU;
 
+  const finalizeMed = (med: Medication) => {
+    if (!onUpdate) return;
+    const today = new Date();
+    const p = (n: number) => String(n).padStart(2, "0");
+    const end = `${p(today.getDate())}/${p(today.getMonth() + 1)}/${today.getFullYear()}`;
+    onUpdate({
+      ...patient,
+      medications: patient.medications.map((m) =>
+        m === med ? { ...m, active: false, end: m.end ?? end } : m,
+      ),
+    });
+  };
+
+  const reactivateMed = (med: Medication) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      medications: patient.medications.map((m) =>
+        m === med ? { ...m, active: true, end: undefined } : m,
+      ),
+    });
+  };
+
   const toggleConduct = (idx: number) => {
     if (!onUpdate) return;
     const conducts = patient.conducts.map((c, i) => (i === idx ? { ...c, done: !c.done } : c));
