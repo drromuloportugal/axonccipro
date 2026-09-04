@@ -1035,6 +1035,13 @@ export function formatDateBR(input?: string): string {
   return dt.toLocaleDateString("pt-BR");
 }
 
+/** Formata data como dd/mm, sem o ano. */
+export function formatDayMonth(input?: string): string {
+  if (!input) return "";
+  const br = formatDateBR(input);
+  return br.split("/").slice(0, 2).join("/");
+}
+
 /** Rótulos de doação de órgãos */
 export const organDonationLabel: Record<NonNullable<Patient["organDonation"]>, string> = {
   yes: "Doador",

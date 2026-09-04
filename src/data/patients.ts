@@ -203,6 +203,8 @@ export interface Conduct {
   done: boolean;
   system?: ConductSystem;
   subItems?: ConductSubItem[];
+  /** Data de início da conduta (ISO). */
+  startedAt?: string;
 }
 
 
