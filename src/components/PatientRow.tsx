@@ -1096,6 +1096,40 @@ export function PatientRow({
             })()}
             {patient.medications.length === 0 && (
   <div className="text-[11px] italic text-muted-foreground">Sem medicações registradas.</div> )}
+            {(() => {
+              const done = patient.medications.filter((m) => m.active === false);
+              if (!done.length) return null;
+              return (
+ <div className="mt-2 rounded-md border border-border bg-surface-2/50 p-2" onClick={(e) => e.stopPropagation()}>
+ <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+ <span>💊 Já utilizados</span>
+ <span className="font-mono">{done.length}</span>
+ </div>
+ <ul className="space-y-1"> {done.map((m, i) => (
+ <li key={i} className="ios-inset flex items-start justify-between gap-2 px-2 py-1 text-[11px]">
+ <div className="min-w-0">
+ <div className="flex items-center gap-1.5">
+ <CirclePause className="h-3 w-3 shrink-0 text-clinical-neutral" />
+ <span className="truncate font-semibold text-foreground">{m.name}</span>
+ </div>
+ <div className="ml-4 font-mono text-[10px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
+ </div>
+ <div className="ml-4 font-mono text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
+ </div>
+ </div> {onUpdate && (
+ <button
+                        type="button"
+                        onClick={() => reactivateMed(m)}
+                        className="shrink-0 rounded border border-clinical-stable/40 bg-surface/60 p-0.5 text-clinical-stable hover:bg-surface-3"
+                        title="Reativar medicação"
+                        aria-label={`Reativar ${m.name}`}
+                      >
+ <RotateCcw className="h-3.5 w-3.5" />
+ </button> )}
+ </li> ))}
+ </ul>
+ </div> );
+            })()}
   </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
  <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
