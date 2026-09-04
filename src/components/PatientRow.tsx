@@ -1003,10 +1003,10 @@ export function PatientRow({
  </div>
  <div className="mb-2" onClick={(e) => e.stopPropagation()}>
  <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
- </div> {(() => {
-              // include all meds (active + suspended), grouped by class
+  </div> {(() => {
+              // only meds in use; finished ones go to the history box below
               const allByClass = new Map<string, Medication[]>();
-              for (const m of patient.medications) {
+              for (const m of patient.medications.filter((x) => x.active !== false)) {
                 const cls = medClassOf(m);
                 if (!allByClass.has(cls)) allByClass.set(cls, []);
                 allByClass.get(cls)!.push(m);
