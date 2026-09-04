@@ -186,23 +186,27 @@ function AuthPage() {
             />
           </div>
 
-          <label className="f-fixed mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground">
-            Senha
-          </label>
-          <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
-            <Lock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              name="password"
-              type="password"
-              required
-              minLength={6}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              className="f-var w-full bg-transparent text-sm text-foreground outline-none"
-              placeholder="Senha"
-            />
-          </div>
+          {mode !== "reset" && (
+            <>
+              <label className="f-fixed mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground">
+                Senha
+              </label>
+              <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
+                <Lock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                <input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  className="f-var w-full bg-transparent text-sm text-foreground outline-none"
+                  placeholder="Senha"
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <p className="f-fixed mt-4 border-2 border-destructive/60 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
@@ -222,10 +226,18 @@ function AuthPage() {
           >
             {mode === "login" ? (
               <LogIn className="h-4 w-4" aria-hidden />
-            ) : (
+            ) : mode === "signup" ? (
               <UserPlus className="h-4 w-4" aria-hidden />
+            ) : (
+              <KeyRound className="h-4 w-4" aria-hidden />
             )}
-            {loading ? "Processando..." : mode === "login" ? "Entrar" : "Criar conta"}
+            {loading
+              ? "Processando..."
+              : mode === "login"
+                ? "Entrar"
+                : mode === "signup"
+                  ? "Criar conta"
+                  : "Enviar link de redefinição"}
           </button>
 
           <button
@@ -239,6 +251,19 @@ function AuthPage() {
           >
             {mode === "login" ? "Não tenho conta — criar acesso" : "Já tenho conta — entrar"}
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMode(mode === "reset" ? "login" : "reset");
+              setError(null);
+              setInfo(null);
+            }}
+            className="f-fixed mt-2 w-full text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground underline"
+          >
+            {mode === "reset" ? "Voltar para entrar" : "Esqueci minha senha"}
+          </button>
+
         </form>
       </div>
     </div>
