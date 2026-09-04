@@ -489,6 +489,7 @@ export interface Patient {
   wfns?: import("@/components/WfnsPanel").WfnsRecord;
   ichScore?: import("@/components/IchScorePanel").IchRecord;
   nihss?: import("@/components/NihssPanel").NihssRecord;
+  vasograde?: import("@/components/VasogradePanel").VasogradeRecord;
 
 
 
