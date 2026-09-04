@@ -10,7 +10,7 @@ import {
   deviceRisk,
   aiTherapySuggestions,
   medClassOf, MEDICATION_CLASS_META, MEDICATION_CLASS_ORDER,
-  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR,
+  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR, formatDayMonth,
   organDonationLabel, directiveLabel,
 } from "@/lib/clinical";
 import { currentVitalsSummary } from "@/components/SmartMonitoring";
