@@ -116,11 +116,26 @@ function Passometro() {
 
       // Garante que os leitos de demonstração recém-adicionados apareçam
       // mesmo quando já existem dados salvos (banco ou localStorage).
+      // Também preenche campos novos (ex: startedAt das condutas) nos pacientes demo.
       const mergeSeed = (list: Patient[]) => {
-        const ids = new Set(list.map((p) => p.id));
-        const beds = new Set(list.map((p) => p.bed));
-        const missing = seedPatients.filter((s) => !ids.has(s.id) && !beds.has(s.bed));
-        return missing.length ? [...list, ...missing] : list;
+        const byId = new Map(list.map((p) => [p.id, p]));
+        const byBed = new Map(list.map((p) => [p.bed, p]));
+        const missing = seedPatients.filter((s) => !byId.has(s.id) && !byBed.has(s.bed));
+        const backfilled = list.map((p) => {
+          const seed = seedPatients.find((s) => s.id === p.id);
+          if (!seed || !p.conducts || !seed.conducts) return p;
+          let changed = false;
+          const nextConducts = p.conducts.map((c, i) => {
+            const sc = seed.conducts[i];
+            if (!c.startedAt && sc?.startedAt) {
+              changed = true;
+              return { ...c, startedAt: sc.startedAt };
+            }
+            return c;
+          });
+          return changed ? { ...p, conducts: nextConducts } : p;
+        });
+        return missing.length ? [...backfilled, ...missing] : backfilled;
       };
 
       try {

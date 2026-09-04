@@ -1721,6 +1721,7 @@ const TEAMS: Conduct["team"][] = ["Médica", "Enfermagem", "Fisioterapia", "Nutr
 function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Conduct[]) => void }) {
   const [team, setTeam] = useState<Conduct["team"]>("Médica");
   const [system, setSystem] = useState<ConductSystem>("gi");
+  const [startedAt, setStartedAt] = useState<string>(new Date().toISOString().slice(0, 10));
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
@@ -1728,6 +1729,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
       team, system,
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
+      startedAt,
       subItems: [{ text: "", done: false, color: "default" }],
     }]);
   };
@@ -1751,12 +1753,19 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
 
   return (
  <div className="space-y-2">
- <div className="grid grid-cols-[140px_1fr_auto] gap-2">
+ <div className="grid grid-cols-[140px_1fr_140px_auto] gap-2">
  <select className={inputCls} value={team} onChange={(e) => setTeam(e.target.value as Conduct["team"])}> {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
  </select>
  <select className={inputCls} value={system} onChange={(e) => setSystem(e.target.value as ConductSystem)}> {CONDUCT_SYSTEM_ORDER.map((s) => (
  <option key={s} value={s}>{CONDUCT_SYSTEM_META[s].icon} {CONDUCT_SYSTEM_META[s].label}</option> ))}
  </select>
+ <input
+                 type="date"
+                 className={inputCls}
+                 value={startedAt}
+                 onChange={(e) => setStartedAt(e.target.value)}
+                 title="Data de início da conduta"
+               />
  <Button size="sm" onClick={add}><Plus className="mr-1 h-3.5 w-3.5" />Adicionar sistema</Button>
  </div>
 
@@ -1778,6 +1787,13 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
  <select className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
                   value={c.team} onChange={(e) => upd(i, { team: e.target.value as Conduct["team"] })}> {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
  </select>
+ <input
+                  type="date"
+                  className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
+                  value={c.startedAt ? c.startedAt.slice(0, 10) : ""}
+                  onChange={(e) => upd(i, { startedAt: e.target.value || undefined })}
+                  title="Data de início da conduta"
+                />
  <span className={`ml-1 text-[11px] font-bold uppercase tracking-wider ${meta.className}`}> {meta.icon} {meta.label}
  </span>
  <div className="ml-auto flex items-center gap-1">

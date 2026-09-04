@@ -10,7 +10,7 @@ import {
   deviceRisk,
   aiTherapySuggestions,
   medClassOf, MEDICATION_CLASS_META, MEDICATION_CLASS_ORDER,
-  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR,
+  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR, formatDayMonth,
   organDonationLabel, directiveLabel,
 } from "@/lib/clinical";
 import { currentVitalsSummary } from "@/components/SmartMonitoring";
@@ -676,19 +676,24 @@ export function PatientRow({
               return (
  <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
  <input
-                    type="checkbox"
-                    checked={c.done}
-                    onChange={() => toggleConduct(i)}
-                    disabled={!onUpdate}
-                    className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
-                  />
+                     type="checkbox"
+                     checked={c.done}
+                     onChange={() => toggleConduct(i)}
+                     disabled={!onUpdate}
+                     className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
+                   />
  <span className="min-w-0 flex-1">
   <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
  <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
  <span className="italic text-muted-foreground">Sem anotações</span> )}
-                    {c.subItems && c.subItems.length > 1 && (
+                     {c.subItems && c.subItems.length > 1 && (
  <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
  </span>
+ {c.startedAt && (
+ <span className="shrink-0 text-[9px] font-mono text-muted-foreground">
+                     {formatDayMonth(c.startedAt)}
+                   </span>
+                   )}
  </li> );
             })}
             {patient.conducts.length > 4 && (
@@ -1339,14 +1344,19 @@ export function PatientRow({
  <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
  <label className="flex items-center gap-2">
  <input
-                        type="checkbox"
-                        checked={c.done}
-                        onChange={() => toggleConduct(i)}
-                        disabled={!onUpdate}
-                        className="h-3 w-3 shrink-0 cursor-pointer accent-clinical-stable"
-                      />
+                         type="checkbox"
+                         checked={c.done}
+                         onChange={() => toggleConduct(i)}
+                         disabled={!onUpdate}
+                         className="h-3 w-3 shrink-0 cursor-pointer accent-clinical-stable"
+                       />
  <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
  </span>
+ {c.startedAt && (
+ <span className="ml-1 rounded bg-surface-2 px-1 py-0.5 text-[9px] font-mono text-muted-foreground">
+                             {formatDayMonth(c.startedAt)}
+                           </span>
+                       )}
  <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
  </label> {c.subItems && c.subItems.length > 0 ? (
  <ul className="mt-1.5 ml-2 space-y-1 border-l border-border/60 pl-2"> {c.subItems.map((sub, si) => {

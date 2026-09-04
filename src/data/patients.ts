@@ -203,6 +203,8 @@ export interface Conduct {
   done: boolean;
   system?: ConductSystem;
   subItems?: ConductSubItem[];
+  /** Data de início da conduta (ISO). */
+  startedAt?: string;
 }
 
 
@@ -816,14 +818,14 @@ export const patients: Patient[] = [
       { label: "pH", value: "7,32", trend: "up" },
     ],
     conducts: [
-      { team: "Médica", text: "Ajustar antibiótico após cultura", done: false },
-      { team: "Médica", text: "Solicitar TC tórax", done: true },
-      { team: "Médica", text: "Iniciar desmame ventilatório", done: false },
-      { team: "Enfermagem", text: "Troca de curativo CVC", done: true },
-      { team: "Enfermagem", text: "Controle glicêmico 4/4h", done: true },
-      { team: "Fisioterapia", text: "Mobilização passiva", done: false },
-      { team: "Nutrição", text: "Ajuste calórico para 25 kcal/kg", done: true },
-      { team: "Fono", text: "Avaliação de deglutição pós-extubação", done: false },
+      { team: "Médica", text: "Ajustar antibiótico após cultura", startedAt: daysAgoISO(0), done: false },
+      { team: "Médica", text: "Solicitar TC tórax", startedAt: daysAgoISO(1), done: true },
+      { team: "Médica", text: "Iniciar desmame ventilatório", startedAt: daysAgoISO(2), done: false },
+      { team: "Enfermagem", text: "Troca de curativo CVC", startedAt: daysAgoISO(3), done: true },
+      { team: "Enfermagem", text: "Controle glicêmico 4/4h", startedAt: daysAgoISO(4), done: true },
+      { team: "Fisioterapia", text: "Mobilização passiva", startedAt: daysAgoISO(5), done: false },
+      { team: "Nutrição", text: "Ajuste calórico para 25 kcal/kg", startedAt: daysAgoISO(6), done: true },
+      { team: "Fono", text: "Avaliação de deglutição pós-extubação", startedAt: daysAgoISO(0), done: false },
     ],
     goals: [
       { text: "PAM > 65", met: true },
@@ -965,10 +967,10 @@ export const patients: Patient[] = [
       { label: "Lactato", value: "1,4", trend: "down" },
     ],
     conducts: [
-      { team: "Médica", text: "Manter PAM 90-100", done: true },
-      { team: "Médica", text: "Doppler transcraniano amanhã", done: false },
-      { team: "Enfermagem", text: "Cabeceira 30°", done: true },
-      { team: "Fisioterapia", text: "Higiene brônquica", done: true },
+      { team: "Médica", text: "Manter PAM 90-100", startedAt: daysAgoISO(1), done: true },
+      { team: "Médica", text: "Doppler transcraniano amanhã", startedAt: daysAgoISO(2), done: false },
+      { team: "Enfermagem", text: "Cabeceira 30°", startedAt: daysAgoISO(3), done: true },
+      { team: "Fisioterapia", text: "Higiene brônquica", startedAt: daysAgoISO(4), done: true },
     ],
     goals: [
       { text: "PAM 90-100", met: true },
@@ -1030,9 +1032,9 @@ export const patients: Patient[] = [
       { label: "pH", value: "7,41", trend: "flat" },
     ],
     conducts: [
-      { team: "Médica", text: "Programar alta UTI", done: false },
-      { team: "Fisioterapia", text: "Treino muscular respiratório", done: true },
-      { team: "Nutrição", text: "Dieta VO progressiva", done: true },
+      { team: "Médica", text: "Programar alta UTI", startedAt: daysAgoISO(5), done: false },
+      { team: "Fisioterapia", text: "Treino muscular respiratório", startedAt: daysAgoISO(6), done: true },
+      { team: "Nutrição", text: "Dieta VO progressiva", startedAt: daysAgoISO(0), done: true },
     ],
     goals: [
       { text: "SatO2 > 92%", met: true },
@@ -1191,27 +1193,27 @@ export const patients: Patient[] = [
       },
     ],
     conducts: [
-      { team: "Médica", text: "Infectologia", done: false, system: "infec", subItems: [
+      { team: "Médica", text: "Infectologia", startedAt: daysAgoISO(1), done: false, system: "infec", subItems: [
         { text: "Manter Polimixina B até D14 (07 doses restantes)", done: false },
         { text: "Reavaliar hemoculturas de controle", done: false, color: "orange" },
       ] },
-      { team: "Médica", text: "Ventilação", done: false, system: "resp", subItems: [
+      { team: "Médica", text: "Ventilação", startedAt: daysAgoISO(2), done: false, system: "resp", subItems: [
         { text: "Desmame em PSV por traqueostomia, tolerando 8 h/dia", done: true },
         { text: "Meta: nebulização e válvula de fala em 48 h", done: false },
       ] },
-      { team: "Médica", text: "Renal", done: false, system: "renal", subItems: [
+      { team: "Médica", text: "Renal", startedAt: daysAgoISO(3), done: false, system: "renal", subItems: [
         { text: "Transição de CRRT para hemodiálise intermitente", done: true },
         { text: "Avaliar retirada de cateter de diálise femoral", done: false, color: "red" },
       ] },
-      { team: "Enfermagem", text: "Pele", done: true, system: "skin", subItems: [
+      { team: "Enfermagem", text: "Pele", startedAt: daysAgoISO(4), done: true, system: "skin", subItems: [
         { text: "Mudança de decúbito 2/2 h", done: true },
         { text: "Curativo de LPP sacral em dias alternados", done: true },
       ] },
-      { team: "Fisioterapia", text: "Mobilização", done: false, system: "other", subItems: [
+      { team: "Fisioterapia", text: "Mobilização", startedAt: daysAgoISO(5), done: false, system: "other", subItems: [
         { text: "Sedestação à beira do leito 2x/dia", done: true },
         { text: "Ortostatismo assistido", done: false },
       ] },
-      { team: "Nutrição", text: "Dieta", done: true, system: "dieta", subItems: [
+      { team: "Nutrição", text: "Dieta", startedAt: daysAgoISO(6), done: true, system: "dieta", subItems: [
         { text: "Enteral 25 kcal/kg/dia, 1,5 g proteína/kg", done: true },
       ] },
     ],
@@ -1372,24 +1374,24 @@ export const patients: Patient[] = [
       { at: daysAgoISO(8, 9, 0), kind: "cultura_positiva", label: "Klebsiella sensível", focusId: "inf5b" },
     ],
     conducts: [
-      { team: "Médica", text: "Ventilação", done: false, system: "resp", subItems: [
+      { team: "Médica", text: "Ventilação", startedAt: daysAgoISO(0), done: false, system: "resp", subItems: [
         { text: "Protocolo de desmame diário com TRE às 08 h", done: true },
         { text: "Definir traqueostomia se falha em 48 h", done: false, color: "orange" },
       ] },
-      { team: "Médica", text: "Infecção", done: false, system: "infec", subItems: [
+      { team: "Médica", text: "Infecção", startedAt: daysAgoISO(1), done: false, system: "infec", subItems: [
         { text: "Completar 14 dias de piperacilina-tazobactam", done: false },
       ] },
-      { team: "Médica", text: "Dreno torácico", done: false, system: "resp", subItems: [
+      { team: "Médica", text: "Dreno torácico", startedAt: daysAgoISO(2), done: false, system: "resp", subItems: [
         { text: "Sem escape aéreo há 48 h — clampear e retirar", done: false, color: "teal" },
       ] },
-      { team: "Fisioterapia", text: "Reabilitação", done: false, system: "other", subItems: [
+      { team: "Fisioterapia", text: "Reabilitação", startedAt: daysAgoISO(3), done: false, system: "other", subItems: [
         { text: "Cicloergômetro de membros inferiores", done: true },
         { text: "Treino de força com faixa elástica", done: false },
       ] },
-      { team: "Fono", text: "Deglutição", done: false, system: "fono", subItems: [
+      { team: "Fono", text: "Deglutição", startedAt: daysAgoISO(4), done: false, system: "fono", subItems: [
         { text: "Avaliação após extubação", done: false },
       ] },
-      { team: "Psicologia", text: "Suporte", done: true, system: "other", subItems: [
+      { team: "Psicologia", text: "Suporte", startedAt: daysAgoISO(5), done: true, system: "other", subItems: [
         { text: "Acolhimento familiar semanal realizado", done: true },
       ] },
     ],
@@ -1543,26 +1545,26 @@ export const patients: Patient[] = [
       },
     ],
     conducts: [
-      { team: "Médica", text: "Neurológico", done: false, system: "neuro", subItems: [
+      { team: "Médica", text: "Neurológico", startedAt: daysAgoISO(6), done: false, system: "neuro", subItems: [
         { text: "Manter levetiracetam, sem crises há 26 dias", done: true },
         { text: "Programar cranioplastia após TC de controle", done: false, color: "teal" },
       ] },
-      { team: "Médica", text: "Respiratório", done: true, system: "resp", subItems: [
+      { team: "Médica", text: "Respiratório", startedAt: daysAgoISO(0), done: true, system: "resp", subItems: [
         { text: "Traqueostomia em ar ambiente com nebulização", done: true },
         { text: "Avaliar decanulação com fonoaudiologia", done: false },
       ] },
-      { team: "Fono", text: "Deglutição", done: false, system: "fono", subItems: [
+      { team: "Fono", text: "Deglutição", startedAt: daysAgoISO(1), done: false, system: "fono", subItems: [
         { text: "Teste de válvula de fala tolerado por 4 h", done: true },
         { text: "Iniciar dieta pastosa supervisionada", done: false },
       ] },
-      { team: "Fisioterapia", text: "Reabilitação motora", done: true, system: "other", subItems: [
+      { team: "Fisioterapia", text: "Reabilitação motora", startedAt: daysAgoISO(2), done: true, system: "other", subItems: [
         { text: "Transferência leito-poltrona com dois profissionais", done: true },
         { text: "Carga parcial em membro inferior direito liberada", done: true },
       ] },
-      { team: "Nutrição", text: "Dieta", done: true, system: "dieta", subItems: [
+      { team: "Nutrição", text: "Dieta", startedAt: daysAgoISO(3), done: true, system: "dieta", subItems: [
         { text: "Dieta por gastrostomia 30 kcal/kg/dia", done: true },
       ] },
-      { team: "Médica", text: "Planejamento de alta", done: false, system: "other", subItems: [
+      { team: "Médica", text: "Planejamento de alta", startedAt: daysAgoISO(4), done: false, system: "other", subItems: [
         { text: "Vaga em unidade de reabilitação solicitada", done: false, color: "green" },
       ] },
     ],
