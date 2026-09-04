@@ -245,7 +245,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
       return [{ ...at, shape: "square", line: { x1: at.x, y1: at.y, x2: out.x, y2: out.y } }];
     }
     case "MEDIA": return [{ ...POS.trachea, shape: "square" }];
-    case "PERIC": return [{ x: 95, y: 175, shape: "square" }];
+    case "PERIC": return [{ x: 96, y: 168, shape: "square" }];
     case "KEHR": return [{ ...POS.vbile, shape: "square" }];
     case "PVAC":
     case "HVAC":

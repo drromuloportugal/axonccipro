@@ -184,7 +184,7 @@ function BodyPanel({
           return ms.map((m, i) => (
  <g key={`${d.id}-${i}`} opacity={dim ? 0.18 : 1} className={alert ? "svg-alert-blink" : undefined}>
               {alert && (
- <circle cx={m.x} cy={m.y} r={13} fill="none" stroke="rgb(220 38 38)" strokeWidth={2} strokeDasharray="3 2" /> )}
+ <circle cx={m.x} cy={m.y} r={9} fill="none" stroke="rgb(220 38 38)" strokeWidth={1.5} strokeDasharray="2.5 2" /> )}
  <Marker
                 {...m}
                 color={tc.color}
@@ -201,7 +201,7 @@ function BodyPanel({
           const x = l.x ?? def?.x ?? 100;
           const y = l.y ?? def?.y ?? 100;
           const isResolved = !!l.resolvedAt;
-          const r = 9;
+          const r = 6.4;
           const pts = [0, 60, 120, 180, 240, 300]
             .map((a) => {
               const rad = (a * Math.PI) / 180;
@@ -214,13 +214,13 @@ function BodyPanel({
                className={severe ? "svg-alert-blink" : undefined}
                onClick={(e) => { e.stopPropagation(); onEditLesion?.(l); }}>
               {severe && (
- <circle cx={x} cy={y} r={13} fill="none" stroke="rgb(220 38 38)" strokeWidth={2} strokeDasharray="3 2" /> )}
+ <circle cx={x} cy={y} r={9.5} fill="none" stroke="rgb(220 38 38)" strokeWidth={1.5} strokeDasharray="2.5 2" /> )}
  <polygon points={pts} fill="white" opacity={0.95}
                        style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,.35))" }} />
  <polygon points={pts}
                        fill={meta.color} fillOpacity={isResolved ? 0.25 : 0.85}
-                       stroke={meta.color} strokeWidth={1.6} strokeLinejoin="round" />
- <circle cx={x} cy={y} r={2} fill="white" opacity={isResolved ? 0.6 : 1} /> {l.count > 1 && (
+                       stroke={meta.color} strokeWidth={1.2} strokeLinejoin="round" />
+ <circle cx={x} cy={y} r={1.6} fill="white" opacity={isResolved ? 0.6 : 1} /> {l.count > 1 && (
  <text x={x + r + 1} y={y - r + 3} textAnchor="start" fontSize="9"
                       fontWeight="700" fill={meta.color} stroke="white" strokeWidth={2}
                       paintOrder="stroke" style={{ pointerEvents: "none" }}> ×{l.count}
