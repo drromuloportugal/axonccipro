@@ -496,6 +496,10 @@ export interface Patient {
     chat?: { role: "user" | "assistant"; content: string }[];
     chatAt?: string;
   };
+  /** História clínica narrativa da evolução do paciente no hospital. */
+  clinicalHistory?: string;
+  /** Escalas geradas para as janelas de plantão (mais recente primeiro). */
+  shiftSchedules?: import("@/lib/shiftSchedule").ShiftScheduleRecord[];
 
 
 

@@ -9,6 +9,7 @@ import {
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
 import { generateCaseReport, askAboutCase } from "@/lib/api/deep-analysis.functions";
+import { ShiftEscalationButton, ShiftEscalationModal } from "@/components/ShiftEscalationModal";
 
 interface Props {
   open: boolean;
@@ -16,6 +17,7 @@ interface Props {
   patients: Patient[];
   initialPatientId?: string;
   onPersist?: (patientId: string, deep: NonNullable<Patient["deepAnalysis"]>) => void;
+  onPatientChange?: (p: Patient) => void;
 }
 
 const EVIDENCE_URL = "https://www.openevidence.com";
@@ -71,7 +73,7 @@ function RichText({ text }: { text: string }) {
   );
 }
 
-export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist }: Props) {
+export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist, onPatientChange }: Props) {
   const runReport = useServerFn(generateCaseReport);
   const runAsk = useServerFn(askAboutCase);
 
@@ -91,6 +93,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [shiftOpen, setShiftOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const patient = useMemo(() => selectable.find((p) => p.id === patientId), [selectable, patientId]);
@@ -302,9 +305,12 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
 
           {/* Chat */}
           <section className="flex max-h-[75vh] flex-col rounded-lg border border-strong bg-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" />
               <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Consulta ao especialista</h3>
+              <div className="ml-auto">
+                <ShiftEscalationButton onClick={() => setShiftOpen(true)} disabled={!patient} />
+              </div>
             </div>
 
             <div className="mb-3 flex-1 space-y-3 overflow-y-auto pr-1">
@@ -366,6 +372,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
           </section>
         </div>
       </div>
+
+      <ShiftEscalationModal
+        open={shiftOpen}
+        onClose={() => setShiftOpen(false)}
+        patient={patient}
+        onPatientChange={onPatientChange}
+        report={report}
+      />
     </div>
   );
 }

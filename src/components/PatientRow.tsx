@@ -173,6 +173,8 @@ export function PatientRow({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const [pumpOpen, setPumpOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyDraft, setHistoryDraft] = useState(patient.clinicalHistory ?? "");
   const [aiOpen, setAiOpen] = useState(false);
   const [medAnalysisOpen, setMedAnalysisOpen] = useState(false);
   const [atbHistOpen, setAtbHistOpen] = useState(false);
@@ -432,6 +434,14 @@ export function PatientRow({
               <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
               <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
               <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(true)}
+                className="rounded border border-strong bg-muted/50 px-1.5 py-1 text-[10px] font-semibold text-foreground hover:bg-muted"
+                title="História clínica — evolução do paciente no hospital"
+              >
+                📖 História clínica{patient.clinicalHistory ? " ✓" : ""}
+              </button>
             </div>
           </div>
 
@@ -1635,6 +1645,37 @@ export function PatientRow({
           patient={patient}
           onSave={onUpdate}
         /> )}
+
+      {/* História clínica — narrativa da evolução no hospital */}
+      <Dialog open={historyOpen} onOpenChange={(o) => { setHistoryOpen(o); if (o) setHistoryDraft(patient.clinicalHistory ?? ""); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>📖 História clínica — {patient.bed} · {patient.name}</DialogTitle>
+          </DialogHeader>
+          <textarea
+            value={historyDraft}
+            onChange={(e) => setHistoryDraft(e.target.value)}
+            rows={16}
+            placeholder="Narrativa da evolução do paciente no hospital…"
+            className="w-full rounded-md border border-strong bg-white px-2.5 py-2 text-[12.5px] leading-relaxed outline-none focus:border-primary"
+            disabled={!onUpdate}
+          />
+          {onUpdate && (
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setHistoryOpen(false)} className="rounded-md border border-strong px-3 py-1.5 text-[12px] font-semibold hover:bg-muted">
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => { onUpdate({ ...patient, clinicalHistory: historyDraft }); setHistoryOpen(false); }}
+                className="rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                Salvar história clínica
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Discharge readiness check */}
       {onUpdate && (

@@ -853,6 +853,7 @@ function Passometro() {
         onPersist={(id, deep) =>
           setPatients((prev) => prev.map((x) => (x.id === id ? { ...x, deepAnalysis: deep } : x)))
         }
+        onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
       />
 
  </div>

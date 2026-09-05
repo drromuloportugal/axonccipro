@@ -218,3 +218,103 @@ export const askAboutCase = createServerFn({ method: "POST" })
     const answer = await callGateway(messages);
     return { answer };
   });
+
+/* ===================== ESCALA INTELIGENTE DO PRÓXIMO PLANTÃO ===================== */
+
+const ShiftInput = z.object({
+  context: z.string().min(1),
+  clinicalHistory: z.string().optional(),
+  report: z.string().optional(),
+  windowLabel: z.string().min(1),
+  windowKind: z.enum(["diurno", "noturno"]),
+  windowHours: z.string().min(1),
+  timeZone: z.string().optional(),
+  /** Relato de encerramento do plantão anterior, quando existir. */
+  previousShift: z.string().optional(),
+});
+
+const SHIFT_SYSTEM = `${ENGINE_SYSTEM}
+
+${ICU_LIBERATION}
+
+FONTES: a fonte institucional prioritária é a Society of Critical Care Medicine (SCCM), nas versões vigentes — ICU Liberation / ABCDEF Bundle, PADIS e PADIS Focused Update, Surviving Sepsis Campaign, Family-Centered Care. Quando a questão não for coberta pela SCCM, cite a diretriz especializada relevante identificando explicitamente a sociedade. OpenEvidence (https://www.openevidence.com) é fonte complementar de consulta de evidência, nunca verdade absoluta.
+
+REGRA DE REFERÊNCIAS: toda recomendação relevante traz Fonte · Documento · Ano · Referência · Link. NUNCA inventar referência, DOI ou URL. Sem referência confiável, escreva "Referência específica não localizada.". Use apenas links institucionais reais e estáveis (sccm.org, openevidence.com).
+
+SEGURANÇA: apoio à decisão. Não prescrever, não suspender medicamento, não determinar alta nem limitação terapêutica. Use "avaliar", "considerar", "monitorar", "reavaliar", "correlacionar".
+
+NÃO ALUCINAÇÃO: informação inexistente = "NÃO DISPONÍVEL."; conflito = "DADOS CONFLITANTES."; conclusão impossível = "NÃO É POSSÍVEL DETERMINAR COM OS DADOS DISPONÍVEIS.". Não inventar horários: use apenas horários e frequências já documentados, ou justifique a periodicidade.
+
+CORES: 🔴 alta prioridade · 🟠 atenção · 🟡 monitoramento · 🟢 favorável/estável · 🔵 informação · ⚪ dado ausente. Sempre acompanhar de texto.`;
+
+const SHIFT_TASK = `Analise TODO o período disponível (não apenas o último registro), com foco nos eventos das últimas 24–72 horas, e execute internamente: contexto → linha do tempo → tendências → intervenções → respostas → riscos → ICU Liberation A-F → evidências.
+
+Produza a ESCALA CLÍNICA DO PRÓXIMO PLANTÃO exatamente com estas seções numeradas, nesta ordem:
+
+1. RESUMO EXECUTIVO — cartão 🧠 RESUMO DO PACIENTE, 5 a 8 linhas: por que está internado, estado atual, principais disfunções, suportes, evolução, principal preocupação.
+2. O QUE MUDOU — 🔄 apenas alterações relevantes, uma por linha: cor + variável + valor anterior → valor atual (unidade) · horário/data · tendência · interpretação.
+3. PRINCIPAIS PRIORIDADES — 🚨 de 3 a 5, cada uma com PRIORIDADE / EVIDÊNCIAS (valores, datas, intervalo) / TENDÊNCIA / O QUE MONITORAR / QUANDO REAVALIAR (só se houver horário ou frequência justificável) / CRITÉRIO DE ESCALADA / REFERÊNCIA.
+4. NEUROLÓGICO — 5. HEMODINÂMICO — 6. RESPIRATÓRIO — 7. RENAL/METABÓLICO — 8. INFECCIOSO — 9. HEMATOLÓGICO — 10. NUTRIÇÃO — 11. MEDICAMENTOS CRÍTICOS — 12. DISPOSITIVOS: em cada um apresente ESTADO ATUAL / TENDÊNCIA / PRINCIPAIS ACHADOS / PRÓXIMAS 12 HORAS / PONTOS DE ATENÇÃO / REFERÊNCIAS. No neurológico integre Glasgow, NIHSS, pupilas, RASS, sedação, CAM-ICU, PIC, PPC, drenagem, neuroimagem, PA/PAM, PaCO2, PaO2, sódio, glicemia e temperatura, diferenciando deterioração neurológica de efeito de sedação, causa metabólica e causa sistêmica. No respiratório distinga "melhora com redução de suporte" de "estabilidade mantida com aumento de suporte". No infeccioso, quando aplicável, use Surviving Sepsis Campaign (SCCM).
+13. ICU LIBERATION A-F — A PAIN / B SAT-SBT (elegível, realizado, motivo) / C ANALGESIA-SEDAÇÃO (RASS/SAS, meta) / D DELIRIUM (CAM-ICU/ICDSC, tendência) / E MOBILIDADE (barreiras) / F FAMÍLIA (comunicação, participação, objetivos de cuidado).
+14. AGENDA DAS PRÓXIMAS 12 HORAS — ⏱️ linhas "HH:MM — ação", começando pelo início e terminando pelo fim da janela informada; somente horários documentados, frequências já estabelecidas ou rotinas justificáveis.
+15. PENDÊNCIAS — 📋 lista com "☐ item — prioridade · motivo · horário (quando disponível) · fonte".
+16. NÃO ESQUECER — 🔴 no máximo 5 itens, ordenados por prioridade.
+17. RISCOS A MONITORAR — 🔮 no máximo 5, linguagem probabilística ("risco de…"), nunca afirmar piora futura.
+18. CRITÉRIOS DE REAVALIAÇÃO — 🚨 alterações que devem motivar nova avaliação, baseadas em diretriz, protocolo ou meta registrada; não inventar limites.
+19. PERGUNTAS PARA O PRÓXIMO PLANTÃO — ❓ até 5 perguntas objetivas.
+20. EVIDÊNCIAS E REFERÊNCIAS — 📚 separadas em SCCM / OPENEVIDENCE / OUTRAS DIRETRIZES, cada uma com Fonte · Documento · Ano · Referência · Link real.
+
+Encerre com ⚪ DADOS IMPORTANTES AUSENTES listando o que limita a análise.`;
+
+/** Gera a escala clínica estruturada para a próxima janela de plantão de 12 horas. */
+export const generateShiftSchedule = createServerFn({ method: "POST" })
+  .inputValidator(ShiftInput)
+  .handler(async ({ data }) => {
+    const user = [
+      `JANELA DO PRÓXIMO PLANTÃO: ${data.windowKind.toUpperCase()} (${data.windowHours})`,
+      `ESCALA PREPARADA PARA: ${data.windowLabel}`,
+      data.timeZone ? `Fuso horário: ${data.timeZone}` : "",
+      "",
+      `PASSÔMETRO DO PACIENTE:\n${data.context}`,
+      data.clinicalHistory ? `\nHISTÓRIA CLÍNICA REGISTRADA PELA EQUIPE:\n${data.clinicalHistory}` : "",
+      data.report ? `\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : "",
+      data.previousShift ? `\nENCERRAMENTO DO PLANTÃO ANTERIOR:\n${data.previousShift}` : "",
+      "",
+      SHIFT_TASK,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const schedule = await callGateway([
+      { role: "system", content: SHIFT_SYSTEM },
+      { role: "user", content: user },
+    ]);
+    return { schedule };
+  });
+
+const CloseShiftInput = z.object({
+  context: z.string().min(1),
+  schedule: z.string().min(1),
+  windowLabel: z.string().min(1),
+  tasks: z.array(z.object({ text: z.string(), done: z.boolean() })).max(40).optional(),
+  notes: z.string().optional(),
+});
+
+/** Encerramento do plantão: eventos, tarefas concluídas/pendentes e handoff. */
+export const closeShiftReport = createServerFn({ method: "POST" })
+  .inputValidator(CloseShiftInput)
+  .handler(async ({ data }) => {
+    const tasks = (data.tasks ?? [])
+      .map((t) => `${t.done ? "☑" : "☐"} ${t.text}`)
+      .join("\n");
+    const report = await callGateway([
+      { role: "system", content: SHIFT_SYSTEM },
+      {
+        role: "user",
+        content: `PASSÔMETRO DO PACIENTE:\n${data.context}\n\nESCALA DO PLANTÃO ${data.windowLabel}:\n${data.schedule}${
+          tasks ? `\n\nSITUAÇÃO DAS TAREFAS:\n${tasks}` : ""
+        }${data.notes ? `\n\nOBSERVAÇÕES DA EQUIPE:\n${data.notes}` : ""}\n\nProduza o 🏁 ENCERRAMENTO DO PLANTÃO com as seções: EVENTOS OCORRIDOS / TAREFAS CONCLUÍDAS / TAREFAS NÃO CONCLUÍDAS / ALTERAÇÕES CLÍNICAS / NOVOS PROBLEMAS / PENDÊNCIAS TRANSFERIDAS / RISCOS ATUAIS / HANDOFF PARA O PRÓXIMO PLANTÃO. Baseie-se apenas nos dados fornecidos; use "NÃO DISPONÍVEL." quando faltar informação.`,
+      },
+    ]);
+    return { report };
+  });
