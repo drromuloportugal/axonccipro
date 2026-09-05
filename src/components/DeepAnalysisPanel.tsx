@@ -220,13 +220,35 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
 
           <button
             type="button"
-            onClick={generate}
+            onClick={() => void generate(mode)}
             disabled={loading || !patient}
             className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : report ? <RefreshCw className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
-            {loading ? "Analisando o passômetro…" : report ? "Gerar novamente" : "Gerar relato de caso"}
+            {loading ? "Analisando o passômetro…" : report ? "Gerar novamente" : "Gerar análise"}
           </button>
+        </div>
+
+        {/* Modos do motor de análise */}
+        <div className="mb-4 flex flex-wrap gap-2 rounded-lg border border-strong bg-card p-3 shadow-sm">
+          {MODES.map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              title={m.title}
+              disabled={loading || !patient}
+              onClick={() => void generate(m.key)}
+              className={`rounded-md border px-2.5 py-1.5 text-[12px] font-semibold transition-colors disabled:opacity-60 ${
+                mode === m.key
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border bg-muted/40 text-foreground hover:bg-muted"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
 
           <button
             type="button"
