@@ -493,7 +493,9 @@ export interface Patient {
   deepAnalysis?: {
     report?: string;
     reportAt?: string;
-    chat?: { role: "user" | "assistant"; content: string }[];
+    /** Histórico de relatórios gerados (mais recente primeiro). */
+    reports?: { id: string; mode: string; at: string; content: string }[];
+    chat?: { role: "user" | "assistant"; content: string; id?: string }[];
     chatAt?: string;
   };
   /** História clínica narrativa da evolução do paciente no hospital. */
