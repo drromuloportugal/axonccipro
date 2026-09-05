@@ -83,6 +83,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const [patientId, setPatientId] = useState<string>(initialPatientId ?? selectable[0]?.id ?? "");
   const [report, setReport] = useState<string>("");
   const [reportAt, setReportAt] = useState<Date | null>(null);
+  const [mode, setMode] = useState<Mode>("report");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
