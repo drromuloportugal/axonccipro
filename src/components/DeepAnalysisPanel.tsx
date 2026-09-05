@@ -60,7 +60,7 @@ function RichText({ text }: { text: string }) {
   );
 }
 
-export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId }: Props) {
+export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist }: Props) {
   const runReport = useServerFn(generateCaseReport);
   const runAsk = useServerFn(askAboutCase);
 
