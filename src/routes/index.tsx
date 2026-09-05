@@ -850,6 +850,9 @@ function Passometro() {
         onClose={() => setDeepOpen(false)}
         patients={patients}
         initialPatientId={filtered[current]?.id}
+        onPersist={(id, deep) =>
+          setPatients((prev) => prev.map((x) => (x.id === id ? { ...x, deepAnalysis: deep } : x)))
+        }
       />
 
  </div>
