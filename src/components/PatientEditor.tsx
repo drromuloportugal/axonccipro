@@ -1777,14 +1777,6 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
  <input type="checkbox" checked={c.done} onChange={(e) => upd(i, { done: e.target.checked })}
                   title="Marcar sistema como resolvido" />
  <select className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
-                  value={c.system ?? "other"}
-                  onChange={(e) => {
-                    const sys = e.target.value as ConductSystem;
-                    upd(i, { system: sys, text: CONDUCT_SYSTEM_META[sys].label });
-                  }}> {CONDUCT_SYSTEM_ORDER.map((s) => (
- <option key={s} value={s}>{CONDUCT_SYSTEM_META[s].icon} {CONDUCT_SYSTEM_META[s].label}</option> ))}
- </select>
- <select className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
                   value={c.team} onChange={(e) => upd(i, { team: e.target.value as Conduct["team"] })}> {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
  </select>
  <input
