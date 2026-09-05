@@ -302,9 +302,12 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
 
           {/* Chat */}
           <section className="flex max-h-[75vh] flex-col rounded-lg border border-strong bg-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" />
               <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Consulta ao especialista</h3>
+              <div className="ml-auto">
+                <ShiftEscalationButton onClick={() => setShiftOpen(true)} disabled={!patient} />
+              </div>
             </div>
 
             <div className="mb-3 flex-1 space-y-3 overflow-y-auto pr-1">
