@@ -1814,8 +1814,6 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                   const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
                   return (
   <li key={si} className="flex items-start gap-2 text-[11px]">
-  <input type="checkbox" checked={!!sub.done} className="mt-1.5"
-                         onChange={(e) => updSub(i, si, { done: e.target.checked })} />
   <div className="flex flex-1 flex-col gap-1">
   <input
                            type="date"
@@ -1879,9 +1877,8 @@ function GoalsList({ items, onChange }: { items: Goal[]; onChange: (v: Goal[]) =
  <Button size="sm" onClick={add}><Plus className="mr-1 h-3.5 w-3.5" />Adicionar</Button>
  </div>
  <ul className="space-y-1"> {items.map((g, i) => (
- <li key={i} className="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-[12px]">
- <input type="checkbox" checked={g.met} onChange={(e) => upd(i, { met: e.target.checked })} />
- <input className="flex-1 bg-transparent outline-none"
+  <li key={i} className="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-[12px]">
+  <input className="flex-1 bg-transparent outline-none"
               value={g.text} onChange={(e) => upd(i, { text: e.target.value })} />
  <button onClick={() => del(i)} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
  <Trash2 className="h-3.5 w-3.5" />
