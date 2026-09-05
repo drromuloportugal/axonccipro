@@ -9,7 +9,8 @@ import { PatientPrintView } from "@/components/PatientPrintView";
 import { ExamsMatrix } from "@/components/ExamsMatrix";
 import { DilutionCenter } from "@/components/DilutionCenter";
 import { ManagementDashboard } from "@/components/ManagementDashboard";
-import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
+import { DeepAnalysisPanel } from "@/components/DeepAnalysisPanel";
+import { Search, Plus, Upload, Download, Type, FlaskConical, Minus, Syringe, Menu, X, Archive, RotateCcw, ChevronLeft, ChevronRight, LayoutDashboard, Brain } from "lucide-react";
 import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
@@ -202,6 +203,7 @@ function Passometro() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [managementOpen, setManagementOpen] = useState(false);
+  const [deepOpen, setDeepOpen] = useState(false);
 
   const router = useRouter();
   const handleSignOut = async () => {
@@ -476,6 +478,21 @@ function Passometro() {
   <LayoutDashboard className="h-3.5 w-3.5" />
                   Gestão
   </button>
+
+                {/* Análise profunda */}
+  <button
+                  onClick={() => {
+                    setDeepOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-[12px] font-semibold text-primary transition-colors hover:bg-primary/20"
+                  title="Relato de caso lido por intensivista neurológico + consulta ao especialista"
+                >
+  <Brain className="h-3.5 w-3.5" />
+                  Análise profunda
+  </button>
+
+
 
                 {/* Ferramentas clínicas */}
  <button
@@ -827,6 +844,14 @@ function Passometro() {
           if (i >= 0) goTo(i);
         }}
       />
+
+ <DeepAnalysisPanel
+        open={deepOpen}
+        onClose={() => setDeepOpen(false)}
+        patients={patients}
+        initialPatientId={filtered[current]?.id}
+      />
+
  </div>
   );
 }
