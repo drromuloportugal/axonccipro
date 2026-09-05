@@ -33,7 +33,12 @@ const MODES: { key: Mode; label: string; title: string }[] = [
   { key: "notworking", label: "O que não está funcionando?", title: "Aumento de suporte sem melhora proporcional" },
 ];
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
+const modeLabel = (key: string) => MODES.find((m) => m.key === key)?.label ?? "Relato de caso";
+
+type ChatMessage = { role: "user" | "assistant"; content: string; id?: string };
+type ReportItem = { id: string; mode: string; at: string; content: string };
+
+const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 /** Render leve de markdown (títulos, negrito, listas) sem dependências novas. */
 function RichText({ text }: { text: string }) {
@@ -83,8 +88,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   );
 
   const [patientId, setPatientId] = useState<string>(initialPatientId ?? selectable[0]?.id ?? "");
-  const [report, setReport] = useState<string>("");
-  const [reportAt, setReportAt] = useState<Date | null>(null);
+  const [reports, setReports] = useState<ReportItem[]>([]);
   const [mode, setMode] = useState<Mode>("report");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,17 +101,22 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const patient = useMemo(() => selectable.find((p) => p.id === patientId), [selectable, patientId]);
+  const latest = reports[0];
 
   useEffect(() => {
     if (open && initialPatientId) setPatientId(initialPatientId);
   }, [open, initialPatientId]);
 
-  // Carrega o último relato e a conversa salvos neste paciente
+  // Carrega os relatórios e a conversa salvos neste paciente
   useEffect(() => {
     const saved = patients.find((p) => p.id === patientId)?.deepAnalysis;
-    setReport(saved?.report ?? "");
-    setReportAt(saved?.reportAt ? new Date(saved.reportAt) : null);
-    setChat((saved?.chat ?? []) as ChatMessage[]);
+    const list: ReportItem[] = saved?.reports?.length
+      ? saved.reports
+      : saved?.report
+        ? [{ id: newId(), mode: "report", at: saved.reportAt ?? new Date().toISOString(), content: saved.report }]
+        : [];
+    setReports(list);
+    setChat(((saved?.chat ?? []) as ChatMessage[]).map((m) => ({ ...m, id: m.id ?? newId() })));
     setError(null);
     setChatError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,23 +126,28 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [chat, asking]);
 
+  const persist = (nextReports: ReportItem[], nextChat: ChatMessage[]) => {
+    if (!patient) return;
+    onPersist?.(patient.id, {
+      report: nextReports[0]?.content,
+      reportAt: nextReports[0]?.at,
+      reports: nextReports,
+      chat: nextChat,
+      chatAt: nextChat.length ? new Date().toISOString() : undefined,
+    });
+  };
+
   const generate = async (m: Mode = mode) => {
     if (!patient) return;
     setMode(m);
     setLoading(true);
     setError(null);
-    setReport("");
     try {
       const res = await runReport({ data: { context: buildPassometroContext(patient), mode: m } });
-      const at = new Date();
-      setReport(res.report);
-      setReportAt(at);
-      onPersist?.(patient.id, {
-        report: res.report,
-        reportAt: at.toISOString(),
-        chat,
-        chatAt: patient.deepAnalysis?.chatAt,
-      });
+      const item: ReportItem = { id: newId(), mode: m, at: new Date().toISOString(), content: res.report };
+      const next = [item, ...reports];
+      setReports(next);
+      persist(next, chat);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha ao gerar o relato.");
     } finally {
@@ -146,26 +160,21 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     if (!q || !patient || asking) return;
     setQuestion("");
     setChatError(null);
-    const withUser: ChatMessage[] = [...chat, { role: "user", content: q }];
+    const withUser: ChatMessage[] = [...chat, { id: newId(), role: "user", content: q }];
     setChat(withUser);
     setAsking(true);
     try {
       const res = await runAsk({
         data: {
           context: buildPassometroContext(patient),
-          report: report || undefined,
+          report: latest?.content || undefined,
           question: q,
-          history: chat.slice(-10),
+          history: chat.slice(-10).map(({ role, content }) => ({ role, content })),
         },
       });
-      const next: ChatMessage[] = [...withUser, { role: "assistant", content: res.answer }];
+      const next: ChatMessage[] = [...withUser, { id: newId(), role: "assistant", content: res.answer }];
       setChat(next);
-      onPersist?.(patient.id, {
-        report: report || undefined,
-        reportAt: reportAt?.toISOString(),
-        chat: next,
-        chatAt: new Date().toISOString(),
-      });
+      persist(reports, next);
     } catch (e) {
       setChatError(e instanceof Error ? e.message : "Falha ao consultar o especialista.");
     } finally {
@@ -173,44 +182,39 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     }
   };
 
-  const deleteReport = () => {
-    if (!patient) return;
-    if (!window.confirm("Apagar o relatório gerado deste paciente?")) return;
-    setReport("");
-    setReportAt(null);
-    setError(null);
-    onPersist?.(patient.id, {
-      report: undefined,
-      reportAt: undefined,
-      chat,
-      chatAt: patient.deepAnalysis?.chatAt,
-    });
+  const deleteReport = (id: string) => {
+    if (!window.confirm("Apagar este relatório?")) return;
+    const next = reports.filter((r) => r.id !== id);
+    setReports(next);
+    persist(next, chat);
+  };
+
+  const deleteMessage = (id?: string) => {
+    if (!id) return;
+    if (!window.confirm("Apagar esta mensagem da conversa?")) return;
+    const next = chat.filter((m) => m.id !== id);
+    setChat(next);
+    persist(reports, next);
   };
 
   const deleteChat = () => {
-    if (!patient) return;
-    if (!window.confirm("Apagar a conversa com o especialista deste paciente?")) return;
+    if (!window.confirm("Apagar toda a conversa com o especialista deste paciente?")) return;
     setChat([]);
     setChatError(null);
-    onPersist?.(patient.id, {
-      report: report || undefined,
-      reportAt: reportAt?.toISOString(),
-      chat: [],
-      chatAt: undefined,
-    });
+    persist(reports, []);
   };
 
-  const copyReport = async () => {
-    try { await navigator.clipboard.writeText(report); } catch { /* ignore */ }
+  const copyReport = async (text: string) => {
+    try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
   };
 
-  const downloadReport = () => {
+  const downloadReport = (r: ReportItem) => {
     if (!patient) return;
-    const blob = new Blob([report], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([r.content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `Relato Clinico Evolutivo - ${patient.bed} - ${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = `${modeLabel(r.mode)} - ${patient.bed} - ${r.at.slice(0, 10)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -254,8 +258,8 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
             disabled={loading || !patient}
             className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : report ? <RefreshCw className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
-            {loading ? "Analisando o passômetro…" : report ? "Gerar novamente" : "Gerar análise"}
+            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : reports.length ? <RefreshCw className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
+            {loading ? "Analisando o passômetro…" : reports.length ? "Gerar novo relatório" : "Gerar análise"}
           </button>
         </div>
 
@@ -289,29 +293,13 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
 
 
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-          {/* Relato */}
+          {/* Relatos */}
           <section className="rounded-lg border border-strong bg-card p-4 shadow-sm">
             <div className="mb-3 flex items-center gap-2">
               <Stethoscope className="h-4 w-4 text-primary" />
-              <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Relato clínico evolutivo</h3>
-              {report && (
-                <div className="ml-auto flex items-center gap-2">
-                  <span className="text-[11px] text-muted-foreground">{reportAt?.toLocaleString("pt-BR")}</span>
-                  <button type="button" onClick={copyReport} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Copiar">
-                    <Copy className="h-3.5 w-3.5" />
-                  </button>
-                  <button type="button" onClick={downloadReport} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Baixar">
-                    <Download className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={deleteReport}
-                    className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
-                    title="Apagar relatório"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Relatórios gerados</h3>
+              {reports.length > 0 && (
+                <span className="ml-auto text-[11px] text-muted-foreground">{reports.length} salvo(s)</span>
               )}
             </div>
 
@@ -321,7 +309,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
               </div>
             )}
 
-            {!report && !loading && !error && (
+            {reports.length === 0 && !loading && !error && (
               <p className="text-[12px] text-muted-foreground">
                 Selecione o paciente e gere o relato. A análise reconstrói a trajetória clínica de forma cronológica e
                 contextualizada, com impressão do intensivista, problemas ativos e plano atual, sem inventar dados
@@ -330,12 +318,40 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
             )}
 
             {loading && (
-              <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+              <div className="mb-3 flex items-center gap-2 text-[12px] text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Reconstruindo a história clínica do paciente…
               </div>
             )}
 
-            {report && <RichText text={report} />}
+            <div className="space-y-4">
+              {reports.map((r) => (
+                <article key={r.id} className="rounded-md border border-border bg-surface-3/30 p-3">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-primary/15 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-foreground">
+                      {modeLabel(r.mode)}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">{new Date(r.at).toLocaleString("pt-BR")}</span>
+                    <div className="ml-auto flex items-center gap-2">
+                      <button type="button" onClick={() => void copyReport(r.content)} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Copiar">
+                        <Copy className="h-3.5 w-3.5" />
+                      </button>
+                      <button type="button" onClick={() => downloadReport(r)} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Baixar">
+                        <Download className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteReport(r.id)}
+                        className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
+                        title="Apagar este relatório"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <RichText text={r.content} />
+                </article>
+              ))}
+            </div>
           </section>
 
           {/* Chat */}
@@ -349,7 +365,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                     type="button"
                     onClick={deleteChat}
                     className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
-                    title="Apagar conversa"
+                    title="Apagar toda a conversa"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -366,17 +382,27 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                   consultada em openevidence.com, com referências ao final.
                 </p>
               )}
-              {chat.map((m, i) =>
-                m.role === "user" ? (
-                  <div key={i} className="ml-6 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-[12px] font-semibold text-foreground">
-                    {m.content}
-                  </div>
-                ) : (
-                  <div key={i} className="rounded-md border border-border bg-surface-3/40 px-3 py-2">
-                    <RichText text={m.content} />
-                  </div>
-                ),
-              )}
+              {chat.map((m) => (
+                <div key={m.id} className="group relative">
+                  <button
+                    type="button"
+                    onClick={() => deleteMessage(m.id)}
+                    className="absolute right-1 top-1 hidden rounded-md border border-clinical-critical/40 bg-card p-1 text-clinical-critical group-hover:block"
+                    title="Apagar esta mensagem"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                  {m.role === "user" ? (
+                    <div className="ml-6 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 pr-9 text-[12px] font-semibold text-foreground">
+                      {m.content}
+                    </div>
+                  ) : (
+                    <div className="rounded-md border border-border bg-surface-3/40 px-3 py-2 pr-9">
+                      <RichText text={m.content} />
+                    </div>
+                  )}
+                </div>
+              ))}
               {asking && (
                 <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" /> Consultando evidência e formulando a resposta…
@@ -423,7 +449,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
         onClose={() => setShiftOpen(false)}
         patient={patient}
         onPatientChange={onPatientChange}
-        report={report}
+        report={latest?.content ?? ""}
       />
     </div>
   );
