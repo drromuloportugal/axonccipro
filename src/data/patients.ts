@@ -490,6 +490,12 @@ export interface Patient {
   ichScore?: import("@/components/IchScorePanel").IchRecord;
   nihss?: import("@/components/NihssPanel").NihssRecord;
   vasograde?: import("@/components/VasogradePanel").VasogradeRecord;
+  deepAnalysis?: {
+    report?: string;
+    reportAt?: string;
+    chat?: { role: "user" | "assistant"; content: string }[];
+    chatAt?: string;
+  };
 
 
 
