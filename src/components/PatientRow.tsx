@@ -1421,14 +1421,9 @@ export function PatientRow({
                          disabled={!onUpdate}
                          className="h-3 w-3 shrink-0 cursor-pointer accent-clinical-stable"
                        />
- <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
- </span>
- {c.startedAt && (
- <span className="ml-1 rounded bg-surface-2 px-1 py-0.5 text-[9px] font-mono text-muted-foreground">
-                             {formatDayMonth(c.startedAt)}
-                           </span>
-                       )}
- <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
+                        <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
+                        </span>
+                        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
  </label> {c.subItems && c.subItems.length > 0 ? (
   <ul className="mt-1.5 ml-2 space-y-1.5 border-l border-border/60 pl-2"> {c.subItems.map((sub, si) => {
                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
