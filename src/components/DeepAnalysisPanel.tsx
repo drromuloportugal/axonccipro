@@ -343,7 +343,17 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" />
               <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Consulta ao especialista</h3>
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                {chat.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={deleteChat}
+                    className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
+                    title="Apagar conversa"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 <ShiftEscalationButton onClick={() => setShiftOpen(true)} disabled={!patient} />
               </div>
             </div>
