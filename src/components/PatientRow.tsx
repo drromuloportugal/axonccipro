@@ -1401,18 +1401,11 @@ export function PatientRow({
                 const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
                 return (
  <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
- <label className="flex items-center gap-2">
- <input
-                         type="checkbox"
-                         checked={c.done}
-                         onChange={() => toggleConduct(i)}
-                         disabled={!onUpdate}
-                         className="h-3 w-3 shrink-0 cursor-pointer accent-clinical-stable"
-                       />
+ <div className="flex items-center gap-2">
                         <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
                         </span>
                         <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
- </label> {c.subItems && c.subItems.length > 0 ? (
+ </div> {c.subItems && c.subItems.length > 0 ? (
   <ul className="mt-1.5 ml-2 space-y-1.5 border-l border-border/60 pl-2"> {c.subItems.map((sub, si) => {
                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
                           const subDate = sub.date ?? c.startedAt;
