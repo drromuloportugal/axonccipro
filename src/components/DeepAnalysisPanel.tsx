@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope,
+  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope, Trash2,
 } from "lucide-react";
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
@@ -173,6 +173,33 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     }
   };
 
+  const deleteReport = () => {
+    if (!patient) return;
+    if (!window.confirm("Apagar o relatório gerado deste paciente?")) return;
+    setReport("");
+    setReportAt(null);
+    setError(null);
+    onPersist?.(patient.id, {
+      report: undefined,
+      reportAt: undefined,
+      chat,
+      chatAt: patient.deepAnalysis?.chatAt,
+    });
+  };
+
+  const deleteChat = () => {
+    if (!patient) return;
+    if (!window.confirm("Apagar a conversa com o especialista deste paciente?")) return;
+    setChat([]);
+    setChatError(null);
+    onPersist?.(patient.id, {
+      report: report || undefined,
+      reportAt: reportAt?.toISOString(),
+      chat: [],
+      chatAt: undefined,
+    });
+  };
+
   const copyReport = async () => {
     try { await navigator.clipboard.writeText(report); } catch { /* ignore */ }
   };
@@ -276,6 +303,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                   <button type="button" onClick={downloadReport} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Baixar">
                     <Download className="h-3.5 w-3.5" />
                   </button>
+                  <button
+                    type="button"
+                    onClick={deleteReport}
+                    className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
+                    title="Apagar relatório"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
             </div>
@@ -308,7 +343,17 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" />
               <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Consulta ao especialista</h3>
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                {chat.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={deleteChat}
+                    className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
+                    title="Apagar conversa"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 <ShiftEscalationButton onClick={() => setShiftOpen(true)} disabled={!patient} />
               </div>
             </div>
