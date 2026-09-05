@@ -479,6 +479,21 @@ function Passometro() {
                   Gestão
   </button>
 
+                {/* Análise profunda */}
+  <button
+                  onClick={() => {
+                    setDeepOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-[12px] font-semibold text-primary transition-colors hover:bg-primary/20"
+                  title="Relato de caso lido por intensivista neurológico + consulta ao especialista"
+                >
+  <Brain className="h-3.5 w-3.5" />
+                  Análise profunda
+  </button>
+
+
+
                 {/* Ferramentas clínicas */}
  <button
                   onClick={() => {
