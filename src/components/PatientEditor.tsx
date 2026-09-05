@@ -1788,18 +1788,9 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
           return (
   <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
   <div className="mb-1.5 flex flex-wrap items-center gap-2">
-  <input type="checkbox" checked={c.done} onChange={(e) => upd(i, { done: e.target.checked })}
-                   title="Marcar sistema como resolvido" />
   <span className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                    {c.team}
   </span>
-  <input
-                   type="date"
-                   className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
-                   value={c.startedAt ? c.startedAt.slice(0, 10) : ""}
-                   onChange={(e) => upd(i, { startedAt: e.target.value || undefined })}
-                   title="Data de início da conduta"
-                 />
   <button
                    type="button"
                    onClick={() => toggle(i)}
