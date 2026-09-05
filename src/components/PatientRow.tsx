@@ -242,11 +242,6 @@ export function PatientRow({
     });
   };
 
-  const toggleConduct = (idx: number) => {
-    if (!onUpdate) return;
-    const conducts = patient.conducts.map((c, i) => (i === idx ? { ...c, done: !c.done } : c));
-    onUpdate({ ...patient, conducts });
-  };
 
   const toggleSubItem = (idx: number, subIdx: number) => {
     if (!onUpdate) return;
@@ -702,13 +697,6 @@ export function PatientRow({
               const annDate = firstAnn?.date ?? c.startedAt;
               return (
   <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
-  <input
-                     type="checkbox"
-                     checked={c.done}
-                     onChange={() => toggleConduct(i)}
-                     disabled={!onUpdate}
-                     className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
-                   />
   <span className="min-w-0 flex-1">
   <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
   <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
