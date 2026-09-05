@@ -203,6 +203,7 @@ function Passometro() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [managementOpen, setManagementOpen] = useState(false);
+  const [deepOpen, setDeepOpen] = useState(false);
 
   const router = useRouter();
   const handleSignOut = async () => {
