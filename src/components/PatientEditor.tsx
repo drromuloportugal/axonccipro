@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Calculator, Undo2, Redo2, CircleCheck, CirclePause } from "lucide-react";
+import { Plus, Trash2, Calculator, Undo2, Redo2, CircleCheck, CirclePause, ChevronDown } from "lucide-react";
 import { ANTIMICROBIAL_LIBRARY, findAntimicrobial, awareMeta } from "@/data/antimicrobials";
 import { StewardshipPanel } from "@/components/StewardshipPanel";
 import type {
@@ -1722,24 +1722,38 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   const [team, setTeam] = useState<Conduct["team"]>("Médica");
   const [system, setSystem] = useState<ConductSystem>("gi");
   const [startedAt, setStartedAt] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+
+  const toggle = (i: number) => setExpanded((prev) => ({ ...prev, [i]: !prev[i] }));
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
-    onChange([...items, {
+    const newConduct: Conduct = {
       team, system,
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
       startedAt,
-      subItems: [{ text: "", done: false, color: "default", date: new Date().toISOString().slice(0, 10) }],
-    }]);
+      subItems: [{ text: "", done: false, color: "default" as const, date: new Date().toISOString().slice(0, 10) }],
+    };
+    const next = [...items, newConduct];
+    onChange(next);
+    setExpanded((prev) => ({ ...prev, [next.length - 1]: true }));
   };
   const upd = (i: number, patch: Partial<Conduct>) => onChange(items.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
-  const del = (i: number) => onChange(items.filter((_, idx) => idx !== i));
+  const del = (i: number) => {
+    onChange(items.filter((_, idx) => idx !== i));
+    setExpanded((prev) => {
+      const copy = { ...prev };
+      delete copy[i];
+      return copy;
+    });
+  };
 
   const addSub = (i: number) => {
     const cur = items[i];
     const subs = [...(cur.subItems ?? []), { text: "", done: false, color: "default" as const, date: new Date().toISOString().slice(0, 10) }];
     upd(i, { subItems: subs });
+    setExpanded((prev) => ({ ...prev, [i]: true }));
   };
   const updSub = (i: number, si: number, patch: Partial<ConductSubItem>) => {
     const cur = items[i];
@@ -1772,31 +1786,39 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
  <ul className="space-y-2"> {items.map((c, i) => {
           const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
           return (
- <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
- <div className="mb-1.5 flex flex-wrap items-center gap-2">
- <input type="checkbox" checked={c.done} onChange={(e) => upd(i, { done: e.target.checked })}
-                  title="Marcar sistema como resolvido" />
- <select className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
-                  value={c.team} onChange={(e) => upd(i, { team: e.target.value as Conduct["team"] })}> {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
- </select>
- <input
-                  type="date"
-                  className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
-                  value={c.startedAt ? c.startedAt.slice(0, 10) : ""}
-                  onChange={(e) => upd(i, { startedAt: e.target.value || undefined })}
-                  title="Data de início da conduta"
-                />
- <span className={`ml-1 text-[11px] font-bold uppercase tracking-wider ${meta.className}`}> {meta.icon} {meta.label}
- </span>
- <div className="ml-auto flex items-center gap-1">
- <button onClick={() => addSub(i)} className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold hover:bg-surface-3"> + anotação
- </button>
- <button onClick={() => del(i)} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
- <Trash2 className="h-3.5 w-3.5" />
- </button>
- </div>
- </div>
+  <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
+  <div className="mb-1.5 flex flex-wrap items-center gap-2">
+  <input type="checkbox" checked={c.done} onChange={(e) => upd(i, { done: e.target.checked })}
+                   title="Marcar sistema como resolvido" />
+  <span className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                   {c.team}
+  </span>
+  <input
+                   type="date"
+                   className="rounded border border-border bg-background px-1 py-0.5 text-[10px]"
+                   value={c.startedAt ? c.startedAt.slice(0, 10) : ""}
+                   onChange={(e) => upd(i, { startedAt: e.target.value || undefined })}
+                   title="Data de início da conduta"
+                 />
+  <button
+                   type="button"
+                   onClick={() => toggle(i)}
+                   className="ml-1 flex flex-1 items-center gap-1 text-left text-[11px] font-bold uppercase tracking-wider"
+                 >
+  <span className={meta.className}> {meta.icon} {meta.label}
+  </span>
+  <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${expanded[i] ? "rotate-180" : ""}`} />
+  </button>
+  <div className="flex items-center gap-1">
+  <button onClick={(e) => { e.stopPropagation(); addSub(i); }} className="rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] font-semibold hover:bg-surface-3"> + anotação
+  </button>
+  <button onClick={(e) => { e.stopPropagation(); del(i); }} className="rounded p-1 hover:bg-destructive/10 hover:text-destructive">
+  <Trash2 className="h-3.5 w-3.5" />
+  </button>
+  </div>
+  </div>
 
+  {expanded[i] && (
   <ul className="space-y-1.5"> {(c.subItems ?? []).map((sub, si) => {
                   const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
                   return (
@@ -1834,8 +1856,9 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   </li> );
                 })}
                 {(c.subItems ?? []).length === 0 && (
- <li className="text-[10px] italic text-muted-foreground">Sem anotações. Use “+ anotação”.</li> )}
- </ul>
+  <li className="text-[10px] italic text-muted-foreground">Sem anotações. Use “+ anotação”.</li> )}
+  </ul>
+  )}
  </li> );
         })}
         {items.length === 0 && (
