@@ -1753,6 +1753,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
     const cur = items[i];
     const subs = [...(cur.subItems ?? []), { text: "", done: false, color: "default" as const, date: new Date().toISOString().slice(0, 10) }];
     upd(i, { subItems: subs });
+    setExpanded((prev) => ({ ...prev, [i]: true }));
   };
   const updSub = (i: number, si: number, patch: Partial<ConductSubItem>) => {
     const cur = items[i];
