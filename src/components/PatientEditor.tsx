@@ -1722,6 +1722,9 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   const [team, setTeam] = useState<Conduct["team"]>("Médica");
   const [system, setSystem] = useState<ConductSystem>("gi");
   const [startedAt, setStartedAt] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+
+  const toggle = (i: number) => setExpanded((prev) => ({ ...prev, [i]: !prev[i] }));
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
