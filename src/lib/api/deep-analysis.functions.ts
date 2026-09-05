@@ -5,7 +5,12 @@ const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
 const EVIDENCE_SOURCE = "https://www.openevidence.com";
 
-const ReportInput = z.object({ context: z.string().min(1) });
+export const ANALYSIS_MODES = ["report", "handoff", "changes", "concerns", "working", "notworking"] as const;
+
+const ReportInput = z.object({
+  context: z.string().min(1),
+  mode: z.enum(ANALYSIS_MODES).default("report"),
+});
 
 const ChatInput = z.object({
   context: z.string().min(1),
