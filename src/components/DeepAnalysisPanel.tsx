@@ -247,18 +247,16 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
               {m.label}
             </button>
           ))}
-        </div>
-
-
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-strong bg-muted text-foreground transition-colors hover:bg-muted/70"
+            className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border border-strong bg-muted text-foreground transition-colors hover:bg-muted/70"
             aria-label="Fechar"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
+
 
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           {/* Relato */}
