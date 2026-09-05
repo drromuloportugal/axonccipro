@@ -1728,16 +1728,25 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
-    onChange([...items, {
+    const next = [...items, {
       team, system,
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
       startedAt,
       subItems: [{ text: "", done: false, color: "default", date: new Date().toISOString().slice(0, 10) }],
-    }]);
+    }];
+    onChange(next);
+    setExpanded((prev) => ({ ...prev, [next.length - 1]: true }));
   };
   const upd = (i: number, patch: Partial<Conduct>) => onChange(items.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
-  const del = (i: number) => onChange(items.filter((_, idx) => idx !== i));
+  const del = (i: number) => {
+    onChange(items.filter((_, idx) => idx !== i));
+    setExpanded((prev) => {
+      const copy = { ...prev };
+      delete copy[i];
+      return copy;
+    });
+  };
 
   const addSub = (i: number) => {
     const cur = items[i];
