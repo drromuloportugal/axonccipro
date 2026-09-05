@@ -15,6 +15,7 @@ interface Props {
   onClose: () => void;
   patients: Patient[];
   initialPatientId?: string;
+  onPersist?: (patientId: string, deep: NonNullable<Patient["deepAnalysis"]>) => void;
 }
 
 const EVIDENCE_URL = "https://www.openevidence.com";
