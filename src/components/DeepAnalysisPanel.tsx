@@ -303,6 +303,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                   <button type="button" onClick={downloadReport} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Baixar">
                     <Download className="h-3.5 w-3.5" />
                   </button>
+                  <button
+                    type="button"
+                    onClick={deleteReport}
+                    className="rounded-md border border-clinical-critical/40 p-1.5 text-clinical-critical hover:bg-clinical-critical/10"
+                    title="Apagar relatório"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
             </div>
