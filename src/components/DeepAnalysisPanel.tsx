@@ -17,6 +17,7 @@ interface Props {
   patients: Patient[];
   initialPatientId?: string;
   onPersist?: (patientId: string, deep: NonNullable<Patient["deepAnalysis"]>) => void;
+  onPatientChange?: (p: Patient) => void;
 }
 
 const EVIDENCE_URL = "https://www.openevidence.com";
@@ -72,7 +73,7 @@ function RichText({ text }: { text: string }) {
   );
 }
 
-export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist }: Props) {
+export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist, onPatientChange }: Props) {
   const runReport = useServerFn(generateCaseReport);
   const runAsk = useServerFn(askAboutCase);
 
@@ -92,6 +93,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [shiftOpen, setShiftOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const patient = useMemo(() => selectable.find((p) => p.id === patientId), [selectable, patientId]);
@@ -370,6 +372,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
           </section>
         </div>
       </div>
+
+      <ShiftEscalationModal
+        open={shiftOpen}
+        onClose={() => setShiftOpen(false)}
+        patient={patient}
+        onPatientChange={onPatientChange}
+        report={report}
+      />
     </div>
   );
 }
