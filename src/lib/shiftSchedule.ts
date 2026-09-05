@@ -67,34 +67,31 @@ function atHour(base: Date, hour: number, dayOffset = 0): Date {
 }
 
 /**
- * Determina a próxima janela de plantão a partir do horário atual.
- * - 07:00–18:59 → próximo plantão noturno 19:00 → 07:00 (dia seguinte)
- * - >= 19:00    → próximo plantão diurno 07:00 → 19:00 (dia seguinte)
- * - < 07:00     → próximo plantão diurno 07:00 → 19:00 (mesmo dia)
+ * Janela do plantão em curso: inicia no horário atual e termina no próximo
+ * limite de 07:00 ou 19:00.
+ * - 07:00–18:59 → plantão diurno, termina hoje às 19:00
+ * - >= 19:00    → plantão noturno, termina amanhã às 07:00
+ * - < 07:00     → plantão noturno, termina hoje às 07:00
  */
 export function nextShiftWindow(now: Date = new Date()): ShiftWindow {
   const h = now.getHours();
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Sao_Paulo";
 
-  let start: Date;
   let end: Date;
   let kind: ShiftKind;
 
   if (h >= 7 && h < 19) {
-    kind = "noturno";
-    start = atHour(now, 19);
-    end = atHour(now, 7, 1);
-  } else if (h >= 19) {
     kind = "diurno";
-    start = atHour(now, 7, 1);
-    end = atHour(now, 19, 1);
-  } else {
-    kind = "diurno";
-    start = atHour(now, 7);
     end = atHour(now, 19);
+  } else if (h >= 19) {
+    kind = "noturno";
+    end = atHour(now, 7, 1);
+  } else {
+    kind = "noturno";
+    end = atHour(now, 7);
   }
 
-  const startISO = start.toISOString();
+  const startISO = new Date(now).toISOString();
   const endISO = end.toISOString();
   return {
     kind,
@@ -106,8 +103,9 @@ export function nextShiftWindow(now: Date = new Date()): ShiftWindow {
 }
 
 export function shiftHoursLabel(kind: ShiftKind): string {
-  return kind === "diurno" ? "07:00 → 19:00" : "19:00 → 07:00";
+  return kind === "diurno" ? "até 19:00" : "até 07:00";
 }
+
 
 /** Diretrizes institucionais priorizadas (SCCM) usadas na análise. */
 export const SCCM_GUIDELINES: { name: string; year: string; url: string }[] = [
