@@ -173,6 +173,8 @@ export function PatientRow({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const [pumpOpen, setPumpOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyDraft, setHistoryDraft] = useState(patient.clinicalHistory ?? "");
   const [aiOpen, setAiOpen] = useState(false);
   const [medAnalysisOpen, setMedAnalysisOpen] = useState(false);
   const [atbHistOpen, setAtbHistOpen] = useState(false);
@@ -432,6 +434,14 @@ export function PatientRow({
               <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
               <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
               <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(true)}
+                className="rounded border border-strong bg-muted/50 px-1.5 py-1 text-[10px] font-semibold text-foreground hover:bg-muted"
+                title="História clínica — evolução do paciente no hospital"
+              >
+                📖 História clínica{patient.clinicalHistory ? " ✓" : ""}
+              </button>
             </div>
           </div>
 
