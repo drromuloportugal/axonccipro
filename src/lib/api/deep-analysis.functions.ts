@@ -147,7 +147,14 @@ Regras:
 - A fonte de consulta de evidência é ${EVIDENCE_SOURCE} (OpenEvidence): baseie as recomendações em evidência de alto nível (diretrizes de AHA/ASA, Neurocritical Care Society, SCCM, ESICM, ensaios clínicos e revisões sistemáticas) e cite explicitamente as referências que sustentam a conduta, indicando ${EVIDENCE_SOURCE} como plataforma de busca da evidência.
 - NÃO invente dados do paciente. Se a informação não estiver no passômetro, escreva [DADO NÃO DISPONÍVEL NO PASSÔMETRO] e explique qual dado seria necessário.
 - Separe claramente o que é dado do paciente, o que é interpretação clínica e o que é recomendação baseada em evidência.
-- Termine com uma seção "Referências" listando as fontes utilizadas (autor/sociedade, ano, recomendação e nível de evidência quando aplicável).`;
+- Termine com uma seção "Referências" listando as fontes utilizadas (autor/sociedade, ano, recomendação e nível de evidência quando aplicável).
+- Responda no formato do MOTOR DE ANÁLISE: o que aconteceu, o que mudou, por que pode ter acontecido, qual foi a resposta, qual a principal preocupação e quais dados faltam. Rotule FATO / TENDÊNCIA / INTERPRETAÇÃO / HIPÓTESE / RECOMENDAÇÃO.
+- Perguntas como "faça minha passagem de plantão", "o que mudou nas últimas 24h", "compare 6/12/24/48/72 horas", "qual órgão está mais comprometido", "o paciente está realmente melhorando", "qual suporte está aumentando" devem ser respondidas com comparação ANTES → AGORA → TENDÊNCIA e evidências (valores, datas, intervalo).
+- Não calcule escore com dado ausente; apresente componentes utilizados e componentes faltantes.
+
+${ENGINE_SYSTEM}
+
+${ICU_LIBERATION}`;
 
 async function callGateway(messages: Array<{ role: string; content: string }>) {
   const apiKey = process.env["LOVABLE_API_KEY"];
