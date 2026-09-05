@@ -173,6 +173,33 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     }
   };
 
+  const deleteReport = () => {
+    if (!patient) return;
+    if (!window.confirm("Apagar o relatório gerado deste paciente?")) return;
+    setReport("");
+    setReportAt(null);
+    setError(null);
+    onPersist?.(patient.id, {
+      report: undefined,
+      reportAt: undefined,
+      chat,
+      chatAt: patient.deepAnalysis?.chatAt,
+    });
+  };
+
+  const deleteChat = () => {
+    if (!patient) return;
+    if (!window.confirm("Apagar a conversa com o especialista deste paciente?")) return;
+    setChat([]);
+    setChatError(null);
+    onPersist?.(patient.id, {
+      report: report || undefined,
+      reportAt: reportAt?.toISOString(),
+      chat: [],
+      chatAt: undefined,
+    });
+  };
+
   const copyReport = async () => {
     try { await navigator.clipboard.writeText(report); } catch { /* ignore */ }
   };
