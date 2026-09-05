@@ -1817,6 +1817,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   </div>
   </div>
 
+  {expanded[i] && (
   <ul className="space-y-1.5"> {(c.subItems ?? []).map((sub, si) => {
                   const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
                   return (
