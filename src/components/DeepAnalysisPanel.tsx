@@ -9,6 +9,7 @@ import {
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
 import { generateCaseReport, askAboutCase } from "@/lib/api/deep-analysis.functions";
+import { ShiftEscalationButton, ShiftEscalationModal } from "@/components/ShiftEscalationModal";
 
 interface Props {
   open: boolean;
