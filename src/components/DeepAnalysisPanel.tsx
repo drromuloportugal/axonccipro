@@ -114,13 +114,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [chat, asking]);
 
-  const generate = async () => {
+  const generate = async (m: Mode = mode) => {
     if (!patient) return;
+    setMode(m);
     setLoading(true);
     setError(null);
     setReport("");
     try {
-      const res = await runReport({ data: { context: buildPassometroContext(patient) } });
+      const res = await runReport({ data: { context: buildPassometroContext(patient), mode: m } });
       const at = new Date();
       setReport(res.report);
       setReportAt(at);
