@@ -1728,13 +1728,14 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
-    const next = [...items, {
+    const newConduct: Conduct = {
       team, system,
       text: CONDUCT_SYSTEM_META[system].label,
       done: false,
       startedAt,
-      subItems: [{ text: "", done: false, color: "default", date: new Date().toISOString().slice(0, 10) }],
-    }];
+      subItems: [{ text: "", done: false, color: "default" as const, date: new Date().toISOString().slice(0, 10) }],
+    };
+    const next = [...items, newConduct];
     onChange(next);
     setExpanded((prev) => ({ ...prev, [next.length - 1]: true }));
   };
