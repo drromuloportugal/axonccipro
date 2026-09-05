@@ -844,6 +844,14 @@ function Passometro() {
           if (i >= 0) goTo(i);
         }}
       />
+
+ <DeepAnalysisPanel
+        open={deepOpen}
+        onClose={() => setDeepOpen(false)}
+        patients={patients}
+        initialPatientId={filtered[current]?.id}
+      />
+
  </div>
   );
 }
