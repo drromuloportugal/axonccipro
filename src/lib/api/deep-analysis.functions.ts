@@ -179,18 +179,26 @@ async function callGateway(messages: Array<{ role: string; content: string }>) {
   return content;
 }
 
-/** Gera o RELATO CLÍNICO EVOLUTIVO — leitura do passômetro por intensivista neurológico. */
+/** Gera relato / passagem de plantão / telas analíticas do motor de análise profunda. */
 export const generateCaseReport = createServerFn({ method: "POST" })
   .inputValidator(ReportInput)
   .handler(async ({ data }) => {
+    const mode = data.mode ?? "report";
+    const task =
+      mode === "report"
+        ? `Produza o RELATO CLÍNICO EVOLUTIVO completo conforme as regras, com absoluta fidelidade aos dados acima.\n\nEm seguida, acrescente as seções do motor de análise:\n${ANALYSIS_TASK}`
+        : (MODE_TASKS[mode] ?? ANALYSIS_TASK);
+
+    const system =
+      mode === "report"
+        ? `${REPORT_SYSTEM}\n\n${ENGINE_SYSTEM}\n\n${ICU_LIBERATION}`
+        : `${ENGINE_SYSTEM}\n\n${ICU_LIBERATION}`;
+
     const report = await callGateway([
-      { role: "system", content: REPORT_SYSTEM },
-      {
-        role: "user",
-        content: `${data.context}\n\nProduza o RELATO CLÍNICO EVOLUTIVO completo conforme as regras, com absoluta fidelidade aos dados acima.`,
-      },
+      { role: "system", content: system },
+      { role: "user", content: `${data.context}\n\n${task}` },
     ]);
-    return { report };
+    return { report, mode };
   });
 
 /** Chat clínico sobre o caso, com evidência baseada no OpenEvidence. */
