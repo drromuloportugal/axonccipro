@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope,
+  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope, Trash2,
 } from "lucide-react";
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
