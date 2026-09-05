@@ -1855,8 +1855,9 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   </li> );
                 })}
                 {(c.subItems ?? []).length === 0 && (
- <li className="text-[10px] italic text-muted-foreground">Sem anotações. Use “+ anotação”.</li> )}
- </ul>
+  <li className="text-[10px] italic text-muted-foreground">Sem anotações. Use “+ anotação”.</li> )}
+  </ul>
+  )}
  </li> );
         })}
         {items.length === 0 && (
