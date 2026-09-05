@@ -87,12 +87,15 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     if (open && initialPatientId) setPatientId(initialPatientId);
   }, [open, initialPatientId]);
 
+  // Carrega o último relato e a conversa salvos neste paciente
   useEffect(() => {
-    setReport("");
-    setReportAt(null);
-    setChat([]);
+    const saved = patients.find((p) => p.id === patientId)?.deepAnalysis;
+    setReport(saved?.report ?? "");
+    setReportAt(saved?.reportAt ? new Date(saved.reportAt) : null);
+    setChat((saved?.chat ?? []) as ChatMessage[]);
     setError(null);
     setChatError(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientId]);
 
   useEffect(() => {
@@ -106,8 +109,15 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     setReport("");
     try {
       const res = await runReport({ data: { context: buildPassometroContext(patient) } });
+      const at = new Date();
       setReport(res.report);
-      setReportAt(new Date());
+      setReportAt(at);
+      onPersist?.(patient.id, {
+        report: res.report,
+        reportAt: at.toISOString(),
+        chat,
+        chatAt: patient.deepAnalysis?.chatAt,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha ao gerar o relato.");
     } finally {
@@ -120,7 +130,8 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     if (!q || !patient || asking) return;
     setQuestion("");
     setChatError(null);
-    setChat((c) => [...c, { role: "user", content: q }]);
+    const withUser: ChatMessage[] = [...chat, { role: "user", content: q }];
+    setChat(withUser);
     setAsking(true);
     try {
       const res = await runAsk({
@@ -131,7 +142,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
           history: chat.slice(-10),
         },
       });
-      setChat((c) => [...c, { role: "assistant", content: res.answer }]);
+      const next: ChatMessage[] = [...withUser, { role: "assistant", content: res.answer }];
+      setChat(next);
+      onPersist?.(patient.id, {
+        report: report || undefined,
+        reportAt: reportAt?.toISOString(),
+        chat: next,
+        chatAt: new Date().toISOString(),
+      });
     } catch (e) {
       setChatError(e instanceof Error ? e.message : "Falha ao consultar o especialista.");
     } finally {
