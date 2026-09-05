@@ -20,6 +20,17 @@ interface Props {
 
 const EVIDENCE_URL = "https://www.openevidence.com";
 
+type Mode = "report" | "handoff" | "changes" | "concerns" | "working" | "notworking";
+
+const MODES: { key: Mode; label: string; title: string }[] = [
+  { key: "report", label: "Relato de caso", title: "Relato clínico evolutivo + análise multissistêmica" },
+  { key: "handoff", label: "Passagem de plantão", title: "Passagem de plantão estruturada com ICU Liberation A-F" },
+  { key: "changes", label: "O que mudou?", title: "Alterações clinicamente relevantes priorizadas" },
+  { key: "concerns", label: "Por que estou preocupado?", title: "Achados que justificam atenção, com evidências" },
+  { key: "working", label: "O que está funcionando?", title: "Intervenções com resposta favorável documentada" },
+  { key: "notworking", label: "O que não está funcionando?", title: "Aumento de suporte sem melhora proporcional" },
+];
+
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 /** Render leve de markdown (títulos, negrito, listas) sem dependências novas. */
@@ -72,6 +83,7 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const [patientId, setPatientId] = useState<string>(initialPatientId ?? selectable[0]?.id ?? "");
   const [report, setReport] = useState<string>("");
   const [reportAt, setReportAt] = useState<Date | null>(null);
+  const [mode, setMode] = useState<Mode>("report");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,13 +114,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [chat, asking]);
 
-  const generate = async () => {
+  const generate = async (m: Mode = mode) => {
     if (!patient) return;
+    setMode(m);
     setLoading(true);
     setError(null);
     setReport("");
     try {
-      const res = await runReport({ data: { context: buildPassometroContext(patient) } });
+      const res = await runReport({ data: { context: buildPassometroContext(patient), mode: m } });
       const at = new Date();
       setReport(res.report);
       setReportAt(at);
@@ -207,23 +220,43 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
 
           <button
             type="button"
-            onClick={generate}
+            onClick={() => void generate(mode)}
             disabled={loading || !patient}
             className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : report ? <RefreshCw className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
-            {loading ? "Analisando o passômetro…" : report ? "Gerar novamente" : "Gerar relato de caso"}
+            {loading ? "Analisando o passômetro…" : report ? "Gerar novamente" : "Gerar análise"}
           </button>
+        </div>
 
+        {/* Modos do motor de análise */}
+        <div className="mb-4 flex flex-wrap gap-2 rounded-lg border border-strong bg-card p-3 shadow-sm">
+          {MODES.map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              title={m.title}
+              disabled={loading || !patient}
+              onClick={() => void generate(m.key)}
+              className={`rounded-md border px-2.5 py-1.5 text-[12px] font-semibold transition-colors disabled:opacity-60 ${
+                mode === m.key
+                  ? "border-primary bg-primary/15 text-foreground"
+                  : "border-border bg-muted/40 text-foreground hover:bg-muted"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-strong bg-muted text-foreground transition-colors hover:bg-muted/70"
+            className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-md border border-strong bg-muted text-foreground transition-colors hover:bg-muted/70"
             aria-label="Fechar"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
+
 
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           {/* Relato */}
