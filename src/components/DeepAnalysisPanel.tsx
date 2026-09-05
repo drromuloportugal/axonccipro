@@ -20,6 +20,17 @@ interface Props {
 
 const EVIDENCE_URL = "https://www.openevidence.com";
 
+type Mode = "report" | "handoff" | "changes" | "concerns" | "working" | "notworking";
+
+const MODES: { key: Mode; label: string; title: string }[] = [
+  { key: "report", label: "Relato de caso", title: "Relato clínico evolutivo + análise multissistêmica" },
+  { key: "handoff", label: "Passagem de plantão", title: "Passagem de plantão estruturada com ICU Liberation A-F" },
+  { key: "changes", label: "O que mudou?", title: "Alterações clinicamente relevantes priorizadas" },
+  { key: "concerns", label: "Por que estou preocupado?", title: "Achados que justificam atenção, com evidências" },
+  { key: "working", label: "O que está funcionando?", title: "Intervenções com resposta favorável documentada" },
+  { key: "notworking", label: "O que não está funcionando?", title: "Aumento de suporte sem melhora proporcional" },
+];
+
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 /** Render leve de markdown (títulos, negrito, listas) sem dependências novas. */
