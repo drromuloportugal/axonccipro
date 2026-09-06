@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Calculator, Undo2, Redo2, CircleCheck, CirclePause, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { ANTIMICROBIAL_LIBRARY, findAntimicrobial, awareMeta } from "@/data/antimicrobials";
-import { StewardshipPanel } from "@/components/StewardshipPanel";
+
 import type {
   Patient,
   Severity,
@@ -467,6 +467,11 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
                 />
  </Section>
  </div>
+ <div className="mt-3">
+ <Section title="Evolução clínica (contexto para a análise profunda)">
+ <PriorEvolutionEditor value={p.priorEvolution} onChange={(v) => upd("priorEvolution", v)} />
+ </Section>
+ </div>
  </TabsContent> {/* 3 — Procedimentos e Dispositivos */}
  <TabsContent value="proc">
  <Section title="Dispositivos invasivos">
@@ -511,7 +516,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  <span className="italic">Clearance de creatinina indisponível — registre creatinina, peso, idade e sexo.</span> )}
  </div> );
               })()}
- <div className="mb-3"><StewardshipPanel patient={p} /></div>
+ 
  <MedicationsList items={p.medications} weightKg={p.weight}
                 onChange={(v) => upd("medications", v)} />
  </Section>
@@ -2635,4 +2640,84 @@ function FluidBalanceEditor({
  </Button>
  </div>
  </div> );
+}
+
+/** Evolução clínica prévia: escrever, colar ou importar de PDF. Não aparece no painel principal. */
+function PriorEvolutionEditor({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const importPdf = async (file: File) => {
+    setBusy(true);
+    setErr(null);
+    try {
+      const pdfjs = await import("pdfjs-dist");
+      
+      const worker = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default as string;
+      pdfjs.GlobalWorkerOptions.workerSrc = worker;
+      const buf = await file.arrayBuffer();
+      const doc = await pdfjs.getDocument({ data: buf }).promise;
+      const parts: string[] = [];
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i);
+        const content = await page.getTextContent();
+        parts.push(
+          content.items
+            .map((it) => ("str" in it ? (it as { str: string }).str : ""))
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim(),
+        );
+      }
+      const text = parts.filter(Boolean).join("\n\n");
+      if (!text) throw new Error("Não foi possível extrair texto deste PDF (pode ser digitalizado).");
+      onChange([value?.trim(), `--- Importado de ${file.name} ---`, text].filter(Boolean).join("\n\n"));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Falha ao importar o PDF.");
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] text-muted-foreground">
+        Escreva, cole ou importe um PDF com toda a evolução prévia do paciente. Este conteúdo é usado como contexto na
+        Análise profunda e não aparece no painel principal.
+      </p>
+      <textarea
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        rows={10}
+        placeholder="Cole aqui a evolução clínica prévia…"
+        className="w-full resize-y rounded-md border border-strong bg-white px-2.5 py-2 text-[12px] outline-none focus:border-primary"
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="application/pdf"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void importPdf(f);
+          }}
+        />
+        <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>
+          {busy ? "Importando PDF…" : "Importar PDF"}
+        </Button>
+        {value && (
+          <>
+            <span className="text-[11px] text-muted-foreground">{value.length} caracteres</span>
+            <Button type="button" size="sm" variant="ghost" onClick={() => onChange("")}>
+              Limpar
+            </Button>
+          </>
+        )}
+      </div>
+      {err && <div className="text-[11px] font-semibold text-clinical-critical">{err}</div>}
+    </div>
+  );
 }

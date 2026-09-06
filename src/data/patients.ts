@@ -502,6 +502,8 @@ export interface Patient {
   };
   /** História clínica narrativa da evolução do paciente no hospital. */
   clinicalHistory?: string;
+  /** Evolução clínica prévia (texto/colado/importado de PDF) — só para a análise profunda. */
+  priorEvolution?: string;
   /** Escalas geradas para as janelas de plantão (mais recente primeiro). */
   shiftSchedules?: import("@/lib/shiftSchedule").ShiftScheduleRecord[];
 
