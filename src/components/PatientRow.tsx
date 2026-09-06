@@ -1031,12 +1031,12 @@ export function PatientRow({
                 if (!list || !list.length) return null;
                 const meta = MEDICATION_CLASS_META[cls];
                 return (
- <div key={cls} className={`mb-2 rounded-md border ${meta.borderClass} ${meta.bgClass} p-2`}>
- <div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
-  <span>{meta.label}</span>
- <span className="font-mono">{list.length}</span>
- </div>
- <ul className="space-y-1.5"> {list.map((m, i) => {
+<div key={cls} className={`mb-1.5 rounded-md border ${meta.borderClass} ${meta.bgClass} p-1.5`}>
+<div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
+<span>{meta.label}</span>
+<span className="font-mono">{list.length}</span>
+</div>
+<ul className="space-y-1"> {list.map((m, i) => {
                         const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
                         const prog = isAtb ? antibioticProgress(m) : null;
                         const alert = prog ? atbAlertBadge(prog.alert) : null;
