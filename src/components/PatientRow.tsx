@@ -1067,7 +1067,15 @@ export function PatientRow({
               />
             </div>
 
-            <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}>
+            <ul
+              className="mt-2 space-y-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                const t = e.target as HTMLElement;
+                if (t.closest("button, a, input, select, textarea, label, [role='button']")) return;
+                if (onEdit) onEdit(patient, "plan");
+              }}
+            >
               {" "}
               {patient.conducts.slice(0, 4).map((c, i) => {
                 const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
