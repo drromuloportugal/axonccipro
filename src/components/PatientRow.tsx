@@ -1318,6 +1318,7 @@ export function PatientRow({
                   />
                   <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
                   <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+                  <GcsButton patient={patient} onClick={() => setGcsOpen(true)} />
                   <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
                   <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
                   <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
