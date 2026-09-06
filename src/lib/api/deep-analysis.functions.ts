@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { stripEmojiDeep } from "@/lib/text";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
@@ -8,18 +9,18 @@ const EVIDENCE_SOURCE = "https://www.openevidence.com";
 export const ANALYSIS_MODES = ["report", "handoff", "changes", "concerns", "working", "notworking"] as const;
 
 const ReportInput = z.object({
-  context: z.string().min(1),
-  mode: z.enum(ANALYSIS_MODES).default("report"),
+ context: z.string().min(1),
+ mode: z.enum(ANALYSIS_MODES).default("report"),
 });
 
 const ChatInput = z.object({
-  context: z.string().min(1),
-  report: z.string().optional(),
-  question: z.string().min(1),
-  history: z
-    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() }))
-    .max(20)
-    .optional(),
+ context: z.string().min(1),
+ report: z.string().optional(),
+ question: z.string().min(1),
+ history: z
+ .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() }))
+ .max(20)
+ .optional(),
 });
 
 const REPORT_SYSTEM = `Você é um médico intensivista com atuação especializada em neurologia/neurointensivismo, responsável por analisar as informações clínicas contidas no PASSÔMETRO e reconstruir a história completa do paciente de maneira cronológica, contextualizada e tecnicamente precisa.
@@ -63,7 +64,7 @@ Reconstrua a evolução organizando os acontecimentos em linha temporal sequenci
 
 18. FORMATO: narrativa médica contínua, linguagem de medicina intensiva e neurointensivismo, coesão temporal e causal, sem linguagem leiga, sem tópicos desconectados, sem cópia do passômetro.
 
-19. REGRAS DE PRECISÃO — REGRA ABSOLUTA: NÃO INVENTAR INFORMAÇÕES (sintomas, sinais, exames, diagnósticos, datas, medicamentos, doses, procedimentos, complicações, prognóstico, desfechos). Informação essencial ausente: escreva [DADO NÃO DISPONÍVEL NO PASSÔMETRO]. Conflito entre informações: escreva ⚠️ INCONSISTÊNCIA IDENTIFICADA — REVISAR DADO, sem escolher qual está correta.
+19. REGRAS DE PRECISÃO — REGRA ABSOLUTA: NÃO INVENTAR INFORMAÇÕES (sintomas, sinais, exames, diagnósticos, datas, medicamentos, doses, procedimentos, complicações, prognóstico, desfechos). Informação essencial ausente: escreva [DADO NÃO DISPONÍVEL NO PASSÔMETRO]. Conflito entre informações: escreva INCONSISTÊNCIA IDENTIFICADA — REVISAR DADO, sem escolher qual está correta.
 
 20. HIERARQUIA: evolução neurológica, diagnóstico principal, gravidade, complicações, exames que alteraram conduta, intervenções, resposta terapêutica, estado atual, problemas ativos, plano. Condense o repetitivo.
 
@@ -121,17 +122,17 @@ F FAMILY ENGAGEMENT: presença, comunicação, conferências, objetivos de cuida
 Cada componente ausente deve ser marcado "Dado não disponível".`;
 
 const MODE_TASKS: Record<string, string> = {
-  handoff: `Produza a PASSAGEM DE PLANTÃO estruturada, exatamente nestas seções:
+ handoff: `Produza a PASSAGEM DE PLANTÃO estruturada, exatamente nestas seções:
 IDENTIFICAÇÃO / MOTIVO DA INTERNAÇÃO / DIAGNÓSTICO PRINCIPAL / EVENTOS IMPORTANTES / ESTADO ATUAL / SUPORTE RESPIRATÓRIO / SUPORTE HEMODINÂMICO / NEUROLÓGICO / RENAL E METABÓLICO / INFECÇÃO / HEMATOLOGIA / DISPOSITIVOS / MEDICAÇÕES CRÍTICAS / ICU LIBERATION A-F / O QUE MUDOU NAS ÚLTIMAS 24 HORAS / PRINCIPAIS RISCOS / O QUE PRECISA SER OBSERVADO NO PRÓXIMO TURNO / DADOS IMPORTANTES NÃO DISPONÍVEIS.
 Cada item objetivo, com data/hora quando disponível.`,
-  changes: `Produza a tela "O QUE MUDOU?" — apenas alterações clinicamente relevantes, ordenadas por prioridade, uma por linha, no formato:
+ changes: `Produza a tela "O QUE MUDOU?" — apenas alterações clinicamente relevantes, ordenadas por prioridade, uma por linha, no formato:
 [ALTA PRIORIDADE|ALERTA|ATENÇÃO|INFORMATIVO] variável: valor anterior → valor atual (intervalo) · direção · intervenção relacionada · resposta · Evidências: ...
 Depois, as seções: O QUE MELHOROU / O QUE PIOROU / O QUE PERMANECE ESTÁVEL / NOVOS EVENTOS / INTERVENÇÕES E RESPOSTAS / PRINCIPAIS RISCOS / DADOS IMPORTANTES NÃO DISPONÍVEIS. Nada de alterações sem mudança documentada.`,
-  concerns: `Produza a tela "POR QUE ESTOU PREOCUPADO?". Liste no máximo 8 achados priorizados; para cada um:
+ concerns: `Produza a tela "POR QUE ESTOU PREOCUPADO?". Liste no máximo 8 achados priorizados; para cada um:
 ACHADO / EVIDÊNCIA (valores, datas, intervalo) / TENDÊNCIA / POSSÍVEL SIGNIFICADO (interpretação ou hipótese, rotulada) / O QUE PRECISA SER CORRELACIONADO.
 Inclua também ACHADOS QUE NECESSITAM CORRELAÇÃO (ex.: Glasgow pior após aumento de sedação, PA adequada com mais vasopressor, SpO2 estável com FiO2 maior, creatinina estável com diurese em queda, lactato persistente com PA normalizada, febre sem evidência microbiológica) e DADOS IMPORTANTES NÃO DISPONÍVEIS. Sem diagnóstico automático.`,
-  working: `Produza a tela "O QUE ESTÁ FUNCIONANDO?". Para cada intervenção com resposta temporal favorável: INTERVENÇÃO (data/hora) → ALTERAÇÃO FISIOLÓGICA → RESPOSTA → DURAÇÃO DA RESPOSTA · Evidências: ... Classifique em RESPOSTA SUSTENTADA, RESPOSTA TRANSITÓRIA ou SEM RESPOSTA DOCUMENTADA. Termine com DADOS IMPORTANTES NÃO DISPONÍVEIS.`,
-  notworking: `Produza a tela "O QUE NÃO ESTÁ FUNCIONANDO?". Identifique aumento de suporte sem melhora proporcional, intervenção repetida, resposta apenas transitória, persistência de alteração e tendência de piora — cada item com evidências, intervalo e o que precisa ser correlacionado. Não conclua falha terapêutica sem evidência suficiente. Termine com DADOS IMPORTANTES NÃO DISPONÍVEIS.`,
+ working: `Produza a tela "O QUE ESTÁ FUNCIONANDO?". Para cada intervenção com resposta temporal favorável: INTERVENÇÃO (data/hora) → ALTERAÇÃO FISIOLÓGICA → RESPOSTA → DURAÇÃO DA RESPOSTA · Evidências: ... Classifique em RESPOSTA SUSTENTADA, RESPOSTA TRANSITÓRIA ou SEM RESPOSTA DOCUMENTADA. Termine com DADOS IMPORTANTES NÃO DISPONÍVEIS.`,
+ notworking: `Produza a tela "O QUE NÃO ESTÁ FUNCIONANDO?". Identifique aumento de suporte sem melhora proporcional, intervenção repetida, resposta apenas transitória, persistência de alteração e tendência de piora — cada item com evidências, intervalo e o que precisa ser correlacionado. Não conclua falha terapêutica sem evidência suficiente. Termine com DADOS IMPORTANTES NÃO DISPONÍVEIS.`,
 };
 
 const ANALYSIS_TASK = `Produza a ANÁLISE CLÍNICA PROFUNDA nesta ordem de seções:
@@ -157,80 +158,80 @@ ${ENGINE_SYSTEM}
 ${ICU_LIBERATION}`;
 
 async function callGateway(messages: Array<{ role: string; content: string }>) {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada.");
+ const apiKey = process.env["LOVABLE_API_KEY"];
+ if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada.");
 
-  const res = await fetch(GATEWAY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({ model: MODEL, messages }),
-  });
+ const res = await fetch(GATEWAY_URL, {
+ method: "POST",
+ headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
+ body: JSON.stringify({ model: MODEL, messages }),
+ });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    if (res.status === 429) throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
-    if (res.status === 402) throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
-    throw new Error(`Falha na análise (${res.status}): ${text.slice(0, 200)}`);
-  }
+ if (!res.ok) {
+ const text = await res.text().catch(() => "");
+ if (res.status === 429) throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
+ if (res.status === 402) throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
+ throw new Error(`Falha na análise (${res.status}): ${text.slice(0, 200)}`);
+ }
 
-  const json = await res.json();
-  const content: string = json?.choices?.[0]?.message?.content ?? "";
-  if (!content.trim()) throw new Error("A IA não retornou conteúdo. Tente novamente.");
-  return content;
+ const json = await res.json();
+ const content: string = json?.choices?.[0]?.message?.content ?? "";
+ if (!content.trim()) throw new Error("A IA não retornou conteúdo. Tente novamente.");
+ return content;
 }
 
 /** Gera relato / passagem de plantão / telas analíticas do motor de análise profunda. */
 export const generateCaseReport = createServerFn({ method: "POST" })
-  .inputValidator(ReportInput)
-  .handler(async ({ data }) => {
-    const mode = data.mode ?? "report";
-    const task =
-      mode === "report"
-        ? `Produza o RELATO CLÍNICO EVOLUTIVO completo conforme as regras, com absoluta fidelidade aos dados acima.\n\nEm seguida, acrescente as seções do motor de análise:\n${ANALYSIS_TASK}`
-        : (MODE_TASKS[mode] ?? ANALYSIS_TASK);
+ .inputValidator(ReportInput)
+ .handler(async ({ data }) => {
+ const mode = data.mode ?? "report";
+ const task =
+ mode === "report"
+ ? `Produza o RELATO CLÍNICO EVOLUTIVO completo conforme as regras, com absoluta fidelidade aos dados acima.\n\nEm seguida, acrescente as seções do motor de análise:\n${ANALYSIS_TASK}`
+ : (MODE_TASKS[mode] ?? ANALYSIS_TASK);
 
-    const system =
-      mode === "report"
-        ? `${REPORT_SYSTEM}\n\n${ENGINE_SYSTEM}\n\n${ICU_LIBERATION}`
-        : `${ENGINE_SYSTEM}\n\n${ICU_LIBERATION}`;
+ const system =
+ mode === "report"
+ ? `${REPORT_SYSTEM}\n\n${ENGINE_SYSTEM}\n\n${ICU_LIBERATION}`
+ : `${ENGINE_SYSTEM}\n\n${ICU_LIBERATION}`;
 
-    const report = await callGateway([
-      { role: "system", content: system },
-      { role: "user", content: `${data.context}\n\n${task}` },
-    ]);
-    return { report, mode };
-  });
+ const report = await callGateway([
+ { role: "system", content: system },
+ { role: "user", content: `${data.context}\n\n${task}` },
+ ]);
+ return { report: stripEmojiDeep(report), mode };
+ });
 
 /** Chat clínico sobre o caso, com evidência baseada no OpenEvidence. */
 export const askAboutCase = createServerFn({ method: "POST" })
-  .inputValidator(ChatInput)
-  .handler(async ({ data }) => {
-    const messages: Array<{ role: string; content: string }> = [
-      { role: "system", content: CHAT_SYSTEM },
-      {
-        role: "user",
-        content: `PASSÔMETRO DO PACIENTE:\n${data.context}${data.report ? `\n\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : ""}`,
-      },
-      { role: "assistant", content: "Contexto do paciente recebido. Pode fazer a pergunta clínica." },
-      ...(data.history ?? []).map((m) => ({ role: m.role as string, content: m.content })),
-      { role: "user", content: data.question },
-    ];
-    const answer = await callGateway(messages);
-    return { answer };
-  });
+ .inputValidator(ChatInput)
+ .handler(async ({ data }) => {
+ const messages: Array<{ role: string; content: string }> = [
+ { role: "system", content: CHAT_SYSTEM },
+ {
+ role: "user",
+ content: `PASSÔMETRO DO PACIENTE:\n${data.context}${data.report ? `\n\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : ""}`,
+ },
+ { role: "assistant", content: "Contexto do paciente recebido. Pode fazer a pergunta clínica." },
+ ...(data.history ?? []).map((m) => ({ role: m.role as string, content: m.content })),
+ { role: "user", content: data.question },
+ ];
+ const answer = await callGateway(messages);
+ return { answer: stripEmojiDeep(answer) };
+ });
 
 /* ===================== ESCALA INTELIGENTE DO PRÓXIMO PLANTÃO ===================== */
 
 const ShiftInput = z.object({
-  context: z.string().min(1),
-  clinicalHistory: z.string().optional(),
-  report: z.string().optional(),
-  windowLabel: z.string().min(1),
-  windowKind: z.enum(["diurno", "noturno"]),
-  windowHours: z.string().min(1),
-  timeZone: z.string().optional(),
-  /** Relato de encerramento do plantão anterior, quando existir. */
-  previousShift: z.string().optional(),
+ context: z.string().min(1),
+ clinicalHistory: z.string().optional(),
+ report: z.string().optional(),
+ windowLabel: z.string().min(1),
+ windowKind: z.enum(["diurno", "noturno"]),
+ windowHours: z.string().min(1),
+ timeZone: z.string().optional(),
+ /** Relato de encerramento do plantão anterior, quando existir. */
+ previousShift: z.string().optional(),
 });
 
 const SHIFT_SYSTEM = `${ENGINE_SYSTEM}
@@ -245,76 +246,76 @@ SEGURANÇA: apoio à decisão. Não prescrever, não suspender medicamento, não
 
 NÃO ALUCINAÇÃO: informação inexistente = "NÃO DISPONÍVEL."; conflito = "DADOS CONFLITANTES."; conclusão impossível = "NÃO É POSSÍVEL DETERMINAR COM OS DADOS DISPONÍVEIS.". Não inventar horários: use apenas horários e frequências já documentados, ou justifique a periodicidade.
 
-CORES: 🔴 alta prioridade · 🟠 atenção · 🟡 monitoramento · 🟢 favorável/estável · 🔵 informação · ⚪ dado ausente. Sempre acompanhar de texto.`;
+CORES: alta prioridade · atenção · monitoramento · favorável/estável · informação · dado ausente. Sempre acompanhar de texto.`;
 
 const SHIFT_TASK = `Analise TODO o período disponível (não apenas o último registro), com foco nos eventos das últimas 24–72 horas, e execute internamente: contexto → linha do tempo → tendências → intervenções → respostas → riscos → ICU Liberation A-F → evidências.
 
 Produza a ESCALA CLÍNICA DO PRÓXIMO PLANTÃO exatamente com estas seções numeradas, nesta ordem:
 
-1. RESUMO EXECUTIVO — cartão 🧠 RESUMO DO PACIENTE, 5 a 8 linhas: por que está internado, estado atual, principais disfunções, suportes, evolução, principal preocupação.
-2. O QUE MUDOU — 🔄 apenas alterações relevantes, uma por linha: cor + variável + valor anterior → valor atual (unidade) · horário/data · tendência · interpretação.
-3. PRINCIPAIS PRIORIDADES — 🚨 de 3 a 5, cada uma com PRIORIDADE / EVIDÊNCIAS (valores, datas, intervalo) / TENDÊNCIA / O QUE MONITORAR / QUANDO REAVALIAR (só se houver horário ou frequência justificável) / CRITÉRIO DE ESCALADA / REFERÊNCIA.
+1. RESUMO EXECUTIVO — cartão RESUMO DO PACIENTE, 5 a 8 linhas: por que está internado, estado atual, principais disfunções, suportes, evolução, principal preocupação.
+2. O QUE MUDOU — apenas alterações relevantes, uma por linha: cor + variável + valor anterior → valor atual (unidade) · horário/data · tendência · interpretação.
+3. PRINCIPAIS PRIORIDADES — de 3 a 5, cada uma com PRIORIDADE / EVIDÊNCIAS (valores, datas, intervalo) / TENDÊNCIA / O QUE MONITORAR / QUANDO REAVALIAR (só se houver horário ou frequência justificável) / CRITÉRIO DE ESCALADA / REFERÊNCIA.
 4. NEUROLÓGICO — 5. HEMODINÂMICO — 6. RESPIRATÓRIO — 7. RENAL/METABÓLICO — 8. INFECCIOSO — 9. HEMATOLÓGICO — 10. NUTRIÇÃO — 11. MEDICAMENTOS CRÍTICOS — 12. DISPOSITIVOS: em cada um apresente ESTADO ATUAL / TENDÊNCIA / PRINCIPAIS ACHADOS / PRÓXIMAS 12 HORAS / PONTOS DE ATENÇÃO / REFERÊNCIAS. No neurológico integre Glasgow, NIHSS, pupilas, RASS, sedação, CAM-ICU, PIC, PPC, drenagem, neuroimagem, PA/PAM, PaCO2, PaO2, sódio, glicemia e temperatura, diferenciando deterioração neurológica de efeito de sedação, causa metabólica e causa sistêmica. No respiratório distinga "melhora com redução de suporte" de "estabilidade mantida com aumento de suporte". No infeccioso, quando aplicável, use Surviving Sepsis Campaign (SCCM).
 13. ICU LIBERATION A-F — A PAIN / B SAT-SBT (elegível, realizado, motivo) / C ANALGESIA-SEDAÇÃO (RASS/SAS, meta) / D DELIRIUM (CAM-ICU/ICDSC, tendência) / E MOBILIDADE (barreiras) / F FAMÍLIA (comunicação, participação, objetivos de cuidado).
-14. AGENDA DAS PRÓXIMAS 12 HORAS — ⏱️ linhas "HH:MM — ação", começando pelo início e terminando pelo fim da janela informada; somente horários documentados, frequências já estabelecidas ou rotinas justificáveis.
-15. PENDÊNCIAS — 📋 lista com "☐ item — prioridade · motivo · horário (quando disponível) · fonte".
-16. NÃO ESQUECER — 🔴 no máximo 5 itens, ordenados por prioridade.
-17. RISCOS A MONITORAR — 🔮 no máximo 5, linguagem probabilística ("risco de…"), nunca afirmar piora futura.
-18. CRITÉRIOS DE REAVALIAÇÃO — 🚨 alterações que devem motivar nova avaliação, baseadas em diretriz, protocolo ou meta registrada; não inventar limites.
-19. PERGUNTAS PARA O PRÓXIMO PLANTÃO — ❓ até 5 perguntas objetivas.
-20. EVIDÊNCIAS E REFERÊNCIAS — 📚 separadas em SCCM / OPENEVIDENCE / OUTRAS DIRETRIZES, cada uma com Fonte · Documento · Ano · Referência · Link real.
+14. AGENDA DAS PRÓXIMAS 12 HORAS — ⏱ linhas "HH:MM — ação", começando pelo início e terminando pelo fim da janela informada; somente horários documentados, frequências já estabelecidas ou rotinas justificáveis.
+15. PENDÊNCIAS — lista com " item — prioridade · motivo · horário (quando disponível) · fonte".
+16. NÃO ESQUECER — no máximo 5 itens, ordenados por prioridade.
+17. RISCOS A MONITORAR — no máximo 5, linguagem probabilística ("risco de…"), nunca afirmar piora futura.
+18. CRITÉRIOS DE REAVALIAÇÃO — alterações que devem motivar nova avaliação, baseadas em diretriz, protocolo ou meta registrada; não inventar limites.
+19. PERGUNTAS PARA O PRÓXIMO PLANTÃO — até 5 perguntas objetivas.
+20. EVIDÊNCIAS E REFERÊNCIAS — separadas em SCCM / OPENEVIDENCE / OUTRAS DIRETRIZES, cada uma com Fonte · Documento · Ano · Referência · Link real.
 
-Encerre com ⚪ DADOS IMPORTANTES AUSENTES listando o que limita a análise.`;
+Encerre com DADOS IMPORTANTES AUSENTES listando o que limita a análise.`;
 
 /** Gera a escala clínica estruturada para a próxima janela de plantão de 12 horas. */
 export const generateShiftSchedule = createServerFn({ method: "POST" })
-  .inputValidator(ShiftInput)
-  .handler(async ({ data }) => {
-    const user = [
-      `JANELA DO PRÓXIMO PLANTÃO: ${data.windowKind.toUpperCase()} (${data.windowHours})`,
-      `ESCALA PREPARADA PARA: ${data.windowLabel}`,
-      data.timeZone ? `Fuso horário: ${data.timeZone}` : "",
-      "",
-      `PASSÔMETRO DO PACIENTE:\n${data.context}`,
-      data.clinicalHistory ? `\nHISTÓRIA CLÍNICA REGISTRADA PELA EQUIPE:\n${data.clinicalHistory}` : "",
-      data.report ? `\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : "",
-      data.previousShift ? `\nENCERRAMENTO DO PLANTÃO ANTERIOR:\n${data.previousShift}` : "",
-      "",
-      SHIFT_TASK,
-    ]
-      .filter(Boolean)
-      .join("\n");
+ .inputValidator(ShiftInput)
+ .handler(async ({ data }) => {
+ const user = [
+ `JANELA DO PRÓXIMO PLANTÃO: ${data.windowKind.toUpperCase()} (${data.windowHours})`,
+ `ESCALA PREPARADA PARA: ${data.windowLabel}`,
+ data.timeZone ? `Fuso horário: ${data.timeZone}` : "",
+ "",
+ `PASSÔMETRO DO PACIENTE:\n${data.context}`,
+ data.clinicalHistory ? `\nHISTÓRIA CLÍNICA REGISTRADA PELA EQUIPE:\n${data.clinicalHistory}` : "",
+ data.report ? `\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : "",
+ data.previousShift ? `\nENCERRAMENTO DO PLANTÃO ANTERIOR:\n${data.previousShift}` : "",
+ "",
+ SHIFT_TASK,
+ ]
+ .filter(Boolean)
+ .join("\n");
 
-    const schedule = await callGateway([
-      { role: "system", content: SHIFT_SYSTEM },
-      { role: "user", content: user },
-    ]);
-    return { schedule };
-  });
+ const schedule = await callGateway([
+ { role: "system", content: SHIFT_SYSTEM },
+ { role: "user", content: user },
+ ]);
+ return { schedule: stripEmojiDeep(schedule) };
+ });
 
 const CloseShiftInput = z.object({
-  context: z.string().min(1),
-  schedule: z.string().min(1),
-  windowLabel: z.string().min(1),
-  tasks: z.array(z.object({ text: z.string(), done: z.boolean() })).max(40).optional(),
-  notes: z.string().optional(),
+ context: z.string().min(1),
+ schedule: z.string().min(1),
+ windowLabel: z.string().min(1),
+ tasks: z.array(z.object({ text: z.string(), done: z.boolean() })).max(40).optional(),
+ notes: z.string().optional(),
 });
 
 /** Encerramento do plantão: eventos, tarefas concluídas/pendentes e handoff. */
 export const closeShiftReport = createServerFn({ method: "POST" })
-  .inputValidator(CloseShiftInput)
-  .handler(async ({ data }) => {
-    const tasks = (data.tasks ?? [])
-      .map((t) => `${t.done ? "☑" : "☐"} ${t.text}`)
-      .join("\n");
-    const report = await callGateway([
-      { role: "system", content: SHIFT_SYSTEM },
-      {
-        role: "user",
-        content: `PASSÔMETRO DO PACIENTE:\n${data.context}\n\nESCALA DO PLANTÃO ${data.windowLabel}:\n${data.schedule}${
-          tasks ? `\n\nSITUAÇÃO DAS TAREFAS:\n${tasks}` : ""
-        }${data.notes ? `\n\nOBSERVAÇÕES DA EQUIPE:\n${data.notes}` : ""}\n\nProduza o 🏁 ENCERRAMENTO DO PLANTÃO com as seções: EVENTOS OCORRIDOS / TAREFAS CONCLUÍDAS / TAREFAS NÃO CONCLUÍDAS / ALTERAÇÕES CLÍNICAS / NOVOS PROBLEMAS / PENDÊNCIAS TRANSFERIDAS / RISCOS ATUAIS / HANDOFF PARA O PRÓXIMO PLANTÃO. Baseie-se apenas nos dados fornecidos; use "NÃO DISPONÍVEL." quando faltar informação.`,
-      },
-    ]);
-    return { report };
-  });
+ .inputValidator(CloseShiftInput)
+ .handler(async ({ data }) => {
+ const tasks = (data.tasks ?? [])
+ .map((t) => `${t.done ? "" : ""} ${t.text}`)
+ .join("\n");
+ const report = await callGateway([
+ { role: "system", content: SHIFT_SYSTEM },
+ {
+ role: "user",
+ content: `PASSÔMETRO DO PACIENTE:\n${data.context}\n\nESCALA DO PLANTÃO ${data.windowLabel}:\n${data.schedule}${
+ tasks ? `\n\nSITUAÇÃO DAS TAREFAS:\n${tasks}` : ""
+ }${data.notes ? `\n\nOBSERVAÇÕES DA EQUIPE:\n${data.notes}` : ""}\n\nProduza o ENCERRAMENTO DO PLANTÃO com as seções: EVENTOS OCORRIDOS / TAREFAS CONCLUÍDAS / TAREFAS NÃO CONCLUÍDAS / ALTERAÇÕES CLÍNICAS / NOVOS PROBLEMAS / PENDÊNCIAS TRANSFERIDAS / RISCOS ATUAIS / HANDOFF PARA O PRÓXIMO PLANTÃO. Baseie-se apenas nos dados fornecidos; use "NÃO DISPONÍVEL." quando faltar informação.`,
+ },
+ ]);
+ return { report: stripEmojiDeep(report) };
+ });
