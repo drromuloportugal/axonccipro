@@ -1313,8 +1313,8 @@ export function PatientRow({
  </div> {lab.length ? renderTable(lab) : (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem laboratoriais.</div> )}
  </div>
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial
  </div> {gaso.length ? renderTable(gaso) : (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem gasometria.</div> )}
  <BloodGasPanel patient={patient} />
