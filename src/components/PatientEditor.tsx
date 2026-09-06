@@ -511,7 +511,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
  <span className="italic">Clearance de creatinina indisponível — registre creatinina, peso, idade e sexo.</span> )}
  </div> );
               })()}
- <div className="mb-3"><StewardshipPanel patient={p} /></div>
+ 
  <MedicationsList items={p.medications} weightKg={p.weight}
                 onChange={(v) => upd("medications", v)} />
  </Section>
