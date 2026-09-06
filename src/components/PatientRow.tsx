@@ -286,6 +286,23 @@ export function PatientRow({
 
   const lppSummary = useMemo(() => summarizeLPP(patient.lpp), [patient.lpp]);
 
+  /** Quais escalas estão efetivamente preenchidas — só estas aparecem no painel. */
+  const filledScales = useMemo(() => {
+    const p = patient as Patient & Record<string, any>;
+    return {
+      saps3: saps3Status(patient).status === "done",
+      fisherC: computeClassicFisher(p.classicFisher).grade != null,
+      fisherM: computeFisher(p.fisher).grade != null,
+      huntHess: computeHuntHess(p.huntHess).grade != null,
+      wfns: computeWfns(p.wfns).grade != null,
+      ich: computeIch(p.ichScore).score != null,
+      nihss: computeNihss(p.nihss).total != null,
+      vasograde: p.vasograde?.color != null,
+      sofa: summarizeSofa(patient).current?.total != null,
+    };
+  }, [patient]);
+  const anyScaleFilled = Object.values(filledScales).some(Boolean);
+
   const suggestions = useMemo(() => aiTherapySuggestions(patient), [patient]);
   const activeMeds = patient.medications.filter((m) => m.active !== false);
   const activeDevices = (patient.devices ?? []).filter((d) => !d.removedAt);
