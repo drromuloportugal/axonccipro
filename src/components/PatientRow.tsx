@@ -830,9 +830,9 @@ export function PatientRow({
 
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
  </div> {/* 2 */}
- <div onClick={colClick("hist")}>
+ <div onClick={colClick("hist")} className="text-[11px] !px-1.5">
  <ColTitle tone={1}>📋 História clínica</ColTitle>
- <div className="space-y-3"> {([
+ <div className="space-y-2"> {([
                  { cat: "current", label: "Diagnósticos atuais", box: "pastel-current", text: "text-ink", head: "pastel-current-head" },
                  { cat: "inactive", label: "Diagnósticos inativos", box: "pastel-inactive", text: "text-ink", head: "pastel-inactive-head" },
                  { cat: "previous", label: "Diagnósticos pregressos", box: "pastel-previous", text: "text-ink", head: "pastel-previous-head" },
