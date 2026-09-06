@@ -265,6 +265,7 @@ export function PatientRow({
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
   const [sofaOpen, setSofaOpen] = useState(false);
+  const [scalesExpanded, setScalesExpanded] = useState(true);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
@@ -583,38 +584,49 @@ export function PatientRow({
               className="mt-2 border-t border-border/60 pt-1.5"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>
+              <button
+                type="button"
+                onClick={() => setScalesExpanded((v) => !v)}
+                className="title-box title-green-1 mb-1 inline-flex items-center gap-1 !text-[10px]"
+              >
+                {scalesExpanded ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
                 ⚙️ Escalas
-              </div>
-              <div className="flex flex-col items-start gap-0.5">
-                <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
-                <FisherButton
-                  patient={patient}
-                  onClick={() => setFisherOpen(true)}
-                  compact
-                  variant="classic"
-                />
-                <FisherButton
-                  patient={patient}
-                  onClick={() => setFisherOpen(true)}
-                  compact
-                  variant="modified"
-                />
-                <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
-                <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
-                <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
-                <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
-                <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
-                <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
-                <button
-                  type="button"
-                  onClick={() => setHistoryOpen(true)}
-                  className="rounded border border-strong bg-muted/50 px-1.5 py-1 text-[10px] font-semibold text-foreground hover:bg-muted"
-                  title="História clínica — evolução do paciente no hospital"
-                >
-                  📖 História clínica{patient.clinicalHistory ? " ✓" : ""}
-                </button>
-              </div>
+              </button>
+              {scalesExpanded && (
+                <div className="flex flex-col items-start gap-0.5">
+                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    compact
+                    variant="classic"
+                  />
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    compact
+                    variant="modified"
+                  />
+                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
+                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
+                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
+                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
+                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
+                  <button
+                    type="button"
+                    onClick={() => setHistoryOpen(true)}
+                    className="rounded border border-strong bg-muted/50 px-1.5 py-1 text-[10px] font-semibold text-foreground hover:bg-muted"
+                    title="História clínica — evolução do paciente no hospital"
+                  >
+                    📖 História clínica{patient.clinicalHistory ? " ✓" : ""}
+                  </button>
+                </div>
+              )}
             </div>
             {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
           </div>{" "}
@@ -1301,26 +1313,39 @@ export function PatientRow({
               </div>{" "}
               {/* Escalas — scores empilhados */}
               <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                <ColTitle tone={5}>⚙️ Escalas</ColTitle>
-                <div className="flex flex-col items-start gap-1">
-                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="classic"
-                  />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="modified"
-                  />
-                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
-                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
-                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
-                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
-                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
-                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setScalesExpanded((v) => !v)}
+                  className="mb-1.5 flex w-full items-center justify-between gap-1.5 rounded px-1 py-0.5 text-left hover:bg-surface-2"
+                >
+                  <ColTitle tone={5}>⚙️ Escalas</ColTitle>
+                  {scalesExpanded ? (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+                {scalesExpanded && (
+                  <div className="flex flex-col items-start gap-1">
+                    <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="classic"
+                    />
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="modified"
+                    />
+                    <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
+                    <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+                    <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
+                    <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
+                    <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
+                    <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
+                  </div>
+                )}
               </div>
               {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
             </div>{" "}
