@@ -3127,6 +3127,28 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                           className="mt-6 inline-block h-3 w-3 shrink-0 rounded-full border border-border"
                           style={{ backgroundColor: colMeta.swatch }}
                         />
+                        <div className="mt-5 flex flex-col">
+                          <button
+                            type="button"
+                            onClick={() => moveSub(i, si, -1)}
+                            disabled={si === 0}
+                            className="rounded p-0.5 hover:bg-surface-3 disabled:opacity-30"
+                            title="Mover anotação para cima"
+                            aria-label="Mover anotação para cima"
+                          >
+                            <ChevronUp className="h-3 w-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveSub(i, si, 1)}
+                            disabled={si === (c.subItems ?? []).length - 1}
+                            className="rounded p-0.5 hover:bg-surface-3 disabled:opacity-30"
+                            title="Mover anotação para baixo"
+                            aria-label="Mover anotação para baixo"
+                          >
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                        </div>
                         <button
                           type="button"
                           onClick={() => updSub(i, si, { hidden: !sub.hidden })}
