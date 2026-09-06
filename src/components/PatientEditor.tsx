@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Calculator, Undo2, Redo2, CircleCheck, CirclePause, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { ANTIMICROBIAL_LIBRARY, findAntimicrobial, awareMeta } from "@/data/antimicrobials";
-import { StewardshipPanel } from "@/components/StewardshipPanel";
+
 import type {
   Patient,
   Severity,
