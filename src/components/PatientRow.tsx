@@ -1391,17 +1391,17 @@ export function PatientRow({
  </ul> )}
  </div> )}
  </div>
- </div> {/* 7 - Plano · Metas por sistema orgânico */}
- <div onClick={colClick("plan")}>
- <ColTitle tone={6}>✅ Condutas</ColTitle>
- <div className="mb-2 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
- <span>{conductsDone}/{patient.conducts.length} concluídas</span>
- <span className="font-mono text-foreground">{conductsPct}%</span>
- </div>
- <div className="bar-track mb-2">
- <div className="h-full bg-clinical-stable transition-all" style={{ width: `${conductsPct}%` }} />
- </div>
- <ul className="space-y-1.5" onClick={(e) => e.stopPropagation()}> {[...patient.conducts]
+  </div> {/* 7 - Plano · Metas por sistema orgânico */}
+  <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
+  <ColTitle tone={6}>✅ Condutas</ColTitle>
+  <div className="mb-1.5 flex items-center justify-between gap-2 text-[9.5px] text-muted-foreground">
+  <span>{conductsDone}/{patient.conducts.length} concluídas</span>
+  <span className="font-mono text-foreground">{conductsPct}%</span>
+  </div>
+  <div className="bar-track mb-1.5">
+  <div className="h-full bg-clinical-stable transition-all" style={{ width: `${conductsPct}%` }} />
+  </div>
+  <ul className="space-y-1" onClick={(e) => e.stopPropagation()}> {[...patient.conducts]
                 .map((c, i) => ({ c, i }))
                 .sort((a, b) => {
                   const order = ["dieta", "fono", "gi", "neuro", "cardio", "resp", "renal", "infec", "hemato", "skin", "other"];
@@ -1410,54 +1410,52 @@ export function PatientRow({
                 .map(({ c, i }) => {
                 const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
                 return (
- <li key={i} className={`rounded-md border px-2 py-2 text-[12px] ${meta.borderClass} ${meta.bgClass}`}>
- <div className="flex items-center gap-2">
-                        <span className={`text-[11px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
+  <li key={i} className={`rounded-md border px-1.5 py-1 text-[11px] ${meta.borderClass} ${meta.bgClass}`}>
+  <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
                         </span>
-                        <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
- </div> {c.subItems && c.subItems.length > 0 ? (
-  <ul className="mt-1.5 ml-2 space-y-1.5 border-l border-border/60 pl-2"> {c.subItems.map((sub, si) => {
+                        <span className="ml-auto text-[8.5px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
+  </div> {c.subItems && c.subItems.length > 0 ? (
+   <div className="mt-1 space-y-0.5"> {c.subItems.map((sub, si) => {
                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
                           const subDate = sub.date ?? c.startedAt;
                           return (
-  <li key={si}>
-  <label className="flex items-start gap-1.5 text-[11.5px] leading-snug">
-  <input
+   <label key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
+   <input
                                   type="checkbox"
                                   checked={!!sub.done}
                                   onChange={() => toggleSubItem(i, si)}
                                   disabled={!onUpdate}
                                   className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
                                 />
-  <span className="min-w-0 flex-1">
-  {subDate && (
-  <span className="block text-[10px] font-mono text-muted-foreground">{formatDateBR(subDate)}</span>
+   <span className="min-w-0 flex-1 whitespace-normal">
+   {subDate && (
+   <span className="text-[9px] font-mono text-muted-foreground">{formatDateBR(subDate)} </span>
                                   )}
-  <span className={`block whitespace-pre-wrap break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
-  </span>
-  </span>
-  </label>
-  </li> );
+   <span className={`break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
+   </span>
+   </span>
+   </label> );
                          })}
-  </ul> ) : (
-  <div className="mt-1 text-[10.5px] italic text-muted-foreground">Sem condutas registradas.</div> )}
- </li> );
+   </div> ) : (
+   <div className="mt-1 text-[10px] italic text-muted-foreground">Sem condutas registradas.</div> )}
+  </li> );
               })}
                {patient.conducts.length === 0 && (
- <li className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Nenhuma conduta registrada.
- </li> )}
- </ul>
+  <li className="rounded border border-dashed border-border/60 px-1.5 py-1.5 text-center text-[10px] text-muted-foreground"> Nenhuma conduta registrada.
+  </li> )}
+  </ul>
 
- <div className="mt-3">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Metas</div>
- <ul className="space-y-1"> {patient.goals.map((g, i) => (
- <li key={i} className="flex items-center gap-2 text-[12px]">
- <span className={`h-1.5 w-1.5 rounded-full ${g.met ? "bg-clinical-stable" : "bg-clinical-critical"}`} />
- <span className={g.met ? "text-foreground" : "text-clinical-critical"}>{g.text}</span>
- </li> ))}
- </ul>
- </div>
- </div>
+  <div className="mt-2">
+  <div className="mb-1 text-[9.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Metas</div>
+  <ul className="space-y-0.5"> {patient.goals.map((g, i) => (
+  <li key={i} className="flex items-center gap-1.5 text-[11px]">
+  <span className={`h-1.5 w-1.5 rounded-full ${g.met ? "bg-clinical-stable" : "bg-clinical-critical"}`} />
+  <span className={g.met ? "text-foreground" : "text-clinical-critical"}>{g.text}</span>
+  </li> ))}
+  </ul>
+  </div>
+  </div>
 
  </div>
  </div> )}
