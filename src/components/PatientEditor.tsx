@@ -1987,6 +1987,8 @@ function MedicationsList({
         return "VO";
       case "sne":
         return "SNE";
+      case "cne":
+        return "CNE";
       case "inhaled":
         return "INAL";
       case "topical":

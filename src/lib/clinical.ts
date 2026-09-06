@@ -1457,6 +1457,14 @@ export const MEDICATION_CLASS_META: Record<
     bgClass: "bg-clinical-nutri/10",
     borderClass: "border-clinical-nutri/40",
   },
+  cne: {
+    label: "Cateter Nasoenteral",
+    short: "CNE",
+    icon: "",
+    className: "text-clinical-nutri",
+    bgClass: "bg-clinical-nutri/10",
+    borderClass: "border-clinical-nutri/40",
+  },
   inhaled: {
     label: "Inalatório",
     short: "Inal.",
@@ -1484,6 +1492,7 @@ export const MEDICATION_CLASS_ORDER: MedicationClass[] = [
   "sc",
   "oral",
   "sne",
+  "cne",
   "inhaled",
   "topical",
 ];
@@ -1500,6 +1509,7 @@ export function medClassOf(m: Medication): MedicationClass {
   if (/sc|subc/.test(r)) return "sc";
   if (/im|intram/.test(r)) return "im";
   if (/sne/.test(r)) return "sne";
+  if (/cne/.test(r)) return "cne";
   if (/vo|oral|snd|enter|gt|gtn/.test(r)) return "oral";
   if (/ev|iv|intraven/.test(r)) return "iv";
   return "iv";
