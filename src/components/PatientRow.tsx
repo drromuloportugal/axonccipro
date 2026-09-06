@@ -881,12 +881,6 @@ export function PatientRow({
                             {pm.status ?? "uso prévio"}
                           </span>
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          {pm.dose} · {pm.route} · {pm.freq}
-                        </div>
-                        {pm.period && <div className="text-[10px] text-muted-foreground">Período: {pm.period}</div>}
-                        {pm.reason && <div className="text-[10px] text-muted-foreground">Indicação: {pm.reason}</div>}
-                        {pm.notes && <div className="text-[10px] text-muted-foreground">{pm.notes}</div>}
                       </li>
                     ))}
                   </ul>
