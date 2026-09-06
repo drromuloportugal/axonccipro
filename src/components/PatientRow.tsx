@@ -750,7 +750,7 @@ export function PatientRow({
               <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {" "}
               {MEDICATION_CLASS_ORDER.map((cls) => {
                 const list = medsByClass.get(cls);
@@ -759,38 +759,40 @@ export function PatientRow({
                 return (
                   <div
                     key={cls}
-                    className={`rounded border ${meta.borderClass} ${meta.bgClass} px-1.5 py-1`}
+                    className={`rounded border ${meta.borderClass} ${meta.bgClass} px-1 py-0.5`}
                   >
                     <div
-                      className={`mb-0.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider ${meta.className}`}
+                      className={`mb-0 flex items-center justify-between text-[8px] font-bold uppercase tracking-wider ${meta.className}`}
                     >
                       <span>{meta.short}</span>
                       <span className="font-mono">{list.length}</span>
                     </div>{" "}
-                    {list.slice(0, 3).map((m, i) => {
-                      const secondary = medSecondary(m);
-                      const doses = medDosesLabel(m);
-                      return (
-                        <div key={i} className="text-[10.5px] leading-snug">
-                          <div className="flex items-center gap-1">
-                            <CircleDot className={`h-1.5 w-1.5 shrink-0 ${kindClass[m.kind]}`} />
-                            <span className="min-w-0 flex-1 truncate font-semibold text-foreground">
-                              {m.name}
-                            </span>
-                          </div>{" "}
-                          {secondary && (
-                            <div className="ml-2.5 font-mono text-[9.5px] text-muted-foreground">
-                              {secondary}
-                            </div>
-                          )}
-                          {doses && (
-                            <div className="ml-2.5 font-mono text-[9px] text-muted-foreground">
-                              {doses}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                    <div className="space-y-0.5">
+                      {list.slice(0, 3).map((m, i) => {
+                        const secondary = medSecondary(m);
+                        const doses = medDosesLabel(m);
+                        return (
+                          <div key={i} className="text-[10.5px] leading-snug">
+                            <div className="flex items-center gap-1">
+                              <CircleDot className={`h-1.5 w-1.5 shrink-0 ${kindClass[m.kind]}`} />
+                              <span className="min-w-0 flex-1 truncate font-semibold text-foreground">
+                                {m.name}
+                              </span>
+                            </div>{" "}
+                            {secondary && (
+                              <div className="ml-2.5 font-mono text-[9.5px] text-muted-foreground">
+                                {secondary}
+                              </div>
+                            )}
+                            {doses && (
+                              <div className="ml-2.5 font-mono text-[9px] text-muted-foreground">
+                                {doses}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                     {list.length > 3 && (
                       <div className="text-[9px] text-muted-foreground">+{list.length - 3}</div>
                     )}
