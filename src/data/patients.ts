@@ -192,6 +192,8 @@ export type AnnotationColor = "default" | "green" | "yellow" | "orange" | "red" 
 export interface ConductSubItem {
   text: string;
   done?: boolean;
+  /** Quando true, a anotação fica oculta no painel principal (visível apenas na edição). */
+  hidden?: boolean;
   /** Cor de destaque da fonte da anotação. */
   color?: AnnotationColor;
   /** Data da conduta específica (ISO), similar aos procedimentos/eventos. */
