@@ -265,6 +265,7 @@ export function PatientRow({
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
   const [sofaOpen, setSofaOpen] = useState(false);
+  const [scalesExpanded, setScalesExpanded] = useState(true);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
