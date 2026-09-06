@@ -65,15 +65,17 @@ export function buildPassometroContext(p: Patient): string {
     .map((e) => `- ${e.date ? date(e.date) : "s/ data"} — ${e.label}${e.detail ? `: ${e.detail}` : ""}`)
     .join("\n");
 
+  // Só entram no payload os escores efetivamente preenchidos/calculados na
+  // aba Gestão. Registros parciais (sem resultado final) são ignorados.
   const scores = [
-    p.saps3 ? `SAPS 3: ${JSON.stringify(p.saps3)}` : "",
-    p.nihss ? `NIHSS: ${JSON.stringify(p.nihss)}` : "",
-    p.huntHess ? `Hunt-Hess: ${JSON.stringify(p.huntHess)}` : "",
-    p.wfns ? `WFNS: ${JSON.stringify(p.wfns)}` : "",
-    p.fisher ? `Fisher modificada: ${JSON.stringify(p.fisher)}` : "",
-    p.classicFisher ? `Fisher clássica: ${JSON.stringify(p.classicFisher)}` : "",
-    p.ichScore ? `ICH Score: ${JSON.stringify(p.ichScore)}` : "",
-    p.vasograde ? `VASOGRADE: ${JSON.stringify(p.vasograde)}` : "",
+    (p.saps3?.history?.length ?? 0) > 0 ? `SAPS 3: ${JSON.stringify(p.saps3)}` : "",
+    p.nihss?.total != null ? `NIHSS: ${JSON.stringify(p.nihss)}` : "",
+    p.huntHess?.grade != null ? `Hunt-Hess: ${JSON.stringify(p.huntHess)}` : "",
+    p.wfns?.grade != null ? `WFNS: ${JSON.stringify(p.wfns)}` : "",
+    p.fisher?.grade != null ? `Fisher modificada: ${JSON.stringify(p.fisher)}` : "",
+    p.classicFisher?.grade != null ? `Fisher clássica: ${JSON.stringify(p.classicFisher)}` : "",
+    p.ichScore?.score != null ? `ICH Score: ${JSON.stringify(p.ichScore)}` : "",
+    p.vasograde?.color ? `VASOGRADE: ${JSON.stringify(p.vasograde)}` : "",
   ].filter(Boolean).join("\n");
 
   const medicacoes = (p.medications ?? [])

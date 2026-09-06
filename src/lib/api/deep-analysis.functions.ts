@@ -101,7 +101,7 @@ SUPORTE vs MELHORA: distinga melhora real de aumento de suporte (ex.: FiO2 e PEE
 
 DETERIORAÇÃO: procure valor crítico, tendência progressiva, velocidade de mudança, conjunto de sinais convergentes e necessidade crescente de suporte. Classifique alertas em INFORMATIVO / ATENÇÃO / ALERTA / ALTA PRIORIDADE, priorizando poucos alertas relevantes, sem redundância e sem alarmismo.
 
-ESCORES: apresente valor, componentes utilizados, data/hora, dados ausentes e interpretação. Nunca calcule escore com dado inventado; use apenas os escores já registrados no passômetro e sinalize componentes faltantes.
+ESCORES: apresente valor, componentes utilizados, data/hora, dados ausentes e interpretação. Nunca calcule escore com dado inventado; use apenas os escores já registrados no passômetro e sinalize componentes faltantes. Considere SOMENTE os escores que constam no bloco "ESCORES DE GRAVIDADE E ESCALAS NEUROLÓGICAS" desta leitura — escores que não aparecem ali não foram preenchidos na aba Gestão e devem ser tratados como "DADO NÃO DISPONÍVEL NO PASSÔMETRO", sem estimar, presumir ou sugerir valor provável.
 
 DADOS AUSENTES: sempre inclua uma seção "DADOS IMPORTANTES NÃO DISPONÍVEIS" listando o que poderia mudar a interpretação (gasometria, lactato, diurese, RASS, CAM-ICU, avaliação de dor, culturas, imagem recente). Não solicite exames — apenas informe a limitação.
 
