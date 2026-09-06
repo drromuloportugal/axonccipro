@@ -278,8 +278,7 @@ export function SofaCalculator({
 
   const result = useMemo(() => calculateTotalSOFA(inputs), [inputs]);
   const issues = useMemo(() => validateSofaInputs(inputs), [inputs]);
-  const errorOf = (f: SofaFieldKey | "vasopressor") =>
-    issues.find((i) => i.field === f)?.message;
+  const errorOf = (f: SofaFieldKey | "vasopressor") => issues.find((i) => i.field === f)?.message;
 
   const set = <K extends keyof SofaInputs>(k: K, v: SofaInputs[K]) => {
     setInputs((d) => {
@@ -366,9 +365,7 @@ export function SofaCalculator({
         <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">
           SOFA
         </div>
-        <div className="text-[10px] text-muted-foreground">
-          Sequential Organ Failure Assessment
-        </div>
+        <div className="text-[10px] text-muted-foreground">Sequential Organ Failure Assessment</div>
         <div className="mt-2 grid gap-x-4 gap-y-0.5 text-[11px] sm:grid-cols-3">
           <div>
             <span className="text-muted-foreground">Paciente: </span>
@@ -380,9 +377,7 @@ export function SofaCalculator({
           </div>
           <div>
             <span className="text-muted-foreground">Avaliador: </span>
-            <span className="font-semibold text-foreground">
-              {who ?? "Não identificado"}
-            </span>
+            <span className="font-semibold text-foreground">{who ?? "Não identificado"}</span>
           </div>
         </div>
       </div>
@@ -453,7 +448,9 @@ export function SofaCalculator({
             {(() => {
               const r = result.components.resp.score;
               const ratioLow =
-                inputs.pao2 != null && inputs.fio2 != null && (result.components.resp.detail.match(/(\d+)/)?.[1] ?? "");
+                inputs.pao2 != null &&
+                inputs.fio2 != null &&
+                (result.components.resp.detail.match(/(\d+)/)?.[1] ?? "");
               return r != null && ratioLow && Number(ratioLow) < 200 ? (
                 <div className="mt-1 text-[10px] italic text-muted-foreground">
                   O suporte respiratório altera a pontuação nesta faixa (3–4 pts).
@@ -773,9 +770,7 @@ export function SofaCalculator({
             </div>
             <div>
               <span className="text-muted-foreground">SOFA atual: </span>
-              <span className="font-mono font-semibold">
-                {comparison.current?.total ?? "N/I"}
-              </span>
+              <span className="font-mono font-semibold">{comparison.current?.total ?? "N/I"}</span>
             </div>
             <div>
               <span className="text-muted-foreground">Δ SOFA: </span>
@@ -878,7 +873,11 @@ export function SofaCalculator({
               <div className="h-[220px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartRows} margin={{ top: 6, right: 12, left: -18, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      opacity={0.4}
+                    />
                     <XAxis
                       dataKey="label"
                       stroke="hsl(var(--muted-foreground))"
@@ -975,9 +974,7 @@ export function SofaCalculator({
               {SOFA_REFERENCES.map((r) => (
                 <li key={r.text} className="text-[10px] text-foreground">
                   {r.text}
-                  {r.note && (
-                    <span className="block italic text-muted-foreground">{r.note}</span>
-                  )}
+                  {r.note && <span className="block italic text-muted-foreground">{r.note}</span>}
                 </li>
               ))}
             </ol>
@@ -1015,9 +1012,7 @@ export function SofaCalculatorModal({
             SOFA — {patient.name} · Leito {patient.bed}
           </DialogTitle>
         </DialogHeader>
-        {open && (
-          <SofaCalculator patient={patient} onSave={onSave} evaluator={evaluator} />
-        )}
+        {open && <SofaCalculator patient={patient} onSave={onSave} evaluator={evaluator} />}
       </DialogContent>
     </Dialog>
   );

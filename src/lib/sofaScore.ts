@@ -210,9 +210,7 @@ export function calculateCardiovascularSOFA(
   const parts: string[] = [];
   parts.push(map == null ? "PAM: não informada" : `PAM: ${map} mmHg`);
   if (vasopressor !== "none") {
-    parts.push(
-      `${VASOPRESSOR_LABEL[vasopressor]}${dose != null ? ` ${dose} µg/kg/min` : ""}`,
-    );
+    parts.push(`${VASOPRESSOR_LABEL[vasopressor]}${dose != null ? ` ${dose} µg/kg/min` : ""}`);
   } else {
     parts.push("Sem vasopressor");
   }
@@ -341,7 +339,11 @@ export function validateSofaInputs(inputs: SofaInputs): SofaValidationIssue[] {
       : inputs.gcsTotal;
   if (gcs != null && (gcs < 3 || gcs > 15))
     out.push({ field: "gcsTotal", message: "Glasgow deve estar entre 3 e 15." });
-  if (inputs.vasopressor !== "none" && inputs.vasopressor !== "dobutamina" && inputs.vasoDose == null)
+  if (
+    inputs.vasopressor !== "none" &&
+    inputs.vasopressor !== "dobutamina" &&
+    inputs.vasoDose == null
+  )
     out.push({
       field: "vasoDose",
       message: "Informe a dose para calcular o componente cardiovascular.",
@@ -467,7 +469,12 @@ function toNum(raw?: string | number | null): number | null {
   if (typeof raw === "number") return isFinite(raw) ? raw : null;
   const s = String(raw).trim();
   if (!s) return null;
-  const n = parseFloat(s.replace(/\s/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+  const n = parseFloat(
+    s
+      .replace(/\s/g, "")
+      .replace(/\.(?=\d{3}\b)/g, "")
+      .replace(",", "."),
+  );
   return isNaN(n) ? null : n;
 }
 
@@ -477,17 +484,17 @@ function findExam(p: Patient, ...labels: string[]): ExamRow | undefined {
   );
 }
 
-function examValue(
-  p: Patient,
-  ...labels: string[]
-): { value: number | null; at?: string } {
+function examValue(p: Patient, ...labels: string[]): { value: number | null; at?: string } {
   const e = findExam(p, ...labels);
   if (!e) return { value: null };
   const v = e.valueNum ?? toNum(e.value);
   return { value: v, at: e.takenAt };
 }
 
-function parseVaso(dva: string | null | undefined): { vasopressor: Vasopressor; dose: number | null } {
+function parseVaso(dva: string | null | undefined): {
+  vasopressor: Vasopressor;
+  dose: number | null;
+} {
   const d = (dva ?? "").toLowerCase();
   if (!d.trim()) return { vasopressor: "none", dose: null };
   const dose = toNum((d.match(/(\d+[.,]?\d*)\s*mcg\/kg\/min/) ?? [])[1]);

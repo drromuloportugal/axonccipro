@@ -285,12 +285,12 @@ export function SofaButton({
   const saved = savedList.length
     ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]
     : null;
-  const prev = savedList.length > 1
-    ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[1]
-    : null;
+  const prev =
+    savedList.length > 1
+      ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[1]
+      : null;
   const cur = saved?.total ?? s.current?.total ?? null;
-  const savedDelta =
-    saved?.total != null && prev?.total != null ? saved.total - prev.total : null;
+  const savedDelta = saved?.total != null && prev?.total != null ? saved.total - prev.total : null;
   const traj = TRAJECTORY_META[s.trajectory];
   const cls =
     cur != null
@@ -324,7 +324,6 @@ export function SofaButton({
       ) : (
         <span className="text-[9px] opacity-90">Calcular SOFA</span>
       )}
-
     </button>
   );
 }
