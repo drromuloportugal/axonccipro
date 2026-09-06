@@ -867,7 +867,7 @@ export function PatientRow({
                   </div>
 <ul className="space-y-1">
                     {patient.pastMedications.map((pm) => (
-                      <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
+                      <li key={pm.id} className="ios-inset !px-1.5 py-1 text-[11px]">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-semibold text-foreground">{pm.name}</span>
                           <span className={`shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
