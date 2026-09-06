@@ -603,6 +603,7 @@ export function PatientRow({
                 />
                 <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
                 <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
+                <GcsButton patient={patient} onClick={() => setGcsOpen(true)} compact />
                 <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
                 <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
                 <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
