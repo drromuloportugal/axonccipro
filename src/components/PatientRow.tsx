@@ -1407,9 +1407,8 @@ export function PatientRow({
                         <span className="ml-auto text-[8.5px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
   </div> {c.subItems && c.subItems.length > 0 ? (
    <div className="mt-1 space-y-0.5"> {c.subItems.map((sub, si) => {
-                          const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
-                          const subDate = sub.date ?? c.startedAt;
-                          return (
+                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
+                           return (
                                 <div key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
                                   <span className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground/55" />
                                   <span className="min-w-0 flex-1 whitespace-normal">
