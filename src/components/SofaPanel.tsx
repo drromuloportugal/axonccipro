@@ -305,20 +305,26 @@ export function SofaButton({
         onClick();
       }}
       className={`inline-flex flex-col items-start gap-0 rounded-md px-2 py-0.5 text-left text-[10px] font-semibold transition-colors ${cls}`}
-      title="SOFA — evolução da disfunção orgânica"
+      title="SOFA — calculadora e evolução da disfunção orgânica"
     >
       <span className="inline-flex items-center gap-1">
         <Activity className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> SOFA
-        {cur != null && <span className="font-mono">{cur} pts</span>}
+        {cur != null && (
+          <span className="font-mono">
+            {cur} pts{saved?.partial ? "*" : ""}
+          </span>
+        )}
       </span>
       {cur != null ? (
         <span className="text-[9px] font-semibold opacity-90">
-          {traj.label}
-          {s.delta24 != null ? ` · ${fmtDelta(s.delta24)}/24 h` : ""}
+          {saved
+            ? `Avaliação salva${savedDelta != null ? ` · Δ ${fmtDelta(savedDelta)}` : ""}`
+            : `${traj.label}${s.delta24 != null ? ` · ${fmtDelta(s.delta24)}/24 h` : ""}`}
         </span>
       ) : (
-        <span className="text-[9px] opacity-90">Sem dados suficientes</span>
+        <span className="text-[9px] opacity-90">Calcular SOFA</span>
       )}
+
     </button>
   );
 }
