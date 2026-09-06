@@ -1770,6 +1770,55 @@ export const ANNOTATION_COLOR_ORDER: AnnotationColor[] = [
   "purple",
 ];
 
+/**
+ * Marcação inline de cor dentro de uma anotação: `[[red:trecho]]`.
+ * Permite cores diferentes em partes distintas do mesmo texto.
+ */
+const ANNOTATION_MARKUP_RE = /\[\[(default|green|yellow|orange|red|teal|purple):([\s\S]*?)\]\]/g;
+
+export interface AnnotationSegment {
+  text: string;
+  color: AnnotationColor;
+}
+
+/** Divide o texto da anotação em trechos coloridos. */
+export function parseAnnotationSegments(
+  text: string,
+  base: AnnotationColor = "default",
+): AnnotationSegment[] {
+  const src = text ?? "";
+  const out: AnnotationSegment[] = [];
+  let last = 0;
+  ANNOTATION_MARKUP_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = ANNOTATION_MARKUP_RE.exec(src))) {
+    if (m.index > last) out.push({ text: src.slice(last, m.index), color: base });
+    out.push({ text: m[2], color: m[1] as AnnotationColor });
+    last = m.index + m[0].length;
+  }
+  if (last < src.length) out.push({ text: src.slice(last), color: base });
+  return out.filter((s) => s.text.length > 0);
+}
+
+/** Remove a marcação de cor, devolvendo o texto puro. */
+export function stripAnnotationMarkup(text: string): string {
+  return (text ?? "").replace(ANNOTATION_MARKUP_RE, "$2");
+}
+
+/** Aplica uma cor ao trecho [start, end) do texto, mantendo o restante. */
+export function applyAnnotationColor(
+  text: string,
+  start: number,
+  end: number,
+  color: AnnotationColor,
+): string {
+  const src = text ?? "";
+  if (end <= start) return src;
+  const chunk = stripAnnotationMarkup(src.slice(start, end));
+  const wrapped = color === "default" ? chunk : `[[${color}:${chunk}]]`;
+  return src.slice(0, start) + wrapped + src.slice(end);
+}
+
 /** Formata YYYY-MM-DD (input type=date) evitando o shift de fuso horário. */
 export function formatDateBR(input?: string): string {
   if (!input) return "";

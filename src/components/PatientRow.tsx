@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { AnnotationText } from "@/components/AnnotationText";
+
 import type { Patient, Severity, TimelineKind, InvasiveDevice, Medication } from "@/data/patients";
 import {
   ChevronDown,
@@ -1083,7 +1085,11 @@ export function PatientRow({
                       </span>{" "}
                       {firstAnn ? (
                         <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>
-                          {firstAnn.text}
+                          <AnnotationText
+                            text={firstAnn.text}
+                            base={firstAnn.color ?? "default"}
+                            defaultClass=""
+                          />
                         </span>
                       ) : (
                         <span className="italic text-muted-foreground">Sem anotações</span>
@@ -2292,7 +2298,13 @@ export function PatientRow({
                                         className={`break-words ${colMeta.textClass || "text-foreground"}`}
                                       >
                                         {" "}
-                                        {sub.text || (
+                                        {sub.text ? (
+                                          <AnnotationText
+                                            text={sub.text}
+                                            base={sub.color ?? "default"}
+                                            defaultClass=""
+                                          />
+                                        ) : (
                                           <span className="italic text-muted-foreground">
                                             (anotação vazia)
                                           </span>
