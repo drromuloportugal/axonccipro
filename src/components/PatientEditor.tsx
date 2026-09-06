@@ -3035,6 +3035,32 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                 </button>
                 <div className="flex items-center gap-1">
                   <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      move(i, -1);
+                    }}
+                    disabled={i === 0}
+                    className="rounded p-1 hover:bg-surface-3 disabled:opacity-30"
+                    title="Mover sistema para cima"
+                    aria-label="Mover sistema para cima"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      move(i, 1);
+                    }}
+                    disabled={i === items.length - 1}
+                    className="rounded p-1 hover:bg-surface-3 disabled:opacity-30"
+                    title="Mover sistema para baixo"
+                    aria-label="Mover sistema para baixo"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       addSub(i);
