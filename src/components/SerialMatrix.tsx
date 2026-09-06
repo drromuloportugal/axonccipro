@@ -104,7 +104,13 @@ const GAS_ROWS: { code: string; label: string; unit: string; step: string; re: R
   { code: "GCL", label: "Cl⁻ (gasometria)", unit: "mEq/L", step: "1", re: /^GCL$|Cl⁻ \(gaso/i },
   { code: "GK", label: "K⁺ (gasometria)", unit: "mEq/L", step: "0.1", re: /^GK$|K⁺ \(gaso/i },
   { code: "GCA", label: "Cálcio iônico (gasometria)", unit: "mmol/L", step: "0.01", re: /^GCA$/i },
-  { code: "GLAC", label: "Lactato arterial", unit: "mmol/L", step: "0.1", re: /^GLAC$|Lactato arterial/i },
+  {
+    code: "GLAC",
+    label: "Lactato arterial",
+    unit: "mmol/L",
+    step: "0.1",
+    re: /^GLAC$|Lactato arterial/i,
+  },
   { code: "GGLU", label: "Glicose (gasometria)", unit: "mg/dL", step: "1", re: /^GGLU$/i },
   { code: "GHB", label: "Hemoglobina (gasometria)", unit: "g/dL", step: "0.1", re: /^GHB$/i },
   { code: "GFIO2", label: "FiO₂ (gasometria)", unit: "%", step: "1", re: /^GFIO2$/i },
@@ -146,7 +152,7 @@ export function SerialMatrix({
   const isGasExam = (e: ExamRow) =>
     GAS_ROWS.some((g) => g.code === (e.code ?? "").toUpperCase() || g.re.test(e.label ?? ""));
 
-  const dates = useMemo(() => {
+  const allDates = useMemo(() => {
     const set = new Set<string>(extraDates);
     for (const row of VITAL_ROWS) {
       for (const r of series[row.key] ?? []) if (r.at) set.add(dayKey(r.at));
@@ -161,6 +167,20 @@ export function SerialMatrix({
     if (set.size === 0) set.add(new Date().toISOString().slice(0, 10));
     return Array.from(set).filter(Boolean).sort();
   }, [series, custom, exams, extraDates]);
+
+  // Janela de datas visíveis — navegação por setas em torno da data local.
+  const WINDOW = 3;
+  const today = new Date().toISOString().slice(0, 10);
+  const defaultStart = useMemo(() => {
+    let idx = allDates.findIndex((d) => d >= today);
+    if (idx < 0) idx = allDates.length - 1;
+    return Math.max(0, Math.min(idx - (WINDOW - 1), Math.max(0, allDates.length - WINDOW)));
+  }, [allDates, today]);
+  const [startOverride, setStartOverride] = useState<number | null>(null);
+  const maxStart = Math.max(0, allDates.length - WINDOW);
+  const start = Math.min(startOverride ?? defaultStart, maxStart);
+  const dates = allDates.slice(start, start + WINDOW);
+  const shift = (delta: number) => setStartOverride(Math.max(0, Math.min(start + delta, maxStart)));
 
   const setCustom = (id: string, date: string, field: MinMax, raw: string) => {
     const value = parseNum(raw);
@@ -194,7 +214,10 @@ export function SerialMatrix({
   };
 
   const removeCustom = (id: string) =>
-    onChangeState("customSeries", custom.filter((c) => c.id !== id));
+    onChangeState(
+      "customSeries",
+      custom.filter((c) => c.id !== id),
+    );
 
   const addExam = () => {
     const label = newExam.label.trim();
@@ -239,7 +262,8 @@ export function SerialMatrix({
 
   const examPoints = (e: ExamRow) => {
     const map = new Map<string, number>();
-    for (const h of e.history ?? []) if (h.takenAt && typeof h.value === "number") map.set(dayKey(h.takenAt), h.value);
+    for (const h of e.history ?? [])
+      if (h.takenAt && typeof h.value === "number") map.set(dayKey(h.takenAt), h.value);
     const legacy = e.valueNum ?? parseNum(e.value);
     if (e.takenAt && legacy != null) map.set(dayKey(e.takenAt), legacy);
     return map;
@@ -332,10 +356,43 @@ export function SerialMatrix({
         >
           + Adicionar data
         </button>
-        <span className="text-[10px] text-muted-foreground">
-          Deixe a célula vazia para remover o registro daquela data.
-        </span>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => shift(-1)}
+            disabled={start <= 0}
+            className="h-8 rounded border border-border bg-surface px-2 text-[13px] font-bold hover:bg-surface-3 disabled:opacity-40"
+            title="Datas anteriores"
+            aria-label="Datas anteriores"
+          >
+            ‹
+          </button>
+          <span className="min-w-[92px] text-center text-[10px] font-semibold text-muted-foreground">
+            {dates.length ? `${fmtCol(dates[0])} – ${fmtCol(dates[dates.length - 1])}` : "—"}
+          </span>
+          <button
+            type="button"
+            onClick={() => shift(1)}
+            disabled={start >= maxStart}
+            className="h-8 rounded border border-border bg-surface px-2 text-[13px] font-bold hover:bg-surface-3 disabled:opacity-40"
+            title="Datas posteriores"
+            aria-label="Datas posteriores"
+          >
+            ›
+          </button>
+          <button
+            type="button"
+            onClick={() => setStartOverride(null)}
+            className="h-8 rounded border border-border bg-surface px-2 text-[10px] font-semibold hover:bg-surface-3"
+            title="Voltar para a data atual"
+          >
+            Hoje
+          </button>
+        </div>
       </div>
+      <span className="block text-[10px] text-muted-foreground">
+        Deixe a célula vazia para remover o registro daquela data.
+      </span>
 
       <div className="max-h-[62vh] overflow-auto rounded-lg border border-border">
         <table className="w-full border-collapse text-[11px]">
@@ -346,7 +403,11 @@ export function SerialMatrix({
               </th>
               <th className="px-1 py-1.5 text-left font-semibold text-muted-foreground">Un.</th>
               {dates.map((d) => (
-                <th key={d} colSpan={2} className="min-w-[148px] border-l border-border/60 px-1 py-1.5 text-center font-mono font-bold">
+                <th
+                  key={d}
+                  colSpan={2}
+                  className="min-w-[148px] border-l border-border/60 px-1 py-1.5 text-center font-mono font-bold"
+                >
                   {fmtCol(d)}
                 </th>
               ))}
@@ -368,7 +429,10 @@ export function SerialMatrix({
           </thead>
           <tbody>
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td
+                colSpan={dates.length * 2 + 2}
+                className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
+              >
                 Sinais vitais · Bristol · Balanço hídrico
               </td>
             </tr>
@@ -491,13 +555,19 @@ export function SerialMatrix({
             </tr>
 
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td
+                colSpan={dates.length * 2 + 2}
+                className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
+              >
                 Exames laboratoriais
               </td>
             </tr>
             {labExams.length === 0 && (
               <tr>
-                <td colSpan={dates.length * 2 + 2} className="px-2 py-2 text-[11px] italic text-muted-foreground">
+                <td
+                  colSpan={dates.length * 2 + 2}
+                  className="px-2 py-2 text-[11px] italic text-muted-foreground"
+                >
                   Nenhum exame cadastrado — selecione um parâmetro abaixo.
                 </td>
               </tr>
@@ -578,7 +648,10 @@ export function SerialMatrix({
             </tr>
 
             <tr className="bg-clinical-neutral/10">
-              <td colSpan={dates.length * 2 + 2} className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+              <td
+                colSpan={dates.length * 2 + 2}
+                className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
+              >
                 Gasometria arterial
               </td>
             </tr>
