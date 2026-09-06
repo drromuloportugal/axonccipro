@@ -2,6 +2,9 @@
 // Cada card só aparece quando a terapia/dispositivo está efetivamente em uso,
 // e exibe as leituras registradas para aquele equipamento.
 
+import {
+  Activity, Brain, Droplet, FlaskConical, Heart, Syringe, Utensils, Waves, Wind,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import type { InvasiveDevice, Patient, VitalReading } from "@/data/patients";
 
