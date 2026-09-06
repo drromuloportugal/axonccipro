@@ -795,7 +795,13 @@ export function PatientRow({
             <ColHead label="🦠 Culturas · Imagem" tab="exam" title="Editar exames" tone={4} />{" "}
             {/* 1) Culturas */}
             {(patient.cultures?.length ?? 0) > 0 && (
-              <div className="space-y-0.5">
+              <div
+                className="space-y-0.5"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onEdit) onEdit(patient, "cult");
+                }}
+              >
                 {" "}
                 {patient
                   .cultures!.slice(-2)
