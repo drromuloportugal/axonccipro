@@ -388,8 +388,9 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
               {current.tasks.map((t) => (
                 <li key={t.id} className={`flex items-start gap-2 rounded-md border px-2.5 py-1.5 text-[12px] ${PRIORITY_META[t.priority].cls}`}>
                   <input type="checkbox" checked={Boolean(t.done)} onChange={() => toggleTask(t.id)} className="mt-0.5" />
-                  <span className={t.done ? "flex-1 line-through opacity-70" : "flex-1"}>
-                    {PRIORITY_META[t.priority].dot} {t.text}
+                  <span className={t.done ? "flex-1 line-through opacity-70" : "flex-1 flex items-center gap-1.5"}>
+                    <span className={`inline-block h-2 w-2 rounded-full ${PRIORITY_META[t.priority].dotClass}`} aria-hidden="true" />
+                    {t.text}
                     {t.time ? ` · ${t.time}` : ""}
                   </span>
                   <button type="button" onClick={() => removeTask(t.id)} className="text-muted-foreground hover:text-clinical-critical" title="Excluir">
