@@ -1020,7 +1020,6 @@ export function PatientRow({
               label="✅ Plano · Condutas"
               tab="plan"
               title="Editar plano e tarefas"
-              right={<span className="font-mono text-[10px] text-foreground">{conductsPct}%</span>}
             />
             <ul
               className="space-y-1"
