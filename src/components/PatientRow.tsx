@@ -1410,16 +1410,13 @@ export function PatientRow({
                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
                           const subDate = sub.date ?? c.startedAt;
                           return (
-                               <div key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
-                                 <span className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground/55" />
-                                 <span className="min-w-0 flex-1 whitespace-normal">
-                                   {subDate && (
-                                     <span className="text-[9px] font-mono text-muted-foreground">{formatDateBR(subDate)} </span>
-                                   )}
-                                   <span className={`break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
-                                   </span>
-                                 </span>
-                               </div> );
+                                <div key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
+                                  <span className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground/55" />
+                                  <span className="min-w-0 flex-1 whitespace-normal">
+                                    <span className={`break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
+                                    </span>
+                                  </span>
+                                </div> );
                          })}
    </div> ) : (
    <div className="mt-1 text-[10px] italic text-muted-foreground">Sem condutas registradas.</div> )}
