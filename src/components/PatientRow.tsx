@@ -1828,18 +1828,22 @@ export function PatientRow({
                       .map((c) => {
                         const r = cultureResultBadge(c);
                         const alerts = detectCultureAlerts(c);
+                        const borderCls =
+                          r.label === "Positiva"
+                            ? "border-2 border-clinical-critical/70"
+                            : r.label === "Negativa"
+                              ? "border-2 border-clinical-stable/70"
+                              : "border-2 border-clinical-attention/70";
                         return (
                           <li
                             key={c.id}
-                            className={`ios-inset px-2 py-1.5 text-[11px] ${r.label === "Positiva" ? "alert-outline-static" : ""}`}
+                            className={`ios-inset px-2 py-1.5 text-[11px] ${borderCls}`}
+                            title={r.label}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 font-semibold text-foreground">
                                 <span className="truncate">{c.source}</span>
                               </div>
-                              <span className={`shrink-0 font-mono text-[9px] ${r.className}`}>
-                                {r.label}
-                              </span>
                             </div>
                             <div className="mt-0.5 text-[10px] text-muted-foreground">
                               {" "}
