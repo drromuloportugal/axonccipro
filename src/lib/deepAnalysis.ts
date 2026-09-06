@@ -210,5 +210,8 @@ export function buildPassometroContext(p: Patient): string {
     block("ESTADO CLÍNICO ATUAL", estadoAtual),
     block("CONDUTAS ATUAIS POR SISTEMA", condutas),
     block("METAS CLÍNICAS", metas),
-  ].join("\n");
+    p.priorEvolution?.trim()
+      ? block("EVOLUÇÃO CLÍNICA PRÉVIA (registrada/importada pela equipe)", p.priorEvolution.trim())
+      : "",
+  ].filter(Boolean).join("\n");
 }
