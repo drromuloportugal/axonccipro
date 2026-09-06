@@ -31,6 +31,10 @@ const sevLabel: Record<Severity, string> = {
   critical: "Crítico",
 };
 
+function inlineText(s: string) {
+  return s.replace(/\s+/g, " ").trim();
+}
+
 function Col({ title, idx, children }: { title: string; idx: number; children: React.ReactNode }) {
   return (
  <div className="border-l border-gray-200 pl-2.5 first:border-l-0 first:pl-0">
