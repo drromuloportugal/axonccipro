@@ -561,6 +561,7 @@ export interface Patient {
   classicFisher?: import("@/components/FisherPanel").ClassicFisherRecord;
   huntHess?: import("@/components/HuntHessPanel").HuntHessRecord;
   wfns?: import("@/components/WfnsPanel").WfnsRecord;
+  gcs?: import("@/components/GcsPanel").GcsRecord;
   ichScore?: import("@/components/IchScorePanel").IchRecord;
   nihss?: import("@/components/NihssPanel").NihssRecord;
   vasograde?: import("@/components/VasogradePanel").VasogradeRecord;
