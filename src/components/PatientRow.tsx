@@ -77,6 +77,24 @@ import { MacroStatusBar } from "@/components/MacroStatus";
 
 import { Pill, CircleCheck, CirclePause, Ban, RotateCcw } from "lucide-react";
 
+/** Linha secundária da medicação no painel principal: bomba → mL/h; demais → dose · via. */
+function medSecondary(m: Medication): string {
+  if (medClassOf(m) === "pump") {
+    const r = m.pump?.rateMlPerHour ?? m.mlPerHour;
+    return r != null ? `${r.toFixed(1)} mL/h` : (m.dose ?? "");
+  }
+  return [m.dose, m.route].filter(Boolean).join(" · ");
+}
+
+/** Antimicrobianos: apenas o número de doses já administradas. */
+function medDosesLabel(m: Medication): string | null {
+  const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
+  if (!isAtb) return null;
+  const g = m.dosesGiven;
+  if (g == null) return null;
+  return g === 1 ? "1 dose administrada" : `${g} doses administradas`;
+}
+
 const VITAL_LEVEL_TXT: Record<string, string> = {
   normal: "text-clinical-stable",
   leve: "text-yellow-600",
@@ -734,8 +752,8 @@ export function PatientRow({
                       <span className="font-mono">{list.length}</span>
                     </div>{" "}
                     {list.slice(0, 3).map((m, i) => {
-                      const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
-                      const prog = isAtb ? antibioticProgress(m) : null;
+                      const secondary = medSecondary(m);
+                      const doses = medDosesLabel(m);
                       return (
                         <div key={i} className="text-[10.5px] leading-snug">
                           <div className="flex items-center gap-1">
@@ -743,15 +761,15 @@ export function PatientRow({
                             <span className="min-w-0 flex-1 truncate font-semibold text-foreground">
                               {m.name}
                             </span>
-                            <span className="shrink-0 font-mono text-[9.5px] text-muted-foreground">
-                              {" "}
-                              {m.route} · {m.freq}
-                            </span>
                           </div>{" "}
-                          {mounted && prog && (
-                            <div className="ml-2.5 text-[8.5px] font-mono text-muted-foreground">
-                              {" "}
-                              D{prog.currentDay}/{prog.totalDays}
+                          {secondary && (
+                            <div className="ml-2.5 font-mono text-[9.5px] text-muted-foreground">
+                              {secondary}
+                            </div>
+                          )}
+                          {doses && (
+                            <div className="ml-2.5 font-mono text-[9px] text-muted-foreground">
+                              {doses}
                             </div>
                           )}
                         </div>
@@ -775,7 +793,13 @@ export function PatientRow({
             <ColHead label="🦠 Culturas · Imagem" tab="exam" title="Editar exames" tone={4} />{" "}
             {/* 1) Culturas */}
             {(patient.cultures?.length ?? 0) > 0 && (
-              <div className="space-y-0.5">
+              <div
+                className="space-y-0.5"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onEdit) onEdit(patient, "cult");
+                }}
+              >
                 {" "}
                 {patient
                   .cultures!.slice(-2)
@@ -1047,7 +1071,15 @@ export function PatientRow({
               />
             </div>
 
-            <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}>
+            <ul
+              className="mt-2 space-y-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                const t = e.target as HTMLElement;
+                if (t.closest("button, a, input, select, textarea, label, [role='button']")) return;
+                if (onEdit) onEdit(patient, "plan");
+              }}
+            >
               {" "}
               {patient.conducts.slice(0, 4).map((c, i) => {
                 const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
@@ -1646,67 +1678,21 @@ export function PatientRow({
                       <ul className="space-y-1">
                         {" "}
                         {list.map((m, i) => {
-                          const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
-                          const prog = isAtb ? antibioticProgress(m) : null;
-                          const alert = prog ? atbAlertBadge(prog.alert) : null;
+                          const secondary = medSecondary(m);
+                          const doses = medDosesLabel(m);
                           return (
                             <li key={i} className="ios-inset px-2 py-1.5 text-[12px]">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-1.5">
-                                  <span>{isAtb ? "" : ""}</span>
-                                  <span className="font-semibold text-foreground">{m.name}</span>
-                                </div>
-                                <div className="flex shrink-0 items-center gap-1">
-                                  <span
-                                    className="text-clinical-stable"
-                                    title="Ativo"
-                                    aria-label="Medicação ativa"
-                                  >
-                                    <CircleCheck className="h-3.5 w-3.5" />
-                                  </span>
-                                  {onUpdate && (
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        finalizeMed(m);
-                                      }}
-                                      className="rounded border border-clinical-neutral/40 bg-surface-2/60 p-0.5 text-clinical-neutral hover:bg-surface-3"
-                                      title="Finalizar medicação"
-                                      aria-label={`Finalizar ${m.name}`}
-                                    >
-                                      <Ban className="h-3.5 w-3.5" />
-                                    </button>
-                                  )}
-                                </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-semibold text-foreground">{m.name}</span>
                               </div>
-                              <div className="ml-5 font-mono text-[11px] text-muted-foreground">
-                                {" "}
-                                {m.route} · {m.freq}
-                              </div>{" "}
-                              {mounted && prog && (
-                                <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
-                                  <div className="flex items-center justify-between text-[10px]">
-                                    <span className="font-semibold text-foreground">
-                                      Dia {prog.currentDay} de {prog.totalDays}
-                                    </span>
-                                    <span className="font-mono text-muted-foreground">
-                                      {prog.percent.toFixed(0)}%
-                                    </span>
-                                  </div>
-                                  <div className="my-1 h-1.5 overflow-hidden rounded-full bg-surface-3">
-                                    <div
-                                      className={`h-full ${prog.alert === "ok" ? "bg-clinical-stable" : "bg-clinical-attention"}`}
-                                      style={{ width: `${prog.percent}%` }}
-                                    />
-                                  </div>{" "}
-                                  {alert && (
-                                    <div
-                                      className={`mt-1 text-[10px] font-semibold ${alert.className}`}
-                                    >
-                                      {alert.label}
-                                    </div>
-                                  )}
+                              {secondary && (
+                                <div className="font-mono text-[11px] text-muted-foreground">
+                                  {secondary}
+                                </div>
+                              )}
+                              {doses && (
+                                <div className="font-mono text-[10.5px] text-muted-foreground">
+                                  {doses}
                                 </div>
                               )}
                             </li>
@@ -1781,7 +1767,15 @@ export function PatientRow({
               {" "}
               {/* 1) Culturas */}
               <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
-              <div className="mb-3">
+              <div
+                className="mb-3"
+                onClick={(e) => {
+                  const t = e.target as HTMLElement;
+                  if (t.closest("button, a, input, select, textarea")) return;
+                  e.stopPropagation();
+                  if (onEdit) onEdit(patient, "cult");
+                }}
+              >
                 <div className="mb-1 flex items-center justify-between">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     {" "}
@@ -2001,110 +1995,7 @@ export function PatientRow({
                   </ul>
                 )}
               </div>
-              {/* 5) Eletroencefalograma — parecer */}
-              <div className="mt-2">
-                <div className="mb-1 flex items-center justify-between">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {" "}
-                    Eletroencefalograma
-                  </div>{" "}
-                  {onEdit && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(patient, "exam");
-                      }}
-                      className="ios-inset px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3"
-                      title="Adicionar EEG"
-                    >
-                      +
-                    </button>
-                  )}
-                </div>{" "}
-                {(patient.eeg?.length ?? 0) === 0 ? (
-                  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                    Nenhum EEG registrado.
-                  </div>
-                ) : (
-                  <ul className="space-y-1">
-                    {" "}
-                    {patient
-                      .eeg!.slice()
-                      .reverse()
-                      .map((eeg) => (
-                        <li key={eeg.id} className="ios-inset px-2 py-1.5 text-[11px]">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-semibold text-foreground">EEG</span>
-                            <span className="font-mono text-[10px] text-muted-foreground">
-                              {formatDateBR(eeg.performedAt)}
-                            </span>
-                          </div>
-                          <div className="mt-0.5 text-[10.5px] text-muted-foreground">
-                            {eeg.report}
-                          </div>
-                          {eeg.reportedBy && (
-                            <div className="mt-0.5 text-[9px] text-muted-foreground">
-                              — {eeg.reportedBy}
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
-              {/* 6) Hemotransfusão */}
-              <div className="mt-2">
-                <div className="mb-1 flex items-center justify-between">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {" "}
-                    Hemotransfusão
-                  </div>{" "}
-                  {onEdit && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(patient, "exam");
-                      }}
-                      className="ios-inset px-1.5 py-0.5 text-[9px] font-semibold text-foreground hover:bg-surface-3"
-                      title="Adicionar hemotransfusão"
-                    >
-                      +
-                    </button>
-                  )}
-                </div>{" "}
-                {(patient.hemotransfusions?.length ?? 0) === 0 ? (
-                  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                    Nenhuma hemotransfusão registrada.
-                  </div>
-                ) : (
-                  <ul className="space-y-1">
-                    {" "}
-                    {patient
-                      .hemotransfusions!.slice()
-                      .reverse()
-                      .map((h) => (
-                        <li key={h.id} className="ios-inset px-2 py-1.5 text-[11px]">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-semibold text-foreground">{h.component}</span>
-                            <span className="font-mono text-[10px] text-muted-foreground">
-                              {formatDateBR(h.date)}
-                            </span>
-                          </div>{" "}
-                          {h.volume && (
-                            <div className="mt-0.5 font-mono text-[10px] text-foreground">
-                              {h.volume}
-                            </div>
-                          )}
-                          {h.note && (
-                            <div className="mt-0.5 text-[10.5px] text-muted-foreground">
-                              {h.note}
-                            </div>
-                          )}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
+              {/* EEG e hemotransfusão ficam apenas no painel de edição */}
             </div>{" "}
             {/* 6 */}
             <div onClick={colClick("sup")} className="text-[11px] !px-1.5">
