@@ -1308,8 +1308,8 @@ export function PatientRow({
  </table> );
               return (
  <>
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames laboratoriais
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames laboratoriais
  </div> {lab.length ? renderTable(lab) : (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem laboratoriais.</div> )}
  </div>
