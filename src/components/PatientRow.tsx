@@ -42,7 +42,7 @@ import {
   organDonationLabel,
   directiveLabel,
 } from "@/lib/clinical";
-import { currentVitalsSummary } from "@/components/SmartMonitoring";
+import { currentVitalsSummary, latestDayVitals } from "@/components/SmartMonitoring";
 import type { VitalSummaryEntry } from "@/components/SmartMonitoring";
 
 import { summarizeLPP, STAGE_META } from "@/lib/lpp";
@@ -355,15 +355,19 @@ export function PatientRow({
     return fluidBalance.balance / w / 24; // mL/kg/h (janela de 24 h)
   }, [fluidBalance.balance, patient.weight]);
   const vitals = currentVitalsSummary(patient);
-  const vitalRows = [
-    { label: "Temp", v: vitals.temp },
-    { label: "SpO₂", v: vitals.spo2 },
-    { label: "FC", v: vitals.fc },
-    { label: "FR", v: vitals.fr },
-    { label: "PAS", v: vitals.pas },
-    { label: "PAD", v: vitals.pad },
-    { label: "PAM", v: vitals.bp },
-  ].filter((r) => r.v.level !== "na");
+  const latestVitals = useMemo(() => latestDayVitals(patient), [patient]);
+  const vitalRows = latestVitals.date
+    ? latestVitals.rows
+    : [
+        { label: "Temp", v: vitals.temp },
+        { label: "SpO₂", v: vitals.spo2 },
+        { label: "FC", v: vitals.fc },
+        { label: "FR", v: vitals.fr },
+        { label: "PAS", v: vitals.pas },
+        { label: "PAD", v: vitals.pad },
+        { label: "PAM", v: vitals.bp },
+      ].filter((r) => r.v.level !== "na");
+  const vitalsDateLabel = latestVitals.date ? formatDayMonth(latestVitals.date) : null;
 
   // Image lightbox
   const [zoomImg, setZoomImg] = useState<string | null>(null);
@@ -892,7 +896,7 @@ export function PatientRow({
             <div className="ios-inset px-1.5 py-1">
               <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">
                 {" "}
-                Sinais vitais
+                Sinais vitais{vitalsDateLabel ? ` · ${vitalsDateLabel}` : ""}
               </div>
               <div className="space-y-0.5">
                 {" "}
@@ -905,7 +909,12 @@ export function PatientRow({
                       className={`grid grid-cols-[34px_1fr_auto] items-center gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`}
                       title={abn ? "Sinal vital alterado (último registro)" : undefined}
                     >
-                      <span className="f-fixed font-semibold text-muted-foreground">{r.label}</span>
+                      <span
+                        className="f-fixed truncate font-semibold text-muted-foreground"
+                        title={r.label}
+                      >
+                        {r.label}
+                      </span>
                       <span
                         className={`flex flex-col items-end leading-tight font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}
                       >
@@ -1994,7 +2003,7 @@ export function PatientRow({
               <div className="mt-2">
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   {" "}
-                  Sinais vitais
+                  Sinais vitais{vitalsDateLabel ? ` · ${vitalsDateLabel}` : ""}
                 </div>
                 <div className="ios-inset px-2 py-2">
                   {" "}
@@ -2009,7 +2018,10 @@ export function PatientRow({
                         className={`grid grid-cols-[46px_1fr_auto] items-center gap-x-2 py-[3px] text-[11px] ${abn ? "alert-outline px-1.5" : ""}`}
                         title={abn ? "Sinal vital alterado (último registro)" : undefined}
                       >
-                        <span className="f-fixed font-bold uppercase tracking-wider text-muted-foreground">
+                        <span
+                          className="f-fixed truncate font-bold uppercase tracking-wider text-muted-foreground"
+                          title={r.label}
+                        >
                           {r.label}
                         </span>
                         <span
