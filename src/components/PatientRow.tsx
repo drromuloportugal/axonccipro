@@ -512,7 +512,7 @@ export function PatientRow({
  <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
  </div>
 
- <div className="space-y-1.5"> {MEDICATION_CLASS_ORDER.map((cls) => {
+ <div className="space-y-1"> {MEDICATION_CLASS_ORDER.map((cls) => {
               const list = medsByClass.get(cls);
               if (!list || !list.length) return null;
               const meta = MEDICATION_CLASS_META[cls];
