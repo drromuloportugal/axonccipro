@@ -787,40 +787,78 @@ export function PatientRow({
  </div>
  </div>
  <div className="col-shadowed-grid grid grid-cols-[1.15fr_1.2fr_1.2fr_1.2fr_1.2fr_1.35fr_1.9fr] items-start gap-1.5 px-3 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5"> {/* 1 */}
- <div onClick={colClick("id")} className="col-ink">
- <ColTitle tone={0}>🪪 Identificação</ColTitle>
- <dl className="space-y-1 text-muted-foreground">
- <Row k="Médico" v={patient.attending} />
- <Row k="Idade" v={`${computedAge} anos`} />
- <Row k="Adm Hosp" v={`${patient.admissionHosp} · D${dHosp}`} />
- <Row k="Adm UTI" v={`${patient.admissionICU} · D${dICU}`} />
- <Row k="Alergias" v={patient.allergies.join(", ")} /> {(patient.legalRepresentative?.name || patient.legalRepresentative?.phone) && (
- <Row k="Repr. legal" v={`${patient.legalRepresentative.name ?? "—"}${patient.legalRepresentative.relation ? ` (${patient.legalRepresentative.relation})` : ""}${patient.legalRepresentative.phone ? ` · ${patient.legalRepresentative.phone}` : ""}`} /> )}
-              {(patient.legalRepresentative2?.name || patient.legalRepresentative2?.phone) && (
- <Row k="Repr. legal 2" v={`${patient.legalRepresentative2.name ?? "—"}${patient.legalRepresentative2.relation ? ` (${patient.legalRepresentative2.relation})` : ""}${patient.legalRepresentative2.phone ? ` · ${patient.legalRepresentative2.phone}` : ""}`} /> )}
-              {patient.advanceDirective && (patient.advanceDirective.intubation !== "unknown" || patient.advanceDirective.resuscitation !== "unknown") && (
- <Row k="Diretivas" v={`${directiveLabel(patient.advanceDirective.intubation, "Entubar")} · ${directiveLabel(patient.advanceDirective.resuscitation, "RCP")}`} /> )}
-              {patient.organDonation && patient.organDonation !== "unknown" && (
- <Row k="Doação órgãos" v={organDonationLabel[patient.organDonation]} /> )}
- </dl> {patient.origin && (
- <div className="mt-2 ios-inset px-2 py-1.5 text-[11px]">
- <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Origem</div>
- <div className="text-foreground">{patient.origin.name ?? patient.origin.type}</div>
- <div className="text-muted-foreground"> {patient.origin.type}
+  <div onClick={colClick("id")} className="col-ink">
+  <ColTitle tone={0}>🪪 Identificação</ColTitle>
+
+  {/* Médico em pilha */}
+  <div className="space-y-0.5">
+    <div className="text-[10px] uppercase tracking-wider text-muted-foreground f-fixed">Médico</div>
+    <div className="truncate text-[12px] font-semibold text-foreground f-var">{patient.attending}</div>
+  </div>
+
+  {/* Idade inline com sexo/peso/altura */}
+  <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
+    <span>Idade <span className="font-mono font-semibold text-foreground">{computedAge}a</span></span>
+    <span className="text-border">·</span>
+    <span>{patient.sex}</span>
+    <span className="text-border">·</span>
+    <span>{patient.weight}kg{patient.height ? `/${patient.height}cm` : ""}</span>
+  </div>
+
+  {/* Leito */}
+  <div className="mt-1 text-[11px] text-muted-foreground">
+    Leito <span className="font-mono font-semibold text-foreground">{patient.bed}</span>
+  </div>
+
+  {/* Admissões empilhadas: dias à frente da data */}
+  <div className="mt-2 space-y-1">
+    <div className="space-y-0.5">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground f-fixed">Adm Hosp</div>
+      <div className="text-[11px] font-mono text-foreground">
+        <span className="font-semibold text-clinical-neutral">D{dHosp}</span>
+        <span className="mx-1 text-border">·</span>
+        <span>{patient.admissionHosp}</span>
+      </div>
+    </div>
+    <div className="space-y-0.5">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground f-fixed">Adm UTI</div>
+      <div className="text-[11px] font-mono text-foreground">
+        <span className="font-semibold text-clinical-neutral">D{dICU}</span>
+        <span className="mx-1 text-border">·</span>
+        <span>{patient.admissionICU}</span>
+      </div>
+    </div>
+  </div>
+
+  <dl className="mt-2 space-y-1 text-muted-foreground">
+    <Row k="Alergias" v={patient.allergies.join(", ")} /> {(patient.legalRepresentative?.name || patient.legalRepresentative?.phone) && (
+    <Row k="Repr. legal" v={`${patient.legalRepresentative.name ?? "—"}${patient.legalRepresentative.relation ? ` (${patient.legalRepresentative.relation})` : ""}${patient.legalRepresentative.phone ? ` · ${patient.legalRepresentative.phone}` : ""}`} /> )}
+    {(patient.legalRepresentative2?.name || patient.legalRepresentative2?.phone) && (
+    <Row k="Repr. legal 2" v={`${patient.legalRepresentative2.name ?? "—"}${patient.legalRepresentative2.relation ? ` (${patient.legalRepresentative2.relation})` : ""}${patient.legalRepresentative2.phone ? ` · ${patient.legalRepresentative2.phone}` : ""}`} /> )}
+    {patient.advanceDirective && (patient.advanceDirective.intubation !== "unknown" || patient.advanceDirective.resuscitation !== "unknown") && (
+    <Row k="Diretivas" v={`${directiveLabel(patient.advanceDirective.intubation, "Entubar")} · ${directiveLabel(patient.advanceDirective.resuscitation, "RCP")}`} /> )}
+    {patient.organDonation && patient.organDonation !== "unknown" && (
+    <Row k="Doação órgãos" v={organDonationLabel[patient.organDonation]} /> )}
+  </dl> {patient.origin && (
+  <div className="mt-2 ios-inset px-2 py-1.5 text-[11px]">
+  <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Origem</div>
+  <div className="text-foreground">{patient.origin.name ?? patient.origin.type}</div>
+  <div className="text-muted-foreground"> {patient.origin.type}
                   {patient.origin.unit ? ` · ${patient.origin.unit}` : ""}
                   {patient.origin.city ? ` · ${patient.origin.city}` : ""}
                   {patient.origin.state ? `/${patient.origin.state}` : ""}
- </div>
- </div> )}
- <div className="mt-3">
- <span className={`chip ${kindClass[patient.severity === "critical" ? "critical" : patient.severity === "attention" ? "attention" : "stable"]}`}> {sevLabel[patient.severity]}
- </span>
-          </div> {/* Gestão — scores */}
+  </div>
+  </div> )}
+  <div className="mt-3">
+  <span className={`chip ${kindClass[patient.severity === "critical" ? "critical" : patient.severity === "attention" ? "attention" : "stable"]}`}> {sevLabel[patient.severity]}
+  </span>
+          </div> {/* Escalas — scores empilhados */}
           <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-            <ColTitle tone={5}>⚙️ Gestão</ColTitle>
-            <div className="flex flex-wrap items-start gap-1.5">
+            <ColTitle tone={5}>⚙️ Escalas</ColTitle>
+            <div className="flex flex-col items-start gap-1">
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} />
+              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} variant="classic" />
+              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} variant="modified" />
               <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
               <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
               <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
@@ -830,7 +868,7 @@ export function PatientRow({
           </div>
 
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
- </div> {/* 2 */}
+  </div> {/* 2 */}
  <div onClick={colClick("hist")} className="text-[11px] !px-1.5">
  <ColTitle tone={1}>📋 História clínica</ColTitle>
  <div className="space-y-2"> {([
