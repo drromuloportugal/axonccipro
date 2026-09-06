@@ -1092,13 +1092,13 @@ export function PatientRow({
               const done = patient.medications.filter((m) => m.active === false);
               if (!done.length) return null;
               return (
- <div className="mt-2 rounded-md border border-border bg-surface-2/50 p-2" onClick={(e) => e.stopPropagation()}>
- <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
- <span>💊 Já utilizados</span>
- <span className="font-mono">{done.length}</span>
- </div>
- <ul className="space-y-1"> {done.map((m, i) => (
- <li key={i} className="ios-inset flex items-start justify-between gap-2 px-2 py-1 text-[11px]">
+<div className="mt-2 rounded-md border border-border bg-surface-2/50 p-1.5" onClick={(e) => e.stopPropagation()}>
+<div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+<span>Já utilizados</span>
+<span className="font-mono">{done.length}</span>
+</div>
+<ul className="space-y-1"> {done.map((m, i) => (
+<li key={i} className="ios-inset flex items-start justify-between gap-2 !px-1.5 py-1 text-[11px]">
  <div className="min-w-0">
  <div className="flex items-center gap-1.5">
  <CirclePause className="h-3 w-3 shrink-0 text-clinical-neutral" />
