@@ -71,7 +71,6 @@
   --muted: oklch(0.95 0.006 250);
   --muted-foreground: oklch(0.42 0.012 260); /* rótulos em cinza, valores em preto */
 
-
   --accent: oklch(0.94 0.01 230);
   --accent-foreground: oklch(0.22 0.02 260);
 
@@ -97,13 +96,13 @@
 .dark {
   --background: oklch(0.16 0.01 260);
   --foreground: oklch(0.96 0.005 250);
-  --surface: oklch(0.20 0.012 260);
+  --surface: oklch(0.2 0.012 260);
   --surface-2: oklch(0.235 0.012 260);
   --surface-3: oklch(0.28 0.012 260);
 
-  --card: oklch(0.20 0.012 260);
+  --card: oklch(0.2 0.012 260);
   --card-foreground: oklch(0.96 0.005 250);
-  --popover: oklch(0.20 0.012 260);
+  --popover: oklch(0.2 0.012 260);
   --popover-foreground: oklch(0.96 0.005 250);
 
   --primary: oklch(0.72 0.14 230);
@@ -114,7 +113,6 @@
 
   --muted: oklch(0.26 0.012 260);
   --muted-foreground: oklch(1 0 0); /* campos fixos legíveis no fundo escuro */
-
 
   --accent: oklch(0.27 0.015 230);
   --accent-foreground: oklch(0.96 0.005 250);
@@ -138,12 +136,24 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { color-scheme: light; }
-  html.dark { color-scheme: dark; }
-  html.fs-sm { font-size: 14px; }
-  html.fs-md { font-size: 16px; }
-  html.fs-lg { font-size: 18px; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  html.fs-sm {
+    font-size: 14px;
+  }
+  html.fs-md {
+    font-size: 16px;
+  }
+  html.fs-lg {
+    font-size: 18px;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -153,11 +163,14 @@
     -webkit-font-smoothing: antialiased;
   }
   /* Valores e ênfases em negrito; rótulos em peso regular (padrão da referência) */
-  body :where(strong, b, th) { font-weight: 700; }
+  body :where(strong, b, th) {
+    font-weight: 700;
+  }
 
   /* Global font scale via body zoom (affects fixed-pixel classes throughout the app) */
-  body { zoom: var(--app-font-scale, 1); }
-
+  body {
+    zoom: var(--app-font-scale, 1);
+  }
 }
 
 @utility chip {
@@ -184,19 +197,35 @@
 
 /* Print: show only the print-area, hide app chrome */
 @media print {
-  @page { size: A4 landscape; margin: 10mm; }
-  body * { visibility: hidden !important; }
-  #print-area, #print-area * { visibility: visible !important; }
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #print-area,
+  #print-area * {
+    visibility: visible !important;
+  }
   #print-area {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     background: white !important;
   }
-  .no-print { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
 }
-#print-area { display: none; }
-@media print { #print-area { display: block; } }
+#print-area {
+  display: none;
+}
+@media print {
+  #print-area {
+    display: block;
+  }
+}
 
 /* Campos fixos (rótulos) vs campos variáveis (dados) — famílias distintas */
 @utility f-fixed {
@@ -212,7 +241,9 @@
 }
 
 /* Tinta preta para caixas coloridas */
-@utility text-ink { color: oklch(0.14 0.008 260); }
+@utility text-ink {
+  color: oklch(0.14 0.008 260);
+}
 
 /* Coluna 1: todo o texto em preto, mantendo distinção de fontes */
 .col-ink,
@@ -233,7 +264,6 @@
   color: oklch(0.14 0.008 260) !important;
 }
 
-
 /* Cabeçalhos de seção no padrão ESCUDO: texto escuro compacto com sublinhado grosso */
 @utility title-box {
   display: block;
@@ -248,13 +278,27 @@
   background: transparent;
   border-bottom: 2px solid var(--color-foreground);
 }
-@utility title-green-1 { background: transparent; }
-@utility title-green-2 { background: transparent; }
-@utility title-green-3 { background: transparent; }
-@utility title-green-4 { background: transparent; }
-@utility title-green-5 { background: transparent; }
-@utility title-green-6 { background: transparent; }
-@utility title-green-7 { background: transparent; }
+@utility title-green-1 {
+  background: transparent;
+}
+@utility title-green-2 {
+  background: transparent;
+}
+@utility title-green-3 {
+  background: transparent;
+}
+@utility title-green-4 {
+  background: transparent;
+}
+@utility title-green-5 {
+  background: transparent;
+}
+@utility title-green-6 {
+  background: transparent;
+}
+@utility title-green-7 {
+  background: transparent;
+}
 
 /* Pastéis suaves para caixas de diagnóstico na coluna 2 */
 @utility pastel-current {
@@ -301,7 +345,9 @@
   );
   backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid color-mix(in oklab, white 55%, transparent);
-  box-shadow: 0 8px 28px -14px oklch(0.25 0.03 240 / 0.45), inset 0 1px 0 color-mix(in oklab, white 70%, transparent);
+  box-shadow:
+    0 8px 28px -14px oklch(0.25 0.03 240 / 0.45),
+    inset 0 1px 0 color-mix(in oklab, white 70%, transparent);
 }
 
 /* Painel translúcido azul claro para o mapa anatômico */
@@ -333,12 +379,11 @@
 /* Superfícies estilo iOS: vidro fosco, borda hairline e sombra em camadas */
 @utility ios-card {
   border-radius: 1rem;
-  background:
-    linear-gradient(
-      165deg,
-      color-mix(in oklab, white 82%, transparent),
-      color-mix(in oklab, var(--color-surface, white) 58%, transparent)
-    );
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, white 82%, transparent),
+    color-mix(in oklab, var(--color-surface, white) 58%, transparent)
+  );
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid color-mix(in oklab, oklch(0.2 0.01 260) 12%, transparent);
@@ -347,7 +392,10 @@
     0 6px 16px -8px oklch(0.2 0.01 260 / 0.22),
     0 22px 40px -26px oklch(0.2 0.01 260 / 0.35),
     inset 0 1px 0 color-mix(in oklab, white 85%, transparent);
-  transition: box-shadow 220ms ease, transform 220ms ease, border-color 220ms ease;
+  transition:
+    box-shadow 220ms ease,
+    transform 220ms ease,
+    border-color 220ms ease;
 }
 @utility ios-card-hover {
   box-shadow:
@@ -363,7 +411,9 @@
   border-radius: 0.75rem;
   background: color-mix(in oklab, white 70%, transparent);
   border: 1px solid color-mix(in oklab, oklch(0.2 0.01 260) 8%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, white 80%, transparent), 0 1px 2px oklch(0.2 0.01 260 / 0.04);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 80%, transparent),
+    0 1px 2px oklch(0.2 0.01 260 / 0.04);
 }
 
 /* Fundo azul claro em gradiente para as colunas e painel de edição */
@@ -424,11 +474,23 @@
   animation: svg-alert-blink 1.2s ease-in-out infinite;
 }
 @keyframes svg-alert-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 @keyframes alert-blink {
-  0%, 100% { box-shadow: 0 0 0 0 rgb(220 38 38 / 0.45); border-color: rgb(220 38 38 / 0.85); }
-  50% { box-shadow: 0 0 0 4px rgb(220 38 38 / 0); border-color: rgb(220 38 38 / 0.35); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(220 38 38 / 0.45);
+    border-color: rgb(220 38 38 / 0.85);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(220 38 38 / 0);
+    border-color: rgb(220 38 38 / 0.35);
+  }
 }
