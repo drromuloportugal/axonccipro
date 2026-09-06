@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { AnnotationText } from "@/components/AnnotationText";
+
 import type { Patient, Severity, TimelineKind, InvasiveDevice, Medication } from "@/data/patients";
 import {
   ChevronDown,
