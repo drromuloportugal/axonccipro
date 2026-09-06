@@ -1338,8 +1338,8 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem evacuação registrada.
  </div> )}
  </div> {/* Balanço hídrico — linhas */}
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Balanço hídrico
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Balanço hídrico
  </div> {(!patient.state.fluidBalance || (!patient.state.fluidBalance.intake?.length && !patient.state.fluidBalance.output?.length && !patient.state.fluidBalance.drains?.length)) ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem registros de entradas / saídas / drenos.
  </div> ) : (
