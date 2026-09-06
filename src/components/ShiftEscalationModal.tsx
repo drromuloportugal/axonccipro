@@ -1,4 +1,4 @@
-// 🔄 Escala inteligente do próximo plantão — botão, modal, prioridades, tarefas,
+// Escala inteligente do próximo plantão — botão, modal, prioridades, tarefas,
 // ICU Liberation, evidências, validação, histórico e encerramento do plantão.
 
 import { useMemo, useState } from "react";
@@ -24,7 +24,7 @@ export function ShiftEscalationButton({ onClick, disabled }: { onClick: () => vo
       className="inline-flex items-center gap-2 rounded-md border-2 border-primary bg-primary/15 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.04em] text-foreground shadow-sm transition-colors hover:bg-primary/25 disabled:opacity-60"
       title="Gerar escala clínica para a próxima janela de plantão de 12 horas"
     >
-      🔄 Escalar próximo plantão
+      Escalar próximo plantão
     </button>
   );
 }
@@ -233,7 +233,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
         <div className="mb-3 rounded-lg border-2 border-strong bg-card p-3 shadow-sm sm:p-4">
           <div className="flex flex-wrap items-start gap-3">
             <div className="min-w-[200px] flex-1">
-              <h2 className="text-[16px] font-bold text-foreground">🔄 Escala do próximo plantão</h2>
+              <h2 className="text-[16px] font-bold text-foreground">Escala do próximo plantão</h2>
               <p className="mt-0.5 text-[12px] text-foreground">
                 {patient?.name ?? "—"} · Leito <span className="font-mono font-semibold">{patient?.bed ?? "—"}</span> · {diagnosis}
               </p>
@@ -246,7 +246,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
               {current && (
                 <p className="text-[11px] text-muted-foreground">
                   Gerada em {new Date(current.generatedAt).toLocaleString("pt-BR")} · versão {current.version} ·{" "}
-                  {current.status === "validada" ? "✅ validada" : current.status === "encerrada" ? "🏁 encerrada" : "rascunho — revisão médica pendente"}
+                  {current.status === "validada" ? "validada" : current.status === "encerrada" ? "encerrada" : "rascunho — revisão médica pendente"}
                   {current.edited ? " · editada" : ""}
                 </p>
               )}
@@ -279,13 +279,13 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
                 </button>
               )}
               <button type="button" onClick={validate} className="inline-flex items-center gap-1.5 rounded-md border border-strong px-2.5 py-1.5 text-[12px] font-semibold hover:bg-muted">
-                <CheckCircle2 className="h-3.5 w-3.5" /> ✅ Validar escala
+                <CheckCircle2 className="h-3.5 w-3.5" /> Validar escala
               </button>
               <button type="button" onClick={() => setShowEvidence((v) => !v)} className="inline-flex items-center gap-1.5 rounded-md border border-strong px-2.5 py-1.5 text-[12px] font-semibold hover:bg-muted">
-                <Search className="h-3.5 w-3.5" /> 🔎 Ver evidências
+                <Search className="h-3.5 w-3.5" /> Ver evidências
               </button>
               <button type="button" onClick={() => setShowHistory((v) => !v)} className="inline-flex items-center gap-1.5 rounded-md border border-strong px-2.5 py-1.5 text-[12px] font-semibold hover:bg-muted">
-                <History className="h-3.5 w-3.5" /> 📚 Histórico
+                <History className="h-3.5 w-3.5" /> Histórico
               </button>
               <button type="button" onClick={copy} className="rounded-md border border-strong p-1.5 hover:bg-muted" title="Copiar"><Copy className="h-3.5 w-3.5" /></button>
               <button type="button" onClick={download} className="rounded-md border border-strong p-1.5 hover:bg-muted" title="Baixar"><Download className="h-3.5 w-3.5" /></button>
@@ -314,7 +314,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
         {/* Evidências / auditoria */}
         {current && showEvidence && (
           <div className="mb-3 rounded-lg border border-strong bg-card p-3">
-            <h3 className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">📚 Evidências e auditoria</h3>
+            <h3 className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">Evidências e auditoria</h3>
             <p className="text-[11.5px] text-muted-foreground">
               Dados utilizados: passômetro completo deste paciente ({current.audit.contextChars} caracteres){current.audit.user ? ` · usuário ${current.audit.user}` : ""} ·
               janela {current.window.label} · geração {new Date(current.generatedAt).toLocaleString("pt-BR")}
@@ -337,7 +337,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
         {/* Histórico de escalas */}
         {showHistory && (
           <div className="mb-3 rounded-lg border border-strong bg-card p-3">
-            <h3 className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">📚 Histórico de escalas</h3>
+            <h3 className="mb-1.5 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">Histórico de escalas</h3>
             {history.length === 0 && <p className="text-[12px] text-muted-foreground">Nenhuma escala registrada.</p>}
             <ul className="space-y-1">
               {history.map((s) => (
@@ -383,7 +383,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
         {/* Tarefas / pendências editáveis */}
         {current && (
           <div className="mt-3 rounded-lg border border-strong bg-card p-3">
-            <h3 className="mb-2 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">📋 Tarefas e pendências do plantão</h3>
+            <h3 className="mb-2 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">Tarefas e pendências do plantão</h3>
             <ul className="space-y-1">
               {current.tasks.map((t) => (
                 <li key={t.id} className={`flex items-start gap-2 rounded-md border px-2.5 py-1.5 text-[12px] ${PRIORITY_META[t.priority].cls}`}>
@@ -397,7 +397,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
                   </button>
                 </li>
               ))}
-              {current.tasks.length === 0 && <li className="text-[12px] text-muted-foreground">⚪ Nenhuma pendência extraída.</li>}
+              {current.tasks.length === 0 && <li className="text-[12px] text-muted-foreground">Nenhuma pendência extraída.</li>}
             </ul>
             <form
               className="mt-2 flex gap-2"
@@ -417,7 +417,7 @@ export function ShiftEscalationModal({ open, onClose, patient, onPatientChange, 
         {current && (
           <div className="mt-3 rounded-lg border border-strong bg-card p-3">
             <h3 className="mb-2 flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.06em] text-foreground">
-              <Flag className="h-3.5 w-3.5" /> 🏁 Encerrar plantão
+              <Flag className="h-3.5 w-3.5" /> Encerrar plantão
             </h3>
             <textarea
               value={closingNotes}
