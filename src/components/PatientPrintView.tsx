@@ -20,6 +20,7 @@ import {
   computeFluidBalance,
   CONDUCT_SYSTEM_META,
   ANNOTATION_COLOR_META,
+  stripAnnotationMarkup,
   formatDateBR,
   formatDayMonth,
   organDonationLabel,
@@ -591,7 +592,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
             {" "}
             {patient.conducts.map((c, i) => {
               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
-              const visibleSubs = (c.subItems ?? []).filter((sub) => inlineText(sub.text));
+              const visibleSubs = (c.subItems ?? []).filter((sub) => inlineText(stripAnnotationMarkup(sub.text)));
               return (
                 <li key={i} className="text-justify text-[9.5px] leading-tight">
                   {meta && (
@@ -607,7 +608,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
                   {visibleSubs.length > 0 ? (
                     visibleSubs.map((sub, si) => {
                       const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
-                      const txt = inlineText(sub.text);
+                      const txt = inlineText(stripAnnotationMarkup(sub.text));
                       const isLast = si === visibleSubs.length - 1;
                       return (
                         <span key={si} className={colMeta.textClass || "text-gray-900"}>
