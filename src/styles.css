@@ -429,6 +429,6 @@
 }
 
 @keyframes alert-blink {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(220 38 38 / 0.45); }
-  50% { opacity: 0.45; box-shadow: 0 0 0 4px rgb(220 38 38 / 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgb(220 38 38 / 0.45); border-color: rgb(220 38 38 / 0.85); }
+  50% { box-shadow: 0 0 0 4px rgb(220 38 38 / 0); border-color: rgb(220 38 38 / 0.35); }
 }
