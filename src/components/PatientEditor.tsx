@@ -1773,7 +1773,10 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   const [team, setTeam] = useState<Conduct["team"]>("Médica");
   const [system, setSystem] = useState<ConductSystem>("gi");
   const [startedAt, setStartedAt] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+  // Todas as condutas iniciam expandidas no painel de edição.
+  const [expanded, setExpanded] = useState<Record<number, boolean>>(() =>
+    Object.fromEntries(items.map((_, i) => [i, true])),
+  );
 
   const toggle = (i: number) => setExpanded((prev) => ({ ...prev, [i]: !prev[i] }));
 
