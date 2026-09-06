@@ -46,6 +46,7 @@ import type {
   InfectionStatus,
   ConductSystem,
   ConductSubItem,
+  AnnotationColor,
   MedicationClass,
   ImagingImage,
   FluidEntry,
