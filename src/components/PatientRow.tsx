@@ -59,7 +59,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { PumpMonitor, PumpDashboard } from "@/components/PumpMonitor";
 import { AnatomicalMap } from "@/components/AnatomicalMap";
 import { ClinicalTrendChart } from "@/components/ClinicalTrendChart";
-import { SofaPanel } from "@/components/SofaPanel";
+import { SofaButton, SofaModal } from "@/components/SofaPanel";
 
 import { IntubationJourney } from "@/components/IntubationJourney";
 import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeCheck";
@@ -258,6 +258,7 @@ export function PatientRow({
   const [ichOpen, setIchOpen] = useState(false);
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
+  const [sofaOpen, setSofaOpen] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
@@ -359,7 +360,7 @@ export function PatientRow({
     { label: "PAS", v: vitals.pas },
     { label: "PAD", v: vitals.pad },
     { label: "PAM", v: vitals.bp },
-  ];
+  ].filter((r) => r.v.level !== "na");
 
   // Image lightbox
   const [zoomImg, setZoomImg] = useState<string | null>(null);
@@ -603,6 +604,7 @@ export function PatientRow({
                 <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
                 <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
                 <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+                <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(true)}
@@ -1360,6 +1362,7 @@ export function PatientRow({
                   <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
                   <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
                   <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
+                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
                 </div>
               </div>
               {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
@@ -2405,7 +2408,6 @@ export function PatientRow({
             lpp={patient.lpp ?? []}
             onLPPChange={onUpdate ? (next) => onUpdate({ ...patient, lpp: next }) : undefined}
           />
-          <div className="mt-5">{mounted && <SofaPanel patient={patient} />}</div>
           <div className="mt-5">
             <ClinicalTrendChart patient={patient} />
           </div>
@@ -2594,6 +2596,8 @@ export function PatientRow({
           onSave={onUpdate}
         />
       )}
+      {/* SOFA */}
+      <SofaModal open={sofaOpen} onClose={() => setSofaOpen(false)} patient={patient} />
       {/* História clínica — narrativa da evolução no hospital */}
       <Dialog
         open={historyOpen}
