@@ -1336,23 +1336,46 @@ export function PatientRow({
               <div className="mt-4" onClick={(e) => e.stopPropagation()}>
                 <ColTitle tone={5}>⚙️ Escalas</ColTitle>
                 <div className="flex flex-col items-start gap-1">
-                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="classic"
-                  />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="modified"
-                  />
-                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
-                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
-                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
-                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
-                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
-                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
+                  {filledScales.saps3 && (
+                    <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+                  )}
+                  {filledScales.fisherC && (
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="classic"
+                    />
+                  )}
+                  {filledScales.fisherM && (
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="modified"
+                    />
+                  )}
+                  {filledScales.huntHess && (
+                    <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
+                  )}
+                  {filledScales.wfns && (
+                    <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+                  )}
+                  {filledScales.ich && (
+                    <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
+                  )}
+                  {filledScales.nihss && (
+                    <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
+                  )}
+                  {filledScales.vasograde && (
+                    <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
+                  )}
+                  {filledScales.sofa && (
+                    <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
+                  )}
+                  {!anyScaleFilled && (
+                    <span className="text-[10px] italic text-muted-foreground/60">
+                      Nenhuma escala preenchida.
+                    </span>
+                  )}
                 </div>
               </div>
               {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
