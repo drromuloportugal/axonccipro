@@ -592,7 +592,9 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
             {" "}
             {patient.conducts.map((c, i) => {
               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
-              const visibleSubs = (c.subItems ?? []).filter((sub) => inlineText(stripAnnotationMarkup(sub.text)));
+              const visibleSubs = (c.subItems ?? []).filter((sub) =>
+                inlineText(stripAnnotationMarkup(sub.text)),
+              );
               return (
                 <li key={i} className="text-justify text-[9.5px] leading-tight">
                   {meta && (

@@ -1819,7 +1819,6 @@ export function applyAnnotationColor(
   return src.slice(0, start) + wrapped + src.slice(end);
 }
 
-
 /** Formata YYYY-MM-DD (input type=date) evitando o shift de fuso horário. */
 export function formatDateBR(input?: string): string {
   if (!input) return "";

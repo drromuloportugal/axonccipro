@@ -2902,7 +2902,6 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
 
   const toggle = (i: number) => setExpanded((prev) => ({ ...prev, [i]: !prev[i] }));
 
-
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
     const newConduct: Conduct = {
@@ -3152,7 +3151,8 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                                   <span
                                     key={k}
                                     className={
-                                      ANNOTATION_COLOR_META[seg.color].textClass || "text-foreground"
+                                      ANNOTATION_COLOR_META[seg.color].textClass ||
+                                      "text-foreground"
                                     }
                                   >
                                     {seg.text}
