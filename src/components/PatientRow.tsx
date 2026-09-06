@@ -1344,35 +1344,35 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem registros de entradas / saídas / drenos.
  </div> ) : (
  <div className="space-y-1">
- <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px] font-mono font-semibold">
- <div className="flex items-baseline justify-between gap-2">
- <span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
- <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
- </div>
- <div className="flex items-baseline justify-between gap-2">
- <span className="font-sans font-bold uppercase tracking-wider text-clinical-attention">Saídas</span>
- <span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
- </div>
- <div className="flex items-baseline justify-between gap-2">
- <span className="font-sans font-bold uppercase tracking-wider text-clinical-device">Drenos</span>
- <span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
- </div>
- <div className={`flex items-baseline justify-between gap-2 border-t border-border pt-1 text-[12px] font-bold ${
+<div className="space-y-0.5 ios-inset !px-1.5 py-1 text-[11px] font-mono font-semibold">
+<div className="flex items-baseline justify-between gap-2">
+<span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
+<span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
+</div>
+<div className="flex items-baseline justify-between gap-2">
+<span className="font-sans font-bold uppercase tracking-wider text-clinical-attention">Saídas</span>
+<span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
+</div>
+<div className="flex items-baseline justify-between gap-2">
+<span className="font-sans font-bold uppercase tracking-wider text-clinical-device">Drenos</span>
+<span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
+</div>
+<div className={`flex items-baseline justify-between gap-2 border-t border-border pt-1 text-[11px] font-bold ${
                       fluidBalance.balance > 500 ? "text-clinical-attention"
                       : fluidBalance.balance < -500 ? "text-clinical-critical"
                       : "text-clinical-stable"
                     }`}>
- <span className="font-sans uppercase tracking-wider">BH</span>
- <span> {bhRate != null
+<span className="font-sans uppercase tracking-wider">BH</span>
+<span> {bhRate != null
                           ? `${bhRate >= 0 ? "+" : ""}${bhRate.toFixed(2)} mL/kg/h`
                           : "—"}
- <span className="ml-1 text-[10px] font-normal text-muted-foreground"> ({fluidBalance.balance >= 0 ? "+" : ""}{fluidBalance.balance} mL/24h)
- </span>
- </span>
- </div>
- </div> {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
- <ul className="mt-1 space-y-0.5 text-[10.5px]"> {patient.state.fluidBalance!.drains!.map((d) => (
- <li key={d.id} className="flex items-center justify-between ios-inset px-2 py-0.5">
+<span className="ml-1 text-[10px] font-normal text-muted-foreground"> ({fluidBalance.balance >= 0 ? "+" : ""}{fluidBalance.balance} mL/24h)
+</span>
+</span>
+</div>
+</div> {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
+<ul className="mt-1 space-y-0.5 text-[10px]"> {patient.state.fluidBalance!.drains!.map((d) => (
+<li key={d.id} className="flex items-center justify-between ios-inset !px-1.5 py-0.5">
  <span className="truncate">
  <span className="font-semibold text-foreground">{d.name}</span> {d.site ? <span className="text-muted-foreground"> · {d.site}</span> : null}
  </span>
