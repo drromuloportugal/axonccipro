@@ -281,12 +281,22 @@ export function SofaButton({
   compact?: boolean;
 }) {
   const s = useMemo(() => summarizeSofa(patient), [patient]);
-  const cur = s.current?.total ?? null;
+  const savedList = patient.sofaAssessments ?? [];
+  const saved = savedList.length
+    ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]
+    : null;
+  const prev =
+    savedList.length > 1
+      ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[1]
+      : null;
+  const cur = saved?.total ?? s.current?.total ?? null;
+  const savedDelta = saved?.total != null && prev?.total != null ? saved.total - prev.total : null;
   const traj = TRAJECTORY_META[s.trajectory];
   const cls =
     cur != null
       ? "bg-clinical-neuro/15 text-clinical-neuro hover:bg-clinical-neuro/25"
       : "border border-border text-muted-foreground hover:bg-surface-3";
+
   return (
     <button
       type="button"
@@ -295,19 +305,24 @@ export function SofaButton({
         onClick();
       }}
       className={`inline-flex flex-col items-start gap-0 rounded-md px-2 py-0.5 text-left text-[10px] font-semibold transition-colors ${cls}`}
-      title="SOFA — evolução da disfunção orgânica"
+      title="SOFA — calculadora e evolução da disfunção orgânica"
     >
       <span className="inline-flex items-center gap-1">
         <Activity className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> SOFA
-        {cur != null && <span className="font-mono">{cur} pts</span>}
+        {cur != null && (
+          <span className="font-mono">
+            {cur} pts{saved?.partial ? "*" : ""}
+          </span>
+        )}
       </span>
       {cur != null ? (
         <span className="text-[9px] font-semibold opacity-90">
-          {traj.label}
-          {s.delta24 != null ? ` · ${fmtDelta(s.delta24)}/24 h` : ""}
+          {saved
+            ? `Avaliação salva${savedDelta != null ? ` · Δ ${fmtDelta(savedDelta)}` : ""}`
+            : `${traj.label}${s.delta24 != null ? ` · ${fmtDelta(s.delta24)}/24 h` : ""}`}
         </span>
       ) : (
-        <span className="text-[9px] opacity-90">Sem dados suficientes</span>
+        <span className="text-[9px] opacity-90">Calcular SOFA</span>
       )}
     </button>
   );

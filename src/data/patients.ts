@@ -563,6 +563,9 @@ export interface Patient {
   wfns?: import("@/components/WfnsPanel").WfnsRecord;
   gcs?: import("@/components/GcsPanel").GcsRecord;
   ichScore?: import("@/components/IchScorePanel").IchRecord;
+  /** Avaliações SOFA salvas (mais recente primeiro). */
+  sofaAssessments?: import("@/lib/sofaScore").SofaAssessment[];
+
   nihss?: import("@/components/NihssPanel").NihssRecord;
   vasograde?: import("@/components/VasogradePanel").VasogradeRecord;
   deepAnalysis?: {

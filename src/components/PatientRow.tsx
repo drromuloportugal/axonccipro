@@ -58,7 +58,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { PumpMonitor, PumpDashboard } from "@/components/PumpMonitor";
 import { AnatomicalMap } from "@/components/AnatomicalMap";
 import { ClinicalTrendChart } from "@/components/ClinicalTrendChart";
-import { SofaButton, SofaModal } from "@/components/SofaPanel";
+import { SofaButton } from "@/components/SofaPanel";
+import { SofaCalculatorModal } from "@/components/SofaCalculator";
 
 import { IntubationJourney } from "@/components/IntubationJourney";
 import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeCheck";
@@ -2501,7 +2502,12 @@ export function PatientRow({
         />
       )}
       {/* SOFA */}
-      <SofaModal open={sofaOpen} onClose={() => setSofaOpen(false)} patient={patient} />
+      <SofaCalculatorModal
+        open={sofaOpen}
+        onClose={() => setSofaOpen(false)}
+        patient={patient}
+        onSave={onUpdate}
+      />
       {/* História clínica — narrativa da evolução no hospital */}
       <Dialog
         open={historyOpen}
