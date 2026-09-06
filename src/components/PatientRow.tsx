@@ -1251,10 +1251,10 @@ export function PatientRow({
  </li> ))}
  </ul> )}
  </div>
- </div> {/* 6 */}
- <div onClick={colClick("sup")}>
- <ColTitle tone={5}>📈 Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
- <div className="mt-2">
+</div> {/* 6 */}
+<div onClick={colClick("sup")} className="text-[11px] !px-1.5">
+<ColTitle tone={5}>📈 Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
+<div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
