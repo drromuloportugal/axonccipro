@@ -59,7 +59,11 @@ export const CLASSIC_FISHER_TABLE: { g: number; finding: string }[] = [
 ];
 
 const SAH_POINTS: Record<FisherSah, number> = { none: 0, thin: 1, thick: 2 };
-const SAH_LABEL: Record<FisherSah, string> = { none: "Ausente", thin: "Fina (< 1 mm)", thick: "Espessa (≥ 1 mm)" };
+const SAH_LABEL: Record<FisherSah, string> = {
+  none: "Ausente",
+  thin: "Fina (< 1 mm)",
+  thick: "Espessa (≥ 1 mm)",
+};
 
 const CLASSIC_FISHER_POINTS: Record<ClassicFisherFinding, number> = {
   none: 1,
@@ -90,7 +94,8 @@ export function computeFisher(r: FisherRecord | undefined): {
   const sahPts = SAH_POINTS[sah];
   const ivhPts = ivh === "yes" ? 1 : 0;
   // HSA ausente com HIV isolada permanece no padrão da matriz de referência.
-  const grade = sahPts === 0 ? (ivhPts === 1 ? 1 : 0) : sahPts === 1 ? (ivhPts ? 2 : 1) : ivhPts ? 4 : 3;
+  const grade =
+    sahPts === 0 ? (ivhPts === 1 ? 1 : 0) : sahPts === 1 ? (ivhPts ? 2 : 1) : ivhPts ? 4 : 3;
   return { grade, incomplete: false, sahPts, ivhPts };
 }
 
@@ -126,38 +131,64 @@ const CLASSIC_OPTS: { v: ClassicFisherFinding; label: string; grade: string }[] 
 // --------------------------------------------------------------- botão
 
 export function FisherButton({
-  patient, onClick, compact = false,
-}: { patient: Patient; onClick: () => void; compact?: boolean }) {
+  patient,
+  onClick,
+  compact = false,
+  variant = "combined",
+}: {
+  patient: Patient;
+  onClick: () => void;
+  compact?: boolean;
+  variant?: "combined" | "classic" | "modified";
+}) {
   const rec = (patient as Patient & { fisher?: FisherRecord }).fisher;
   const classic = (patient as Patient & { classicFisher?: ClassicFisherRecord }).classicFisher;
   const { grade } = useMemo(() => computeFisher(rec), [rec]);
   const { grade: classicGrade } = useMemo(() => computeClassicFisher(classic), [classic]);
 
-  const displayGrade = classicGrade ?? grade;
-  const hasModified = grade != null;
-  const hasClassic = classicGrade != null;
-  const cls = displayGrade != null
+  const displayGrade =
+    variant === "classic" ? classicGrade : variant === "modified" ? grade : (classicGrade ?? grade);
+  const hasValue = displayGrade != null;
+  const cls = hasValue
     ? displayGrade >= 3
       ? "bg-clinical-critical/15 text-clinical-critical hover:bg-clinical-critical/25"
       : "bg-clinical-neuro/15 text-clinical-neuro hover:bg-clinical-neuro/25"
     : "border border-border text-muted-foreground hover:bg-surface-3";
+
+  const label =
+    variant === "classic"
+      ? "Fisher Clássica"
+      : variant === "modified"
+        ? "Fisher Modificada"
+        : "Fisher";
+  const sub =
+    variant === "combined"
+      ? classicGrade != null && grade != null
+        ? "Clássica + Modificada"
+        : classicGrade
+          ? "Clássica"
+          : grade
+            ? "Modificada"
+            : "Não classificado"
+      : hasValue
+        ? `Grau ${displayGrade}`
+        : "Não classificado";
+
   return (
     <button
       type="button"
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className={`inline-flex flex-col items-start gap-0 rounded-md px-2 py-0.5 text-left text-[10px] font-semibold transition-colors ${cls}`}
-      title="Escala de Fisher (clássica e modificada) para hemorragia subaracnoidea"
+      title={`${label} para hemorragia subaracnoidea`}
     >
       <span className="inline-flex items-center gap-1">
-        <Brain className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> Fisher
+        <Brain className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> {label}
         {displayGrade != null && <span className="font-mono">{displayGrade}</span>}
       </span>
-      <span className="text-[9px] opacity-90">
-        {hasClassic && hasModified ? "Clássica + Modificada"
-          : hasClassic ? "Clássica"
-          : hasModified ? "Modificada"
-          : "Não classificado"}
-      </span>
+      <span className="text-[9px] opacity-90">{sub}</span>
     </button>
   );
 }
@@ -169,26 +200,46 @@ function CtIcon() {
     <svg viewBox="0 0 64 64" className="h-10 w-10 shrink-0" aria-hidden="true">
       <circle cx="32" cy="32" r="28" className="fill-surface-2 stroke-border" strokeWidth="2" />
       <circle cx="32" cy="32" r="21" className="fill-none stroke-border" strokeWidth="1.5" />
-      <path d="M22 26c4-6 16-6 20 0 3 5 1 12-4 15-4 2-8 2-12 0-5-3-7-10-4-15Z" className="fill-clinical-neuro/20 stroke-clinical-neuro" strokeWidth="1.5" />
+      <path
+        d="M22 26c4-6 16-6 20 0 3 5 1 12-4 15-4 2-8 2-12 0-5-3-7-10-4-15Z"
+        className="fill-clinical-neuro/20 stroke-clinical-neuro"
+        strokeWidth="1.5"
+      />
       <path d="M28 30c2-2 6-2 8 0" className="fill-none stroke-clinical-neuro" strokeWidth="1.5" />
     </svg>
   );
 }
 
 function OptionCard<T extends string>({
-  name, options, value, onChange,
-}: { name: string; options: { v: T; label: string; pts: string }[]; value: T | undefined; onChange: (v: T) => void }) {
+  name,
+  options,
+  value,
+  onChange,
+}: {
+  name: string;
+  options: { v: T; label: string; pts: string }[];
+  value: T | undefined;
+  onChange: (v: T) => void;
+}) {
   return (
     <div className="grid gap-2 sm:grid-cols-3">
       {options.map((o) => (
         <label
           key={o.v}
           className={`flex cursor-pointer items-center justify-between gap-2 rounded-lg border-2 px-3 py-3 text-[12px] transition-colors ${
-            value === o.v ? "border-primary bg-primary/10 font-bold" : "border-border hover:bg-surface-3"
+            value === o.v
+              ? "border-primary bg-primary/10 font-bold"
+              : "border-border hover:bg-surface-3"
           }`}
         >
           <span className="flex items-center gap-2">
-            <input type="radio" name={name} checked={value === o.v} onChange={() => onChange(o.v)} className="accent-current" />
+            <input
+              type="radio"
+              name={name}
+              checked={value === o.v}
+              onChange={() => onChange(o.v)}
+              className="accent-current"
+            />
             <span>{o.label}</span>
           </span>
           <span className="font-mono text-[10px] text-muted-foreground">{o.pts}</span>
@@ -199,19 +250,31 @@ function OptionCard<T extends string>({
 }
 
 function ClassicOptionCard({
-  value, onChange,
-}: { value: ClassicFisherFinding | undefined; onChange: (v: ClassicFisherFinding) => void }) {
+  value,
+  onChange,
+}: {
+  value: ClassicFisherFinding | undefined;
+  onChange: (v: ClassicFisherFinding) => void;
+}) {
   return (
     <div className="grid gap-2">
       {CLASSIC_OPTS.map((o) => (
         <label
           key={o.v}
           className={`flex cursor-pointer items-center justify-between gap-2 rounded-lg border-2 px-3 py-3 text-[12px] transition-colors ${
-            value === o.v ? "border-primary bg-primary/10 font-bold" : "border-border hover:bg-surface-3"
+            value === o.v
+              ? "border-primary bg-primary/10 font-bold"
+              : "border-border hover:bg-surface-3"
           }`}
         >
           <span className="flex items-center gap-2">
-            <input type="radio" name="fisher-classic" checked={value === o.v} onChange={() => onChange(o.v)} className="accent-current" />
+            <input
+              type="radio"
+              name="fisher-classic"
+              checked={value === o.v}
+              onChange={() => onChange(o.v)}
+              className="accent-current"
+            />
             <span>{o.label}</span>
           </span>
           <span className="font-mono text-[10px] text-muted-foreground">{o.grade}</span>
@@ -224,7 +287,10 @@ function ClassicOptionCard({
 // --------------------------------------------------------------- modal
 
 export function FisherModal({
-  open, onClose, patient, onSave,
+  open,
+  onClose,
+  patient,
+  onSave,
 }: {
   open: boolean;
   onClose: () => void;
@@ -235,15 +301,26 @@ export function FisherModal({
   const [tab, setTab] = useState<Tab>("classic");
 
   const savedModified = (patient as Patient & { fisher?: FisherRecord }).fisher ?? {};
-  const savedClassic = (patient as Patient & { classicFisher?: ClassicFisherRecord }).classicFisher ?? {};
+  const savedClassic =
+    (patient as Patient & { classicFisher?: ClassicFisherRecord }).classicFisher ?? {};
 
   const [draftModified, setDraftModified] = useState<FisherRecord>(savedModified);
   const [draftClassic, setDraftClassic] = useState<ClassicFisherRecord>(savedClassic);
-  const [showModifiedResult, setShowModifiedResult] = useState<boolean>(savedModified.grade != null);
+  const [showModifiedResult, setShowModifiedResult] = useState<boolean>(
+    savedModified.grade != null,
+  );
   const [showClassicResult, setShowClassicResult] = useState<boolean>(savedClassic.grade != null);
 
-  const { grade: modifiedGrade, incomplete: modifiedIncomplete, sahPts, ivhPts } = useMemo(() => computeFisher(draftModified), [draftModified]);
-  const { grade: classicGrade, incomplete: classicIncomplete } = useMemo(() => computeClassicFisher(draftClassic), [draftClassic]);
+  const {
+    grade: modifiedGrade,
+    incomplete: modifiedIncomplete,
+    sahPts,
+    ivhPts,
+  } = useMemo(() => computeFisher(draftModified), [draftModified]);
+  const { grade: classicGrade, incomplete: classicIncomplete } = useMemo(
+    () => computeClassicFisher(draftClassic),
+    [draftClassic],
+  );
 
   const setModified = (key: keyof FisherRecord, v: string) => {
     setDraftModified((d) => ({ ...d, [key]: v }));
@@ -257,13 +334,19 @@ export function FisherModal({
   const calcModified = () => {
     setShowModifiedResult(true);
     if (modifiedIncomplete) return;
-    onSave({ ...patient, fisher: { ...draftModified, grade: modifiedGrade, at: new Date().toISOString() } } as Patient);
+    onSave({
+      ...patient,
+      fisher: { ...draftModified, grade: modifiedGrade, at: new Date().toISOString() },
+    } as Patient);
   };
 
   const calcClassic = () => {
     setShowClassicResult(true);
     if (classicIncomplete) return;
-    onSave({ ...patient, classicFisher: { ...draftClassic, grade: classicGrade, at: new Date().toISOString() } } as Patient);
+    onSave({
+      ...patient,
+      classicFisher: { ...draftClassic, grade: classicGrade, at: new Date().toISOString() },
+    } as Patient);
   };
 
   const clearModified = () => {
@@ -291,22 +374,26 @@ export function FisherModal({
         <div className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-[11px] text-muted-foreground">
           <CtIcon />
           <span>
-            Classificação radiológica baseada na TC de crânio sem contraste. Escolha abaixo entre a escala Fisher
-            clássica ou a Fisher Modificada.
+            Classificação radiológica baseada na TC de crânio sem contraste. Escolha abaixo entre a
+            escala Fisher clássica ou a Fisher Modificada.
           </span>
         </div>
 
         <div className="flex gap-1 rounded-lg border border-border bg-surface p-1">
-          {([
-            { key: "classic", label: "Fisher Clássica" },
-            { key: "modified", label: "Fisher Modificada" },
-          ] as { key: Tab; label: string }[]).map((t) => (
+          {(
+            [
+              { key: "classic", label: "Fisher Clássica" },
+              { key: "modified", label: "Fisher Modificada" },
+            ] as { key: Tab; label: string }[]
+          ).map((t) => (
             <button
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
               className={`flex-1 rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors ${
-                tab === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-surface-3"
+                tab === t.key
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-surface-3"
               }`}
             >
               {t.label}
@@ -323,9 +410,17 @@ export function FisherModal({
               <div className="mb-2 text-[12px] font-semibold">
                 Qual é a quantidade/espessura da hemorragia subaracnoidea (HSA) na TC?
               </div>
-              <OptionCard name="fisher-sah" options={SAH_OPTS} value={draftModified.sah} onChange={(v) => setModified("sah", v)} />
+              <OptionCard
+                name="fisher-sah"
+                options={SAH_OPTS}
+                value={draftModified.sah}
+                onChange={(v) => setModified("sah", v)}
+              />
               <div className="mt-2 text-[11px] text-muted-foreground">
-                Pontuação HSA: <span className="font-mono font-bold text-foreground">{draftModified.sah ? SAH_POINTS[draftModified.sah] : "—"}</span>
+                Pontuação HSA:{" "}
+                <span className="font-mono font-bold text-foreground">
+                  {draftModified.sah ? SAH_POINTS[draftModified.sah] : "—"}
+                </span>
               </div>
             </div>
 
@@ -333,10 +428,20 @@ export function FisherModal({
               <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 2 · Hemorragia intraventricular (HIV)
               </div>
-              <div className="mb-2 text-[12px] font-semibold">Existe hemorragia intraventricular (HIV)?</div>
-              <OptionCard name="fisher-ivh" options={YN_OPTS} value={draftModified.ivh} onChange={(v) => setModified("ivh", v)} />
+              <div className="mb-2 text-[12px] font-semibold">
+                Existe hemorragia intraventricular (HIV)?
+              </div>
+              <OptionCard
+                name="fisher-ivh"
+                options={YN_OPTS}
+                value={draftModified.ivh}
+                onChange={(v) => setModified("ivh", v)}
+              />
               <div className="mt-2 text-[11px] text-muted-foreground">
-                Pontuação HIV: <span className="font-mono font-bold text-foreground">{draftModified.ivh ? (draftModified.ivh === "yes" ? 1 : 0) : "—"}</span>
+                Pontuação HIV:{" "}
+                <span className="font-mono font-bold text-foreground">
+                  {draftModified.ivh ? (draftModified.ivh === "yes" ? 1 : 0) : "—"}
+                </span>
               </div>
             </div>
 
@@ -360,14 +465,19 @@ export function FisherModal({
             {showModifiedResult && modifiedIncomplete && (
               <div className="flex items-center gap-2 rounded-md border border-clinical-attention/50 bg-clinical-attention/10 px-3 py-2 text-[12px] font-semibold text-clinical-attention">
                 <AlertTriangle className="h-4 w-4" />
-                Classificação incompleta — informe a quantidade de HSA e a presença ou ausência de hemorragia intraventricular.
+                Classificação incompleta — informe a quantidade de HSA e a presença ou ausência de
+                hemorragia intraventricular.
               </div>
             )}
 
             {showModifiedResult && modifiedGrade != null && (
               <div className="rounded-lg border-2 border-border bg-surface p-4 text-center">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Fisher Modificada</div>
-                <div className="font-mono text-4xl font-black text-foreground">{modifiedGrade}/4</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Fisher Modificada
+                </div>
+                <div className="font-mono text-4xl font-black text-foreground">
+                  {modifiedGrade}/4
+                </div>
                 <div className="mx-auto mt-3 grid max-w-md gap-1 text-left text-[12px]">
                   <div>
                     <span className="font-semibold">HSA: </span>
@@ -384,7 +494,8 @@ export function FisherModal({
                     <span className="font-mono font-bold">{modifiedGrade}/4</span>
                   </div>
                   <div className="mt-1">
-                    <span className="font-semibold">Descrição: </span>{FISHER_DESCRIPTION[modifiedGrade]}
+                    <span className="font-semibold">Descrição: </span>
+                    {FISHER_DESCRIPTION[modifiedGrade]}
                   </div>
                 </div>
               </div>
@@ -401,7 +512,14 @@ export function FisherModal({
                 </thead>
                 <tbody className="divide-y divide-border">
                   {FISHER_TABLE.map((row) => (
-                    <tr key={row.g} className={modifiedGrade === row.g && showModifiedResult ? "bg-primary/10 font-semibold" : ""}>
+                    <tr
+                      key={row.g}
+                      className={
+                        modifiedGrade === row.g && showModifiedResult
+                          ? "bg-primary/10 font-semibold"
+                          : ""
+                      }
+                    >
                       <td className="p-2 font-mono">{row.g}</td>
                       <td className="p-2">{row.sah}</td>
                       <td className="p-2">{row.ivh}</td>
@@ -415,16 +533,18 @@ export function FisherModal({
               <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 Interpretação clínica
               </div>
-              A Fisher Modificada é uma classificação radiológica da hemorragia subaracnoidea utilizada principalmente para
-              estratificação do risco de vasoespasmo cerebral e isquemia cerebral tardia após HSA aneurismática. O grau
-              isolado não deve ser transformado em diagnóstico, prognóstico individual definitivo ou indicação automática de
-              tratamento.
+              A Fisher Modificada é uma classificação radiológica da hemorragia subaracnoidea
+              utilizada principalmente para estratificação do risco de vasoespasmo cerebral e
+              isquemia cerebral tardia após HSA aneurismática. O grau isolado não deve ser
+              transformado em diagnóstico, prognóstico individual definitivo ou indicação automática
+              de tratamento.
             </div>
 
             <div className="border-t border-border pt-2 text-[10px] text-muted-foreground">
-              Ferramenta de apoio à avaliação clínica. A Fisher Modificada é uma classificação radiológica e deve ser
-              aplicada a partir da interpretação adequada da TC de crânio. Não substitui avaliação médica especializada,
-              interpretação radiológica ou protocolos institucionais.
+              Ferramenta de apoio à avaliação clínica. A Fisher Modificada é uma classificação
+              radiológica e deve ser aplicada a partir da interpretação adequada da TC de crânio.
+              Não substitui avaliação médica especializada, interpretação radiológica ou protocolos
+              institucionais.
             </div>
           </div>
         )}
@@ -440,7 +560,10 @@ export function FisherModal({
               </div>
               <ClassicOptionCard value={draftClassic.finding} onChange={setClassic} />
               <div className="mt-2 text-[11px] text-muted-foreground">
-                Grau clássico: <span className="font-mono font-bold text-foreground">{draftClassic.finding ? `${CLASSIC_FISHER_POINTS[draftClassic.finding]}` : "—"}</span>
+                Grau clássico:{" "}
+                <span className="font-mono font-bold text-foreground">
+                  {draftClassic.finding ? `${CLASSIC_FISHER_POINTS[draftClassic.finding]}` : "—"}
+                </span>
               </div>
             </div>
 
@@ -470,15 +593,20 @@ export function FisherModal({
 
             {showClassicResult && classicGrade != null && (
               <div className="rounded-lg border-2 border-border bg-surface p-4 text-center">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Fisher Clássica</div>
-                <div className="font-mono text-4xl font-black text-foreground">{classicGrade}/4</div>
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Fisher Clássica
+                </div>
+                <div className="font-mono text-4xl font-black text-foreground">
+                  {classicGrade}/4
+                </div>
                 <div className="mx-auto mt-3 max-w-md text-left text-[12px]">
                   <div>
                     <span className="font-semibold">Achado: </span>
                     {draftClassic.finding ? CLASSIC_FISHER_LABEL[draftClassic.finding] : "—"}
                   </div>
                   <div className="mt-1">
-                    <span className="font-semibold">Descrição: </span>{CLASSIC_FISHER_DESCRIPTION[classicGrade]}
+                    <span className="font-semibold">Descrição: </span>
+                    {CLASSIC_FISHER_DESCRIPTION[classicGrade]}
                   </div>
                 </div>
               </div>
@@ -494,7 +622,14 @@ export function FisherModal({
                 </thead>
                 <tbody className="divide-y divide-border">
                   {CLASSIC_FISHER_TABLE.map((row) => (
-                    <tr key={row.g} className={classicGrade === row.g && showClassicResult ? "bg-primary/10 font-semibold" : ""}>
+                    <tr
+                      key={row.g}
+                      className={
+                        classicGrade === row.g && showClassicResult
+                          ? "bg-primary/10 font-semibold"
+                          : ""
+                      }
+                    >
                       <td className="p-2 font-mono">{row.g}</td>
                       <td className="p-2">{row.finding}</td>
                     </tr>
@@ -507,15 +642,17 @@ export function FisherModal({
               <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 Interpretação clínica
               </div>
-              A escala de Fisher clássica descreve o padrão de sangue subaracnoideo na TC e está relacionada ao risco de
-              vasoespasmo cerebral após hemorragia subaracnoidea aneurismática. Grau 3 e 4 tradicionalmente associam-se a
-              maior probabilidade de vasoespasmo sintomático.
+              A escala de Fisher clássica descreve o padrão de sangue subaracnoideo na TC e está
+              relacionada ao risco de vasoespasmo cerebral após hemorragia subaracnoidea
+              aneurismática. Grau 3 e 4 tradicionalmente associam-se a maior probabilidade de
+              vasoespasmo sintomático.
             </div>
 
             <div className="border-t border-border pt-2 text-[10px] text-muted-foreground">
-              Ferramenta de apoio à avaliação clínica. A escala de Fisher é uma classificação radiológica e deve ser
-              aplicada a partir da interpretação adequada da TC de crânio. Não substitui avaliação médica especializada,
-              interpretação radiológica ou protocolos institucionais.
+              Ferramenta de apoio à avaliação clínica. A escala de Fisher é uma classificação
+              radiológica e deve ser aplicada a partir da interpretação adequada da TC de crânio.
+              Não substitui avaliação médica especializada, interpretação radiológica ou protocolos
+              institucionais.
             </div>
           </div>
         )}
