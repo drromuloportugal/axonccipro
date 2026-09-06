@@ -803,15 +803,6 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
             <Section title="Exames de imagem">
               <ImagingList items={p.imaging ?? []} onChange={(v) => upd("imaging", v)} />
             </Section>
-            <Section title="Eletroencefalograma · parecer">
-              <EegList items={p.eeg ?? []} onChange={(v) => upd("eeg", v)} />
-            </Section>
-            <Section title="Hemotransfusão">
-              <HemotransfusionList
-                items={p.hemotransfusions ?? []}
-                onChange={(v) => upd("hemotransfusions", v)}
-              />
-            </Section>
             <p className="mt-2 text-[11px] italic text-muted-foreground">
               Os resultados de exames laboratoriais agora são preenchidos na aba “6 · Estado atual”,
               em formato de tabela seriada.
