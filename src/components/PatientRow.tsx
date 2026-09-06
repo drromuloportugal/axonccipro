@@ -1286,7 +1286,7 @@ export function PatientRow({
               const lab = patient.exams.filter((e) => !isGaso(e.code, e.label));
               const gaso = patient.exams.filter((e) => isGaso(e.code, e.label));
               const renderTable = (rows: typeof patient.exams) => (
- <table className="w-full text-[12px]">
+ <table className="w-full text-[11px]">
  <tbody>
                     {rows.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
