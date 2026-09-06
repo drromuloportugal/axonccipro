@@ -50,8 +50,6 @@ import type {
   FluidEntry,
   DrainEntry,
   DerivationEntry,
-  EegRecord,
-  Hemotransfusion,
 } from "@/data/patients";
 import { SITE_META } from "@/lib/infection";
 import {
