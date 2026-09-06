@@ -265,7 +265,8 @@ export function PatientRow({
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
   const [sofaOpen, setSofaOpen] = useState(false);
-  const [scalesExpanded, setScalesExpanded] = useState(true);
+  const [scalesExpanded, setScalesExpanded] = useState(false);
+  const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
@@ -1426,28 +1427,39 @@ export function PatientRow({
               {/* Medicações de uso prévio domiciliar */}
               {patient.pastMedications && patient.pastMedications.length > 0 && (
                 <div className="mt-3">
-                  <div className="title-box title-green-2 mb-1 inline-flex !text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setPastMedsExpanded((v) => !v)}
+                    className="title-box title-green-2 mb-1 inline-flex items-center gap-1 !text-[10px]"
+                  >
+                    {pastMedsExpanded ? (
+                      <ChevronDown className="h-3 w-3" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3" />
+                    )}
                     💊 Medicamentos de uso prévio · {patient.pastMedications.length}
-                  </div>
-                  <div className="space-y-1">
-                    {patient.pastMedications.map((pm) => (
-                      <div
-                        key={pm.id}
-                        className="ios-inset rounded px-1.5 py-1 text-[10px] leading-snug text-foreground"
-                      >
-                        <div>
-                          <span className="font-semibold">{pm.name}</span>
-                          {pm.dose && <span className="text-muted-foreground"> · {pm.dose}</span>}
-                          {pm.freq && <span className="text-muted-foreground"> · {pm.freq}</span>}
-                        </div>
-                        {pm.period && (
-                          <div className="mt-0.5 text-[9px] text-muted-foreground">
-                            Tempo de uso: {pm.period}
+                  </button>
+                  {pastMedsExpanded && (
+                    <div className="space-y-1">
+                      {patient.pastMedications.map((pm) => (
+                        <div
+                          key={pm.id}
+                          className="ios-inset rounded px-1.5 py-1 text-[10px] leading-snug text-foreground"
+                        >
+                          <div>
+                            <span className="font-semibold">{pm.name}</span>
+                            {pm.dose && <span className="text-muted-foreground"> · {pm.dose}</span>}
+                            {pm.freq && <span className="text-muted-foreground"> · {pm.freq}</span>}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                          {pm.period && (
+                            <div className="mt-0.5 text-[9px] text-muted-foreground">
+                              Tempo de uso: {pm.period}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
