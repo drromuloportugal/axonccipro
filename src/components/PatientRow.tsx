@@ -415,7 +415,7 @@ export function PatientRow({
 
           {/* Gestão — scores */}
           <div className="mt-2 border-t border-border/60 pt-1.5" onClick={(e) => e.stopPropagation()}>
-            <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>Gestão</div>
+            <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>⚙️ Gestão</div>
             <div className="flex flex-wrap items-start gap-1">
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact />
@@ -430,7 +430,7 @@ export function PatientRow({
                 className="rounded border border-strong bg-muted/50 px-1.5 py-1 text-[10px] font-semibold text-foreground hover:bg-muted"
                 title="História clínica — evolução do paciente no hospital"
               >
-                História clínica{patient.clinicalHistory ? " (salva)" : ""}
+                📖 História clínica{patient.clinicalHistory ? " ✓" : ""}
               </button>
             </div>
           </div>
@@ -439,7 +439,7 @@ export function PatientRow({
 </div> {/* 2 - História */}
 <div onClick={colClick("hist")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
 
-<ColHead label="História" tab="hist" title="Editar história" tone={1} />
+<ColHead label="📋 História" tab="hist" title="Editar história" tone={1} />
 <div className="flex flex-wrap gap-0.5"> {patient.diagnoses.slice(-3).map((d, i) => (
 <Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
             {patient.diagnoses.length === 0 && (
@@ -449,7 +449,7 @@ export function PatientRow({
  <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5">
 
  <ColHead
-            label="Invasões"
+            label="🧷 Invasões"
             tab="proc"
             title="Editar dispositivos invasivos"
             tone={2}
@@ -483,7 +483,7 @@ export function PatientRow({
 </div> {/* 4 - Medicações com dashboard de bombas */}
 <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1 !px-1.5 text-[11px]">
 <ColHead
-            label="Medicações"
+            label="💊 Medicações"
             tab="med"
             title="Editar medicações"
             tone={3}
@@ -546,7 +546,7 @@ export function PatientRow({
  </div> {/* 5 - Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")} className="flex min-w-0 flex-col gap-1">
 
- <ColHead label="Culturas · Imagem" tab="exam" title="Editar exames" tone={4} /> {/* 1) Culturas */}
+ <ColHead label="🦠 Culturas · Imagem" tab="exam" title="Editar exames" tone={4} /> {/* 1) Culturas */}
           {(patient.cultures?.length ?? 0) > 0 && (
  <div className="space-y-0.5"> {patient.cultures!.slice(-2).reverse().map((c) => {
                 const r = cultureResultBadge(c);
@@ -576,7 +576,7 @@ export function PatientRow({
  </div> )}
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
  <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
- <ColHead label="Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
+ <ColHead label="📈 Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
  <div className="space-y-0.5"> {vitalRows.map((r) => {
@@ -677,7 +677,7 @@ export function PatientRow({
  </div> {/* 7 - Plano · Tarefas */}
  <div onClick={colClick("plan")} className="flex min-w-0 flex-col">
  <ColHead
-            label="Plano · Condutas"
+            label="✅ Plano · Condutas"
             tab="plan"
             title="Editar plano e tarefas"
             right={<span className="font-mono text-[10px] text-foreground">{conductsPct}%</span>}
@@ -816,7 +816,7 @@ export function PatientRow({
  </span>
           </div> {/* Gestão — scores */}
           <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-            <ColTitle tone={5}>Gestão</ColTitle>
+            <ColTitle tone={5}>⚙️ Gestão</ColTitle>
             <div className="flex flex-wrap items-start gap-1.5">
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
               <FisherButton patient={patient} onClick={() => setFisherOpen(true)} />
@@ -831,7 +831,7 @@ export function PatientRow({
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
  </div> {/* 2 */}
  <div onClick={colClick("hist")} className="text-[11px] !px-1.5">
- <ColTitle tone={1}>História clínica</ColTitle>
+ <ColTitle tone={1}>📋 História clínica</ColTitle>
  <div className="space-y-2"> {([
                  { cat: "current", label: "Diagnósticos atuais", box: "pastel-current", text: "text-ink", head: "pastel-current-head" },
                  { cat: "inactive", label: "Diagnósticos inativos", box: "pastel-inactive", text: "text-ink", head: "pastel-inactive-head" },
@@ -847,10 +847,10 @@ export function PatientRow({
  <ol className="relative ml-2 space-y-1 border-l border-border pl-3"> {list.map((d, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
-<div className={`rounded-md border px-1.5 py-1 text-ink ${g.box}`}>
-<div className="text-[10px] text-ink">{d.date}</div>
-<div className="text-[11px] font-semibold text-ink">{d.label}</div> {d.detail && <div className="text-[10px] text-ink">{d.detail}</div>}
-</div>
+ <div className={`rounded-md border px-2 py-1 text-ink ${g.box}`}>
+ <div className="text-[11px] text-ink">{d.date}</div>
+ <div className="text-[12px] font-semibold text-ink">{d.label}</div> {d.detail && <div className="text-[10.5px] text-ink">{d.detail}</div>}
+ </div>
  </li> ))}
  </ol>
  </div> );
@@ -863,11 +863,11 @@ export function PatientRow({
               {patient.pastMedications && patient.pastMedications.length > 0 && (
                 <div className="mt-3">
                   <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
-                    Uso prévio domiciliar · {patient.pastMedications.length}
+                    💊 Uso prévio domiciliar · {patient.pastMedications.length}
                   </div>
 <ul className="space-y-1">
                     {patient.pastMedications.map((pm) => (
-                      <li key={pm.id} className="ios-inset !px-1.5 py-1 text-[11px]">
+                      <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-semibold text-foreground">{pm.name}</span>
                           <span className={`shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
@@ -900,7 +900,7 @@ export function PatientRow({
  <div onClick={colClick("proc")}>
  <div>
  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
- <ColTitle tone={2}>Dispositivos invasivos</ColTitle>
+ <ColTitle tone={2}>🧷 Dispositivos invasivos</ColTitle>
 
  <div className="flex flex-wrap items-center gap-1.5"> {(patient.infections?.filter((i) => i.status !== "resolvido").length ?? 0) > 0 && (
  <button
@@ -982,7 +982,7 @@ export function PatientRow({
             {/* Procedimentos & eventos — exibidos na coluna 03 */}
             {patient.procedures.length > 0 && (
  <div className="mt-4">
- <ColTitle tone={2}>Procedimentos & eventos</ColTitle>
+ <ColTitle tone={2}>🗓️ Procedimentos & eventos</ColTitle>
  <ol className="relative ml-2 space-y-2 border-l border-border pl-3"> {patient.procedures.map((p, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] mt-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[p.kind]}`} />
@@ -994,7 +994,7 @@ export function PatientRow({
 </div> {/* 4 — Medicações agrupadas por classe */}
 <div onClick={colClick("med")} className="text-[11px] !px-1.5">
 <div className="mb-2 flex items-center justify-between gap-2">
-<ColTitle tone={3}>Medicações</ColTitle>
+<ColTitle tone={3}>💊 Medicações</ColTitle>
   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <button
                   type="button"
@@ -1041,7 +1041,7 @@ export function PatientRow({
                         const prog = isAtb ? antibioticProgress(m) : null;
                         const alert = prog ? atbAlertBadge(prog.alert) : null;
                         return (
- <li key={i} className="ios-inset !px-1.5 py-1 text-[11px]">
+ <li key={i} className="ios-inset px-2 py-1.5 text-[12px]">
  <div className="flex items-center justify-between gap-2">
  <div className="flex items-center gap-1.5">
  <span>{isAtb ? "" : ""}</span>
@@ -1063,13 +1063,13 @@ export function PatientRow({
    </button> )}
    </div>
  </div>
-<div className="ml-5 font-mono text-[10px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
-</div> {m.mlPerHour !== undefined && (
-<div className="ml-5 font-mono text-[10px] text-clinical-resp"> BIC {m.mlPerHour.toFixed(1)} mL/h
-</div> )}
+ <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
+ </div> {m.mlPerHour !== undefined && (
+ <div className="ml-5 font-mono text-[11px] text-clinical-resp"> BIC {m.mlPerHour.toFixed(1)} mL/h
+ </div> )}
  <div className="ml-5 text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
  </div> {mounted && prog && (
- <div className="ml-5 mt-1 rounded border border-border/70 bg-surface-2/40 p-1">
+ <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
  <div className="flex items-center justify-between text-[10px]">
  <span className="font-semibold text-foreground">Dia {prog.currentDay} de {prog.totalDays}</span>
  <span className="font-mono text-muted-foreground">{prog.percent.toFixed(0)}%</span>
@@ -1092,13 +1092,13 @@ export function PatientRow({
               const done = patient.medications.filter((m) => m.active === false);
               if (!done.length) return null;
               return (
-<div className="mt-2 rounded-md border border-border bg-surface-2/50 p-1.5" onClick={(e) => e.stopPropagation()}>
-<div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-<span>Já utilizados</span>
-<span className="font-mono">{done.length}</span>
-</div>
-<ul className="space-y-1"> {done.map((m, i) => (
-<li key={i} className="ios-inset flex items-start justify-between gap-2 !px-1.5 py-1 text-[11px]">
+ <div className="mt-2 rounded-md border border-border bg-surface-2/50 p-2" onClick={(e) => e.stopPropagation()}>
+ <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+ <span>💊 Já utilizados</span>
+ <span className="font-mono">{done.length}</span>
+ </div>
+ <ul className="space-y-1"> {done.map((m, i) => (
+ <li key={i} className="ios-inset flex items-start justify-between gap-2 px-2 py-1 text-[11px]">
  <div className="min-w-0">
  <div className="flex items-center gap-1.5">
  <CirclePause className="h-3 w-3 shrink-0 text-clinical-neutral" />
@@ -1124,7 +1124,7 @@ export function PatientRow({
             })()}
   </div> {/* 5 — Culturas → Lab → Gasometria → Imagem */}
  <div onClick={colClick("exam")}> {/* 1) Culturas */}
- <ColTitle tone={4}>Culturas · Imagem</ColTitle>
+ <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
  <div className="mb-3">
  <div className="mb-1 flex items-center justify-between">
  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Culturas microbiológicas</div> {onEdit && (
@@ -1253,11 +1253,11 @@ export function PatientRow({
  </div>
 </div> {/* 6 */}
 <div onClick={colClick("sup")} className="text-[11px] !px-1.5">
-<ColTitle tone={5}>Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
+<ColTitle tone={5}>📈 Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
 <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
- <div className="ios-inset !px-1.5 py-1.5"> {vitalRows.map((r) => {
+ <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
                    const crit = r.v.level === "grave";
                    const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
                    const mm = vitalMinMax(r.v);
@@ -1301,7 +1301,7 @@ export function PatientRow({
  <td className="py-1 font-mono">
  <span className={`${abn ? "alert-outline inline-block px-1.5 " : ""}${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</span>
  </td>
-  <td className={`py-1 text-right text-[11px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
+  <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
  </tbody>
@@ -1325,7 +1325,7 @@ export function PatientRow({
 <div className="mt-3">
 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
  </div> {(patient.state.stools?.length ?? 0) > 0 ? (
- <div className="space-y-0.5 ios-inset !px-1.5 py-1 text-[11px]"> {patient.state.stools!.map((st) => {
+ <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px]"> {patient.state.stools!.map((st) => {
                     const m = bristolMeta(st.bristol);
                     return (
  <div key={st.id} className="flex items-baseline justify-between gap-2">
@@ -1344,35 +1344,35 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem registros de entradas / saídas / drenos.
  </div> ) : (
  <div className="space-y-1">
-<div className="space-y-0.5 ios-inset !px-1.5 py-1 text-[11px] font-mono font-semibold">
-<div className="flex items-baseline justify-between gap-2">
-<span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
-<span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
-</div>
-<div className="flex items-baseline justify-between gap-2">
-<span className="font-sans font-bold uppercase tracking-wider text-clinical-attention">Saídas</span>
-<span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
-</div>
-<div className="flex items-baseline justify-between gap-2">
-<span className="font-sans font-bold uppercase tracking-wider text-clinical-device">Drenos</span>
-<span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
-</div>
-<div className={`flex items-baseline justify-between gap-2 border-t border-border pt-1 text-[11px] font-bold ${
+ <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px] font-mono font-semibold">
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="font-sans font-bold uppercase tracking-wider text-clinical-resp">Entradas</span>
+ <span className="text-foreground">+{fluidBalance.totalIntake} mL</span>
+ </div>
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="font-sans font-bold uppercase tracking-wider text-clinical-attention">Saídas</span>
+ <span className="text-foreground">−{fluidBalance.totalOutput} mL</span>
+ </div>
+ <div className="flex items-baseline justify-between gap-2">
+ <span className="font-sans font-bold uppercase tracking-wider text-clinical-device">Drenos</span>
+ <span className="text-foreground">−{fluidBalance.totalDrains} mL</span>
+ </div>
+ <div className={`flex items-baseline justify-between gap-2 border-t border-border pt-1 text-[12px] font-bold ${
                       fluidBalance.balance > 500 ? "text-clinical-attention"
                       : fluidBalance.balance < -500 ? "text-clinical-critical"
                       : "text-clinical-stable"
                     }`}>
-<span className="font-sans uppercase tracking-wider">BH</span>
-<span> {bhRate != null
+ <span className="font-sans uppercase tracking-wider">BH</span>
+ <span> {bhRate != null
                           ? `${bhRate >= 0 ? "+" : ""}${bhRate.toFixed(2)} mL/kg/h`
                           : "—"}
-<span className="ml-1 text-[10px] font-normal text-muted-foreground"> ({fluidBalance.balance >= 0 ? "+" : ""}{fluidBalance.balance} mL/24h)
-</span>
-</span>
-</div>
-</div> {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
-<ul className="mt-1 space-y-0.5 text-[10px]"> {patient.state.fluidBalance!.drains!.map((d) => (
-<li key={d.id} className="flex items-center justify-between ios-inset !px-1.5 py-0.5">
+ <span className="ml-1 text-[10px] font-normal text-muted-foreground"> ({fluidBalance.balance >= 0 ? "+" : ""}{fluidBalance.balance} mL/24h)
+ </span>
+ </span>
+ </div>
+ </div> {(patient.state.fluidBalance?.drains?.length ?? 0) > 0 && (
+ <ul className="mt-1 space-y-0.5 text-[10.5px]"> {patient.state.fluidBalance!.drains!.map((d) => (
+ <li key={d.id} className="flex items-center justify-between ios-inset px-2 py-0.5">
  <span className="truncate">
  <span className="font-semibold text-foreground">{d.name}</span> {d.site ? <span className="text-muted-foreground"> · {d.site}</span> : null}
  </span>
@@ -1383,7 +1383,7 @@ export function PatientRow({
  </div>
   </div> {/* 7 - Plano · Metas por sistema orgânico */}
   <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
-  <ColTitle tone={6}>Condutas</ColTitle>
+  <ColTitle tone={6}>✅ Condutas</ColTitle>
   <div className="mb-1.5 flex items-center justify-between gap-2 text-[9.5px] text-muted-foreground">
   <span>{conductsDone}/{patient.conducts.length} concluídas</span>
   <span className="font-mono text-foreground">{conductsPct}%</span>
@@ -1632,7 +1632,7 @@ export function PatientRow({
       <Dialog open={historyOpen} onOpenChange={(o) => { setHistoryOpen(o); if (o) setHistoryDraft(patient.clinicalHistory ?? ""); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>História clínica — {patient.bed} · {patient.name}</DialogTitle>
+            <DialogTitle>📖 História clínica — {patient.bed} · {patient.name}</DialogTitle>
           </DialogHeader>
           <textarea
             value={historyDraft}

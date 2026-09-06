@@ -121,8 +121,8 @@ export function extractTasks(content: string): ShiftTask[] {
   const tasks: ShiftTask[] = [];
   const lines = content.split("\n");
   let inSection = false;
-  const sectionStart = /^(?:\d+\.\s*)?(PEND[ÊE]NCIAS|N[ÃA]O ESQUECER|AGENDA)/i;
-  const otherSection = /^(?:\d+\.\s*)?[A-ZÀ-Ú0-9]{3,}/;
+  const sectionStart = /^(?:\d+\.\s*)?(?:📋\s*)?(PEND[ÊE]NCIAS|N[ÃA]O ESQUECER|AGENDA)/i;
+  const otherSection = /^(?:\d+\.\s*)?[A-ZÀ-Ú0-9🔴🟠🟡🟢🔵⚪🧠❤️🫁🩺🦠🩸🍽💊🧰⏱️📚❓🔮🚨]{3,}/;
 
   lines.forEach((raw, i) => {
     const line = raw.trim();
@@ -138,11 +138,11 @@ export function extractTasks(content: string): ShiftTask[] {
     if (!inSection) return;
     const text = line.replace(/^[-*•☐☑]\s*/, "").trim();
     if (text.length < 4) return;
-    const priority: ShiftTask["priority"] = /ALTA PRIORIDADE/i.test(line)
+    const priority: ShiftTask["priority"] = /🔴|ALTA PRIORIDADE/i.test(line)
       ? "alta"
-      : /ATEN[ÇC][ÃA]O/i.test(line)
+      : /🟠|ATEN[ÇC][ÃA]O/i.test(line)
         ? "atencao"
-        : /MONITOR/i.test(line)
+        : /🟡|MONITOR/i.test(line)
           ? "monitorar"
           : "info";
     const time = /(\b[0-2]?\d:[0-5]\d\b)/.exec(text)?.[1];
@@ -152,9 +152,9 @@ export function extractTasks(content: string): ShiftTask[] {
   return tasks.slice(0, 20);
 }
 
-export const PRIORITY_META: Record<ShiftTask["priority"], { label: string; dotClass: string; cls: string }> = {
-  alta: { label: "Alta prioridade", dotClass: "bg-red-500", cls: "border-red-300 bg-red-50" },
-  atencao: { label: "Atenção", dotClass: "bg-orange-500", cls: "border-orange-300 bg-orange-50" },
-  monitorar: { label: "Monitoramento", dotClass: "bg-yellow-500", cls: "border-yellow-300 bg-yellow-50" },
-  info: { label: "Informação", dotClass: "bg-sky-500", cls: "border-sky-300 bg-sky-50" },
+export const PRIORITY_META: Record<ShiftTask["priority"], { label: string; dot: string; cls: string }> = {
+  alta: { label: "Alta prioridade", dot: "🔴", cls: "border-red-300 bg-red-50" },
+  atencao: { label: "Atenção", dot: "🟠", cls: "border-orange-300 bg-orange-50" },
+  monitorar: { label: "Monitoramento", dot: "🟡", cls: "border-yellow-300 bg-yellow-50" },
+  info: { label: "Informação", dot: "🔵", cls: "border-sky-300 bg-sky-50" },
 };
