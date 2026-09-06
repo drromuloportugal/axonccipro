@@ -1069,7 +1069,7 @@ export function PatientRow({
 </div> )}
  <div className="ml-5 text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
  </div> {mounted && prog && (
- <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
+ <div className="ml-5 mt-1 rounded border border-border/70 bg-surface-2/40 p-1">
  <div className="flex items-center justify-between text-[10px]">
  <span className="font-semibold text-foreground">Dia {prog.currentDay} de {prog.totalDays}</span>
  <span className="font-mono text-muted-foreground">{prog.percent.toFixed(0)}%</span>
