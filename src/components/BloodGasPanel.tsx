@@ -45,7 +45,7 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
   const r = useMemo(() => computeAbg(input), [input]);
 
   return (
-    <div className="mt-2 rounded border-2 border-foreground/70 bg-surface px-2 py-2">
+    <div className="mt-2">
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
@@ -54,7 +54,7 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
           className="flex flex-1 items-center gap-1 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-clinical-resp"
         >
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-          Parecer técnico da gasometria
+          Parecer Gasometria
         </button>
         {open && (
           <select
