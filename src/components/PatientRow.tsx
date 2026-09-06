@@ -865,7 +865,7 @@ export function PatientRow({
                   <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
                     💊 Uso prévio domiciliar · {patient.pastMedications.length}
                   </div>
-                  <ul className="space-y-1.5">
+<ul className="space-y-1">
                     {patient.pastMedications.map((pm) => (
                       <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
                         <div className="flex items-center justify-between gap-2">
