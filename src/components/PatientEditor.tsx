@@ -3590,7 +3590,6 @@ const OUTCOME_OPTIONS: { code: NonNullable<ImagingExam["outcome"]> | ""; label: 
   { code: "mau", label: "Mau resultado esperado" },
 ];
 
-
 function ImagingList({
   items,
   onChange,
