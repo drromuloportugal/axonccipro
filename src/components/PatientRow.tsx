@@ -261,6 +261,7 @@ export function PatientRow({
   const [fisherOpen, setFisherOpen] = useState(false);
   const [huntHessOpen, setHuntHessOpen] = useState(false);
   const [wfnsOpen, setWfnsOpen] = useState(false);
+  const [gcsOpen, setGcsOpen] = useState(false);
   const [ichOpen, setIchOpen] = useState(false);
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
