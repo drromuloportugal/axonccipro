@@ -1420,22 +1420,16 @@ export function PatientRow({
                           const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
                           const subDate = sub.date ?? c.startedAt;
                           return (
-   <label key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
-   <input
-                                  type="checkbox"
-                                  checked={!!sub.done}
-                                  onChange={() => toggleSubItem(i, si)}
-                                  disabled={!onUpdate}
-                                  className="mt-[3px] h-2.5 w-2.5 shrink-0 cursor-pointer accent-clinical-stable"
-                                />
-   <span className="min-w-0 flex-1 whitespace-normal">
-   {subDate && (
-   <span className="text-[9px] font-mono text-muted-foreground">{formatDateBR(subDate)} </span>
-                                  )}
-   <span className={`break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
-   </span>
-   </span>
-   </label> );
+    <div key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
+                                 <span className="mt-[3px] inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-clinical-stable/80" />
+                                 <span className="min-w-0 flex-1 whitespace-normal">
+                                   {subDate && (
+                                     <span className="text-[9px] font-mono text-muted-foreground">{formatDateBR(subDate)} </span>
+                                   )}
+                                   <span className={`break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}> {sub.text || <span className="italic text-muted-foreground">(anotação vazia)</span>}
+                                   </span>
+                                 </span>
+                               </div> );
                          })}
    </div> ) : (
    <div className="mt-1 text-[10px] italic text-muted-foreground">Sem condutas registradas.</div> )}
