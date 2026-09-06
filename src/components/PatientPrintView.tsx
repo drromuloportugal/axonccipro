@@ -372,7 +372,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <PrintAnatomicalMap patient={patient} />
 
 
- <div className="mt-3 border-t border-gray-300 pt-1 text-[8px] text-gray-500"> Documento gerado pelo PASSÔMETRO — uso interno para passagem de plantão.
+ <div className="mt-3 border-t border-gray-500 pt-1 text-[8px] text-gray-500"> Documento gerado pelo PASSÔMETRO — uso interno para passagem de plantão.
  </div>
  </div> );
 }
