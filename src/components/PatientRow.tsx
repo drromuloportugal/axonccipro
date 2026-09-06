@@ -692,8 +692,9 @@ export function PatientRow({
 
   <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}> {patient.conducts.slice(0, 4).map((c, i) => {
               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
-              const firstAnn = c.subItems?.find((s) => s.text?.trim());
-              const annColor = firstAnn?.color ? ANNOTATION_COLOR_META[firstAnn.color] : null;
+               const visibleSubs = c.subItems?.filter((s) => !s.hidden) ?? [];
+               const firstAnn = visibleSubs.find((s) => s.text?.trim());
+               const annColor = firstAnn?.color ? ANNOTATION_COLOR_META[firstAnn.color] : null;
               const annDate = firstAnn?.date ?? c.startedAt;
               return (
   <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
