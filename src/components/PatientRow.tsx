@@ -2174,7 +2174,15 @@ export function PatientRow({
             {/* 7 - Plano · Metas por sistema orgânico */}
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <ColTitle tone={6}>✅ Condutas</ColTitle>
-              <ul className="space-y-1" onClick={(e) => e.stopPropagation()}>
+              <ul
+                className="space-y-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const t = e.target as HTMLElement;
+                  if (t.closest("button, a, input, select, textarea, label, [role='button']")) return;
+                  if (onEdit) onEdit(patient, "plan");
+                }}
+              >
                 {" "}
                 {[...patient.conducts]
                   .map((c, i) => ({ c, i }))
