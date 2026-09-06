@@ -83,8 +83,14 @@ const M_OPTS = [
 ];
 
 export function WfnsButton({
-  patient, onClick, compact = false,
-}: { patient: Patient; onClick: () => void; compact?: boolean }) {
+  patient,
+  onClick,
+  compact = false,
+}: {
+  patient: Patient;
+  onClick: () => void;
+  compact?: boolean;
+}) {
   const rec = (patient as Patient & { wfns?: WfnsRecord }).wfns;
   const { grade } = useMemo(() => computeWfns(rec), [rec]);
   const cls = grade
@@ -95,7 +101,10 @@ export function WfnsButton({
   return (
     <button
       type="button"
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className={`inline-flex flex-col items-start gap-0 rounded-md px-2 py-0.5 text-left text-[10px] font-semibold transition-colors ${cls}`}
       title="Escala WFNS para hemorragia subaracnoidea"
     >
@@ -104,25 +113,43 @@ export function WfnsButton({
         {grade != null && <span className="font-mono">Grau {WFNS_TABLE[grade - 1].r}</span>}
       </span>
       <span className="text-[9px] opacity-90">
-        {grade != null ? `GCS ${WFNS_TABLE[grade - 1].gcs} · déficit ${WFNS_TABLE[grade - 1].def}` : "Não classificado"}
+        {grade != null
+          ? `GCS ${WFNS_TABLE[grade - 1].gcs} · déficit ${WFNS_TABLE[grade - 1].def}`
+          : "Não classificado"}
       </span>
     </button>
   );
 }
 
 function NumField({
-  name, options, value, onChange,
-}: { name: string; options: { v: number; label: string }[]; value: number | null | undefined; onChange: (v: number) => void }) {
+  name,
+  options,
+  value,
+  onChange,
+}: {
+  name: string;
+  options: { v: number; label: string }[];
+  value: number | null | undefined;
+  onChange: (v: number) => void;
+}) {
   return (
     <div className="grid gap-1 sm:grid-cols-2">
       {options.map((o) => (
         <label
           key={o.v}
           className={`flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] transition-colors ${
-            value === o.v ? "border-primary bg-primary/10 font-semibold" : "border-border hover:bg-surface-3"
+            value === o.v
+              ? "border-primary bg-primary/10 font-semibold"
+              : "border-border hover:bg-surface-3"
           }`}
         >
-          <input type="radio" name={name} checked={value === o.v} onChange={() => onChange(o.v)} className="accent-current" />
+          <input
+            type="radio"
+            name={name}
+            checked={value === o.v}
+            onChange={() => onChange(o.v)}
+            className="accent-current"
+          />
           <span>{o.label}</span>
         </label>
       ))}
@@ -131,8 +158,16 @@ function NumField({
 }
 
 export function WfnsModal({
-  open, onClose, patient, onSave,
-}: { open: boolean; onClose: () => void; patient: Patient; onSave: (p: Patient) => void }) {
+  open,
+  onClose,
+  patient,
+  onSave,
+}: {
+  open: boolean;
+  onClose: () => void;
+  patient: Patient;
+  onSave: (p: Patient) => void;
+}) {
   const saved = (patient as Patient & { wfns?: WfnsRecord }).wfns ?? {};
   const [draft, setDraft] = useState<WfnsRecord>({ mode: "total", ...saved });
   const [showResult, setShowResult] = useState<boolean>(saved.grade != null);
@@ -184,7 +219,9 @@ export function WfnsModal({
                   type="button"
                   onClick={() => set("mode", mo)}
                   className={`rounded-md border px-2 py-1 text-[11px] font-semibold ${
-                    (draft.mode ?? "total") === mo ? "border-primary bg-primary/10" : "border-border hover:bg-surface-3"
+                    (draft.mode ?? "total") === mo
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:bg-surface-3"
                   }`}
                 >
                   {mo === "total" ? "Informar GCS total" : "Calcular por E + V + M"}
@@ -197,12 +234,16 @@ export function WfnsModal({
                 <span className="font-semibold">GCS (3–15):</span>
                 <select
                   value={draft.gcs ?? ""}
-                  onChange={(e) => set("gcs", e.target.value === "" ? null : Number(e.target.value))}
+                  onChange={(e) =>
+                    set("gcs", e.target.value === "" ? null : Number(e.target.value))
+                  }
                   className="rounded-md border border-border bg-background px-2 py-1 text-[12px]"
                 >
                   <option value="">Selecione</option>
                   {Array.from({ length: 13 }, (_, i) => 15 - i).map((n) => (
-                    <option key={n} value={n}>{n}</option>
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -210,35 +251,57 @@ export function WfnsModal({
               <div className="space-y-2">
                 <div>
                   <div className="mb-1 text-[12px] font-semibold">Abertura ocular (E)</div>
-                  <NumField name="wfns-e" options={E_OPTS} value={draft.e} onChange={(v) => set("e", v)} />
+                  <NumField
+                    name="wfns-e"
+                    options={E_OPTS}
+                    value={draft.e}
+                    onChange={(v) => set("e", v)}
+                  />
                 </div>
                 <div>
                   <div className="mb-1 text-[12px] font-semibold">Resposta verbal (V)</div>
-                  <NumField name="wfns-v" options={V_OPTS} value={draft.v} onChange={(v) => set("v", v)} />
+                  <NumField
+                    name="wfns-v"
+                    options={V_OPTS}
+                    value={draft.v}
+                    onChange={(v) => set("v", v)}
+                  />
                 </div>
                 <div>
                   <div className="mb-1 text-[12px] font-semibold">Resposta motora (M)</div>
-                  <NumField name="wfns-m" options={M_OPTS} value={draft.m} onChange={(v) => set("m", v)} />
+                  <NumField
+                    name="wfns-m"
+                    options={M_OPTS}
+                    value={draft.m}
+                    onChange={(v) => set("m", v)}
+                  />
                 </div>
               </div>
             )}
 
-            {gcs != null && (
-              <div className="mt-2 text-[12px] font-semibold">GCS: {gcs}/15</div>
-            )}
+            {gcs != null && <div className="mt-2 text-[12px] font-semibold">GCS: {gcs}/15</div>}
           </div>
 
           <div>
             <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               2 · Déficit motor
             </div>
-            <div className="mb-1 text-[12px] font-semibold">Existe déficit motor focal clinicamente relevante?</div>
+            <div className="mb-1 text-[12px] font-semibold">
+              Existe déficit motor focal clinicamente relevante?
+            </div>
             <div className="grid gap-1 sm:grid-cols-2">
-              {([{ v: "no", label: "Não" }, { v: "yes", label: "Sim" }] as { v: WfnsYN; label: string }[]).map((o) => (
+              {(
+                [
+                  { v: "no", label: "Não" },
+                  { v: "yes", label: "Sim" },
+                ] as { v: WfnsYN; label: string }[]
+              ).map((o) => (
                 <label
                   key={o.v}
                   className={`flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] transition-colors ${
-                    draft.motorDeficit === o.v ? "border-primary bg-primary/10 font-semibold" : "border-border hover:bg-surface-3"
+                    draft.motorDeficit === o.v
+                      ? "border-primary bg-primary/10 font-semibold"
+                      : "border-border hover:bg-surface-3"
                   }`}
                 >
                   <input
@@ -284,12 +347,17 @@ export function WfnsModal({
         {showResult && grade != null && (
           <div className="rounded-md border-2 border-border bg-surface p-4 text-center">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">WFNS</div>
-            <div className="font-mono text-4xl font-black text-foreground">GRAU {WFNS_TABLE[grade - 1].r}</div>
+            <div className="font-mono text-4xl font-black text-foreground">
+              GRAU {WFNS_TABLE[grade - 1].r}
+            </div>
             <div className="mx-auto mt-2 max-w-md space-y-1 text-[12px] text-foreground">
               <div>GCS: {gcs}/15</div>
               <div>Déficit motor: {draft.motorDeficit === "yes" ? "Sim" : "Não"}</div>
               <div>Classificação: WFNS {WFNS_TABLE[grade - 1].r}</div>
-              <div><span className="font-semibold">Descrição: </span>{WFNS_DESCRIPTION[grade]}</div>
+              <div>
+                <span className="font-semibold">Descrição: </span>
+                {WFNS_DESCRIPTION[grade]}
+              </div>
             </div>
           </div>
         )}
@@ -305,7 +373,10 @@ export function WfnsModal({
             </thead>
             <tbody className="divide-y divide-border">
               {WFNS_TABLE.map((row) => (
-                <tr key={row.g} className={grade === row.g && showResult ? "bg-primary/10 font-semibold" : ""}>
+                <tr
+                  key={row.g}
+                  className={grade === row.g && showResult ? "bg-primary/10 font-semibold" : ""}
+                >
                   <td className="p-2 font-mono">{row.r}</td>
                   <td className="p-2">{row.gcs}</td>
                   <td className="p-2">{row.def}</td>
@@ -316,8 +387,8 @@ export function WfnsModal({
         </div>
 
         <div className="border-t border-border pt-2 text-[10px] text-muted-foreground">
-          Ferramenta de apoio à avaliação clínica. A Escala WFNS não substitui o exame neurológico completo, avaliação
-          médica especializada ou protocolos institucionais.
+          Ferramenta de apoio à avaliação clínica. A Escala WFNS não substitui o exame neurológico
+          completo, avaliação médica especializada ou protocolos institucionais.
         </div>
       </DialogContent>
     </Dialog>

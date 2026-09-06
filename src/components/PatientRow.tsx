@@ -2175,7 +2175,8 @@ export function PatientRow({
                 onClick={(e) => {
                   e.stopPropagation();
                   const t = e.target as HTMLElement;
-                  if (t.closest("button, a, input, select, textarea, label, [role='button']")) return;
+                  if (t.closest("button, a, input, select, textarea, label, [role='button']"))
+                    return;
                   if (onEdit) onEdit(patient, "plan");
                 }}
               >
