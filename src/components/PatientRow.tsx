@@ -1770,7 +1770,15 @@ export function PatientRow({
               {" "}
               {/* 1) Culturas */}
               <ColTitle tone={4}>🦠 Culturas · Imagem</ColTitle>
-              <div className="mb-3">
+              <div
+                className="mb-3"
+                onClick={(e) => {
+                  const t = e.target as HTMLElement;
+                  if (t.closest("button, a, input, select, textarea")) return;
+                  e.stopPropagation();
+                  if (onEdit) onEdit(patient, "cult");
+                }}
+              >
                 <div className="mb-1 flex items-center justify-between">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     {" "}
