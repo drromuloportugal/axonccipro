@@ -34,7 +34,6 @@ import {
   medClassOf,
   MEDICATION_CLASS_META,
   MEDICATION_CLASS_ORDER,
-  bristolMeta,
   computeFluidBalance,
   CONDUCT_SYSTEM_META,
   ANNOTATION_COLOR_META,
@@ -860,7 +859,7 @@ export function PatientRow({
               </div>
             )}
           </div>{" "}
-          {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
+          {/* 6 - Estado atual (Sinais vitais) · Balanço hídrico · Notas */}
           <div
             onClick={colClick("sup")}
             className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]"
