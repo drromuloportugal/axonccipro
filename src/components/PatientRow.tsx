@@ -878,28 +878,28 @@ export function PatientRow({
                 {patient.imaging!.slice(0, 2).map((im) => (
                   <div
                     key={im.id}
-                    className={`flex items-center gap-1 rounded text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline px-1" : ""}`}
+                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline" : ""}`}
                     title={im.outcome === "mau" ? "Mau resultado esperado" : undefined}
                   >
-                    <span className="shrink-0">
-                      {" "}
-                      {im.conclusion === "critico"
-                        ? ""
-                        : im.conclusion === "alterado"
-                          ? ""
-                          : im.conclusion === "normal"
-                            ? ""
-                            : ""}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate" title={im.summary}>
-                      <span className="font-semibold text-foreground">{im.modality}</span>
-                      <span className="text-muted-foreground"> {im.region}</span>
-                    </span>{" "}
-                    {im.images && im.images.length > 0 && (
-                      <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
-                        {" "}
-                        {im.images.length}
+                    <div className="flex items-center gap-1">
+                      <span className="min-w-0 flex-1 truncate" title={im.summary}>
+                        <span className="font-semibold text-foreground">{im.modality}</span>
+                        <span className="text-muted-foreground"> {im.region}</span>
                       </span>
+                      {im.images && im.images.length > 0 && (
+                        <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
+                          {" "}
+                          {im.images.length}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[9px] text-muted-foreground">
+                      {formatDateBR(im.performedAt)}
+                    </div>
+                    {im.status && (
+                      <div className="text-[9px] font-semibold uppercase tracking-wider text-foreground">
+                        {im.status === "concluido" ? "Concluído" : "Solicitado"}
+                      </div>
                     )}
                   </div>
                 ))}
