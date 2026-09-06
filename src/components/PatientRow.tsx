@@ -1075,7 +1075,7 @@ export function PatientRow({
                 return (
                   <li
                     key={i}
-                    className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}
+                    className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass}`}
                   >
                     <span className="min-w-0 flex-1">
                       <span
@@ -2265,7 +2265,7 @@ export function PatientRow({
                     return (
                       <li
                         key={i}
-                        className={`rounded-md border px-1.5 py-1 text-[11px] ${meta.borderClass} ${meta.bgClass}`}
+                        className={`rounded-md border px-1.5 py-1 text-[11px] ${meta.borderClass}`}
                       >
                         <div className="flex items-center gap-2">
                           <span
