@@ -78,7 +78,10 @@ import {
   ANNOTATION_COLOR_META,
   ANNOTATION_COLOR_ORDER,
   applyAnnotationColor,
+  annotationPlainOffsetToRaw,
+  mergeAnnotationPlainEdit,
   parseAnnotationSegments,
+  stripAnnotationMarkup,
 } from "@/lib/clinical";
 
 import {
@@ -2894,8 +2897,9 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   const colorSelection = (i: number, si: number, text: string, color: AnnotationColor) => {
     const ta = annRefs.current[`${i}-${si}`];
     if (!ta) return;
-    const start = ta.selectionStart ?? 0;
-    const end = ta.selectionEnd ?? 0;
+    // A seleção do textarea refere-se ao texto puro (sem marcação); converte.
+    const start = annotationPlainOffsetToRaw(text, ta.selectionStart ?? 0);
+    const end = annotationPlainOffsetToRaw(text, ta.selectionEnd ?? 0);
     if (end <= start) return;
     updSub(i, si, { text: applyAnnotationColor(text, start, end, color) });
   };
