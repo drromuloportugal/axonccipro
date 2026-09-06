@@ -467,6 +467,11 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
                 />
  </Section>
  </div>
+ <div className="mt-3">
+ <Section title="Evolução clínica (contexto para a análise profunda)">
+ <PriorEvolutionEditor value={p.priorEvolution} onChange={(v) => upd("priorEvolution", v)} />
+ </Section>
+ </div>
  </TabsContent> {/* 3 — Procedimentos e Dispositivos */}
  <TabsContent value="proc">
  <Section title="Dispositivos invasivos">
