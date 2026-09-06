@@ -2886,7 +2886,19 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
     Object.fromEntries(items.map((_, i) => [i, true])),
   );
 
+  // Refs dos campos de anotação, para colorir apenas o trecho selecionado.
+  const annRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
+  const colorSelection = (i: number, si: number, text: string, color: AnnotationColor) => {
+    const ta = annRefs.current[`${i}-${si}`];
+    if (!ta) return;
+    const start = ta.selectionStart ?? 0;
+    const end = ta.selectionEnd ?? 0;
+    if (end <= start) return;
+    updSub(i, si, { text: applyAnnotationColor(text, start, end, color) });
+  };
+
   const toggle = (i: number) => setExpanded((prev) => ({ ...prev, [i]: !prev[i] }));
+
 
   const add = () => {
     // O tópico é o próprio sistema orgânico — não há mais nome de conduta.
