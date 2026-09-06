@@ -1411,28 +1411,11 @@ export function PatientRow({
               {patient.pastMedications && patient.pastMedications.length > 0 && (
                 <div className="mt-3">
                   <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
-                    💊 Uso prévio domiciliar · {patient.pastMedications.length}
+                    💊 {patient.pastMedications.length}
                   </div>
-                  <ul className="space-y-1">
-                    {patient.pastMedications.map((pm) => (
-                      <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-foreground">{pm.name}</span>
-                          <span
-                            className={`shrink-0 rounded px-1 py-0.5 text-[9px] font-semibold uppercase ${
-                              pm.status === "em uso domiciliar"
-                                ? "bg-clinical-stable/15 text-clinical-stable"
-                                : pm.status === "alergia/reação"
-                                  ? "bg-clinical-critical/15 text-clinical-critical"
-                                  : "bg-clinical-neutral/15 text-clinical-neutral"
-                            }`}
-                          >
-                            {pm.status ?? "uso prévio"}
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="ios-inset rounded p-1.5 text-[10px] leading-snug text-foreground">
+                    {patient.pastMedications.map((pm) => pm.name).join(", ")}
+                  </div>
                 </div>
               )}
 
