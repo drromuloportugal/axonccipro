@@ -315,6 +315,12 @@ export function SerialMatrix({
   const addDate = () => {
     if (!newDate) return;
     setExtraDates((prev) => (prev.includes(newDate) ? prev : [...prev, newDate]));
+    // posiciona a janela para exibir a data recém-adicionada
+    const merged = Array.from(new Set([...allDates, newDate])).sort();
+    const idx = merged.indexOf(newDate);
+    setStartOverride(
+      Math.max(0, Math.min(idx - (WINDOW - 1), Math.max(0, merged.length - WINDOW))),
+    );
     setNewDate("");
   };
 
