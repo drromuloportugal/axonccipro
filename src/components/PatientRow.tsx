@@ -923,8 +923,11 @@ export function PatientRow({
                 /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
                   code ?? label ?? "",
                 );
-              const lab = patient.exams.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
-              const gaso = patient.exams.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
+              const filled = patient.exams.filter(
+                (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
+              );
+              const lab = filled.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
+              const gaso = filled.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
               const rows = (list: typeof patient.exams) =>
                 list.map((e, i) => {
                   const ins = examInsight(e, patient.sex);
@@ -969,42 +972,6 @@ export function PatientRow({
                 </>
               );
             })()}{" "}
-            {/* Escala de Bristol — linhas temporais */}
-            {(patient.state.stools?.length ?? 0) > 0 && (
-              <div className="ios-inset px-1.5 py-1">
-                <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">
-                  {" "}
-                  Bristol
-                </div>
-                <div className="space-y-0.5">
-                  {" "}
-                  {patient.state.stools!.map((st) => {
-                    const m = bristolMeta(st.bristol);
-                    return (
-                      <div
-                        key={st.id}
-                        className="flex items-baseline justify-between gap-1 text-[10px]"
-                      >
-                        <span className={`font-semibold ${m?.className ?? "text-foreground"}`}>
-                          {m ? `Tipo ${m.value}` : "—"}
-                        </span>
-                        <span className="font-mono text-muted-foreground">{st.volume ?? "—"}</span>
-                        <span className="text-[8.5px] text-muted-foreground">
-                          {st.at
-                            ? new Date(st.at).toLocaleString("pt-BR", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : ""}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
             {/* Balanço hídrico — linhas */}
             {patient.state.fluidBalance &&
             (fluidBalance.totalIntake || fluidBalance.totalOutput || fluidBalance.totalDrains) ? (
@@ -2068,8 +2035,11 @@ export function PatientRow({
                   /pH|PaO2|PaCO2|HCO3|SatO2|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
                     code ?? label ?? "",
                   );
-                const lab = patient.exams.filter((e) => !isGaso(e.code, e.label));
-                const gaso = patient.exams.filter((e) => isGaso(e.code, e.label));
+                const filled = patient.exams.filter(
+                  (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
+                );
+                const lab = filled.filter((e) => !isGaso(e.code, e.label));
+                const gaso = filled.filter((e) => isGaso(e.code, e.label));
                 const renderTable = (rows: typeof patient.exams) => (
                   <table className="w-full text-[11px]">
                     <tbody>
@@ -2110,76 +2080,28 @@ export function PatientRow({
                 );
                 return (
                   <>
-                    <div className="mt-3">
-                      <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                        {" "}
-                        Exames laboratoriais
-                      </div>{" "}
-                      {lab.length ? (
-                        renderTable(lab)
-                      ) : (
-                        <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                          Sem laboratoriais.
-                        </div>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp">
-                        {" "}
-                        Gasometria arterial
-                      </div>{" "}
-                      {gaso.length ? (
-                        renderTable(gaso)
-                      ) : (
-                        <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                          Sem gasometria.
-                        </div>
-                      )}
-                      <BloodGasPanel patient={patient} />
-                    </div>
+                    {lab.length > 0 && (
+                      <div className="mt-3">
+                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          {" "}
+                          Exames laboratoriais
+                        </div>{" "}
+                        {renderTable(lab)}
+                      </div>
+                    )}
+                    {gaso.length > 0 && (
+                      <div className="mt-3">
+                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp">
+                          {" "}
+                          Gasometria arterial
+                        </div>{" "}
+                        {renderTable(gaso)}
+                        <BloodGasPanel patient={patient} />
+                      </div>
+                    )}
                   </>
                 );
               })()}
-              {/* Bristol — linhas temporais */}
-              <div className="mt-3">
-                <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  {" "}
-                  Escala de Bristol
-                </div>{" "}
-                {(patient.state.stools?.length ?? 0) > 0 ? (
-                  <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px]">
-                    {" "}
-                    {patient.state.stools!.map((st) => {
-                      const m = bristolMeta(st.bristol);
-                      return (
-                        <div key={st.id} className="flex items-baseline justify-between gap-2">
-                          <span className={`font-semibold ${m?.className ?? "text-foreground"}`}>
-                            {m ? `Tipo ${m.value}` : "—"}
-                          </span>
-                          <span className="font-mono font-bold text-muted-foreground">
-                            {st.volume ?? "—"}
-                          </span>
-                          <span className="text-[9.5px] text-muted-foreground">
-                            {st.at
-                              ? new Date(st.at).toLocaleString("pt-BR", {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
-                              : ""}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">
-                    {" "}
-                    Sem evacuação registrada.
-                  </div>
-                )}
-              </div>{" "}
               {/* Balanço hídrico — linhas */}
               <div className="mt-3">
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
