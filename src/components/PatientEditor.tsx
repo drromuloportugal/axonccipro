@@ -1406,6 +1406,7 @@ function MedicationsList({
     { id: "pump", label: "Medicação em bomba", icon: "", cls: "border-clinical-critical/50 hover:bg-clinical-critical/10" },
     { id: "antibiotic", label: "Antimicrobiano", icon: "", cls: "border-clinical-attention/50 hover:bg-clinical-attention/10" },
     { id: "hydration", label: "Hidratação", icon: "", cls: "border-clinical-resp/50 hover:bg-clinical-resp/10" },
+    { id: "hemotransfusion", label: "Hemotransfusão", icon: "", cls: "border-clinical-critical/50 hover:bg-clinical-critical/10" },
     { id: "other", label: "Outros medicamentos", icon: "", cls: "border-border hover:bg-surface-2" },
   ];
 
@@ -1490,7 +1491,7 @@ function MedicationsList({
  <div className="rounded-md border border-dashed border-border bg-surface-2/40 p-3">
  <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"> Adicionar medicação — selecione o tipo
  </div>
- <div className="grid grid-cols-2 gap-2 md:grid-cols-4"> {ENTRY_TYPES.map((t) => (
+ <div className="grid grid-cols-2 gap-2 md:grid-cols-5"> {ENTRY_TYPES.map((t) => (
  <button
               key={t.id}
               type="button"
@@ -2260,6 +2261,7 @@ const IMAGING_MODALITIES: { code: ImagingModality; label: string }[] = [
   { code: "MAMO", label: "Mamografia" },
   { code: "PET", label: "PET-CT" },
   { code: "CINTILO", label: "Cintilografia" },
+  { code: "EEG", label: "Eletroencefalograma (EEG)" },
   { code: "OUTRO", label: "Outro" },
 ];
 

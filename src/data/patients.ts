@@ -141,7 +141,7 @@ export interface ExamRow {
 }
 
 export type ImagingModality =
-  | "RX" | "USG" | "TC" | "RM" | "ECO" | "ECODOPPLER" | "ANGIO" | "MAMO" | "PET" | "CINTILO" | "OUTRO";
+  | "RX" | "USG" | "TC" | "RM" | "ECO" | "ECODOPPLER" | "ANGIO" | "MAMO" | "PET" | "CINTILO" | "EEG" | "OUTRO";
 
 
 export interface ImagingImage {
