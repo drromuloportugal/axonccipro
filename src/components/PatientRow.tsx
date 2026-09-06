@@ -1410,8 +1410,8 @@ export function PatientRow({
                         className="ios-inset rounded px-1.5 py-1 text-[10px] leading-snug text-foreground"
                       >
                         <div>
-                          {pm.dose && <span className="font-semibold">{pm.dose} </span>}
                           <span className="font-semibold">{pm.name}</span>
+                          {pm.dose && <span className="text-muted-foreground"> · {pm.dose}</span>}
                           {pm.freq && <span className="text-muted-foreground"> · {pm.freq}</span>}
                         </div>
                         {pm.period && (
