@@ -226,6 +226,7 @@ export type AnnotationColor = "default" | "green" | "yellow" | "orange" | "red" 
 
 export interface ConductSubItem {
   text: string;
+  /** @deprecated Anotações não possuem mais estado de conclusão. */
   done?: boolean;
   /** Quando true, a anotação fica oculta no painel principal (visível apenas na edição). */
   hidden?: boolean;
@@ -239,7 +240,8 @@ export interface Conduct {
   team: "Médica" | "Enfermagem" | "Fisioterapia" | "Nutrição" | "Fono" | "Psicologia";
   /** @deprecated Mantido para compat; agora o "tópico" é o próprio sistema orgânico. */
   text: string;
-  done: boolean;
+  /** @deprecated Anotações não possuem mais estado de conclusão. */
+  done?: boolean;
   system?: ConductSystem;
   subItems?: ConductSubItem[];
   /** Data de início da conduta (ISO). */

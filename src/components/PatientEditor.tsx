@@ -831,7 +831,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
           </TabsContent>{" "}
           {/* 7 — Plano */}
           <TabsContent value="plan">
-            <Section title="Condutas pendentes / concluídas (por sistema orgânico)">
+            <Section title="Anotações por sistema orgânico">
               <ConductsList items={p.conducts} onChange={(v) => upd("conducts", v)} />
             </Section>
             <div className="mt-3">
@@ -2900,12 +2900,10 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
       team,
       system,
       text: CONDUCT_SYSTEM_META[system].label,
-      done: false,
       startedAt,
       subItems: [
         {
           text: "",
-          done: false,
           color: "default" as const,
           date: new Date().toISOString().slice(0, 10),
         },
@@ -2932,7 +2930,6 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
       ...(cur.subItems ?? []),
       {
         text: "",
-        done: false,
         color: "default" as const,
         date: new Date().toISOString().slice(0, 10),
       },
