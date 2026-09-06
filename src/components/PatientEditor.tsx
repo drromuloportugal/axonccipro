@@ -17,6 +17,7 @@ import {
   CircleCheck,
   CirclePause,
   ChevronDown,
+  ChevronUp,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -2940,6 +2941,32 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
     upd(i, { subItems: (cur.subItems ?? []).filter((_, k) => k !== si) });
   };
 
+  /** Move um sistema orgânico para cima/baixo na lista (dir = -1 | +1). */
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j]!, next[i]!];
+    onChange(next);
+    setExpanded((prev) => {
+      const copy = { ...prev };
+      const a = copy[i];
+      copy[i] = copy[j] ?? false;
+      copy[j] = a ?? false;
+      return copy;
+    });
+  };
+
+  /** Move uma anotação para cima/baixo dentro do sistema (dir = -1 | +1). */
+  const moveSub = (i: number, si: number, dir: -1 | 1) => {
+    const cur = items[i];
+    const subs = [...(cur.subItems ?? [])];
+    const sj = si + dir;
+    if (sj < 0 || sj >= subs.length) return;
+    [subs[si], subs[sj]] = [subs[sj]!, subs[si]!];
+    upd(i, { subItems: subs });
+  };
+
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-[140px_1fr_140px_auto] gap-2">
@@ -3008,6 +3035,32 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                 </button>
                 <div className="flex items-center gap-1">
                   <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      move(i, -1);
+                    }}
+                    disabled={i === 0}
+                    className="rounded p-1 hover:bg-surface-3 disabled:opacity-30"
+                    title="Mover sistema para cima"
+                    aria-label="Mover sistema para cima"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      move(i, 1);
+                    }}
+                    disabled={i === items.length - 1}
+                    className="rounded p-1 hover:bg-surface-3 disabled:opacity-30"
+                    title="Mover sistema para baixo"
+                    aria-label="Mover sistema para baixo"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       addSub(i);
@@ -3074,6 +3127,28 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                           className="mt-6 inline-block h-3 w-3 shrink-0 rounded-full border border-border"
                           style={{ backgroundColor: colMeta.swatch }}
                         />
+                        <div className="mt-5 flex flex-col">
+                          <button
+                            type="button"
+                            onClick={() => moveSub(i, si, -1)}
+                            disabled={si === 0}
+                            className="rounded p-0.5 hover:bg-surface-3 disabled:opacity-30"
+                            title="Mover anotação para cima"
+                            aria-label="Mover anotação para cima"
+                          >
+                            <ChevronUp className="h-3 w-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => moveSub(i, si, 1)}
+                            disabled={si === (c.subItems ?? []).length - 1}
+                            className="rounded p-0.5 hover:bg-surface-3 disabled:opacity-30"
+                            title="Mover anotação para baixo"
+                            aria-label="Mover anotação para baixo"
+                          >
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                        </div>
                         <button
                           type="button"
                           onClick={() => updSub(i, si, { hidden: !sub.hidden })}
