@@ -3113,7 +3113,10 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                             title="Data da conduta específica"
                           />
                           <textarea
-                            className={`flex-1 rounded border border-border/60 bg-background px-2 py-1 text-[12px] leading-snug outline-none focus:border-primary ${colMeta.textClass}`}
+                            ref={(el) => {
+                              annRefs.current[`${i}-${si}`] = el;
+                            }}
+                            className="flex-1 rounded border border-border/60 bg-background px-2 py-1 text-[12px] leading-snug outline-none focus:border-primary"
                             placeholder="Anotação — escreva livremente (múltiplas linhas)"
                             rows={Math.max(
                               2,
@@ -3122,7 +3125,44 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                             value={sub.text}
                             onChange={(e) => updSub(i, si, { text: e.target.value })}
                           />
+                          <div className="flex flex-wrap items-center gap-1">
+                            <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              Colorir seleção
+                            </span>
+                            {ANNOTATION_COLOR_ORDER.map((col) => (
+                              <button
+                                key={col}
+                                type="button"
+                                onClick={() => colorSelection(i, si, sub.text, col)}
+                                title={
+                                  col === "default"
+                                    ? "Remover cor do trecho selecionado"
+                                    : `Aplicar ${ANNOTATION_COLOR_META[col].label.toLowerCase()} ao trecho selecionado`
+                                }
+                                aria-label={`Colorir seleção: ${ANNOTATION_COLOR_META[col].label}`}
+                                className="h-4 w-4 rounded-full border border-border hover:ring-2 hover:ring-ring"
+                                style={{ backgroundColor: ANNOTATION_COLOR_META[col].swatch }}
+                              />
+                            ))}
+                          </div>
+                          {sub.text.trim() && (
+                            <div className="rounded border border-dashed border-border/60 bg-surface-2 px-2 py-1 text-[11px] leading-snug">
+                              {parseAnnotationSegments(sub.text, sub.color ?? "default").map(
+                                (seg, k) => (
+                                  <span
+                                    key={k}
+                                    className={
+                                      ANNOTATION_COLOR_META[seg.color].textClass || "text-foreground"
+                                    }
+                                  >
+                                    {seg.text}
+                                  </span>
+                                ),
+                              )}
+                            </div>
+                          )}
                         </div>
+
                         <select
                           className="mt-6 rounded border border-border bg-background px-1 py-1 text-[10px]"
                           value={sub.color ?? "default"}
