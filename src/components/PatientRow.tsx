@@ -896,7 +896,7 @@ export function PatientRow({
             <div className="ios-inset px-1.5 py-1">
               <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground">
                 {" "}
-                Sinais vitais
+                Sinais vitais{vitalsDateLabel ? ` · ${vitalsDateLabel}` : ""}
               </div>
               <div className="space-y-0.5">
                 {" "}
@@ -909,7 +909,12 @@ export function PatientRow({
                       className={`grid grid-cols-[34px_1fr_auto] items-center gap-x-1 py-[1px] text-[10px] ${abn ? "alert-outline px-1" : ""}`}
                       title={abn ? "Sinal vital alterado (último registro)" : undefined}
                     >
-                      <span className="f-fixed font-semibold text-muted-foreground">{r.label}</span>
+                      <span
+                        className="f-fixed truncate font-semibold text-muted-foreground"
+                        title={r.label}
+                      >
+                        {r.label}
+                      </span>
                       <span
                         className={`flex flex-col items-end leading-tight font-mono font-bold tabular-nums ${VITAL_LEVEL_TXT[r.v.level]}`}
                       >
