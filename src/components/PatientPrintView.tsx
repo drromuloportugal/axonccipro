@@ -35,14 +35,14 @@ function inlineText(s: string) {
   return s.replace(/\s+/g, " ").trim();
 }
 
-function Col({ title, idx, children }: { title: string; idx: number; children: React.ReactNode }) {
+function Col({ title, idx, className, contentClassName, children }: { title: string; idx: number; className?: string; contentClassName?: string; children: React.ReactNode }) {
   return (
- <div className="border-l border-gray-200 pl-2.5 first:border-l-0 first:pl-0">
- <div className="mb-1.5 flex items-baseline gap-1.5 border-b border-gray-300 pb-1">
- <span className="font-mono text-[9px] font-semibold text-gray-400">{String(idx).padStart(2, "0")}</span>
- <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-800">{title}</span>
+ <div className={cn("border-l border-gray-500 pl-1.5 first:border-l-0 first:pl-0", className)}>
+ <div className="mb-1 flex items-baseline gap-1 border-b border-gray-500 pb-1">
+ <span className="font-mono text-[9px] font-semibold text-gray-500">{String(idx).padStart(2, "0")}</span>
+ <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-900">{title}</span>
  </div>
- <div className="text-[10.5px] leading-[1.35]">{children}</div>
+ <div className={cn("text-[10.5px] leading-[1.35]", contentClassName)}>{children}</div>
  </div> );
 }
 
