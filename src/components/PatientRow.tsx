@@ -1313,26 +1313,39 @@ export function PatientRow({
               </div>{" "}
               {/* Escalas — scores empilhados */}
               <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                <ColTitle tone={5}>⚙️ Escalas</ColTitle>
-                <div className="flex flex-col items-start gap-1">
-                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="classic"
-                  />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="modified"
-                  />
-                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
-                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
-                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
-                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
-                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
-                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setScalesExpanded((v) => !v)}
+                  className="mb-1.5 flex w-full items-center justify-between gap-1.5 rounded px-1 py-0.5 text-left hover:bg-surface-2"
+                >
+                  <ColTitle tone={5}>⚙️ Escalas</ColTitle>
+                  {scalesExpanded ? (
+                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+                {scalesExpanded && (
+                  <div className="flex flex-col items-start gap-1">
+                    <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="classic"
+                    />
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="modified"
+                    />
+                    <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
+                    <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+                    <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
+                    <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
+                    <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
+                    <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
+                  </div>
+                )}
               </div>
               {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
             </div>{" "}
