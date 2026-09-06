@@ -1342,8 +1342,37 @@ function MedicationsList({
   const del = (i: number) => onChange(items.filter((_, idx) => idx !== i));
 
   // ---- Fluxo de inclusão: escolher o tipo primeiro ----
-  type EntryType = "pump" | "antibiotic" | "hydration" | "other";
+  type EntryType = "pump" | "antibiotic" | "hydration" | "hemotransfusion" | "other";
   const [entryType, setEntryType] = useState<EntryType | null>(null);
+
+  const HEMO_COMPONENTS: string[] = [
+ "Concentrado de hemácias",
+ "Plasma fresco congelado",
+ "Concentrado de plaquetas",
+ "Crioprecipitado",
+ "Sangue total",
+  ];
+  const [hemoComponent, setHemoComponent] = useState(HEMO_COMPONENTS[0]);
+  const [hemoVolume, setHemoVolume] = useState("");
+  const [hemoNote, setHemoNote] = useState("");
+
+  const addHemo = () => {
+    const med: Medication = {
+      name: hemoComponent,
+      dose: hemoVolume,
+      route: "EV",
+      freq: hemoNote || "Transfusão",
+      start: todayShort(),
+      kind: "resp",
+      class: "iv",
+      active: true,
+    };
+    onChange([...items, med]);
+    setHemoVolume("");
+    setHemoNote("");
+    setEntryType(null);
+  };
+
 
   const HYDRATION_SOLUTIONS = [
  "Soro fisiológico 0,9%",
