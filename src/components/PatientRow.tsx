@@ -42,7 +42,7 @@ import {
   organDonationLabel,
   directiveLabel,
 } from "@/lib/clinical";
-import { currentVitalsSummary } from "@/components/SmartMonitoring";
+import { currentVitalsSummary, latestDayVitals } from "@/components/SmartMonitoring";
 import type { VitalSummaryEntry } from "@/components/SmartMonitoring";
 
 import { summarizeLPP, STAGE_META } from "@/lib/lpp";
@@ -355,15 +355,19 @@ export function PatientRow({
     return fluidBalance.balance / w / 24; // mL/kg/h (janela de 24 h)
   }, [fluidBalance.balance, patient.weight]);
   const vitals = currentVitalsSummary(patient);
-  const vitalRows = [
-    { label: "Temp", v: vitals.temp },
-    { label: "SpO₂", v: vitals.spo2 },
-    { label: "FC", v: vitals.fc },
-    { label: "FR", v: vitals.fr },
-    { label: "PAS", v: vitals.pas },
-    { label: "PAD", v: vitals.pad },
-    { label: "PAM", v: vitals.bp },
-  ].filter((r) => r.v.level !== "na");
+  const latestVitals = useMemo(() => latestDayVitals(patient), [patient]);
+  const vitalRows = latestVitals.date
+    ? latestVitals.rows
+    : [
+        { label: "Temp", v: vitals.temp },
+        { label: "SpO₂", v: vitals.spo2 },
+        { label: "FC", v: vitals.fc },
+        { label: "FR", v: vitals.fr },
+        { label: "PAS", v: vitals.pas },
+        { label: "PAD", v: vitals.pad },
+        { label: "PAM", v: vitals.bp },
+      ].filter((r) => r.v.level !== "na");
+  const vitalsDateLabel = latestVitals.date ? formatDayMonth(latestVitals.date) : null;
 
   // Image lightbox
   const [zoomImg, setZoomImg] = useState<string | null>(null);
