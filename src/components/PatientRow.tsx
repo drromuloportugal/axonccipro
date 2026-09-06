@@ -603,25 +603,48 @@ export function PatientRow({
                 ⚙️ Escalas
               </div>
               <div className="flex flex-col items-start gap-0.5">
-                <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
-                <FisherButton
-                  patient={patient}
-                  onClick={() => setFisherOpen(true)}
-                  compact
-                  variant="classic"
-                />
-                <FisherButton
-                  patient={patient}
-                  onClick={() => setFisherOpen(true)}
-                  compact
-                  variant="modified"
-                />
-                <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
-                <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
-                <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
-                <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
-                <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
-                <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
+                {filledScales.saps3 && (
+                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+                )}
+                {filledScales.fisherC && (
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    compact
+                    variant="classic"
+                  />
+                )}
+                {filledScales.fisherM && (
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    compact
+                    variant="modified"
+                  />
+                )}
+                {filledScales.huntHess && (
+                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
+                )}
+                {filledScales.wfns && (
+                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
+                )}
+                {filledScales.ich && (
+                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
+                )}
+                {filledScales.nihss && (
+                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
+                )}
+                {filledScales.vasograde && (
+                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+                )}
+                {filledScales.sofa && (
+                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
+                )}
+                {!anyScaleFilled && (
+                  <span className="text-[9px] italic text-muted-foreground/60">
+                    Nenhuma escala preenchida
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(true)}
