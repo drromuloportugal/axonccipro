@@ -436,16 +436,16 @@ export function PatientRow({
           </div>
 
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
- </div> {/* 2 - História */}
- <div onClick={colClick("hist")} className="flex min-w-0 flex-col">
+</div> {/* 2 - História */}
+<div onClick={colClick("hist")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
 
- <ColHead label="📋 História" tab="hist" title="Editar história" tone={1} />
- <div className="flex flex-wrap gap-1"> {patient.diagnoses.slice(-3).map((d, i) => (
- <Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
+<ColHead label="📋 História" tab="hist" title="Editar história" tone={1} />
+<div className="flex flex-wrap gap-0.5"> {patient.diagnoses.slice(-3).map((d, i) => (
+<Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
             {patient.diagnoses.length === 0 && (
- <span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span> )}
- </div>
- </div> {/* 3 - Invasões / Dispositivos */}
+<span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span> )}
+</div>
+</div> {/* 3 - Invasões / Dispositivos */}
  <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5">
 
  <ColHead
@@ -480,9 +480,9 @@ export function PatientRow({
  <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
  </div>
  </div> )}
- </div> {/* 4 - Medicações com dashboard de bombas */}
- <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5">
- <ColHead
+</div> {/* 4 - Medicações com dashboard de bombas */}
+<div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1 !px-1.5 text-[11px]">
+<ColHead
             label="💊 Medicações"
             tab="med"
             title="Editar medicações"
@@ -512,7 +512,7 @@ export function PatientRow({
  <PumpDashboard patient={patient} onOpen={() => setPumpOpen(true)} />
  </div>
 
- <div className="space-y-1.5"> {MEDICATION_CLASS_ORDER.map((cls) => {
+ <div className="space-y-1"> {MEDICATION_CLASS_ORDER.map((cls) => {
               const list = medsByClass.get(cls);
               if (!list || !list.length) return null;
               const meta = MEDICATION_CLASS_META[cls];
@@ -575,7 +575,7 @@ export function PatientRow({
  </div> ))}
  </div> )}
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
- <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1">
+ <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
  <ColHead label="📈 Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
@@ -830,9 +830,9 @@ export function PatientRow({
 
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
  </div> {/* 2 */}
- <div onClick={colClick("hist")}>
+ <div onClick={colClick("hist")} className="text-[11px] !px-1.5">
  <ColTitle tone={1}>📋 História clínica</ColTitle>
- <div className="space-y-3"> {([
+ <div className="space-y-2"> {([
                  { cat: "current", label: "Diagnósticos atuais", box: "pastel-current", text: "text-ink", head: "pastel-current-head" },
                  { cat: "inactive", label: "Diagnósticos inativos", box: "pastel-inactive", text: "text-ink", head: "pastel-inactive-head" },
                  { cat: "previous", label: "Diagnósticos pregressos", box: "pastel-previous", text: "text-ink", head: "pastel-previous-head" },
@@ -844,7 +844,7 @@ export function PatientRow({
  <div key={g.cat}>
  <div className={`mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink ${g.head}`}> {g.label} · {list.length}
  </div>
- <ol className="relative ml-2 space-y-1.5 border-l border-border pl-3"> {list.map((d, i) => (
+ <ol className="relative ml-2 space-y-1 border-l border-border pl-3"> {list.map((d, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
  <div className={`rounded-md border px-2 py-1 text-ink ${g.box}`}>
@@ -865,7 +865,7 @@ export function PatientRow({
                   <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
                     💊 Uso prévio domiciliar · {patient.pastMedications.length}
                   </div>
-                  <ul className="space-y-1.5">
+<ul className="space-y-1">
                     {patient.pastMedications.map((pm) => (
                       <li key={pm.id} className="ios-inset px-2 py-1.5 text-[11px]">
                         <div className="flex items-center justify-between gap-2">
@@ -892,7 +892,7 @@ export function PatientRow({
                 </div>
               )}
 
-  <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
+  <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
                {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
                {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
   </div>
@@ -991,10 +991,10 @@ export function PatientRow({
  </li> ))}
  </ol>
  </div> )}
- </div> {/* 4 — Medicações agrupadas por classe */}
- <div onClick={colClick("med")}>
- <div className="mb-2 flex items-center justify-between gap-2">
- <ColTitle tone={3}>💊 Medicações</ColTitle>
+</div> {/* 4 — Medicações agrupadas por classe */}
+<div onClick={colClick("med")} className="text-[11px] !px-1.5">
+<div className="mb-2 flex items-center justify-between gap-2">
+<ColTitle tone={3}>💊 Medicações</ColTitle>
   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <button
                   type="button"
@@ -1031,12 +1031,12 @@ export function PatientRow({
                 if (!list || !list.length) return null;
                 const meta = MEDICATION_CLASS_META[cls];
                 return (
- <div key={cls} className={`mb-2 rounded-md border ${meta.borderClass} ${meta.bgClass} p-2`}>
- <div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
-  <span>{meta.label}</span>
- <span className="font-mono">{list.length}</span>
- </div>
- <ul className="space-y-1.5"> {list.map((m, i) => {
+<div key={cls} className={`mb-1.5 rounded-md border ${meta.borderClass} ${meta.bgClass} p-1.5`}>
+<div className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
+<span>{meta.label}</span>
+<span className="font-mono">{list.length}</span>
+</div>
+<ul className="space-y-1"> {list.map((m, i) => {
                         const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
                         const prog = isAtb ? antibioticProgress(m) : null;
                         const alert = prog ? atbAlertBadge(prog.alert) : null;
@@ -1251,10 +1251,10 @@ export function PatientRow({
  </li> ))}
  </ul> )}
  </div>
- </div> {/* 6 */}
- <div onClick={colClick("sup")}>
- <ColTitle tone={5}>📈 Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
- <div className="mt-2">
+</div> {/* 6 */}
+<div onClick={colClick("sup")} className="text-[11px] !px-1.5">
+<ColTitle tone={5}>📈 Estado atual</ColTitle> {/* Sinais vitais (linhas) */}
+<div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
  <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
@@ -1286,7 +1286,7 @@ export function PatientRow({
               const lab = patient.exams.filter((e) => !isGaso(e.code, e.label));
               const gaso = patient.exams.filter((e) => isGaso(e.code, e.label));
               const renderTable = (rows: typeof patient.exams) => (
- <table className="w-full text-[12px]">
+ <table className="w-full text-[11px]">
  <tbody>
                     {rows.map((e, i) => {
                       const ins = examInsight(e, patient.sex);
@@ -1308,13 +1308,13 @@ export function PatientRow({
  </table> );
               return (
  <>
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames laboratoriais
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Exames laboratoriais
  </div> {lab.length ? renderTable(lab) : (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem laboratoriais.</div> )}
  </div>
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-clinical-resp"> Gasometria arterial
  </div> {gaso.length ? renderTable(gaso) : (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground">Sem gasometria.</div> )}
  <BloodGasPanel patient={patient} />
@@ -1322,8 +1322,8 @@ export function PatientRow({
  </> );
             })()}
  {/* Bristol — linhas temporais */}
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
  </div> {(patient.state.stools?.length ?? 0) > 0 ? (
  <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px]"> {patient.state.stools!.map((st) => {
                     const m = bristolMeta(st.bristol);
@@ -1338,8 +1338,8 @@ export function PatientRow({
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem evacuação registrada.
  </div> )}
  </div> {/* Balanço hídrico — linhas */}
- <div className="mt-4">
- <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Balanço hídrico
+<div className="mt-3">
+<div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Balanço hídrico
  </div> {(!patient.state.fluidBalance || (!patient.state.fluidBalance.intake?.length && !patient.state.fluidBalance.output?.length && !patient.state.fluidBalance.drains?.length)) ? (
  <div className="rounded border border-dashed border-border/60 px-2 py-2 text-center text-[10.5px] text-muted-foreground"> Sem registros de entradas / saídas / drenos.
  </div> ) : (
