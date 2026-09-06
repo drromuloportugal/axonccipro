@@ -1325,7 +1325,7 @@ export function PatientRow({
 <div className="mt-3">
 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Escala de Bristol
  </div> {(patient.state.stools?.length ?? 0) > 0 ? (
- <div className="space-y-0.5 ios-inset px-2 py-1.5 text-[11px]"> {patient.state.stools!.map((st) => {
+ <div className="space-y-0.5 ios-inset !px-1.5 py-1 text-[11px]"> {patient.state.stools!.map((st) => {
                     const m = bristolMeta(st.bristol);
                     return (
  <div key={st.id} className="flex items-baseline justify-between gap-2">
