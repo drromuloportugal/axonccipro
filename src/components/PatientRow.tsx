@@ -1666,72 +1666,27 @@ export function PatientRow({
                       <ul className="space-y-1">
                         {" "}
                         {list.map((m, i) => {
-                          const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
-                          const prog = isAtb ? antibioticProgress(m) : null;
-                          const alert = prog ? atbAlertBadge(prog.alert) : null;
+                          const secondary = medSecondary(m);
+                          const doses = medDosesLabel(m);
                           return (
                             <li key={i} className="ios-inset px-2 py-1.5 text-[12px]">
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-1.5">
-                                  <span>{isAtb ? "" : ""}</span>
-                                  <span className="font-semibold text-foreground">{m.name}</span>
-                                </div>
-                                <div className="flex shrink-0 items-center gap-1">
-                                  <span
-                                    className="text-clinical-stable"
-                                    title="Ativo"
-                                    aria-label="Medicação ativa"
-                                  >
-                                    <CircleCheck className="h-3.5 w-3.5" />
-                                  </span>
-                                  {onUpdate && (
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        finalizeMed(m);
-                                      }}
-                                      className="rounded border border-clinical-neutral/40 bg-surface-2/60 p-0.5 text-clinical-neutral hover:bg-surface-3"
-                                      title="Finalizar medicação"
-                                      aria-label={`Finalizar ${m.name}`}
-                                    >
-                                      <Ban className="h-3.5 w-3.5" />
-                                    </button>
-                                  )}
-                                </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-semibold text-foreground">{m.name}</span>
                               </div>
-                              <div className="ml-5 font-mono text-[11px] text-muted-foreground">
-                                {" "}
-                                {m.route} · {m.freq}
-                              </div>{" "}
-                              {mounted && prog && (
-                                <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
-                                  <div className="flex items-center justify-between text-[10px]">
-                                    <span className="font-semibold text-foreground">
-                                      Dia {prog.currentDay} de {prog.totalDays}
-                                    </span>
-                                    <span className="font-mono text-muted-foreground">
-                                      {prog.percent.toFixed(0)}%
-                                    </span>
-                                  </div>
-                                  <div className="my-1 h-1.5 overflow-hidden rounded-full bg-surface-3">
-                                    <div
-                                      className={`h-full ${prog.alert === "ok" ? "bg-clinical-stable" : "bg-clinical-attention"}`}
-                                      style={{ width: `${prog.percent}%` }}
-                                    />
-                                  </div>{" "}
-                                  {alert && (
-                                    <div
-                                      className={`mt-1 text-[10px] font-semibold ${alert.className}`}
-                                    >
-                                      {alert.label}
-                                    </div>
-                                  )}
+                              {secondary && (
+                                <div className="font-mono text-[11px] text-muted-foreground">
+                                  {secondary}
+                                </div>
+                              )}
+                              {doses && (
+                                <div className="font-mono text-[10.5px] text-muted-foreground">
+                                  {doses}
                                 </div>
                               )}
                             </li>
                           );
                         })}
+
                       </ul>
                     </div>
                   );
