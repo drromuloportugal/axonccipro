@@ -17,6 +17,7 @@ import {
   CircleCheck,
   CirclePause,
   ChevronDown,
+  ChevronUp,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -2938,6 +2939,32 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   const delSub = (i: number, si: number) => {
     const cur = items[i];
     upd(i, { subItems: (cur.subItems ?? []).filter((_, k) => k !== si) });
+  };
+
+  /** Move um sistema orgânico para cima/baixo na lista (dir = -1 | +1). */
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j]!, next[i]!];
+    onChange(next);
+    setExpanded((prev) => {
+      const copy = { ...prev };
+      const a = copy[i];
+      copy[i] = copy[j] ?? false;
+      copy[j] = a ?? false;
+      return copy;
+    });
+  };
+
+  /** Move uma anotação para cima/baixo dentro do sistema (dir = -1 | +1). */
+  const moveSub = (i: number, si: number, dir: -1 | 1) => {
+    const cur = items[i];
+    const subs = [...(cur.subItems ?? [])];
+    const sj = si + dir;
+    if (sj < 0 || sj >= subs.length) return;
+    [subs[si], subs[sj]] = [subs[sj]!, subs[si]!];
+    upd(i, { subItems: subs });
   };
 
   return (
