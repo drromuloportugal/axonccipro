@@ -528,9 +528,9 @@ export function PatientRow({
  <div key={i} className="text-[10.5px] leading-snug">
  <div className="flex items-center gap-1">
  <CircleDot className={`h-1.5 w-1.5 shrink-0 ${kindClass[m.kind]}`} />
- <span className="min-w-0 flex-1 truncate font-semibold text-foreground">{m.name}</span>
- <span className="shrink-0 font-mono text-[9.5px] text-muted-foreground"> {m.mlPerHour !== undefined ? `${m.mlPerHour.toFixed(1)} mL/h` : m.dose}
- </span>
+  <span className="min-w-0 flex-1 truncate font-semibold text-foreground">{m.name}</span>
+  <span className="shrink-0 font-mono text-[9.5px] text-muted-foreground"> {m.route} · {m.freq}
+  </span>
  </div> {mounted && prog && (
  <div className="ml-2.5 text-[8.5px] font-mono text-muted-foreground"> D{prog.currentDay}/{prog.totalDays}
  </div> )}
@@ -692,8 +692,9 @@ export function PatientRow({
 
   <ul className="mt-2 space-y-1" onClick={(e) => e.stopPropagation()}> {patient.conducts.slice(0, 4).map((c, i) => {
               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : CONDUCT_SYSTEM_META.other;
-              const firstAnn = c.subItems?.find((s) => s.text?.trim());
-              const annColor = firstAnn?.color ? ANNOTATION_COLOR_META[firstAnn.color] : null;
+               const visibleSubs = c.subItems?.filter((s) => !s.hidden) ?? [];
+               const firstAnn = visibleSubs.find((s) => s.text?.trim());
+               const annColor = firstAnn?.color ? ANNOTATION_COLOR_META[firstAnn.color] : null;
               const annDate = firstAnn?.date ?? c.startedAt;
               return (
   <li key={i} className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass} ${meta.bgClass}`}>
@@ -701,8 +702,8 @@ export function PatientRow({
   <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
   <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
   <span className="italic text-muted-foreground">Sem anotações</span> )}
-                     {c.subItems && c.subItems.length > 1 && (
-  <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
+                      {visibleSubs.length > 1 && (
+   <span className="ml-1 text-[9px] text-muted-foreground">· +{visibleSubs.length - 1}</span> )}
   </span>
   {annDate && (
   <span className="shrink-0 text-[9px] font-mono text-muted-foreground">
@@ -1063,12 +1064,8 @@ export function PatientRow({
    </button> )}
    </div>
  </div>
- <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
- </div> {m.mlPerHour !== undefined && (
- <div className="ml-5 font-mono text-[11px] text-clinical-resp"> BIC {m.mlPerHour.toFixed(1)} mL/h
- </div> )}
- <div className="ml-5 text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
- </div> {mounted && prog && (
+  <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.route} · {m.freq}
+  </div> {mounted && prog && (
  <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
  <div className="flex items-center justify-between text-[10px]">
  <span className="font-semibold text-foreground">Dia {prog.currentDay} de {prog.totalDays}</span>
@@ -1405,8 +1402,8 @@ export function PatientRow({
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}> {meta.label}
                         </span>
                         <span className="ml-auto text-[8.5px] font-semibold uppercase tracking-wider text-muted-foreground">{c.team}</span>
-  </div> {c.subItems && c.subItems.length > 0 ? (
-   <div className="mt-1 space-y-0.5"> {c.subItems.map((sub, si) => {
+  </div> {c.subItems && c.subItems.some((s) => !s.hidden) ? (
+    <div className="mt-1 space-y-0.5"> {c.subItems.filter((s) => !s.hidden).map((sub, si) => {
                            const colMeta = sub.color ? ANNOTATION_COLOR_META[sub.color] : ANNOTATION_COLOR_META.default;
                            return (
                                 <div key={si} className="flex items-start gap-1 text-[10.5px] leading-tight">
