@@ -286,23 +286,6 @@ export function PatientRow({
 
   const lppSummary = useMemo(() => summarizeLPP(patient.lpp), [patient.lpp]);
 
-  /** Quais escalas estão efetivamente preenchidas — só estas aparecem no painel. */
-  const filledScales = useMemo(() => {
-    const p = patient as Patient & Record<string, any>;
-    return {
-      saps3: saps3Status(patient).status === "done",
-      fisherC: computeClassicFisher(p.classicFisher).grade != null,
-      fisherM: computeFisher(p.fisher).grade != null,
-      huntHess: computeHuntHess(p.huntHess).grade != null,
-      wfns: computeWfns(p.wfns).grade != null,
-      ich: computeIch(p.ichScore).score != null,
-      nihss: computeNihss(p.nihss).total != null,
-      vasograde: p.vasograde?.color != null,
-      sofa: summarizeSofa(patient).current?.total != null,
-    };
-  }, [patient]);
-  const anyScaleFilled = Object.values(filledScales).some(Boolean);
-
   const suggestions = useMemo(() => aiTherapySuggestions(patient), [patient]);
   const activeMeds = patient.medications.filter((m) => m.active !== false);
   const activeDevices = (patient.devices ?? []).filter((d) => !d.removedAt);
@@ -603,48 +586,25 @@ export function PatientRow({
                 ⚙️ Escalas
               </div>
               <div className="flex flex-col items-start gap-0.5">
-                {filledScales.saps3 && (
-                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
-                )}
-                {filledScales.fisherC && (
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    compact
-                    variant="classic"
-                  />
-                )}
-                {filledScales.fisherM && (
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    compact
-                    variant="modified"
-                  />
-                )}
-                {filledScales.huntHess && (
-                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
-                )}
-                {filledScales.wfns && (
-                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
-                )}
-                {filledScales.ich && (
-                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
-                )}
-                {filledScales.nihss && (
-                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
-                )}
-                {filledScales.vasograde && (
-                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
-                )}
-                {filledScales.sofa && (
-                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
-                )}
-                {!anyScaleFilled && (
-                  <span className="text-[9px] italic text-muted-foreground/60">
-                    Nenhuma escala preenchida
-                  </span>
-                )}
+                <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+                <FisherButton
+                  patient={patient}
+                  onClick={() => setFisherOpen(true)}
+                  compact
+                  variant="classic"
+                />
+                <FisherButton
+                  patient={patient}
+                  onClick={() => setFisherOpen(true)}
+                  compact
+                  variant="modified"
+                />
+                <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
+                <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
+                <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
+                <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
+                <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+                <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(true)}
@@ -1342,46 +1302,23 @@ export function PatientRow({
               <div className="mt-4" onClick={(e) => e.stopPropagation()}>
                 <ColTitle tone={5}>⚙️ Escalas</ColTitle>
                 <div className="flex flex-col items-start gap-1">
-                  {filledScales.saps3 && (
-                    <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-                  )}
-                  {filledScales.fisherC && (
-                    <FisherButton
-                      patient={patient}
-                      onClick={() => setFisherOpen(true)}
-                      variant="classic"
-                    />
-                  )}
-                  {filledScales.fisherM && (
-                    <FisherButton
-                      patient={patient}
-                      onClick={() => setFisherOpen(true)}
-                      variant="modified"
-                    />
-                  )}
-                  {filledScales.huntHess && (
-                    <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
-                  )}
-                  {filledScales.wfns && (
-                    <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
-                  )}
-                  {filledScales.ich && (
-                    <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
-                  )}
-                  {filledScales.nihss && (
-                    <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
-                  )}
-                  {filledScales.vasograde && (
-                    <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
-                  )}
-                  {filledScales.sofa && (
-                    <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
-                  )}
-                  {!anyScaleFilled && (
-                    <span className="text-[10px] italic text-muted-foreground/60">
-                      Nenhuma escala preenchida.
-                    </span>
-                  )}
+                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    variant="classic"
+                  />
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    variant="modified"
+                  />
+                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
+                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
+                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
+                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
+                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
                 </div>
               </div>
               {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
@@ -1473,8 +1410,8 @@ export function PatientRow({
                         className="ios-inset rounded px-1.5 py-1 text-[10px] leading-snug text-foreground"
                       >
                         <div>
-                          {pm.dose && <span className="font-semibold">{pm.dose} </span>}
                           <span className="font-semibold">{pm.name}</span>
+                          {pm.dose && <span className="text-muted-foreground"> · {pm.dose}</span>}
                           {pm.freq && <span className="text-muted-foreground"> · {pm.freq}</span>}
                         </div>
                         {pm.period && (
