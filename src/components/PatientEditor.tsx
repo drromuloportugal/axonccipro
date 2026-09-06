@@ -1549,6 +1549,22 @@ function MedicationsList({
  </div>
  </div> )}
 
+      {entryType === "hemotransfusion" && (
+ <div className="rounded-md border border-dashed border-clinical-critical/40 bg-clinical-critical/5 p-3">
+ <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-clinical-critical"> Hemotransfusão
+ </div>
+ <div className="grid grid-cols-[2fr_1fr_1.5fr_auto] items-center gap-2">
+ <select className={inputCls} value={hemoComponent} onChange={(e) => setHemoComponent(e.target.value)}> {HEMO_COMPONENTS.map((s) => <option key={s} value={s}>{s}</option>)}
+ </select>
+ <input className={inputCls} placeholder="Volume (ex.: 1 bolsa · 250 mL)" value={hemoVolume}
+              onChange={(e) => setHemoVolume(e.target.value)} />
+ <input className={inputCls} placeholder="Indicação / observação" value={hemoNote}
+              onChange={(e) => setHemoNote(e.target.value)} />
+ <Button size="sm" onClick={addHemo}><Plus className="mr-1 h-3.5 w-3.5" />Adicionar</Button>
+ </div>
+ </div> )}
+
+
       {(entryType === "antibiotic" || entryType === "other") && (
  <div className="rounded-md border border-dashed border-border bg-surface-2/40 p-3">
  <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"> {entryType === "antibiotic" ? " Antimicrobiano" : " Outro medicamento"}
