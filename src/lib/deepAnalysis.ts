@@ -162,7 +162,7 @@ export function buildPassometroContext(p: Patient): string {
     .join("\n");
 
   const estadoAtual = [
-    `Glasgow: ${fmt(s.glasgow)} · RASS: ${fmt(s.rass)}`,
+    `Glasgow (definido pela escala WFNS): ${fmt(p.wfns?.gcs ?? s.glasgow)} · RASS: ${fmt(s.rass)}`,
     `PA: ${fmt(s.pas)}/${fmt(s.pad)} mmHg (PAM ${fmt(s.pam)}) · FC: ${fmt(s.fcMax)}${s.fcMin ? `–${s.fcMin}` : ""} bpm`,
     `Ventilação: ${fmt(s.vent)} · FiO2: ${fmt(s.fio2)} · FR: ${fmt(s.fr)} · SpO2: ${fmt(s.spo2)}%`,
     `Drogas vasoativas: ${s.dva ?? "não"}`,
