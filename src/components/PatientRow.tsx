@@ -480,9 +480,9 @@ export function PatientRow({
  <span className="text-[10px] text-muted-foreground">+{patient.procedures.length - 3}</span> )}
  </div>
  </div> )}
- </div> {/* 4 - Medicações com dashboard de bombas */}
- <div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1.5">
- <ColHead
+</div> {/* 4 - Medicações com dashboard de bombas */}
+<div onClick={colClick("med")} className="flex min-w-0 flex-col gap-1 !px-1.5 text-[11px]">
+<ColHead
             label="💊 Medicações"
             tab="med"
             title="Editar medicações"
