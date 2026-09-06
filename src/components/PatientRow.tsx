@@ -2491,6 +2491,15 @@ export function PatientRow({
           onSave={onUpdate}
         />
       )}
+      {/* GCS */}
+      {onUpdate && (
+        <GcsModal
+          open={gcsOpen}
+          onClose={() => setGcsOpen(false)}
+          patient={patient}
+          onSave={onUpdate}
+        />
+      )}
       {/* SOFA */}
       <SofaModal open={sofaOpen} onClose={() => setSofaOpen(false)} patient={patient} />
       {/* História clínica — narrativa da evolução no hospital */}
