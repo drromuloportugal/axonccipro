@@ -76,6 +76,8 @@ import {
   computeFluidBalance,
   ANNOTATION_COLOR_META,
   ANNOTATION_COLOR_ORDER,
+  applyAnnotationColor,
+  parseAnnotationSegments,
 } from "@/lib/clinical";
 
 import {
