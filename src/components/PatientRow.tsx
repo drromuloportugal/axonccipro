@@ -1257,7 +1257,7 @@ export function PatientRow({
 <div className="mt-2">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"> Sinais vitais
  </div>
- <div className="ios-inset px-2 py-2"> {vitalRows.map((r) => {
+ <div className="ios-inset !px-1.5 py-1.5"> {vitalRows.map((r) => {
                    const crit = r.v.level === "grave";
                    const abn = r.v.level === "grave" || r.v.level === "mod" || r.v.level === "leve";
                    const mm = vitalMinMax(r.v);
