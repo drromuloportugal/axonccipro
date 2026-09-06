@@ -1457,11 +1457,27 @@ export function PatientRow({
               {/* Medicações de uso prévio domiciliar */}
               {patient.pastMedications && patient.pastMedications.length > 0 && (
                 <div className="mt-3">
-                  <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-foreground">
-                    Uso Prévio
+                  <div className="title-box title-green-2 mb-1 inline-flex !text-[10px]">
+                    💊 Medicamentos de uso prévio · {patient.pastMedications.length}
                   </div>
-                  <div className="ios-inset rounded p-1.5 text-[10px] leading-snug text-foreground">
-                    {patient.pastMedications.map((pm) => pm.name).join(", ")}
+                  <div className="space-y-1">
+                    {patient.pastMedications.map((pm) => (
+                      <div
+                        key={pm.id}
+                        className="ios-inset rounded px-1.5 py-1 text-[10px] leading-snug text-foreground"
+                      >
+                        <div>
+                          {pm.dose && <span className="font-semibold">{pm.dose} </span>}
+                          <span className="font-semibold">{pm.name}</span>
+                          {pm.freq && <span className="text-muted-foreground"> · {pm.freq}</span>}
+                        </div>
+                        {pm.period && (
+                          <div className="mt-0.5 text-[9px] text-muted-foreground">
+                            Tempo de uso: {pm.period}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
