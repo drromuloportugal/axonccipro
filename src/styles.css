@@ -192,7 +192,6 @@
     inset: 0 !important;
     width: 100% !important;
     background: white !important;
-    color: black !important;
   }
   .no-print { display: none !important; }
 }

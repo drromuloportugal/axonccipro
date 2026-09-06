@@ -1,12 +1,13 @@
 import type { Patient, Severity, Medication } from "@/data/patients";
 import { PrintAnatomicalMap } from "@/components/PrintAnatomicalMap";
+import { cn } from "@/lib/utils";
 import {
   examInsight, bucketBadge, trendArrow, generateEstadoAtual,
   computeAge, computeBMI,
   antibioticProgress, atbAlertBadge, detectAntibiotic,
   deviceRisk, formatDeviceDays,
   medClassOf, MEDICATION_CLASS_META, MEDICATION_CLASS_ORDER,
-  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR,
+  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR, formatDayMonth,
   organDonationLabel, directiveLabel,
 } from "@/lib/clinical";
 import { assessVitals, formatVitalValue, levelLabel } from "@/lib/vitals";
@@ -30,14 +31,18 @@ const sevLabel: Record<Severity, string> = {
   critical: "Crítico",
 };
 
-function Col({ title, idx, children }: { title: string; idx: number; children: React.ReactNode }) {
+function inlineText(s: string) {
+  return s.replace(/\s+/g, " ").trim();
+}
+
+function Col({ title, idx, className, contentClassName, children }: { title: string; idx: number; className?: string; contentClassName?: string; children: React.ReactNode }) {
   return (
- <div className="border-l border-gray-200 pl-2.5 first:border-l-0 first:pl-0">
- <div className="mb-1.5 flex items-baseline gap-1.5 border-b border-gray-300 pb-1">
- <span className="font-mono text-[9px] font-semibold text-gray-400">{String(idx).padStart(2, "0")}</span>
- <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-gray-800">{title}</span>
+ <div className={cn("border-l border-gray-500 pl-1.5 first:border-l-0 first:pl-0", className)}>
+ <div className="mb-1 flex items-baseline gap-1 border-b border-gray-500 pb-1">
+ <span className="font-mono text-[9px] font-semibold text-gray-500">{String(idx).padStart(2, "0")}</span>
+ <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-gray-900">{title}</span>
  </div>
- <div className="text-[10.5px] leading-[1.35]">{children}</div>
+ <div className={cn("text-[10.5px] leading-[1.35]", contentClassName)}>{children}</div>
  </div> );
 }
 
@@ -103,7 +108,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
 
 
 
- <div className="grid grid-cols-7 gap-2">
+ <div className="grid gap-1.5" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr 1.35fr" }}>
  <Col title="Identificação" idx={1}>
  <ul className="space-y-0.5"> {patient.birthDate && <li><b>Nasc:</b> {new Date(patient.birthDate).toLocaleDateString("pt-BR")} ({age}a)</li>}
  <li><b>Adm Hosp:</b> {patient.admissionHosp}</li>
@@ -321,32 +326,43 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  </> )}
  </Col>
 
- <Col title="Plano · Sistemas" idx={7}>
+ <Col title="Plano · Sistemas" idx={7} className="pl-1" contentClassName="text-[9.5px] leading-[1.25]">
  <div className="mb-1 text-[9px] text-gray-600">{conductsDone}/{patient.conducts.length} concluídas</div>
  <ul className="space-y-1"> {patient.conducts.map((c, i) => {
-              const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
-              return (
- <li key={i}>
- <div className="flex gap-1">
-  <span>{c.done ? "Concluída" : "Pendente"}</span>
-  <span> {meta && <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span>}
- <span className="text-[9px] font-bold uppercase tracking-wider text-gray-600">{c.team} </span> {c.text}
- </span>
- </div> {c.subItems && c.subItems.length > 0 && (
- <ul className="ml-4 border-l border-gray-300 pl-2"> {c.subItems.map((sub, si) => (
- <li key={si} className="flex gap-1">
-  <span>{sub.done ? "Concluída" : "Pendente"}</span>
- <span>{sub.text}</span>
- </li> ))}
- </ul> )}
+               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
+               const visibleSubs = (c.subItems ?? []).filter((sub) => inlineText(sub.text));
+               return (
+ <li key={i} className="text-justify text-[9.5px] leading-tight">
+ <span className="font-medium text-gray-600">{c.done ? "Concluída" : "Pendente"}</span>
+                 {" "}
+                 {meta && <span className={`text-[8px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span>}
+                 {" "}
+                 <span className="text-[8px] font-bold uppercase tracking-wider text-gray-600">{c.team}</span>
+                 {" "}
+                 {visibleSubs.length > 0 ? (
+                   visibleSubs.map((sub, si) => {
+                     const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
+                     const txt = inlineText(sub.text);
+                     const isLast = si === visibleSubs.length - 1;
+                     return (
+                       <span key={si} className={colMeta.textClass || "text-gray-900"}>
+                         {sub.date && <span className="text-gray-500">{formatDayMonth(sub.date)}</span>}
+                         {sub.date ? ` ${txt}` : txt}
+                         {!isLast && <span className="text-gray-400"> · </span>}
+                       </span>
+                     );
+                   })
+                 ) : (
+                   <span className="text-gray-500">—</span>
+                 )}
  </li> );
-            })}
+             })}
  </ul>
  <div className="mt-2 text-[9px] font-bold uppercase tracking-wider text-gray-700">Metas</div>
  <ul className="space-y-0.5"> {patient.goals.map((g, i) => (
- <li key={i} className="flex gap-1">
-  <span>{g.met ? "Atingida" : "Pendente"}</span>
- <span className={g.met ? "" : "text-red-700"}>{g.text}</span>
+ <li key={i} className="flex gap-1 text-justify leading-tight">
+  <span className="shrink-0">{g.met ? "Atingida" : "Pendente"}</span>
+ <span className={cn(!g.met && "text-red-700")}>{g.text}</span>
  </li> ))}
  </ul>
  </Col>
@@ -356,7 +372,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  <PrintAnatomicalMap patient={patient} />
 
 
- <div className="mt-3 border-t border-gray-300 pt-1 text-[8px] text-gray-500"> Documento gerado pelo PASSÔMETRO — uso interno para passagem de plantão.
+ <div className="mt-3 border-t border-gray-500 pt-1 text-[8px] text-gray-500"> Documento gerado pelo PASSÔMETRO — uso interno para passagem de plantão.
  </div>
  </div> );
 }
