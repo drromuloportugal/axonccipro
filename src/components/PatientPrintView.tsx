@@ -108,7 +108,7 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
 
 
 
- <div className="grid grid-cols-7 gap-2">
+ <div className="grid gap-1.5" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr 1.35fr" }}>
  <Col title="Identificação" idx={1}>
  <ul className="space-y-0.5"> {patient.birthDate && <li><b>Nasc:</b> {new Date(patient.birthDate).toLocaleDateString("pt-BR")} ({age}a)</li>}
  <li><b>Adm Hosp:</b> {patient.admissionHosp}</li>
