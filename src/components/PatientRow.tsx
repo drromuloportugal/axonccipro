@@ -848,11 +848,17 @@ export function PatientRow({
                   .reverse()
                   .map((c) => {
                     const r = cultureResultBadge(c);
+                    const borderCls =
+                      r.label === "Positiva"
+                        ? "border border-clinical-critical/70"
+                        : r.label === "Negativa"
+                          ? "border border-clinical-stable/70"
+                          : "border border-clinical-attention/70";
                     return (
                       <div
                         key={c.id}
-                        className={`flex items-center gap-1 rounded-md text-[10.5px] leading-snug ${r.label === "Positiva" ? "alert-outline-static px-1 py-0.5" : ""}`}
-                        title={c.organism ?? c.source}
+                        className={`flex items-center gap-1 rounded-md px-1 py-0.5 text-[10.5px] leading-snug ${borderCls}`}
+                        title={`${c.organism ?? c.source} — ${r.label}`}
                       >
                         <span className="min-w-0 flex-1 truncate">
                           <span className="font-semibold text-foreground"> {c.source}</span>{" "}
