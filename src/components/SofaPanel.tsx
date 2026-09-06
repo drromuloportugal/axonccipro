@@ -281,12 +281,22 @@ export function SofaButton({
   compact?: boolean;
 }) {
   const s = useMemo(() => summarizeSofa(patient), [patient]);
-  const cur = s.current?.total ?? null;
+  const savedList = patient.sofaAssessments ?? [];
+  const saved = savedList.length
+    ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]
+    : null;
+  const prev = savedList.length > 1
+    ? [...savedList].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[1]
+    : null;
+  const cur = saved?.total ?? s.current?.total ?? null;
+  const savedDelta =
+    saved?.total != null && prev?.total != null ? saved.total - prev.total : null;
   const traj = TRAJECTORY_META[s.trajectory];
   const cls =
     cur != null
       ? "bg-clinical-neuro/15 text-clinical-neuro hover:bg-clinical-neuro/25"
       : "border border-border text-muted-foreground hover:bg-surface-3";
+
   return (
     <button
       type="button"
