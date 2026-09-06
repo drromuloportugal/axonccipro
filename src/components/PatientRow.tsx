@@ -77,6 +77,25 @@ import { MacroStatusBar } from "@/components/MacroStatus";
 
 import { Pill, CircleCheck, CirclePause, Ban, RotateCcw } from "lucide-react";
 
+/** Linha secundária da medicação no painel principal: bomba → mL/h; demais → dose · via. */
+function medSecondary(m: Medication): string {
+  if (medClassOf(m) === "pump") {
+    const r = m.pump?.rateMlPerHour ?? m.mlPerHour;
+    return r != null ? `${r.toFixed(1)} mL/h` : (m.dose ?? "");
+  }
+  return [m.dose, m.route].filter(Boolean).join(" · ");
+}
+
+/** Antimicrobianos: apenas o número de doses já administradas. */
+function medDosesLabel(m: Medication): string | null {
+  const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
+  if (!isAtb) return null;
+  const g = m.dosesGiven;
+  if (g == null) return null;
+  return g === 1 ? "1 dose administrada" : `${g} doses administradas`;
+}
+
+
 const VITAL_LEVEL_TXT: Record<string, string> = {
   normal: "text-clinical-stable",
   leve: "text-yellow-600",
