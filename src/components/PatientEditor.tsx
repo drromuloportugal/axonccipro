@@ -3163,25 +3163,7 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                           )}
                         </div>
 
-                        <select
-                          className="mt-6 rounded border border-border bg-background px-1 py-1 text-[10px]"
-                          value={sub.color ?? "default"}
-                          onChange={(e) =>
-                            updSub(i, si, { color: e.target.value as ConductSubItem["color"] })
-                          }
-                          title="Cor da fonte"
-                        >
-                          {" "}
-                          {ANNOTATION_COLOR_ORDER.map((col) => (
-                            <option key={col} value={col}>
-                              {ANNOTATION_COLOR_META[col].label}
-                            </option>
-                          ))}
-                        </select>
-                        <span
-                          className="mt-6 inline-block h-3 w-3 shrink-0 rounded-full border border-border"
-                          style={{ backgroundColor: colMeta.swatch }}
-                        />
+                        {/* A cor da anotação é definida trecho a trecho via “Colorir seleção”. */}
                         <div className="mt-5 flex flex-col">
                           <button
                             type="button"
