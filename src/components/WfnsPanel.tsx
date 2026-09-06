@@ -146,7 +146,11 @@ export function WfnsModal({
 
   const calc = () => {
     setShowResult(true);
-    onSave({ ...patient, wfns: { ...draft, gcs, grade, at: new Date().toISOString() } } as Patient);
+    onSave({
+      ...patient,
+      wfns: { ...draft, gcs, grade, at: new Date().toISOString() },
+      state: { ...patient.state, glasgow: gcs ?? patient.state?.glasgow },
+    } as Patient);
   };
   const clear = () => {
     setDraft({ mode: "total" });

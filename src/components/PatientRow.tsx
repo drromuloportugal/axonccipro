@@ -72,7 +72,6 @@ import {
 } from "@/components/FisherPanel";
 import { HuntHessModal, HuntHessButton, computeHuntHess } from "@/components/HuntHessPanel";
 import { WfnsModal, WfnsButton, computeWfns } from "@/components/WfnsPanel";
-import { GcsModal, GcsButton } from "@/components/GcsPanel";
 import { IchScoreModal, IchScoreButton, computeIch } from "@/components/IchScorePanel";
 import { NihssModal, NihssButton, computeNihss } from "@/components/NihssPanel";
 import { VasogradeModal, VasogradeButton } from "@/components/VasogradePanel";
@@ -262,7 +261,6 @@ export function PatientRow({
   const [fisherOpen, setFisherOpen] = useState(false);
   const [huntHessOpen, setHuntHessOpen] = useState(false);
   const [wfnsOpen, setWfnsOpen] = useState(false);
-  const [gcsOpen, setGcsOpen] = useState(false);
   const [ichOpen, setIchOpen] = useState(false);
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
@@ -604,7 +602,6 @@ export function PatientRow({
                 />
                 <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
                 <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
-                <GcsButton patient={patient} onClick={() => setGcsOpen(true)} compact />
                 <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
                 <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
                 <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
@@ -1319,7 +1316,6 @@ export function PatientRow({
                   />
                   <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
                   <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
-                  <GcsButton patient={patient} onClick={() => setGcsOpen(true)} />
                   <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
                   <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
                   <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
@@ -2496,15 +2492,6 @@ export function PatientRow({
         <VasogradeModal
           open={vasoOpen}
           onClose={() => setVasoOpen(false)}
-          patient={patient}
-          onSave={onUpdate}
-        />
-      )}
-      {/* GCS */}
-      {onUpdate && (
-        <GcsModal
-          open={gcsOpen}
-          onClose={() => setGcsOpen(false)}
           patient={patient}
           onSave={onUpdate}
         />
