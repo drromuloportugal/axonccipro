@@ -344,81 +344,100 @@ export function PatientRow({
   <div
          className="col-shadowed-grid grid w-full grid-cols-[1.3fr_1.2fr_1.2fr_1.35fr_1.2fr_1.3fr_1.75fr] items-start gap-1.5 px-3 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
        > {/* 1 - Identificação */}
- <div onClick={colClick("id")} className="col-ink flex min-w-0 flex-col px-3 first:pl-0 last:pr-0">
+  <div onClick={colClick("id")} className="col-ink flex min-w-0 flex-col px-3 first:pl-0 last:pr-0">
 
- <div className="mb-1.5 flex items-center justify-between gap-1.5">
- <span className="title-box title-green-1 min-w-0 !text-[11px] leading-tight"> 🪪 Identificação
- </span>
- <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
- <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
+  <div className="mb-1.5 flex items-center justify-between gap-1.5">
+  <span className="title-box title-green-1 min-w-0 !text-[11px] leading-tight"> 🪪 Identificação
+  </span>
+  <span className="flex shrink-0 items-center gap-0.5"> {onPrint && (
+  <button type="button" onClick={(e) => { e.stopPropagation(); onPrint(patient); }}
                   className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Imprimir paciente">
- <Printer className="h-3 w-3" />
- </button> )}
- <button type="button" onClick={(e) => { e.stopPropagation(); exportPatient(patient); }}
+  <Printer className="h-3 w-3" />
+  </button> )}
+  <button type="button" onClick={(e) => { e.stopPropagation(); exportPatient(patient); }}
                 className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Exportar paciente (JSON)">
- <Download className="h-3 w-3" />
- </button> {onDelete && (
- <button type="button" onClick={(e) => {
+  <Download className="h-3 w-3" />
+  </button> {onDelete && (
+  <button type="button" onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm(`Remover ${patient.name} (${patient.bed}) do sistema? Esta ação não pode ser desfeita.`)) onDelete(patient);
                 }}
                   className="rounded p-0.5 text-muted-foreground hover:bg-clinical-critical/15 hover:text-clinical-critical" title="Excluir paciente">
- <Trash2 className="h-3 w-3" />
- </button> )}
+  <Trash2 className="h-3 w-3" />
+  </button> )}
               {onArchive && (
- <button type="button" onClick={(e) => { e.stopPropagation(); onArchive(patient); }}
+  <button type="button" onClick={(e) => { e.stopPropagation(); onArchive(patient); }}
                   className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Arquivar paciente (histórico)">
- <Archive className="h-3 w-3" />
- </button> )}
+  <Archive className="h-3 w-3" />
+  </button> )}
               {editBtn("id", "Editar identificação")}
- </span>
- </div>
+  </span>
+  </div>
 
- <button
+  <button
             type="button"
             onClick={(e) => { e.stopPropagation(); setDischargeOpen(true); }}
             className={`mb-1.5 inline-flex items-center gap-1 self-start rounded-md px-2 py-0.5 text-[10px] font-semibold transition-colors ${dcBtnClass}`}
             title="Checar critérios de alta da UTI"
           >
- <LogOut className="h-3 w-3" /> {dcBtnLabel}
- </button>
+  <LogOut className="h-3 w-3" /> {dcBtnLabel}
+  </button>
 
 
-  <div className="flex min-w-0 items-center gap-2 border-b-2 border-clinical-critical/70 pb-1.5">
-  <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
-  <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
+   <div className="flex min-w-0 items-center gap-2 border-b-2 border-clinical-critical/70 pb-1.5">
+   <span className={`h-2 w-2 shrink-0 rounded-full ${sevDot[patient.severity]}`} title={sevLabel[patient.severity]} />
+   <span className="truncate text-lg font-extrabold leading-tight text-foreground">{patient.name}</span>
+   </div>
+
+  <div className="mt-1.5">
+  <MacroStatusBar patient={patient} compact />
   </div>
 
- <div className="mt-1.5">
- <MacroStatusBar patient={patient} compact />
- </div>
+  {/* Médico em pilha */}
+  <div className="mt-1.5 space-y-0">
+    <div className="text-[9px] uppercase tracking-wider text-muted-foreground f-fixed">Médico</div>
+    <div className="truncate text-[11px] font-semibold text-foreground f-var">{patient.attending}</div>
+  </div>
 
+  {/* Idade inline + leito/peso/altura */}
+  <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] leading-snug text-muted-foreground">
+    <span className="font-mono font-medium text-clinical-neutral">{patient.bed}</span>
+    <span className="text-border">·</span>
+    <span>Idade <span className="font-mono font-semibold text-foreground">{computedAge}a</span></span>
+    <span className="text-border">·</span>
+    <span>{patient.sex}</span>
+    <span className="text-border">·</span>
+    <span>{patient.weight}kg{patient.height ? `/${patient.height}cm` : ""}</span>
+  </div>
 
- <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground">
- <span className="font-mono font-medium text-clinical-neutral">{patient.bed}</span>
- <span className="text-border">·</span>
- <span>{computedAge}a {patient.sex}</span>
- <span className="text-border">·</span>
- <span>{patient.weight}kg{patient.height ? `/${patient.height}cm` : ""}</span>
- </div>
+  {/* Admissões empilhadas: dias à frente da data */}
+  <div className="mt-1.5 space-y-0.5">
+    <div className="text-[9px] uppercase tracking-wider text-muted-foreground f-fixed">Adm Hosp</div>
+    <div className="text-[10px] font-mono text-foreground">
+      <span className="font-semibold text-clinical-neutral">D{dHosp}</span>
+      <span className="mx-1 text-border">·</span>
+      <span>{patient.admissionHosp}</span>
+    </div>
+    <div className="text-[9px] uppercase tracking-wider text-muted-foreground f-fixed">Adm UTI</div>
+    <div className="text-[10px] font-mono text-foreground">
+      <span className="font-semibold text-clinical-neutral">D{dICU}</span>
+      <span className="mx-1 text-border">·</span>
+      <span>{patient.admissionICU}</span>
+    </div>
+  </div> {patient.origin && (
+  <div className="mt-1 truncate text-[10px] leading-snug text-muted-foreground">
+  <span className="font-semibold">Origem:</span>{" "}
+               {[patient.origin.name ?? patient.origin.type, patient.origin.city, patient.origin.state]
+                 .filter(Boolean).join(" · ")}
+  </div> )}
 
- <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11px] leading-snug text-muted-foreground">
- <span title="Dias de internação hospitalar">Hosp <span className="font-mono font-semibold text-foreground">D{dHosp}</span></span>
- <span className="text-border">·</span>
- <span title="Dias de internação na UTI">UTI <span className="font-mono font-semibold text-foreground">D{dICU}</span></span>
- </div> {patient.origin && (
- <div className="mt-1 truncate text-[10px] leading-snug text-muted-foreground">
- <span className="font-semibold">Origem:</span>{" "}
-              {[patient.origin.name ?? patient.origin.type, patient.origin.city, patient.origin.state]
-                .filter(Boolean).join(" · ")}
- </div> )}
-
-          {/* Gestão — scores */}
+          {/* Escalas — scores empilhados, Fisher separada */}
           <div className="mt-2 border-t border-border/60 pt-1.5" onClick={(e) => e.stopPropagation()}>
-            <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>⚙️ Gestão</div>
-            <div className="flex flex-wrap items-start gap-1">
+            <div className={`title-box title-green-1 mb-1 inline-flex !text-[10px]`}>⚙️ Escalas</div>
+            <div className="flex flex-col items-start gap-0.5">
               <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
-              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact />
+              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact variant="classic" />
+              <FisherButton patient={patient} onClick={() => setFisherOpen(true)} compact variant="modified" />
               <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
               <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
               <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
@@ -436,7 +455,7 @@ export function PatientRow({
           </div>
 
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
-</div> {/* 2 - História */}
+  </div> {/* 2 - História */}
 <div onClick={colClick("hist")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
 
 <ColHead label="📋 História" tab="hist" title="Editar história" tone={1} />
