@@ -1985,6 +1985,8 @@ function MedicationsList({
         return "SC";
       case "oral":
         return "VO";
+      case "sne":
+        return "SNE";
       case "inhaled":
         return "INAL";
       case "topical":

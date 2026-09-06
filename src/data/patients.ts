@@ -102,6 +102,7 @@ export type MedicationClass =
   | "im"
   | "sc"
   | "oral"
+  | "sne"
   | "inhaled"
   | "topical";
 
