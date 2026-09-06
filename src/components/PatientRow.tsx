@@ -892,7 +892,7 @@ export function PatientRow({
                 </div>
               )}
 
-  <div className="mt-3 space-y-1 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
+  <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground"> {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
                {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
                {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
   </div>
