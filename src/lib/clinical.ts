@@ -1805,6 +1805,53 @@ export function stripAnnotationMarkup(text: string): string {
   return (text ?? "").replace(ANNOTATION_MARKUP_RE, "$2");
 }
 
+/**
+ * Converte um deslocamento no texto puro (sem marcação) para o deslocamento
+ * correspondente no texto com marcação `[[cor:...]]`.
+ */
+export function annotationPlainOffsetToRaw(text: string, plainOffset: number): number {
+  const src = text ?? "";
+  if (plainOffset <= 0) return 0;
+  ANNOTATION_MARKUP_RE.lastIndex = 0;
+  let plain = 0;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = ANNOTATION_MARKUP_RE.exec(src))) {
+    const pre = m.index - last;
+    if (plain + pre >= plainOffset) return last + (plainOffset - plain);
+    plain += pre;
+    const contentStart = m.index + m[0].indexOf(":") + 1;
+    const contentLen = m[2].length;
+    if (plain + contentLen >= plainOffset) return contentStart + (plainOffset - plain);
+    plain += contentLen;
+    last = m.index + m[0].length;
+  }
+  return Math.min(src.length, last + (plainOffset - plain));
+}
+
+/**
+ * Mescla uma edição feita sobre o texto puro (sem marcação) de volta no texto
+ * com marcação, preservando as cores fora do trecho alterado.
+ */
+export function mergeAnnotationPlainEdit(raw: string, nextPlain: string): string {
+  const src = raw ?? "";
+  const oldPlain = stripAnnotationMarkup(src);
+  if (oldPlain === nextPlain) return src;
+  let p = 0;
+  const minLen = Math.min(oldPlain.length, nextPlain.length);
+  while (p < minLen && oldPlain[p] === nextPlain[p]) p++;
+  let s = 0;
+  while (
+    s < Math.min(oldPlain.length - p, nextPlain.length - p) &&
+    oldPlain[oldPlain.length - 1 - s] === nextPlain[nextPlain.length - 1 - s]
+  )
+    s++;
+  const rawStart = annotationPlainOffsetToRaw(src, p);
+  const rawEnd = annotationPlainOffsetToRaw(src, oldPlain.length - s);
+  const middle = nextPlain.slice(p, nextPlain.length - s);
+  return src.slice(0, rawStart) + middle + src.slice(rawEnd);
+}
+
 /** Aplica uma cor ao trecho [start, end) do texto, mantendo o restante. */
 export function applyAnnotationColor(
   text: string,

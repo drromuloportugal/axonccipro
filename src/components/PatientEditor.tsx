@@ -78,7 +78,10 @@ import {
   ANNOTATION_COLOR_META,
   ANNOTATION_COLOR_ORDER,
   applyAnnotationColor,
+  annotationPlainOffsetToRaw,
+  mergeAnnotationPlainEdit,
   parseAnnotationSegments,
+  stripAnnotationMarkup,
 } from "@/lib/clinical";
 
 import {
@@ -2894,8 +2897,9 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   const colorSelection = (i: number, si: number, text: string, color: AnnotationColor) => {
     const ta = annRefs.current[`${i}-${si}`];
     if (!ta) return;
-    const start = ta.selectionStart ?? 0;
-    const end = ta.selectionEnd ?? 0;
+    // A seleção do textarea refere-se ao texto puro (sem marcação); converte.
+    const start = annotationPlainOffsetToRaw(text, ta.selectionStart ?? 0);
+    const end = annotationPlainOffsetToRaw(text, ta.selectionEnd ?? 0);
     if (end <= start) return;
     updSub(i, si, { text: applyAnnotationColor(text, start, end, color) });
   };
@@ -3119,10 +3123,17 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                             placeholder="Anotação — escreva livremente (múltiplas linhas)"
                             rows={Math.max(
                               2,
-                              Math.min(8, (sub.text.match(/\n/g)?.length ?? 0) + 2),
+                              Math.min(
+                                8,
+                                (stripAnnotationMarkup(sub.text).match(/\n/g)?.length ?? 0) + 2,
+                              ),
                             )}
-                            value={sub.text}
-                            onChange={(e) => updSub(i, si, { text: e.target.value })}
+                            value={stripAnnotationMarkup(sub.text)}
+                            onChange={(e) =>
+                              updSub(i, si, {
+                                text: mergeAnnotationPlainEdit(sub.text, e.target.value),
+                              })
+                            }
                           />
                           <div className="flex flex-wrap items-center gap-1">
                             <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
