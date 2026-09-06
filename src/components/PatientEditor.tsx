@@ -2653,7 +2653,7 @@ function PriorEvolutionEditor({ value, onChange }: { value?: string; onChange: (
     setErr(null);
     try {
       const pdfjs = await import("pdfjs-dist");
-      // @ts-expect-error worker é resolvido pelo bundler como URL
+      
       const worker = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default as string;
       pdfjs.GlobalWorkerOptions.workerSrc = worker;
       const buf = await file.arrayBuffer();
