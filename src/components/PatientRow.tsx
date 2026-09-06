@@ -62,13 +62,19 @@ import { SofaButton, SofaModal } from "@/components/SofaPanel";
 
 import { IntubationJourney } from "@/components/IntubationJourney";
 import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeCheck";
-import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
-import { FisherModal, FisherButton } from "@/components/FisherPanel";
-import { HuntHessModal, HuntHessButton } from "@/components/HuntHessPanel";
-import { WfnsModal, WfnsButton } from "@/components/WfnsPanel";
-import { IchScoreModal, IchScoreButton } from "@/components/IchScorePanel";
-import { NihssModal, NihssButton } from "@/components/NihssPanel";
+import { Saps3Modal, Saps3Button, saps3Status } from "@/components/Saps3Panel";
+import {
+  FisherModal,
+  FisherButton,
+  computeFisher,
+  computeClassicFisher,
+} from "@/components/FisherPanel";
+import { HuntHessModal, HuntHessButton, computeHuntHess } from "@/components/HuntHessPanel";
+import { WfnsModal, WfnsButton, computeWfns } from "@/components/WfnsPanel";
+import { IchScoreModal, IchScoreButton, computeIch } from "@/components/IchScorePanel";
+import { NihssModal, NihssButton, computeNihss } from "@/components/NihssPanel";
 import { VasogradeModal, VasogradeButton } from "@/components/VasogradePanel";
+import { summarizeSofa } from "@/lib/sofa";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -91,7 +97,7 @@ function medDosesLabel(m: Medication): string | null {
   if (!isAtb) return null;
   const g = m.dosesGiven;
   if (g == null) return null;
-  return g === 1 ? "1 dose administrada" : `${g} doses administradas`;
+  return g === 1 ? "1 dose" : `${g} doses`;
 }
 
 const VITAL_LEVEL_TXT: Record<string, string> = {
