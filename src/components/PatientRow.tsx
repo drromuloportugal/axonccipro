@@ -701,8 +701,8 @@ export function PatientRow({
   <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span> {firstAnn ? (
   <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>{firstAnn.text}</span> ) : (
   <span className="italic text-muted-foreground">Sem anotações</span> )}
-                     {c.subItems && c.subItems.length > 1 && (
-  <span className="ml-1 text-[9px] text-muted-foreground">· +{c.subItems.length - 1}</span> )}
+                      {visibleSubs.length > 1 && (
+   <span className="ml-1 text-[9px] text-muted-foreground">· +{visibleSubs.length - 1}</span> )}
   </span>
   {annDate && (
   <span className="shrink-0 text-[9px] font-mono text-muted-foreground">
