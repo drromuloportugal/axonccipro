@@ -71,6 +71,7 @@ import {
 } from "@/components/FisherPanel";
 import { HuntHessModal, HuntHessButton, computeHuntHess } from "@/components/HuntHessPanel";
 import { WfnsModal, WfnsButton, computeWfns } from "@/components/WfnsPanel";
+import { GcsModal, GcsButton } from "@/components/GcsPanel";
 import { IchScoreModal, IchScoreButton, computeIch } from "@/components/IchScorePanel";
 import { NihssModal, NihssButton, computeNihss } from "@/components/NihssPanel";
 import { VasogradeModal, VasogradeButton } from "@/components/VasogradePanel";
