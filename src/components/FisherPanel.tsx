@@ -126,38 +126,41 @@ const CLASSIC_OPTS: { v: ClassicFisherFinding; label: string; grade: string }[] 
 // --------------------------------------------------------------- botão
 
 export function FisherButton({
-  patient, onClick, compact = false,
-}: { patient: Patient; onClick: () => void; compact?: boolean }) {
+  patient, onClick, compact = false, variant = "combined",
+}: { patient: Patient; onClick: () => void; compact?: boolean; variant?: "combined" | "classic" | "modified" }) {
   const rec = (patient as Patient & { fisher?: FisherRecord }).fisher;
   const classic = (patient as Patient & { classicFisher?: ClassicFisherRecord }).classicFisher;
   const { grade } = useMemo(() => computeFisher(rec), [rec]);
   const { grade: classicGrade } = useMemo(() => computeClassicFisher(classic), [classic]);
 
-  const displayGrade = classicGrade ?? grade;
-  const hasModified = grade != null;
-  const hasClassic = classicGrade != null;
-  const cls = displayGrade != null
+  const displayGrade = variant === "classic" ? classicGrade : variant === "modified" ? grade : (classicGrade ?? grade);
+  const hasValue = displayGrade != null;
+  const cls = hasValue
     ? displayGrade >= 3
       ? "bg-clinical-critical/15 text-clinical-critical hover:bg-clinical-critical/25"
       : "bg-clinical-neuro/15 text-clinical-neuro hover:bg-clinical-neuro/25"
     : "border border-border text-muted-foreground hover:bg-surface-3";
+
+  const label = variant === "classic" ? "Fisher Clássica" : variant === "modified" ? "Fisher Modificada" : "Fisher";
+  const sub = variant === "combined"
+    ? (classicGrade != null && grade != null ? "Clássica + Modificada"
+      : classicGrade ? "Clássica"
+      : grade ? "Modificada"
+      : "Não classificado")
+    : (hasValue ? `Grau ${displayGrade}` : "Não classificado");
+
   return (
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       className={`inline-flex flex-col items-start gap-0 rounded-md px-2 py-0.5 text-left text-[10px] font-semibold transition-colors ${cls}`}
-      title="Escala de Fisher (clássica e modificada) para hemorragia subaracnoidea"
+      title={`${label} para hemorragia subaracnoidea`}
     >
       <span className="inline-flex items-center gap-1">
-        <Brain className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> Fisher
+        <Brain className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> {label}
         {displayGrade != null && <span className="font-mono">{displayGrade}</span>}
       </span>
-      <span className="text-[9px] opacity-90">
-        {hasClassic && hasModified ? "Clássica + Modificada"
-          : hasClassic ? "Clássica"
-          : hasModified ? "Modificada"
-          : "Não classificado"}
-      </span>
+      <span className="text-[9px] opacity-90">{sub}</span>
     </button>
   );
 }
