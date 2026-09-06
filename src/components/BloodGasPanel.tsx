@@ -28,19 +28,21 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
   const [course, setCourse] = useState<AbgCourse>("undefined");
   const [open, setOpen] = useState(false);
 
-
-  const input = useMemo(() => ({
-    ph: pick(patient, /^p?H$|^pH\b/i),
-    paco2: pick(patient, /PaCO2|PCO2/i),
-    hco3: pick(patient, /HCO3|bicarbon/i),
-    na: pick(patient, /^Na\+?$|S[óo]dio/i),
-    cl: pick(patient, /^Cl-?$|Cloro/i),
-    albumin: pick(patient, /albumin/i),
-    pao2: pick(patient, /PaO2|^PO2$/i),
-    fio2: patient.state?.fio2,
-    lactate: pick(patient, /lactat/i),
-    course,
-  }), [patient, course]);
+  const input = useMemo(
+    () => ({
+      ph: pick(patient, /^p?H$|^pH\b/i),
+      paco2: pick(patient, /PaCO2|PCO2/i),
+      hco3: pick(patient, /HCO3|bicarbon/i),
+      na: pick(patient, /^Na\+?$|S[óo]dio/i),
+      cl: pick(patient, /^Cl-?$|Cloro/i),
+      albumin: pick(patient, /albumin/i),
+      pao2: pick(patient, /PaO2|^PO2$/i),
+      fio2: patient.state?.fio2,
+      lactate: pick(patient, /lactat/i),
+      course,
+    }),
+    [patient, course],
+  );
 
   const r = useMemo(() => computeAbg(input), [input]);
 
@@ -49,7 +51,10 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((v) => !v);
+          }}
           aria-expanded={open}
           className="flex flex-1 items-center gap-1 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-clinical-resp"
         >
@@ -71,65 +76,70 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
       </div>
 
       {open && (
-      <div className="mt-1">
+        <div className="mt-1">
+          {!r.complete && (
+            <div className="mb-1 rounded border border-dashed border-border/60 px-2 py-1 text-[10px] text-muted-foreground">
+              Dados faltantes para interpretação completa: {r.missing.join(", ")}.
+            </div>
+          )}
 
-
-      {!r.complete && (
-        <div className="mb-1 rounded border border-dashed border-border/60 px-2 py-1 text-[10px] text-muted-foreground">
-          Dados faltantes para interpretação completa: {r.missing.join(", ")}.
+          <ul className="space-y-1 text-[11px] leading-snug">
+            <li>
+              <span className="font-semibold text-muted-foreground">Situação do pH: </span>
+              <span className={`font-bold ${TONE[r.phTone]}`}>{r.phStatus}</span>
+            </li>
+            <li>
+              <span className="font-semibold text-muted-foreground">Distúrbio primário: </span>
+              <span className="font-bold text-foreground">{r.primary}</span>
+            </li>
+            {r.compensation && (
+              <li>
+                <span className="font-semibold text-muted-foreground">Compensação: </span>
+                <span className="text-foreground">
+                  {r.compensation.expected}. {r.compensation.measured}. {r.compensation.verdict}
+                </span>
+              </li>
+            )}
+            {r.mixed && (
+              <li className="font-bold text-clinical-attention">Possível distúrbio misto.</li>
+            )}
+            {r.anionGap != null && (
+              <li>
+                <span className="font-semibold text-muted-foreground">Ânion gap: </span>
+                <span className="font-mono font-bold text-foreground">{r.anionGap} mEq/L</span>
+                <span className="text-foreground"> — {r.anionGapClass}</span>
+              </li>
+            )}
+            {r.anionGapCorrected != null && (
+              <li>
+                <span className="font-semibold text-muted-foreground">
+                  AG corrigido pela albumina:{" "}
+                </span>
+                <span className="font-mono font-bold text-foreground">
+                  {r.anionGapCorrected} mEq/L
+                </span>
+              </li>
+            )}
+            {r.pfRatio != null && (
+              <li>
+                <span className="font-semibold text-muted-foreground">Relação P/F: </span>
+                <span className="font-mono font-bold text-foreground">{r.pfRatio}</span>
+                <span className="text-foreground"> — {r.pfClass}</span>
+              </li>
+            )}
+            {r.extras.map((x) => (
+              <li key={x.label}>
+                <span className="font-semibold text-muted-foreground">{x.label}: </span>
+                <span
+                  className={`font-mono font-bold ${x.tone ? TONE[x.tone] : "text-foreground"}`}
+                >
+                  {x.value}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
-
-      <ul className="space-y-1 text-[11px] leading-snug">
-        <li>
-          <span className="font-semibold text-muted-foreground">Situação do pH: </span>
-          <span className={`font-bold ${TONE[r.phTone]}`}>{r.phStatus}</span>
-        </li>
-        <li>
-          <span className="font-semibold text-muted-foreground">Distúrbio primário: </span>
-          <span className="font-bold text-foreground">{r.primary}</span>
-        </li>
-        {r.compensation && (
-          <li>
-            <span className="font-semibold text-muted-foreground">Compensação: </span>
-            <span className="text-foreground">
-              {r.compensation.expected}. {r.compensation.measured}. {r.compensation.verdict}
-            </span>
-          </li>
-        )}
-        {r.mixed && (
-          <li className="font-bold text-clinical-attention">Possível distúrbio misto.</li>
-        )}
-        {r.anionGap != null && (
-          <li>
-            <span className="font-semibold text-muted-foreground">Ânion gap: </span>
-            <span className="font-mono font-bold text-foreground">{r.anionGap} mEq/L</span>
-            <span className="text-foreground"> — {r.anionGapClass}</span>
-          </li>
-        )}
-        {r.anionGapCorrected != null && (
-          <li>
-            <span className="font-semibold text-muted-foreground">AG corrigido pela albumina: </span>
-            <span className="font-mono font-bold text-foreground">{r.anionGapCorrected} mEq/L</span>
-          </li>
-        )}
-        {r.pfRatio != null && (
-          <li>
-            <span className="font-semibold text-muted-foreground">Relação P/F: </span>
-            <span className="font-mono font-bold text-foreground">{r.pfRatio}</span>
-            <span className="text-foreground"> — {r.pfClass}</span>
-          </li>
-        )}
-        {r.extras.map((x) => (
-          <li key={x.label}>
-            <span className="font-semibold text-muted-foreground">{x.label}: </span>
-            <span className={`font-mono font-bold ${x.tone ? TONE[x.tone] : "text-foreground"}`}>{x.value}</span>
-          </li>
-        ))}
-      </ul>
-      </div>
-      )}
     </div>
-
   );
 }

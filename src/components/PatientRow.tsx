@@ -95,7 +95,6 @@ function medDosesLabel(m: Medication): string | null {
   return g === 1 ? "1 dose administrada" : `${g} doses administradas`;
 }
 
-
 const VITAL_LEVEL_TXT: Record<string, string> = {
   normal: "text-clinical-stable",
   leve: "text-yellow-600",
@@ -776,7 +775,6 @@ export function PatientRow({
                         </div>
                       );
                     })}
-
                     {list.length > 3 && (
                       <div className="text-[9px] text-muted-foreground">+{list.length - 3}</div>
                     )}
@@ -1700,7 +1698,6 @@ export function PatientRow({
                             </li>
                           );
                         })}
-
                       </ul>
                     </div>
                   );
@@ -1999,7 +1996,6 @@ export function PatientRow({
                 )}
               </div>
               {/* EEG e hemotransfusão ficam apenas no painel de edição */}
-
             </div>{" "}
             {/* 6 */}
             <div onClick={colClick("sup")} className="text-[11px] !px-1.5">
