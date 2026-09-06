@@ -1890,14 +1890,6 @@ export function PatientRow({
                                 <span>
                                   {im.modality} · {im.region}
                                 </span>
-                                {im.outcome && (
-                                  <span
-                                    className={`rounded px-1 py-px text-[8.5px] font-bold uppercase tracking-wider ${bad ? "bg-clinical-critical/15 text-clinical-critical" : "bg-clinical-stable/15 text-clinical-stable"}`}
-                                  >
-                                    {" "}
-                                    {bad ? "Mau resultado" : "Bom resultado"}
-                                  </span>
-                                )}
                               </div>
                               <span className="font-mono text-[10px] text-muted-foreground">
                                 {" "}
