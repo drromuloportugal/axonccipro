@@ -844,7 +844,7 @@ export function PatientRow({
  <div key={g.cat}>
  <div className={`mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink ${g.head}`}> {g.label} · {list.length}
  </div>
- <ol className="relative ml-2 space-y-1.5 border-l border-border pl-3"> {list.map((d, i) => (
+ <ol className="relative ml-2 space-y-1 border-l border-border pl-3"> {list.map((d, i) => (
  <li key={i} className="relative">
  <span className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`} />
  <div className={`rounded-md border px-2 py-1 text-ink ${g.box}`}>
