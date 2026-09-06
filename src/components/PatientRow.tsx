@@ -575,7 +575,7 @@ export function PatientRow({
  </div> ))}
  </div> )}
  </div> {/* 6 - Estado atual (Sinais vitais) · Bristol · Balanço hídrico · Notas */}
- <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-1">
+ <div onClick={colClick("sup")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
  <ColHead label="📈 Estado atual" tab="sup" title="Editar estado atual" tone={5} /> {/* Estado atual — sinais vitais (linhas) */}
  <div className="ios-inset px-1.5 py-1">
  <div className="mb-0.5 text-[8.5px] font-bold uppercase tracking-wider text-muted-foreground"> Sinais vitais</div>
