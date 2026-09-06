@@ -352,7 +352,7 @@ export function PatientRow({
  <div className="border-b border-border last:border-b-0 bg-soft-blue-gradient"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
  <div
-        className="col-shadowed-grid grid w-full grid-cols-[1.5fr_1.25fr_1.25fr_1.4fr_1.25fr_1.35fr_1.3fr] items-start gap-2.5 px-4 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-3.5 [&>div]:py-3 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
+        className="col-shadowed-grid grid w-full grid-cols-[1.5fr_1.2fr_1.2fr_1.35fr_1.2fr_1.3fr_1.55fr] items-start gap-1.5 px-3 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
       > {/* 1 - Identificação */}
  <div onClick={colClick("id")} className="col-ink flex min-w-0 flex-col px-3 first:pl-0 last:pr-0">
 
@@ -795,7 +795,7 @@ export function PatientRow({
  </button>
  </div>
  </div>
- <div className="col-shadowed-grid grid grid-cols-[1.4fr_1.3fr_1.3fr_1.3fr_1.3fr_1.4fr_1.3fr] items-start gap-2.5 px-4 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-3.5 [&>div]:py-3"> {/* 1 */}
+ <div className="col-shadowed-grid grid grid-cols-[1.35fr_1.2fr_1.2fr_1.2fr_1.2fr_1.35fr_1.7fr] items-start gap-1.5 px-3 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5"> {/* 1 */}
  <div onClick={colClick("id")} className="col-ink">
  <ColTitle tone={0}>🪪 Identificação</ColTitle>
  <dl className="space-y-1 text-muted-foreground">
