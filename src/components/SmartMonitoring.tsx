@@ -319,6 +319,101 @@ export function currentVitalsSummary(patient: Patient): VitalSummary {
   };
 }
 
+// ---------- Sinais vitais da data mais recente (coluna 6 do painel) ----------
+
+type VitalSeriesKey = keyof NonNullable<Patient["state"]["vitalSeries"]>;
+
+const LATEST_VITAL_DEFS: {
+  key: VitalSeriesKey;
+  label: string;
+  unit: string;
+  dec?: number;
+  classify: (v?: number) => { level: Level; text: string };
+}[] = [
+  { key: "temp", label: "Temp", unit: "°C", dec: 1, classify: classifyTemp },
+  { key: "spo2", label: "SpO₂", unit: "%", classify: classifySpO2 },
+  { key: "fc", label: "FC", unit: "bpm", classify: (v) => classifyFC(v, v) },
+  { key: "fr", label: "FR", unit: "ipm", classify: classifyFR },
+  { key: "pas", label: "PAS", unit: "mmHg", classify: classifyPAS },
+  { key: "pad", label: "PAD", unit: "mmHg", classify: classifyPAD },
+  { key: "pam", label: "PAM", unit: "mmHg", classify: classifyPAM },
+  { key: "glicemia", label: "Glic", unit: "mg/dL", classify: classifyGlicemia },
+  { key: "bristol", label: "Bristol", unit: "", classify: classifyBristol },
+  { key: "bh", label: "BH", unit: "mL", classify: classifyBH },
+];
+
+const dayKeyOf = (iso?: string) => (iso ? iso.slice(0, 10) : "");
+
+/** Último registro de uma série em uma data específica (AAAA-MM-DD). */
+function readingOnDay(arr: VitalReading[] | undefined, day: string): VitalReading | undefined {
+  const hits = (arr ?? []).filter(
+    (r) => typeof r.value === "number" && !Number.isNaN(r.value) && dayKeyOf(r.at) === day,
+  );
+  if (!hits.length) return undefined;
+  return [...hits].sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""))[hits.length - 1];
+}
+
+function entryFrom(
+  r: VitalReading,
+  classify: ((v?: number) => { level: Level; text: string }) | undefined,
+  unit: string,
+  dec = 0,
+): VitalSummaryEntry {
+  const max = r.value;
+  const min = typeof r.min === "number" && !Number.isNaN(r.min) ? r.min : undefined;
+  const lvl: Level = classify ? worst(classify(min).level, classify(max).level) : "na";
+  const fmt = (v?: number) => (v == null ? "—" : v.toFixed(dec));
+  const txt =
+    min != null && max != null && min !== max
+      ? `${fmt(max)}–${fmt(min)} ${unit}`
+      : `${fmt(max ?? min)} ${unit}`;
+  return { level: lvl, text: txt.trim(), max, min, unit: unit || undefined, dec };
+}
+
+export interface LatestDayVitals {
+  /** Data (AAAA-MM-DD) mais recente com registros; null quando não há série datada. */
+  date: string | null;
+  rows: { label: string; v: VitalSummaryEntry }[];
+}
+
+/**
+ * Todos os sinais vitais alimentados na data mais atual registrada
+ * (vitalSeries + customSeries). Sem registros datados → date null.
+ */
+export function latestDayVitals(patient: Patient): LatestDayVitals {
+  const s = patient.state;
+  const series = s.vitalSeries ?? {};
+  const custom = s.customSeries ?? [];
+
+  let latest = "";
+  const scan = (arr?: VitalReading[]) => {
+    for (const r of arr ?? []) {
+      if (typeof r.value !== "number" || Number.isNaN(r.value)) continue;
+      const d = dayKeyOf(r.at);
+      if (d && d > latest) latest = d;
+    }
+  };
+  for (const def of LATEST_VITAL_DEFS) scan(series[def.key]);
+  for (const c of custom) scan(c.readings);
+  if (!latest) return { date: null, rows: [] };
+
+  const rows: { label: string; v: VitalSummaryEntry }[] = [];
+  for (const def of LATEST_VITAL_DEFS) {
+    const r = readingOnDay(series[def.key], latest);
+    if (r) rows.push({ label: def.label, v: entryFrom(r, def.classify, def.unit, def.dec) });
+  }
+  for (const c of custom) {
+    const r = readingOnDay(c.readings, latest);
+    if (!r) continue;
+    const decs = [r.value, r.min]
+      .filter((v): v is number => typeof v === "number" && Number.isFinite(v))
+      .map((v) => (Number.isInteger(v) ? 0 : Number.isInteger(v * 10) ? 1 : 2));
+    const dec = Math.max(0, ...decs);
+    rows.push({ label: c.label, v: entryFrom(r, undefined, c.unit ?? "", dec) });
+  }
+  return { date: latest, rows };
+}
+
 // ---------- Componente principal ----------
 
 type Props = {
