@@ -1301,7 +1301,7 @@ export function PatientRow({
  <td className="py-1 font-mono">
  <span className={`${abn ? "alert-outline inline-block px-1.5 " : ""}${b?.className ?? "text-foreground"}`}>{e.value} {e.unit}</span>
  </td>
-  <td className={`py-1 text-right text-[12px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
+  <td className={`py-1 text-right text-[11px] leading-none ${t.className}`} title={t.label} aria-label={t.label}>{t.arrow}</td>
  </tr> );
                     })}
  </tbody>
