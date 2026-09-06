@@ -923,12 +923,13 @@ export const MEDICATION_CLASS_META: Record<MedicationClass, { label: string; sho
   im: { label: "Intramuscular", short: "IM", icon: "", className: "text-clinical-device", bgClass: "bg-clinical-device/10", borderClass: "border-clinical-device/40" },
   sc: { label: "Subcutâneo", short: "SC", icon: "", className: "text-clinical-stable", bgClass: "bg-clinical-stable/10", borderClass: "border-clinical-stable/40" },
   oral: { label: "Oral/Enteral", short: "VO/Ent.", icon: "", className: "text-clinical-nutri", bgClass: "bg-clinical-nutri/10", borderClass: "border-clinical-nutri/40" },
+  sne: { label: "Sonda Nasoenteral", short: "SNE", icon: "", className: "text-clinical-nutri", bgClass: "bg-clinical-nutri/10", borderClass: "border-clinical-nutri/40" },
   inhaled: { label: "Inalatório", short: "Inal.", icon: "", className: "text-clinical-resp", bgClass: "bg-clinical-resp/10", borderClass: "border-clinical-resp/40" },
   topical: { label: "Tópico", short: "Tóp.", icon: "", className: "text-clinical-neutral", bgClass: "bg-clinical-neutral/10", borderClass: "border-clinical-neutral/40" },
 };
 
 export const MEDICATION_CLASS_ORDER: MedicationClass[] = [
- "antibiotic", "pump", "hydration", "iv", "im", "sc", "oral", "inhaled", "topical",
+ "antibiotic", "pump", "hydration", "iv", "im", "sc", "oral", "sne", "inhaled", "topical",
 ];
 
 /** Resolve a medication class from explicit field or from route/isAntibiotic/pump heuristics. */
@@ -942,7 +943,8 @@ export function medClassOf(m: Medication): MedicationClass {
   if (/top|derm/.test(r)) return "topical";
   if (/sc|subc/.test(r)) return "sc";
   if (/im|intram/.test(r)) return "im";
-  if (/vo|oral|sne|snd|enter|gt|gtn/.test(r)) return "oral";
+  if (/sne/.test(r)) return "sne";
+  if (/vo|oral|snd|enter|gt|gtn/.test(r)) return "oral";
   if (/ev|iv|intraven/.test(r)) return "iv";
   return "iv";
 }
