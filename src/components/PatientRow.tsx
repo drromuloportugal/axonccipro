@@ -734,8 +734,8 @@ export function PatientRow({
                       <span className="font-mono">{list.length}</span>
                     </div>{" "}
                     {list.slice(0, 3).map((m, i) => {
-                      const isAtb = m.isAntibiotic ?? detectAntibiotic(m.name);
-                      const prog = isAtb ? antibioticProgress(m) : null;
+                      const secondary = medSecondary(m);
+                      const doses = medDosesLabel(m);
                       return (
                         <div key={i} className="text-[10.5px] leading-snug">
                           <div className="flex items-center gap-1">
@@ -743,20 +743,21 @@ export function PatientRow({
                             <span className="min-w-0 flex-1 truncate font-semibold text-foreground">
                               {m.name}
                             </span>
-                            <span className="shrink-0 font-mono text-[9.5px] text-muted-foreground">
-                              {" "}
-                              {m.route} · {m.freq}
-                            </span>
                           </div>{" "}
-                          {mounted && prog && (
-                            <div className="ml-2.5 text-[8.5px] font-mono text-muted-foreground">
-                              {" "}
-                              D{prog.currentDay}/{prog.totalDays}
+                          {secondary && (
+                            <div className="ml-2.5 font-mono text-[9.5px] text-muted-foreground">
+                              {secondary}
+                            </div>
+                          )}
+                          {doses && (
+                            <div className="ml-2.5 font-mono text-[9px] text-muted-foreground">
+                              {doses}
                             </div>
                           )}
                         </div>
                       );
                     })}
+
                     {list.length > 3 && (
                       <div className="text-[9px] text-muted-foreground">+{list.length - 3}</div>
                     )}
