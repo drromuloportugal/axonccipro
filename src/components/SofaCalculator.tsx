@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -19,6 +19,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "@/data/patients";
 import {
   SOFA_COMPONENTS,
@@ -243,6 +244,23 @@ export function SofaCalculator({
     [patient.sofaAssessments],
   );
 
+  const [autoUser, setAutoUser] = useState<string | null>(null);
+  useEffect(() => {
+    if (evaluator) return;
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data.user;
+      if (!alive || !u) return;
+      const meta = (u.user_metadata ?? {}) as Record<string, unknown>;
+      const nome = typeof meta["nome"] === "string" ? (meta["nome"] as string) : null;
+      setAutoUser(nome || u.email || null);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [evaluator]);
+  const who = evaluator ?? autoUser ?? undefined;
+
   const [inputs, setInputs] = useState<SofaInputs>(() => prefillFromPatient(patient));
   const [startedAt] = useState(() => new Date().toISOString());
   const [showEvolution, setShowEvolution] = useState(false);
@@ -298,7 +316,7 @@ export function SofaCalculator({
 
   const save = () => {
     if (!onSave) return;
-    const a = buildAssessment(inputs, result, evaluator);
+    const a = buildAssessment(inputs, result, who);
     const next: Patient = {
       ...patient,
       sofaAssessments: [a, ...(patient.sofaAssessments ?? [])],
@@ -328,7 +346,7 @@ export function SofaCalculator({
 <h1>SOFA — Sequential Organ Failure Assessment</h1>
 <p><strong>Paciente:</strong> ${patient.name} · Leito ${patient.bed}<br>
 <strong>Data/hora da avaliação:</strong> ${fmtDateTime(new Date().toISOString())}<br>
-<strong>Avaliador:</strong> ${evaluator ?? "Não identificado"}</p>
+<strong>Avaliador:</strong> ${who ?? "Não identificado"}</p>
 <div class="total">SOFA ${result.total ?? "—"} / 24${result.partial ? " (parcialmente calculado)" : ""}</div>
 <table><thead><tr><th>Sistema</th><th>Pontos</th><th>Dados utilizados</th></tr></thead><tbody>${rows}</tbody></table>
 <p><small>${SOFA_DISCLAIMER}</small></p>
@@ -363,7 +381,7 @@ export function SofaCalculator({
           <div>
             <span className="text-muted-foreground">Avaliador: </span>
             <span className="font-semibold text-foreground">
-              {evaluator ?? "Não identificado"}
+              {who ?? "Não identificado"}
             </span>
           </div>
         </div>
