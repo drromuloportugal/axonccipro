@@ -1,12 +1,13 @@
 import type { Patient, Severity, Medication } from "@/data/patients";
 import { PrintAnatomicalMap } from "@/components/PrintAnatomicalMap";
+import { cn } from "@/lib/utils";
 import {
   examInsight, bucketBadge, trendArrow, generateEstadoAtual,
   computeAge, computeBMI,
   antibioticProgress, atbAlertBadge, detectAntibiotic,
   deviceRisk, formatDeviceDays,
   medClassOf, MEDICATION_CLASS_META, MEDICATION_CLASS_ORDER,
-  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR,
+  bristolMeta, computeFluidBalance, CONDUCT_SYSTEM_META, ANNOTATION_COLOR_META, formatDateBR, formatDayMonth,
   organDonationLabel, directiveLabel,
 } from "@/lib/clinical";
 import { assessVitals, formatVitalValue, levelLabel } from "@/lib/vitals";
