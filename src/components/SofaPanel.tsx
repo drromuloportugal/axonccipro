@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
+import { Activity } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Patient } from "@/data/patients";
 import {
   SOFA_SYSTEMS, TRAJECTORY_META, fmtDelta, summarizeSofa,
@@ -187,4 +189,68 @@ export function SofaPanel({ patient }: { patient: Patient }) {
  </> )}
  </div> )}
  </div> );
+}
+
+/** Botão compacto para a aba de escalas (coluna 1). */
+export function SofaButton({
+  patient,
+  onClick,
+  compact = false,
+}: {
+  patient: Patient;
+  onClick: () => void;
+  compact?: boolean;
+}) {
+  const s = useMemo(() => summarizeSofa(patient), [patient]);
+  const cur = s.current?.total ?? null;
+  const traj = TRAJECTORY_META[s.trajectory];
+  const cls =
+    cur != null
+      ? "bg-clinical-neuro/15 text-clinical-neuro hover:bg-clinical-neuro/25"
+      : "border border-border text-muted-foreground hover:bg-surface-3";
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`inline-flex flex-col items-start gap-0 rounded-md px-2 py-0.5 text-left text-[10px] font-semibold transition-colors ${cls}`}
+      title="SOFA — evolução da disfunção orgânica"
+    >
+      <span className="inline-flex items-center gap-1">
+        <Activity className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} /> SOFA
+        {cur != null && <span className="font-mono">{cur} pts</span>}
+      </span>
+      {cur != null ? (
+        <span className="text-[9px] font-semibold opacity-90">
+          {traj.label}
+          {s.delta24 != null ? ` · ${fmtDelta(s.delta24)}/24 h` : ""}
+        </span>
+      ) : (
+        <span className="text-[9px] opacity-90">Sem dados suficientes</span>
+      )}
+    </button>
+  );
+}
+
+export function SofaModal({
+  open,
+  onClose,
+  patient,
+}: {
+  open: boolean;
+  onClose: () => void;
+  patient: Patient;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-sm">SOFA — Disfunção orgânica</DialogTitle>
+        </DialogHeader>
+        <SofaPanel patient={patient} />
+      </DialogContent>
+    </Dialog>
+  );
 }
