@@ -62,13 +62,19 @@ import { SofaButton, SofaModal } from "@/components/SofaPanel";
 
 import { IntubationJourney } from "@/components/IntubationJourney";
 import { DischargeCheckModal, dischargeStatus } from "@/components/DischargeCheck";
-import { Saps3Modal, Saps3Button } from "@/components/Saps3Panel";
-import { FisherModal, FisherButton } from "@/components/FisherPanel";
-import { HuntHessModal, HuntHessButton } from "@/components/HuntHessPanel";
-import { WfnsModal, WfnsButton } from "@/components/WfnsPanel";
-import { IchScoreModal, IchScoreButton } from "@/components/IchScorePanel";
-import { NihssModal, NihssButton } from "@/components/NihssPanel";
+import { Saps3Modal, Saps3Button, saps3Status } from "@/components/Saps3Panel";
+import {
+  FisherModal,
+  FisherButton,
+  computeFisher,
+  computeClassicFisher,
+} from "@/components/FisherPanel";
+import { HuntHessModal, HuntHessButton, computeHuntHess } from "@/components/HuntHessPanel";
+import { WfnsModal, WfnsButton, computeWfns } from "@/components/WfnsPanel";
+import { IchScoreModal, IchScoreButton, computeIch } from "@/components/IchScorePanel";
+import { NihssModal, NihssButton, computeNihss } from "@/components/NihssPanel";
 import { VasogradeModal, VasogradeButton } from "@/components/VasogradePanel";
+import { summarizeSofa } from "@/lib/sofa";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -91,7 +97,7 @@ function medDosesLabel(m: Medication): string | null {
   if (!isAtb) return null;
   const g = m.dosesGiven;
   if (g == null) return null;
-  return g === 1 ? "1 dose administrada" : `${g} doses administradas`;
+  return g === 1 ? "1 dose" : `${g} doses`;
 }
 
 const VITAL_LEVEL_TXT: Record<string, string> = {
@@ -279,6 +285,23 @@ export function PatientRow({
   useEffect(() => setMounted(true), []);
 
   const lppSummary = useMemo(() => summarizeLPP(patient.lpp), [patient.lpp]);
+
+  /** Quais escalas estão efetivamente preenchidas — só estas aparecem no painel. */
+  const filledScales = useMemo(() => {
+    const p = patient as Patient & Record<string, any>;
+    return {
+      saps3: saps3Status(patient).status === "done",
+      fisherC: computeClassicFisher(p.classicFisher).grade != null,
+      fisherM: computeFisher(p.fisher).grade != null,
+      huntHess: computeHuntHess(p.huntHess).grade != null,
+      wfns: computeWfns(p.wfns).grade != null,
+      ich: computeIch(p.ichScore).score != null,
+      nihss: computeNihss(p.nihss).total != null,
+      vasograde: p.vasograde?.color != null,
+      sofa: summarizeSofa(patient).current?.total != null,
+    };
+  }, [patient]);
+  const anyScaleFilled = Object.values(filledScales).some(Boolean);
 
   const suggestions = useMemo(() => aiTherapySuggestions(patient), [patient]);
   const activeMeds = patient.medications.filter((m) => m.active !== false);
@@ -580,25 +603,48 @@ export function PatientRow({
                 ⚙️ Escalas
               </div>
               <div className="flex flex-col items-start gap-0.5">
-                <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
-                <FisherButton
-                  patient={patient}
-                  onClick={() => setFisherOpen(true)}
-                  compact
-                  variant="classic"
-                />
-                <FisherButton
-                  patient={patient}
-                  onClick={() => setFisherOpen(true)}
-                  compact
-                  variant="modified"
-                />
-                <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
-                <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
-                <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
-                <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
-                <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
-                <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
+                {filledScales.saps3 && (
+                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} compact />
+                )}
+                {filledScales.fisherC && (
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    compact
+                    variant="classic"
+                  />
+                )}
+                {filledScales.fisherM && (
+                  <FisherButton
+                    patient={patient}
+                    onClick={() => setFisherOpen(true)}
+                    compact
+                    variant="modified"
+                  />
+                )}
+                {filledScales.huntHess && (
+                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} compact />
+                )}
+                {filledScales.wfns && (
+                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} compact />
+                )}
+                {filledScales.ich && (
+                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} compact />
+                )}
+                {filledScales.nihss && (
+                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} compact />
+                )}
+                {filledScales.vasograde && (
+                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} compact />
+                )}
+                {filledScales.sofa && (
+                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} compact />
+                )}
+                {!anyScaleFilled && (
+                  <span className="text-[9px] italic text-muted-foreground/60">
+                    Nenhuma escala preenchida
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => setHistoryOpen(true)}
@@ -802,11 +848,17 @@ export function PatientRow({
                   .reverse()
                   .map((c) => {
                     const r = cultureResultBadge(c);
+                    const borderCls =
+                      r.label === "Positiva"
+                        ? "border border-clinical-critical/70"
+                        : r.label === "Negativa"
+                          ? "border border-clinical-stable/70"
+                          : "border border-clinical-attention/70";
                     return (
                       <div
                         key={c.id}
-                        className={`flex items-center gap-1 rounded-md text-[10.5px] leading-snug ${r.label === "Positiva" ? "alert-outline-static px-1 py-0.5" : ""}`}
-                        title={c.organism ?? c.source}
+                        className={`flex items-center gap-1 rounded-md px-1 py-0.5 text-[10.5px] leading-snug ${borderCls}`}
+                        title={`${c.organism ?? c.source} — ${r.label}`}
                       >
                         <span className="min-w-0 flex-1 truncate">
                           <span className="font-semibold text-foreground"> {c.source}</span>{" "}
@@ -826,28 +878,28 @@ export function PatientRow({
                 {patient.imaging!.slice(0, 2).map((im) => (
                   <div
                     key={im.id}
-                    className={`flex items-center gap-1 rounded text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline px-1" : ""}`}
+                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline" : ""}`}
                     title={im.outcome === "mau" ? "Mau resultado esperado" : undefined}
                   >
-                    <span className="shrink-0">
-                      {" "}
-                      {im.conclusion === "critico"
-                        ? ""
-                        : im.conclusion === "alterado"
-                          ? ""
-                          : im.conclusion === "normal"
-                            ? ""
-                            : ""}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate" title={im.summary}>
-                      <span className="font-semibold text-foreground">{im.modality}</span>
-                      <span className="text-muted-foreground"> {im.region}</span>
-                    </span>{" "}
-                    {im.images && im.images.length > 0 && (
-                      <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
-                        {" "}
-                        {im.images.length}
+                    <div className="flex items-center gap-1">
+                      <span className="min-w-0 flex-1 truncate" title={im.summary}>
+                        <span className="font-semibold text-foreground">{im.modality}</span>
+                        <span className="text-muted-foreground"> {im.region}</span>
                       </span>
+                      {im.images && im.images.length > 0 && (
+                        <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
+                          {" "}
+                          {im.images.length}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[9px] text-muted-foreground">
+                      {formatDateBR(im.performedAt)}
+                    </div>
+                    {im.status && (
+                      <div className="text-[9px] font-semibold uppercase tracking-wider text-foreground">
+                        {im.status === "concluido" ? "Concluído" : "Solicitado"}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -1290,23 +1342,46 @@ export function PatientRow({
               <div className="mt-4" onClick={(e) => e.stopPropagation()}>
                 <ColTitle tone={5}>⚙️ Escalas</ColTitle>
                 <div className="flex flex-col items-start gap-1">
-                  <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="classic"
-                  />
-                  <FisherButton
-                    patient={patient}
-                    onClick={() => setFisherOpen(true)}
-                    variant="modified"
-                  />
-                  <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
-                  <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
-                  <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
-                  <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
-                  <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
-                  <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
+                  {filledScales.saps3 && (
+                    <Saps3Button patient={patient} onClick={() => setSaps3Open(true)} />
+                  )}
+                  {filledScales.fisherC && (
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="classic"
+                    />
+                  )}
+                  {filledScales.fisherM && (
+                    <FisherButton
+                      patient={patient}
+                      onClick={() => setFisherOpen(true)}
+                      variant="modified"
+                    />
+                  )}
+                  {filledScales.huntHess && (
+                    <HuntHessButton patient={patient} onClick={() => setHuntHessOpen(true)} />
+                  )}
+                  {filledScales.wfns && (
+                    <WfnsButton patient={patient} onClick={() => setWfnsOpen(true)} />
+                  )}
+                  {filledScales.ich && (
+                    <IchScoreButton patient={patient} onClick={() => setIchOpen(true)} />
+                  )}
+                  {filledScales.nihss && (
+                    <NihssButton patient={patient} onClick={() => setNihssOpen(true)} />
+                  )}
+                  {filledScales.vasograde && (
+                    <VasogradeButton patient={patient} onClick={() => setVasoOpen(true)} />
+                  )}
+                  {filledScales.sofa && (
+                    <SofaButton patient={patient} onClick={() => setSofaOpen(true)} />
+                  )}
+                  {!anyScaleFilled && (
+                    <span className="text-[10px] italic text-muted-foreground/60">
+                      Nenhuma escala preenchida.
+                    </span>
+                  )}
                 </div>
               </div>
               {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
@@ -1388,11 +1463,27 @@ export function PatientRow({
               {/* Medicações de uso prévio domiciliar */}
               {patient.pastMedications && patient.pastMedications.length > 0 && (
                 <div className="mt-3">
-                  <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-foreground">
-                    Uso Prévio
+                  <div className="title-box title-green-2 mb-1 inline-flex !text-[10px]">
+                    💊 Medicamentos de uso prévio · {patient.pastMedications.length}
                   </div>
-                  <div className="ios-inset rounded p-1.5 text-[10px] leading-snug text-foreground">
-                    {patient.pastMedications.map((pm) => pm.name).join(", ")}
+                  <div className="space-y-1">
+                    {patient.pastMedications.map((pm) => (
+                      <div
+                        key={pm.id}
+                        className="ios-inset rounded px-1.5 py-1 text-[10px] leading-snug text-foreground"
+                      >
+                        <div>
+                          {pm.dose && <span className="font-semibold">{pm.dose} </span>}
+                          <span className="font-semibold">{pm.name}</span>
+                          {pm.freq && <span className="text-muted-foreground"> · {pm.freq}</span>}
+                        </div>
+                        {pm.period && (
+                          <div className="mt-0.5 text-[9px] text-muted-foreground">
+                            Tempo de uso: {pm.period}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -1737,18 +1828,22 @@ export function PatientRow({
                       .map((c) => {
                         const r = cultureResultBadge(c);
                         const alerts = detectCultureAlerts(c);
+                        const borderCls =
+                          r.label === "Positiva"
+                            ? "border-2 border-clinical-critical/70"
+                            : r.label === "Negativa"
+                              ? "border-2 border-clinical-stable/70"
+                              : "border-2 border-clinical-attention/70";
                         return (
                           <li
                             key={c.id}
-                            className={`ios-inset px-2 py-1.5 text-[11px] ${r.label === "Positiva" ? "alert-outline-static" : ""}`}
+                            className={`ios-inset px-2 py-1.5 text-[11px] ${borderCls}`}
+                            title={r.label}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <div className="flex items-center gap-1.5 font-semibold text-foreground">
                                 <span className="truncate">{c.source}</span>
                               </div>
-                              <span className={`shrink-0 font-mono text-[9px] ${r.className}`}>
-                                {r.label}
-                              </span>
                             </div>
                             <div className="mt-0.5 text-[10px] text-muted-foreground">
                               {" "}
@@ -1862,23 +1957,20 @@ export function PatientRow({
                             className={`ios-inset px-2 py-1.5 text-[11px] ${bad ? "alert-outline" : ""}`}
                             title={bad ? "Mau resultado esperado" : undefined}
                           >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                                <span>{icon}</span>
-                                <span>
-                                  {im.modality} · {im.region}
-                                </span>
-                              </div>
-                              <span className="font-mono text-[10px] text-muted-foreground">
-                                {" "}
-                                {formatDateBR(im.performedAt)}
-                                {im.status && (
-                                  <span className="ml-1 rounded border border-border px-1 py-px text-[9px] font-semibold uppercase tracking-wider text-foreground">
-                                    {im.status === "concluido" ? " Concluído" : " Solicitado"}
-                                  </span>
-                                )}
+                            <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                              <span>{icon}</span>
+                              <span>
+                                {im.modality} · {im.region}
                               </span>
-                            </div>{" "}
+                            </div>
+                            <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                              {formatDateBR(im.performedAt)}
+                            </div>
+                            {im.status && (
+                              <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-foreground">
+                                {im.status === "concluido" ? "Concluído" : "Solicitado"}
+                              </div>
+                            )}{" "}
                             {im.summary && (
                               <div className="mt-0.5 text-[10.5px] text-muted-foreground">
                                 {im.summary}
