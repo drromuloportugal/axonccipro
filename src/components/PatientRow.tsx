@@ -1665,21 +1665,21 @@ export function PatientRow({
                   return (
                     <div
                       key={cls}
-                      className={`mb-1.5 rounded-md border ${meta.borderClass} ${meta.bgClass} p-1.5`}
+                      className={`mb-1 rounded-md border ${meta.borderClass} ${meta.bgClass} p-1`}
                     >
                       <div
-                        className={`mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider ${meta.className}`}
+                        className={`mb-0.5 flex items-center justify-between text-[9px] font-bold uppercase tracking-wider ${meta.className}`}
                       >
                         <span>{meta.label}</span>
                         <span className="font-mono">{list.length}</span>
                       </div>
-                      <ul className="space-y-1">
+                      <ul className="space-y-0.5">
                         {" "}
                         {list.map((m, i) => {
                           const secondary = medSecondary(m);
                           const doses = medDosesLabel(m);
                           return (
-                            <li key={i} className="ios-inset px-2 py-1.5 text-[12px]">
+                            <li key={i} className="ios-inset px-1.5 py-1 text-[12px]">
                               <div className="flex items-center gap-1.5">
                                 <span className="font-semibold text-foreground">{m.name}</span>
                               </div>
