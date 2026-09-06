@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Calculator, Undo2, Redo2, CircleCheck, CirclePause, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Calculator, Undo2, Redo2, CircleCheck, CirclePause, ChevronDown, Eye, EyeOff } from "lucide-react";
 import { ANTIMICROBIAL_LIBRARY, findAntimicrobial, awareMeta } from "@/data/antimicrobials";
 import { StewardshipPanel } from "@/components/StewardshipPanel";
 import type {
@@ -1839,6 +1839,15 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
   <option key={col} value={col}>{ANNOTATION_COLOR_META[col].label}</option> ))}
   </select>
   <span className="mt-6 inline-block h-3 w-3 shrink-0 rounded-full border border-border" style={{ backgroundColor: colMeta.swatch }} />
+  <button
+                         type="button"
+                         onClick={() => updSub(i, si, { hidden: !sub.hidden })}
+                         className={`mt-5 rounded p-1 hover:bg-surface-3 ${sub.hidden ? "text-muted-foreground" : "text-clinical-stable"}`}
+                         title={sub.hidden ? "Oculta no painel principal — clique para exibir" : "Visível no painel principal — clique para ocultar"}
+                         aria-label={sub.hidden ? "Exibir anotação no painel principal" : "Ocultar anotação no painel principal"}
+                       >
+                         {sub.hidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                       </button>
   <button onClick={() => delSub(i, si)} className="mt-5 rounded p-1 hover:bg-destructive/10 hover:text-destructive">
   <Trash2 className="h-3 w-3" />
   </button>
