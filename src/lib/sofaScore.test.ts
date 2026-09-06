@@ -19,7 +19,7 @@ const resp = (pao2: number, fio2: number, sup: boolean) =>
 
 describe("respiratório", () => {
   it("limites com suporte respiratório", () => {
-    expect(resp(100, 100, true)).toBe(4); // ratio 100
+    expect(resp(100, 100, true)).toBe(3); // ratio exatamente 100 → faixa <200
     expect(resp(99, 100, true)).toBe(4);
     expect(resp(199, 100, true)).toBe(3);
     expect(resp(200, 100, true)).toBe(2);
