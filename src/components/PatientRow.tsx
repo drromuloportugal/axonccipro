@@ -341,9 +341,9 @@ export function PatientRow({
   return (
  <div className="border-b border-border last:border-b-0 bg-soft-blue-gradient"> {/* Collapsed row — 7 columns, separated by vertical dividers */}
       {!open && (
- <div
-        className="col-shadowed-grid grid w-full grid-cols-[1.5fr_1.2fr_1.2fr_1.35fr_1.2fr_1.3fr_1.55fr] items-start gap-1.5 px-3 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
-      > {/* 1 - Identificação */}
+  <div
+         className="col-shadowed-grid grid w-full grid-cols-[1.3fr_1.2fr_1.2fr_1.35fr_1.2fr_1.3fr_1.75fr] items-start gap-1.5 px-3 py-3.5 text-left font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5 [&>div]:cursor-pointer [&>div:hover]:ios-card-hover"
+       > {/* 1 - Identificação */}
  <div onClick={colClick("id")} className="col-ink flex min-w-0 flex-col px-3 first:pl-0 last:pr-0">
 
  <div className="mb-1.5 flex items-center justify-between gap-1.5">
