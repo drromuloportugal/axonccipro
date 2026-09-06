@@ -1016,11 +1016,7 @@ export function PatientRow({
           </div>{" "}
           {/* 7 - Plano · Tarefas */}
           <div onClick={colClick("plan")} className="flex min-w-0 flex-col">
-            <ColHead
-              label="✅ Plano · Condutas"
-              tab="plan"
-              title="Editar plano e tarefas"
-            />
+            <ColHead label="✅ Plano · Condutas" tab="plan" title="Editar plano e tarefas" />
             <ul
               className="space-y-1"
               onClick={(e) => {
@@ -2176,7 +2172,9 @@ export function PatientRow({
                         className={`rounded-md border px-1.5 py-1 text-[11px] ${meta.borderClass} ${meta.bgClass}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider ${meta.className}`}
+                          >
                             {" "}
                             {meta.label}
                           </span>
