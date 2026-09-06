@@ -281,11 +281,6 @@ export function PatientRow({
   const lppSummary = useMemo(() => summarizeLPP(patient.lpp), [patient.lpp]);
 
   const suggestions = useMemo(() => aiTherapySuggestions(patient), [patient]);
-  const conductsDone = patient.conducts.filter((c) => c.done).length;
-  const conductsPct = patient.conducts.length
-    ? Math.round((conductsDone / patient.conducts.length) * 100)
-    : 0;
-
   const activeMeds = patient.medications.filter((m) => m.active !== false);
   const activeDevices = (patient.devices ?? []).filter((d) => !d.removedAt);
   const removedDevices = (patient.devices ?? []).filter((d) => d.removedAt);
@@ -1027,20 +1022,8 @@ export function PatientRow({
               title="Editar plano e tarefas"
               right={<span className="font-mono text-[10px] text-foreground">{conductsPct}%</span>}
             />
-            <div className="mb-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>
-                {conductsDone}/{patient.conducts.length} tarefas
-              </span>
-            </div>
-            <div className="bar-track">
-              <div
-                className="h-full bg-clinical-stable transition-all"
-                style={{ width: `${conductsPct}%` }}
-              />
-            </div>
-
             <ul
-              className="mt-2 space-y-1"
+              className="space-y-1"
               onClick={(e) => {
                 e.stopPropagation();
                 const t = e.target as HTMLElement;
@@ -1410,8 +1393,8 @@ export function PatientRow({
               {/* Medicações de uso prévio domiciliar */}
               {patient.pastMedications && patient.pastMedications.length > 0 && (
                 <div className="mt-3">
-                  <div className="mb-1 inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-ink pastel-previous-head">
-                    💊 {patient.pastMedications.length}
+                  <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-foreground">
+                    Uso Prévio
                   </div>
                   <div className="ios-inset rounded p-1.5 text-[10px] leading-snug text-foreground">
                     {patient.pastMedications.map((pm) => pm.name).join(", ")}
@@ -2162,18 +2145,6 @@ export function PatientRow({
             {/* 7 - Plano · Metas por sistema orgânico */}
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <ColTitle tone={6}>✅ Condutas</ColTitle>
-              <div className="mb-1.5 flex items-center justify-between gap-2 text-[9.5px] text-muted-foreground">
-                <span>
-                  {conductsDone}/{patient.conducts.length} concluídas
-                </span>
-                <span className="font-mono text-foreground">{conductsPct}%</span>
-              </div>
-              <div className="bar-track mb-1.5">
-                <div
-                  className="h-full bg-clinical-stable transition-all"
-                  style={{ width: `${conductsPct}%` }}
-                />
-              </div>
               <ul className="space-y-1" onClick={(e) => e.stopPropagation()}>
                 {" "}
                 {[...patient.conducts]
@@ -2206,9 +2177,7 @@ export function PatientRow({
                         className={`rounded-md border px-1.5 py-1 text-[11px] ${meta.borderClass} ${meta.bgClass}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`text-[10px] font-bold uppercase tracking-wider ${meta.className} ${c.done ? "line-through opacity-70" : ""}`}
-                          >
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${meta.className}`}>
                             {" "}
                             {meta.label}
                           </span>
@@ -2233,7 +2202,7 @@ export function PatientRow({
                                     <span className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground/55" />
                                     <span className="min-w-0 flex-1 whitespace-normal">
                                       <span
-                                        className={`break-words ${sub.done ? "text-muted-foreground line-through" : colMeta.textClass || "text-foreground"}`}
+                                        className={`break-words ${colMeta.textClass || "text-foreground"}`}
                                       >
                                         {" "}
                                         {sub.text || (

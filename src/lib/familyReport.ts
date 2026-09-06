@@ -177,11 +177,10 @@ export function buildFamilyReport(patient: Patient): jsPDF {
       y);
   }
 
-  const done = patient.conducts.filter((c) => c.done).length;
   if (patient.conducts.length) {
     const sysLabels = Array.from(new Set(patient.conducts.map((c) => (c.system ? CONDUCT_SYSTEM_META[c.system]?.label : undefined)).filter(Boolean))) as string[];
     y = para(doc,
-      `O plano de cuidados do dia é organizado em metas concretas, pensadas por sistema do organismo${sysLabels.length ? ` — hoje com atenção especial a ${sysLabels.slice(0, 5).map((s) => s.toLowerCase()).join(", ")}` : ""}. Das ${patient.conducts.length} tarefas de cuidado previstas para hoje, ${done} já foram concluídas. Essa rotina disciplinada, repetida dia após dia, é o que transforma pequenas melhoras em uma recuperação sólida.`,
+      `O plano de cuidados do dia é organizado em anotações por sistema do organismo${sysLabels.length ? ` — hoje com atenção especial a ${sysLabels.slice(0, 5).map((s) => s.toLowerCase()).join(", ")}` : ""}. Essa rotina disciplinada, repetida dia após dia, é o que transforma pequenas melhoras em uma recuperação sólida.`,
       y);
   }
 

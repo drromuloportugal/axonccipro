@@ -48,7 +48,6 @@ function Col({ title, idx, className, contentClassName, children }: { title: str
 
 export function PatientPrintView({ patient }: { patient: Patient }) {
   const computed = generateEstadoAtual(patient);
-  const conductsDone = patient.conducts.filter((c) => c.done).length;
   const bmi = computeBMI(patient.weight, patient.height);
   const age = computeAge(patient.birthDate) ?? patient.age;
   const activeDevices = (patient.devices ?? []).filter((d) => !d.removedAt);
@@ -327,14 +326,11 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  </Col>
 
  <Col title="Plano · Sistemas" idx={7} className="pl-1" contentClassName="text-[9.5px] leading-[1.25]">
- <div className="mb-1 text-[9px] text-gray-600">{conductsDone}/{patient.conducts.length} concluídas</div>
  <ul className="space-y-1"> {patient.conducts.map((c, i) => {
                const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
                const visibleSubs = (c.subItems ?? []).filter((sub) => inlineText(sub.text));
                return (
  <li key={i} className="text-justify text-[9.5px] leading-tight">
- <span className="font-medium text-gray-600">{c.done ? "Concluída" : "Pendente"}</span>
-                 {" "}
                  {meta && <span className={`text-[8px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span>}
                  {" "}
                  <span className="text-[8px] font-bold uppercase tracking-wider text-gray-600">{c.team}</span>
