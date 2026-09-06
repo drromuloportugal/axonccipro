@@ -991,10 +991,10 @@ export function PatientRow({
  </li> ))}
  </ol>
  </div> )}
- </div> {/* 4 — Medicações agrupadas por classe */}
- <div onClick={colClick("med")}>
- <div className="mb-2 flex items-center justify-between gap-2">
- <ColTitle tone={3}>💊 Medicações</ColTitle>
+</div> {/* 4 — Medicações agrupadas por classe */}
+<div onClick={colClick("med")} className="text-[11px] !px-1.5">
+<div className="mb-2 flex items-center justify-between gap-2">
+<ColTitle tone={3}>💊 Medicações</ColTitle>
   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <button
                   type="button"
