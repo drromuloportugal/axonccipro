@@ -1063,10 +1063,10 @@ export function PatientRow({
    </button> )}
    </div>
  </div>
- <div className="ml-5 font-mono text-[11px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
- </div> {m.mlPerHour !== undefined && (
- <div className="ml-5 font-mono text-[11px] text-clinical-resp"> BIC {m.mlPerHour.toFixed(1)} mL/h
- </div> )}
+<div className="ml-5 font-mono text-[10px] text-muted-foreground"> {m.dose} · {m.route} · {m.freq}
+</div> {m.mlPerHour !== undefined && (
+<div className="ml-5 font-mono text-[10px] text-clinical-resp"> BIC {m.mlPerHour.toFixed(1)} mL/h
+</div> )}
  <div className="ml-5 text-[10px] text-muted-foreground"> {m.start}{m.end ? ` → ${m.end}` : ""}
  </div> {mounted && prog && (
  <div className="ml-5 mt-1.5 rounded border border-border/70 bg-surface-2/40 p-1.5">
