@@ -3123,10 +3123,17 @@ function ConductsList({ items, onChange }: { items: Conduct[]; onChange: (v: Con
                             placeholder="Anotação — escreva livremente (múltiplas linhas)"
                             rows={Math.max(
                               2,
-                              Math.min(8, (sub.text.match(/\n/g)?.length ?? 0) + 2),
+                              Math.min(
+                                8,
+                                (stripAnnotationMarkup(sub.text).match(/\n/g)?.length ?? 0) + 2,
+                              ),
                             )}
-                            value={sub.text}
-                            onChange={(e) => updSub(i, si, { text: e.target.value })}
+                            value={stripAnnotationMarkup(sub.text)}
+                            onChange={(e) =>
+                              updSub(i, si, {
+                                text: mergeAnnotationPlainEdit(sub.text, e.target.value),
+                              })
+                            }
                           />
                           <div className="flex flex-wrap items-center gap-1">
                             <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
