@@ -326,32 +326,43 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
  </> )}
  </Col>
 
- <Col title="Plano · Sistemas" idx={7}>
+ <Col title="Plano · Sistemas" idx={7} className="pl-1" contentClassName="text-[9.5px] leading-[1.25]">
  <div className="mb-1 text-[9px] text-gray-600">{conductsDone}/{patient.conducts.length} concluídas</div>
  <ul className="space-y-1"> {patient.conducts.map((c, i) => {
-              const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
-              return (
- <li key={i}>
- <div className="flex gap-1">
-  <span>{c.done ? "Concluída" : "Pendente"}</span>
-  <span> {meta && <span className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span>}
- <span className="text-[9px] font-bold uppercase tracking-wider text-gray-600">{c.team} </span> {c.text}
- </span>
- </div> {c.subItems && c.subItems.length > 0 && (
- <ul className="ml-4 border-l border-gray-300 pl-2"> {c.subItems.map((sub, si) => (
- <li key={si} className="flex gap-1">
-  <span>{sub.done ? "Concluída" : "Pendente"}</span>
- <span>{sub.text}</span>
- </li> ))}
- </ul> )}
+               const meta = c.system ? CONDUCT_SYSTEM_META[c.system] : null;
+               const visibleSubs = (c.subItems ?? []).filter((sub) => inlineText(sub.text));
+               return (
+ <li key={i} className="text-justify text-[9.5px] leading-tight">
+ <span className="font-medium text-gray-600">{c.done ? "Concluída" : "Pendente"}</span>
+                 {" "}
+                 {meta && <span className={`text-[8px] font-bold uppercase tracking-wider ${meta.className}`}>{meta.short}</span>}
+                 {" "}
+                 <span className="text-[8px] font-bold uppercase tracking-wider text-gray-600">{c.team}</span>
+                 {" "}
+                 {visibleSubs.length > 0 ? (
+                   visibleSubs.map((sub, si) => {
+                     const colMeta = ANNOTATION_COLOR_META[sub.color ?? "default"];
+                     const txt = inlineText(sub.text);
+                     const isLast = si === visibleSubs.length - 1;
+                     return (
+                       <span key={si} className={colMeta.textClass || "text-gray-900"}>
+                         {sub.date && <span className="text-gray-500">{formatDayMonth(sub.date)}</span>}
+                         {sub.date ? ` ${txt}` : txt}
+                         {!isLast && <span className="text-gray-400"> · </span>}
+                       </span>
+                     );
+                   })
+                 ) : (
+                   <span className="text-gray-500">—</span>
+                 )}
  </li> );
-            })}
+             })}
  </ul>
  <div className="mt-2 text-[9px] font-bold uppercase tracking-wider text-gray-700">Metas</div>
  <ul className="space-y-0.5"> {patient.goals.map((g, i) => (
- <li key={i} className="flex gap-1">
-  <span>{g.met ? "Atingida" : "Pendente"}</span>
- <span className={g.met ? "" : "text-red-700"}>{g.text}</span>
+ <li key={i} className="flex gap-1 text-justify leading-tight">
+  <span className="shrink-0">{g.met ? "Atingida" : "Pendente"}</span>
+ <span className={cn(!g.met && "text-red-700")}>{g.text}</span>
  </li> ))}
  </ul>
  </Col>
