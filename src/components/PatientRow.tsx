@@ -436,16 +436,16 @@ export function PatientRow({
           </div>
 
           {/* Procedimentos & eventos — agora exibidos na coluna 03 */}
- </div> {/* 2 - História */}
- <div onClick={colClick("hist")} className="flex min-w-0 flex-col">
+</div> {/* 2 - História */}
+<div onClick={colClick("hist")} className="flex min-w-0 flex-col gap-0.5 !px-1.5 text-[11px]">
 
- <ColHead label="📋 História" tab="hist" title="Editar história" tone={1} />
- <div className="flex flex-wrap gap-1"> {patient.diagnoses.slice(-3).map((d, i) => (
- <Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
+<ColHead label="📋 História" tab="hist" title="Editar história" tone={1} />
+<div className="flex flex-wrap gap-0.5"> {patient.diagnoses.slice(-3).map((d, i) => (
+<Chip key={i} kind={d.kind}>{d.label}</Chip> ))}
             {patient.diagnoses.length === 0 && (
- <span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span> )}
- </div>
- </div> {/* 3 - Invasões / Dispositivos */}
+<span className="text-[11px] italic text-muted-foreground/60">Sem diagnósticos</span> )}
+</div>
+</div> {/* 3 - Invasões / Dispositivos */}
  <div onClick={colClick("proc")} className="flex min-w-0 flex-col gap-1.5">
 
  <ColHead
