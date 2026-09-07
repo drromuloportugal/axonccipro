@@ -3275,7 +3275,8 @@ function CulturesList({
       resistanceProfile: "pendente",
       sampleCount: 1,
     };
-    onChange([...items, next]);
+    // Cultura mais recente fica no topo; a anterior desc.
+    onChange([next, ...items]);
   };
   const upd = (i: number, patch: Partial<Culture>) =>
     onChange(items.map((c, idx) => (idx === i ? { ...c, ...patch } : c)));
