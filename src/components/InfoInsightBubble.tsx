@@ -91,6 +91,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const runAngles = useServerFn(suggestInsightAngles);
   const runAsk = useServerFn(askAboutCase);
   const runFasthug = useServerFn(reviewFasthugMaidens);
+  const runRenal = useServerFn(suggestRenalAntimicrobialAdjustment);
 
   const [pos, setPos] = useState({ x: 24, y: 220 });
   const [open, setOpen] = useState(false);
