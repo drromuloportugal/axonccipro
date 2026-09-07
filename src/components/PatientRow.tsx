@@ -2228,7 +2228,7 @@ export function PatientRow({
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <ColTitle tone={6}>✅ Condutas</ColTitle>
               <ul
-                className="space-y-1"
+                className="list-none space-y-1 p-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   const t = e.target as HTMLElement;
