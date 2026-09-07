@@ -148,8 +148,16 @@ const sevLabel: Record<Severity, string> = {
   critical: "Crítico",
 };
 
-function Chip({ kind, children }: { kind: TimelineKind | "neutral"; children: React.ReactNode }) {
-  return <span className={`chip ${kindClass[kind]}`}>{children}</span>;
+function Chip({
+  kind,
+  children,
+  className,
+}: {
+  kind: TimelineKind | "neutral";
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <span className={`chip ${kindClass[kind]} ${className ?? ""}`}>{children}</span>;
 }
 
 const TITLE_GREENS = [
@@ -696,7 +704,7 @@ export function PatientRow({
             <div className="flex flex-wrap gap-0.5">
               {" "}
               {patient.diagnoses.slice(-3).map((d, i) => (
-                <Chip key={i} kind={d.kind}>
+                <Chip key={i} kind={d.kind} className="!text-[10px]">
                   {d.label}
                 </Chip>
               ))}
@@ -1472,11 +1480,11 @@ export function PatientRow({
                               className={`absolute -left-[14px] top-1.5 h-1.5 w-1.5 rounded-full bg-current ${kindClass[d.kind]}`}
                             />
                             <div className={`rounded-md border px-2 py-1 text-ink ${g.box}`}>
-                              <div className="text-[11px] text-ink">{d.date}</div>
-                              <div className="text-[12px] font-semibold text-ink">
+                              <div className="text-[10px] text-ink">{d.date}</div>
+                              <div className="text-[11px] font-semibold text-ink">
                                 {d.label}
                               </div>{" "}
-                              {d.detail && <div className="text-[10.5px] text-ink">{d.detail}</div>}
+                              {d.detail && <div className="text-[10px] text-ink">{d.detail}</div>}
                             </div>
                           </li>
                         ))}
