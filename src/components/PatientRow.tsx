@@ -2268,21 +2268,32 @@ export function PatientRow({
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 <ColTitle tone={6}>✅ Condutas</ColTitle>
-                {planInlineEdit && (
-                  <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    ✏️ Edição direta · salva automaticamente
-                  </span>
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(patient, "plan");
+                    }}
+                    className="ml-auto inline-flex items-center gap-1 rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-surface-3"
+                  >
+                    ✏️ editar no painel
+                  </button>
                 )}
               </div>
               <ul
                 className="list-none space-y-1 p-0"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (planInlineEdit) return;
                   const t = e.target as HTMLElement;
                   if (t.closest("button, a, input, select, textarea, label, [role='button']"))
                     return;
-                  if (onEdit) onEdit(patient, "plan");
+                  if (planInlineEdit) return;
+                  if (onUpdate) {
+                    setPlanInlineEdit(true);
+                  } else if (onEdit) {
+                    onEdit(patient, "plan");
+                  }
                 }}
               >
                 {" "}
