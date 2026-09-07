@@ -1743,7 +1743,7 @@ export const ANNOTATION_COLOR_META: Record<
   AnnotationColor,
   { label: string; textClass: string; swatch: string }
 > = {
-  default: { label: "Padrão", textClass: "", swatch: "#94a3b8" },
+  default: { label: "Preto", textClass: "text-ink", swatch: "#000000" },
   green: { label: "Verde", textClass: "text-emerald-600 dark:text-emerald-400", swatch: "#10b981" },
   yellow: {
     label: "Amarelo",
