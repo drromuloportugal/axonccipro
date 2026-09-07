@@ -459,124 +459,131 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
                 {renalExpanded && (
                   <>
-                {crcl ? (
-                  <div className="space-y-0.5">
-                    <p className="text-[13px] font-black leading-tight !text-white">
-                      ClCr {crcl.value} mL/min
-                    </p>
-                    <p className={`text-[10px] font-bold ${crcl.bandClass}`}>{crcl.band}</p>
-                    <p className="text-[10px] leading-snug text-neto-muted">
-                      Cockcroft-Gault · Cr {crcl.creat} {crcl.creatUnit} · {crcl.ageYears} anos ·{" "}
-                      {crcl.weightKg} kg · {crcl.sex === "F" ? "feminino (×0,85)" : "masculino"}
-                    </p>
-                    {crcl.akiFlag && (
-                      <p className="text-[10px] font-bold text-clinical-critical">
-                        ⚠️ {crcl.akiFlag}
+                    {crcl ? (
+                      <div className="space-y-0.5">
+                        <p className="text-[13px] font-black leading-tight !text-white">
+                          ClCr {crcl.value} mL/min
+                        </p>
+                        <p className={`text-[10px] font-bold ${crcl.bandClass}`}>{crcl.band}</p>
+                        <p className="text-[10px] leading-snug text-neto-muted">
+                          Cockcroft-Gault · Cr {crcl.creat} {crcl.creatUnit} · {crcl.ageYears} anos
+                          · {crcl.weightKg} kg ·{" "}
+                          {crcl.sex === "F" ? "feminino (×0,85)" : "masculino"}
+                        </p>
+                        {crcl.akiFlag && (
+                          <p className="text-[10px] font-bold text-clinical-critical">
+                            ⚠️ {crcl.akiFlag}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] font-semibold text-neto-muted">
+                        Depuração não calculável — falta creatinina, peso, idade ou sexo no
+                        passômetro.
                       </p>
                     )}
-                  </div>
-                ) : (
-                  <p className="text-[10px] font-semibold text-neto-muted">
-                    Depuração não calculável — falta creatinina, peso, idade ou sexo no passômetro.
-                  </p>
-                )}
 
-                {renalLoading && (
-                  <Shimmer className="text-[11px] text-neto-muted">
-                    Avaliando ajuste de dose renal…
-                  </Shimmer>
-                )}
+                    {renalLoading && (
+                      <Shimmer className="text-[11px] text-neto-muted">
+                        Avaliando ajuste de dose renal…
+                      </Shimmer>
+                    )}
 
-                {renalSummary && (
-                  <p className="text-[11px] font-semibold leading-relaxed !text-white">
-                    {renalSummary}
-                  </p>
-                )}
-
-                {renalItems.map((it, i) => {
-                  const id = `r:${i}`;
-                  const on = !!renalChecked[id];
-                  return (
-                    <div
-                      key={id}
-                      className="space-y-1 rounded-[12px] border border-neto-line bg-neto-panel-strong p-2"
-                    >
-                      <div className="flex items-start gap-1.5">
-                        <p className="text-[11px] font-black leading-snug !text-white">{it.drug}</p>
-                        <span
-                          className={`ml-auto shrink-0 text-[10px] font-bold ${RISK_META[it.risk].className}`}
-                        >
-                          {RISK_META[it.risk].label}
-                        </span>
-                      </div>
-                      <p className="text-[10px] leading-snug text-neto-muted">
-                        Em uso: {it.current}
+                    {renalSummary && (
+                      <p className="text-[11px] font-semibold leading-relaxed !text-white">
+                        {renalSummary}
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => setRenalChecked((prev) => ({ ...prev, [id]: !on }))}
-                        className={`flex w-full items-start gap-2 rounded-[10px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
-                          on
-                            ? "border-neto-glow bg-neto-glow/20 !text-white"
-                            : "border-neto-line !text-white hover:bg-neto-panel"
-                        }`}
-                      >
-                        <span
-                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
-                            on
-                              ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
-                              : "border-neto-line"
-                          }`}
+                    )}
+
+                    {renalItems.map((it, i) => {
+                      const id = `r:${i}`;
+                      const on = !!renalChecked[id];
+                      return (
+                        <div
+                          key={id}
+                          className="space-y-1 rounded-[12px] border border-neto-line bg-neto-panel-strong p-2"
                         >
-                          {on && <Check className="h-3 w-3" />}
-                        </span>
-                        {it.adjustment}
-                      </button>
-                      {it.nephro && (
-                        <p className="text-[10px] font-semibold leading-snug text-clinical-warning">
-                          🛡️ {it.nephro}
-                        </p>
-                      )}
-                      {it.evidence && (
-                        <p className="text-[10px] leading-snug text-neto-muted">📚 {it.evidence}</p>
-                      )}
-                    </div>
-                  );
-                })}
+                          <div className="flex items-start gap-1.5">
+                            <p className="text-[11px] font-black leading-snug !text-white">
+                              {it.drug}
+                            </p>
+                            <span
+                              className={`ml-auto shrink-0 text-[10px] font-bold ${RISK_META[it.risk].className}`}
+                            >
+                              {RISK_META[it.risk].label}
+                            </span>
+                          </div>
+                          <p className="text-[10px] leading-snug text-neto-muted">
+                            Em uso: {it.current}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setRenalChecked((prev) => ({ ...prev, [id]: !on }))}
+                            className={`flex w-full items-start gap-2 rounded-[10px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
+                              on
+                                ? "border-neto-glow bg-neto-glow/20 !text-white"
+                                : "border-neto-line !text-white hover:bg-neto-panel"
+                            }`}
+                          >
+                            <span
+                              className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
+                                on
+                                  ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                                  : "border-neto-line"
+                              }`}
+                            >
+                              {on && <Check className="h-3 w-3" />}
+                            </span>
+                            {it.adjustment}
+                          </button>
+                          {it.nephro && (
+                            <p className="text-[10px] font-semibold leading-snug text-clinical-warning">
+                              🛡️ {it.nephro}
+                            </p>
+                          )}
+                          {it.evidence && (
+                            <p className="text-[10px] leading-snug text-neto-muted">
+                              📚 {it.evidence}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
 
-                {renalItems.length > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() =>
-                        void ask(
-                          `Considerando ClCr ${crcl ? `${crcl.value} mL/min` : "não calculável"}, discuta o ajuste antimicrobiano e as medidas de preservação da função renal neste paciente.`,
-                        )
-                      }
-                      disabled={asking}
-                      className="h-7 rounded-full px-2 text-[10px] font-bold text-neto-foreground hover:bg-neto-panel-strong"
-                    >
-                      Discutir
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={applyRenal}
-                      disabled={
-                        !onPatientChange || Object.values(renalChecked).filter(Boolean).length === 0
-                      }
-                      className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
-                    >
-                      Aplicar nas condutas
-                    </Button>
-                  </div>
-                )}
+                    {renalItems.length > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() =>
+                            void ask(
+                              `Considerando ClCr ${crcl ? `${crcl.value} mL/min` : "não calculável"}, discuta o ajuste antimicrobiano e as medidas de preservação da função renal neste paciente.`,
+                            )
+                          }
+                          disabled={asking}
+                          className="h-7 rounded-full px-2 text-[10px] font-bold text-neto-foreground hover:bg-neto-panel-strong"
+                        >
+                          Discutir
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={applyRenal}
+                          disabled={
+                            !onPatientChange ||
+                            Object.values(renalChecked).filter(Boolean).length === 0
+                          }
+                          className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
+                        >
+                          Aplicar nas condutas
+                        </Button>
+                      </div>
+                    )}
 
-                {renalApplied > 0 && (
-                  <p className="text-[10px] font-bold text-clinical-stable">
-                    ✅ {renalApplied} ajuste(s) aplicado(s) nas condutas.
-                  </p>
-                )}
+                    {renalApplied > 0 && (
+                      <p className="text-[10px] font-bold text-clinical-stable">
+                        ✅ {renalApplied} ajuste(s) aplicado(s) nas condutas.
+                      </p>
+                    )}
                   </>
                 )}
               </div>
