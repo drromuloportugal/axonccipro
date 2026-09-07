@@ -966,7 +966,11 @@ function Passometro() {
         onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
       />
 
-      <InfoInsightBubble patients={patients} currentPatientId={filtered[current]?.id} />
+      <InfoInsightBubble
+        patients={patients}
+        currentPatientId={filtered[current]?.id}
+        onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
+      />
     </div>
   );
 }
