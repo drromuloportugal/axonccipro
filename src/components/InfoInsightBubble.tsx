@@ -64,7 +64,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
 
   const startDrag = (e: React.PointerEvent) => {
     dragRef.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y, moved: false };
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    rootRef.current?.setPointerCapture?.(e.pointerId);
   };
 
   const onMove = (e: React.PointerEvent) => {
@@ -155,6 +155,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
       ref={rootRef}
       style={{ left: pos.x, top: pos.y }}
       className="fixed z-[80] select-none print:hidden"
+      onPointerDown={startDrag}
       onPointerMove={onMove}
       onPointerUp={() => {
         const moved = dragRef.current?.moved;
@@ -163,7 +164,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
       }}
     >
       <div
-        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[330px] max-w-[92vw] rounded-[24px] p-3" : "h-14 w-14 cursor-pointer rounded-full"}`}
+        className={`neto-glass relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? "w-[330px] max-w-[92vw] rounded-[24px] p-3" : "h-14 w-14 cursor-pointer rounded-full"}`}
       >
         <span
           aria-hidden
@@ -220,7 +221,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
           <div
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
-            className="mt-2 space-y-2.5"
+            className="mt-2 cursor-default space-y-2.5"
           >
             {patient && (
               <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
