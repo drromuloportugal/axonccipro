@@ -1082,7 +1082,9 @@ export function PatientRow({
                         {meta.short}
                       </span>{" "}
                       {firstAnn ? (
-                        <span className={`truncate ${annColor?.textClass ?? "text-foreground"}`}>
+                        <span
+                          className={`block whitespace-pre-wrap break-words ${annColor?.textClass ?? "text-foreground"}`}
+                        >
                           <AnnotationText
                             text={firstAnn.text}
                             base={firstAnn.color ?? "default"}
