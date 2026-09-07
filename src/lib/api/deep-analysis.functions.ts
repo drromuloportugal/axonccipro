@@ -416,7 +416,7 @@ export const FASTHUG_MAIDENS_ITEMS = [
   { key: "A", title: "Analgesia", system: "neuro" },
   { key: "S", title: "Sedação", system: "neuro" },
   { key: "T", title: "Tromboprofilaxia", system: "hemato" },
-  { key: "H", title: "Cabeceira elevada (Head of bed)", system: "resp" },
+  { key: "H", title: "Delirium — hiperatividade ou hipoatividade", system: "neuro" },
   { key: "U", title: "Profilaxia de úlcera de estresse", system: "gi" },
   { key: "G", title: "Controle glicêmico", system: "renal" },
   { key: "M", title: "Medicações — reconciliação", system: "other" },
