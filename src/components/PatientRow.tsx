@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnnotationText } from "@/components/AnnotationText";
 import { AnnotationEditor } from "@/components/AnnotationEditor";
 
