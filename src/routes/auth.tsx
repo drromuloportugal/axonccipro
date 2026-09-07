@@ -27,7 +27,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -35,8 +34,6 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => setMounted(true), []);
 
   // Se já existe sessão, segue direto para o painel.
   useEffect(() => {
@@ -49,8 +46,6 @@ function AuthPage() {
       cancelled = true;
     };
   }, [router]);
-
-  if (!mounted) return <div className="min-h-screen bg-background" />;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
