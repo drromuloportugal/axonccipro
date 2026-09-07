@@ -272,6 +272,16 @@ export function PatientRow({
   const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
   // Coluna 7 inicia em modo leitura; qualquer clique na coluna ativa a edição inline.
   const [planInlineEdit, setPlanInlineEdit] = useState(false);
+  const planColRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!planInlineEdit) return;
+    const handle = (e: MouseEvent) => {
+      if (planColRef.current?.contains(e.target as Node)) return;
+      setPlanInlineEdit(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [planInlineEdit]);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
