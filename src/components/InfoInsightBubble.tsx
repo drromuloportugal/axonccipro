@@ -179,6 +179,11 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setFhIndex(0);
     setFhChecked({});
     setFhApplied(0);
+    setCrcl(null);
+    setRenalItems([]);
+    setRenalSummary("");
+    setRenalChecked({});
+    setRenalApplied(0);
     setError(null);
     setInfo(text);
 
@@ -187,6 +192,35 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       setError("Aponte a quina do balão para uma informação do paciente e clique novamente.");
       return;
     }
+
+    // Apontou um antimicrobiano: calcula a depuração de creatinina e sugere ajuste renal.
+    const atbs = pointedAntimicrobials(p, text);
+    if (atbs.length > 0) {
+      const cr = creatinineClearance(p);
+      setCrcl(cr);
+      setRenalLoading(true);
+      void (async () => {
+        try {
+          const res = await runRenal({
+            data: {
+              context: buildPassometroContext(p),
+              info: text,
+              renal: renalContextText(p, cr),
+              drugs: atbs.map((m) =>
+                [m.name, m.dose, m.route, m.freq].filter(Boolean).join(" · ").slice(0, 140),
+              ),
+            },
+          });
+          setRenalSummary(res.summary);
+          setRenalItems(res.items as RenalItem[]);
+        } catch (e) {
+          setError(e instanceof Error ? e.message : "Falha ao calcular o ajuste antimicrobiano.");
+        } finally {
+          setRenalLoading(false);
+        }
+      })();
+    }
+
     setLoading(true);
     try {
       const res = await runAngles({ data: { context: buildPassometroContext(p), info: text } });
@@ -196,6 +230,35 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     } finally {
       setLoading(false);
     }
+  };
+
+  /** Aplica os ajustes antimicrobianos marcados como anotações nas condutas. */
+  const applyRenal = () => {
+    const p = patient;
+    const selected = renalItems.filter((_, i) => renalChecked[`r:${i}`]);
+    if (!p || !onPatientChange || selected.length === 0) return;
+    const now = new Date().toISOString();
+    const conducts: Conduct[] = p.conducts.map((c) => ({
+      ...c,
+      subItems: c.subItems ? [...c.subItems] : [],
+    }));
+    let applied = 0;
+    for (const it of selected) {
+      const system: ConductSystem = "infec";
+      let target = conducts.find((c) => c.system === system && c.team === "Médica");
+      if (!target) {
+        target = { team: "Médica", text: "", system, subItems: [], startedAt: now };
+        conducts.push(target);
+      }
+      const label = `AJUSTE RENAL · ${it.drug} · ${it.adjustment}`;
+      if (!target.subItems?.some((s) => s.text === label)) {
+        target.subItems = [...(target.subItems ?? []), { text: label, date: now }];
+        applied++;
+      }
+    }
+    onPatientChange({ ...p, conducts });
+    setRenalApplied(applied);
+    setRenalChecked({});
   };
 
   const ask = async (q: string) => {
