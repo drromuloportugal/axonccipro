@@ -1057,7 +1057,7 @@ export function PatientRow({
           <div onClick={colClick("plan")} className="flex min-w-0 flex-col">
             <ColHead label="✅ Plano · Condutas" tab="plan" title="Editar plano e tarefas" />
             <ul
-              className="space-y-1"
+              className="list-none space-y-1 p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 const t = e.target as HTMLElement;
@@ -2228,7 +2228,7 @@ export function PatientRow({
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <ColTitle tone={6}>✅ Condutas</ColTitle>
               <ul
-                className="space-y-1"
+                className="list-none space-y-1 p-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   const t = e.target as HTMLElement;
@@ -2288,16 +2288,9 @@ export function PatientRow({
                                   ? ANNOTATION_COLOR_META[sub.color]
                                   : ANNOTATION_COLOR_META.default;
                                 return (
-                                  <div
-                                    key={si}
-                                    className="flex items-start gap-1 text-[10.5px] leading-tight"
-                                  >
-                                    <span className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground/55" />
-                                    <span className="min-w-0 flex-1 whitespace-normal">
-                                      <span
-                                        className={`break-words ${colMeta.textClass || "text-foreground"}`}
-                                      >
-                                        {" "}
+                                  <div key={si} className="text-[10.5px] leading-tight">
+                                    <span className="break-words whitespace-normal">
+                                      <span className={colMeta.textClass || "text-foreground"}>
                                         {sub.text ? (
                                           <AnnotationText
                                             text={sub.text}
