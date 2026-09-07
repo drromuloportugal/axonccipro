@@ -92,15 +92,15 @@
   --input: oklch(0.9 0.008 250);
   --ring: oklch(0.55 0.14 230);
 
-  /* NETO — vidro azul translúcido e contraste próprio sobre qualquer tema */
-  --neto-shell: oklch(0.24 0.075 255 / 0.92);
-  --neto-shell-deep: oklch(0.14 0.052 255 / 0.96);
-  --neto-panel: oklch(0.31 0.072 252 / 0.74);
-  --neto-panel-strong: oklch(0.39 0.092 252 / 0.8);
-  --neto-line: oklch(0.7 0.17 240 / 0.78);
-  --neto-glow: oklch(0.69 0.2 242);
-  --neto-foreground: oklch(0.98 0.008 240);
-  --neto-muted: oklch(0.82 0.045 244);
+  /* NETO — tom de azul do HEAD do programa (gradiente oklch 235/240) */
+  --neto-shell: oklch(0.28 0.06 235 / 0.92);
+  --neto-shell-deep: oklch(0.16 0.04 235 / 0.96);
+  --neto-panel: oklch(0.36 0.07 235 / 0.74);
+  --neto-panel-strong: oklch(0.44 0.09 235 / 0.8);
+  --neto-line: oklch(0.62 0.16 235 / 0.78);
+  --neto-glow: oklch(0.58 0.18 235);
+  --neto-foreground: oklch(0.98 0.008 235);
+  --neto-muted: oklch(0.78 0.06 235);
   --neto-online: oklch(0.83 0.2 142);
 
   /* Clinical palette — tuned for light backgrounds */
