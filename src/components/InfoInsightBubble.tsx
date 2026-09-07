@@ -221,7 +221,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
           <div
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
-            className="mt-2 space-y-2.5"
+            className="mt-2 cursor-default space-y-2.5"
           >
             {patient && (
               <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
