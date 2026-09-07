@@ -228,20 +228,13 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                 {patient.bed} · {patient.name}
               </p>
             )}
-            {info && (
-              <p className="neto-panel rounded-[18px] px-3.5 py-3 text-[12px] leading-relaxed text-neto-foreground">
-                {info.slice(0, 220)}
-                {info.length > 220 ? "…" : ""}
-              </p>
-            )}
-
             {loading && (
               <Shimmer className="text-[11px] text-neto-muted">
                 Estruturando os raciocínios…
               </Shimmer>
             )}
 
-            {angles.length > 0 && (
+            {angles.length > 0 && chat.length === 0 && (
               <div className="space-y-1.5">
                 {angles.map((a, i) => (
                   <Button
@@ -272,7 +265,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
             )}
 
             {(chat.length > 0 || asking) && (
-              <Conversation className="neto-panel max-h-[38vh] min-h-[96px] rounded-[18px]">
+              <Conversation className="neto-panel max-h-[40vh] min-h-[96px] overflow-y-auto rounded-[18px]">
                 <ConversationContent className="gap-2.5 p-2.5">
                   {chat.map((m, i) => (
                     <Message key={i} from={m.role} className="max-w-full">
@@ -315,9 +308,9 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                 <PromptInputTextarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  rows={2}
+                  rows={1}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-[54px] px-3.5 py-2.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
+                  className="min-h-[42px] px-3.5 py-2 text-[11px] text-neto-foreground placeholder:text-neto-muted"
                 />
                 <PromptInputFooter className="justify-end px-2.5 pb-2.5 pt-0">
                   <PromptInputSubmit
