@@ -194,6 +194,62 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     }
   };
 
+  const startFasthug = async () => {
+    const p = patient;
+    if (!p || fhLoading) return;
+    setAngles([]);
+    setWriting(false);
+    setError(null);
+    setFhLoading(true);
+    setFhApplied(0);
+    setFhChecked({});
+    setFhIndex(0);
+    try {
+      const res = await runFasthug({ data: { context: buildPassometroContext(p) } });
+      setFhItems(res.items as FhItem[]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao revisar o FASTHUG MAIDENS.");
+    } finally {
+      setFhLoading(false);
+    }
+  };
+
+  const selectedCount = Object.values(fhChecked).filter(Boolean).length;
+
+  /** Aplica as sugestões marcadas como anotações nas condutas do paciente. */
+  const applySelected = () => {
+    const p = patient;
+    if (!p || !onPatientChange || selectedCount === 0) return;
+    const now = new Date().toISOString();
+    const conducts: Conduct[] = p.conducts.map((c) => ({
+      ...c,
+      subItems: c.subItems ? [...c.subItems] : [],
+    }));
+    let applied = 0;
+
+    for (const item of fhItems) {
+      item.suggestions.forEach((text, i) => {
+        if (!fhChecked[`${item.key}:${i}`]) return;
+        const system = item.system as ConductSystem;
+        let target = conducts.find((c) => c.system === system && c.team === "Médica");
+        if (!target) {
+          target = { team: "Médica", text: "", system, subItems: [], startedAt: now };
+          conducts.push(target);
+        }
+        const label = `FASTHUG MAIDENS (${item.key.replace(/\d/, "")}) · ${text}`;
+        if (!target.subItems?.some((s) => s.text === label)) {
+          target.subItems = [...(target.subItems ?? []), { text: label, date: now }];
+          applied++;
+        }
+      });
+    }
+
+    onPatientChange({ ...p, conducts });
+    setFhApplied(applied);
+    setFhChecked({});
+  };
+
+
   return (
     <div
       ref={rootRef}
