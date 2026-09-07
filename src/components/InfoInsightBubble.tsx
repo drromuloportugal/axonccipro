@@ -3,7 +3,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { X, PenLine, Stethoscope, BookOpen, GripVertical } from "lucide-react";
+import {
+  X,
+  PenLine,
+  Stethoscope,
+  BookOpen,
+  GripVertical,
+  ClipboardCheck,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Conversation,
@@ -18,24 +28,47 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import type { Patient } from "@/data/patients";
+import type { Conduct, ConductSystem, Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
-import { askAboutCase, suggestInsightAngles } from "@/lib/api/deep-analysis.functions";
+import {
+  askAboutCase,
+  reviewFasthugMaidens,
+  suggestInsightAngles,
+} from "@/lib/api/deep-analysis.functions";
 import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
 type Msg = { role: "user" | "assistant"; content: string };
+type FhStatus = "ok" | "attention" | "alert" | "nodata";
+type FhItem = {
+  key: string;
+  title: string;
+  system: string;
+  status: FhStatus;
+  assessment: string;
+  evidence: string;
+  suggestions: string[];
+};
+
+const FH_STATUS: Record<FhStatus, { label: string; className: string }> = {
+  ok: { label: "🟢 Adequado", className: "text-clinical-stable" },
+  attention: { label: "🟡 A otimizar", className: "text-clinical-warning" },
+  alert: { label: "🔴 Lacuna relevante", className: "text-clinical-critical" },
+  nodata: { label: "⚪ Sem dado", className: "text-neto-muted" },
+};
 
 interface Props {
   patients: Patient[];
   currentPatientId?: string;
+  onPatientChange?: (patient: Patient) => void;
 }
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 
-export function InfoInsightBubble({ patients, currentPatientId }: Props) {
+export function InfoInsightBubble({ patients, currentPatientId, onPatientChange }: Props) {
   const runAngles = useServerFn(suggestInsightAngles);
   const runAsk = useServerFn(askAboutCase);
+  const runFasthug = useServerFn(reviewFasthugMaidens);
 
   const [pos, setPos] = useState({ x: 24, y: 220 });
   const [open, setOpen] = useState(false);
@@ -48,6 +81,12 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
   const [asking, setAsking] = useState(false);
   const [writing, setWriting] = useState(false);
   const [question, setQuestion] = useState("");
+  const [fhItems, setFhItems] = useState<FhItem[]>([]);
+  const [fhIndex, setFhIndex] = useState(0);
+  const [fhLoading, setFhLoading] = useState(false);
+  const [fhChecked, setFhChecked] = useState<Record<string, boolean>>({});
+  const [fhApplied, setFhApplied] = useState(0);
+
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
