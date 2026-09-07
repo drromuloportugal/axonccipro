@@ -270,8 +270,8 @@ export function PatientRow({
   const [sofaOpen, setSofaOpen] = useState(false);
   const [scalesExpanded, setScalesExpanded] = useState(false);
   const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
-  // Coluna 7 é sempre editável no painel principal; cada alteração salva na hora.
-  const planInlineEdit = Boolean(onUpdate);
+  // Coluna 7 inicia em modo leitura; qualquer clique na coluna ativa a edição inline.
+  const [planInlineEdit, setPlanInlineEdit] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
