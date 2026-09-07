@@ -421,11 +421,11 @@
   background: linear-gradient(145deg, oklch(0.96 0.02 235), oklch(0.925 0.025 215));
 }
 
-/* Sombreado mais evidente na borda direita de cada coluna, destacando a separação */
+/* Borda direita mais escura entre colunas */
 .col-shadowed-grid > * {
   box-shadow:
-    1px 0 0 color-mix(in oklab, oklch(0.25 0.02 240) 32%, transparent),
-    8px 0 22px -8px oklch(0.2 0.02 240 / 0.38);
+    1px 0 0 color-mix(in oklab, oklch(0.25 0.02 240) 68%, transparent),
+    8px 0 22px -8px oklch(0.2 0.02 240 / 0.48);
 }
 .col-shadowed-grid > *:last-child {
   box-shadow: none;
