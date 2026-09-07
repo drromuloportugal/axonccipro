@@ -318,3 +318,54 @@ export const closeShiftReport = createServerFn({ method: "POST" })
     ]);
     return { report };
   });
+
+/* ===================== BALÃO DE INSIGHTS SOBRE UMA INFORMAÇÃO ===================== */
+
+const InsightInput = z.object({
+  context: z.string().min(1),
+  info: z.string().min(1),
+});
+
+/** Sugere 4 ângulos de raciocínio sobre a informação apontada pelo balão. */
+export const suggestInsightAngles = createServerFn({ method: "POST" })
+  .inputValidator(InsightInput)
+  .handler(async ({ data }) => {
+    const content = await callGateway([
+      {
+        role: "system",
+        content: `${ENGINE_SYSTEM}
+
+Você recebe um TRECHO DE INFORMAÇÃO selecionado no passômetro de um paciente crítico e deve propor quatro ângulos de raciocínio clínico curtos, específicos e úteis, na seguinte ordem:
+1 e 2 — relação direta dessa informação com ESTE caso (dados, tendência, interações, risco, conduta).
+3 e 4 — o assunto em si, do ponto de vista acadêmico/científico (fisiopatologia, evidência, diretrizes, metas), com evidência consultada em ${EVIDENCE_SOURCE}.
+
+Responda APENAS com JSON válido, sem comentários e sem blocos de código, no formato:
+{"angles":[{"kind":"case","label":"até 6 palavras","question":"pergunta clínica completa"},...4 itens...]}
+Os dois primeiros com kind "case", os dois últimos com kind "topic". Em português do Brasil.`,
+      },
+      {
+        role: "user",
+        content: `PASSÔMETRO DO PACIENTE:\n${data.context}\n\nINFORMAÇÃO APONTADA:\n"""${data.info.slice(0, 1200)}"""`,
+      },
+    ]);
+
+    const raw = content.replace(/```json|```/g, "").trim();
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    let angles: Array<{ kind: string; label: string; question: string }> = [];
+    try {
+      const parsed = JSON.parse(raw.slice(start, end + 1));
+      if (Array.isArray(parsed?.angles)) angles = parsed.angles;
+    } catch {
+      angles = [];
+    }
+    if (angles.length < 4) {
+      angles = [
+        { kind: "case", label: "Impacto neste caso", question: `Qual o significado clínico desta informação neste paciente: ${data.info.slice(0, 300)}?` },
+        { kind: "case", label: "Riscos e conduta", question: `Que riscos e condutas esta informação sugere neste paciente: ${data.info.slice(0, 300)}?` },
+        { kind: "topic", label: "Fisiopatologia", question: `Explique a fisiopatologia e os fundamentos científicos do assunto: ${data.info.slice(0, 300)}.` },
+        { kind: "topic", label: "Evidência e metas", question: `Qual a evidência atual e as metas recomendadas sobre: ${data.info.slice(0, 300)}? Cite referências.` },
+      ];
+    }
+    return { angles: angles.slice(0, 4).map((a) => ({ kind: a.kind === "topic" ? "topic" : "case", label: String(a.label ?? "").slice(0, 60), question: String(a.question ?? "") })) };
+  });
