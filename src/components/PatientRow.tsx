@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnnotationText } from "@/components/AnnotationText";
+import { AnnotationEditor } from "@/components/AnnotationEditor";
 
 import type { Patient, Severity, TimelineKind, InvasiveDevice, Medication } from "@/data/patients";
 import {
