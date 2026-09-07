@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnnotationText } from "@/components/AnnotationText";
+import { AnnotationEditor } from "@/components/AnnotationEditor";
 
 import type { Patient, Severity, TimelineKind, InvasiveDevice, Medication } from "@/data/patients";
 import {
@@ -269,6 +270,7 @@ export function PatientRow({
   const [sofaOpen, setSofaOpen] = useState(false);
   const [scalesExpanded, setScalesExpanded] = useState(false);
   const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
+  const [planInlineEdit, setPlanInlineEdit] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
@@ -320,6 +322,39 @@ export function PatientRow({
       ...patient,
       medications: patient.medications.map((m) =>
         m === med ? { ...m, active: true, end: undefined } : m,
+      ),
+    });
+  };
+
+  // Edição direta das anotações da coluna 7 (painel principal).
+  const updateConductSub = (ci: number, si: number, text: string) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      conducts: patient.conducts.map((c, idx) =>
+        idx !== ci
+          ? c
+          : { ...c, subItems: (c.subItems ?? []).map((s, j) => (j === si ? { ...s, text } : s)) },
+      ),
+    });
+  };
+
+  const addConductSub = (ci: number) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      conducts: patient.conducts.map((c, idx) =>
+        idx !== ci ? c : { ...c, subItems: [...(c.subItems ?? []), { text: "" }] },
+      ),
+    });
+  };
+
+  const removeConductSub = (ci: number, si: number) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      conducts: patient.conducts.map((c, idx) =>
+        idx !== ci ? c : { ...c, subItems: (c.subItems ?? []).filter((_, j) => j !== si) },
       ),
     });
   };
@@ -2226,11 +2261,26 @@ export function PatientRow({
             </div>{" "}
             {/* 7 - Plano · Metas por sistema orgânico */}
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
-              <ColTitle tone={6}>✅ Condutas</ColTitle>
+              <div className="flex items-center gap-2">
+                <ColTitle tone={6}>✅ Condutas</ColTitle>
+                {onUpdate && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPlanInlineEdit((v) => !v);
+                    }}
+                    className="ml-auto rounded border border-border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-surface-3"
+                  >
+                    {planInlineEdit ? "✓ Concluir edição" : "✏️ Editar aqui"}
+                  </button>
+                )}
+              </div>
               <ul
                 className="list-none space-y-1 p-0"
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (planInlineEdit) return;
                   const t = e.target as HTMLElement;
                   if (t.closest("button, a, input, select, textarea, label, [role='button']"))
                     return;
@@ -2262,6 +2312,9 @@ export function PatientRow({
                     const meta = c.system
                       ? CONDUCT_SYSTEM_META[c.system]
                       : CONDUCT_SYSTEM_META.other;
+                    const subs = (c.subItems ?? [])
+                      .map((s, si) => ({ s, si }))
+                      .filter(({ s }) => planInlineEdit || !s.hidden);
                     return (
                       <li
                         key={i}
@@ -2276,35 +2329,62 @@ export function PatientRow({
                             {c.team}
                           </span>
                         </div>{" "}
-                        {c.subItems && c.subItems.some((s) => !s.hidden) ? (
+                        {planInlineEdit ? (
+                          <div className="mt-1 space-y-1">
+                            {subs.map(({ s, si }) => (
+                              <div key={si} className="flex items-start gap-1">
+                                <div className="min-w-0 flex-1">
+                                  <AnnotationEditor
+                                    value={s.text ?? ""}
+                                    onChange={(next) => updateConductSub(i, si, next)}
+                                    placeholder="Anotação"
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeConductSub(i, si)}
+                                  title="Remover anotação"
+                                  className="rounded border border-border px-1 text-[10px] text-muted-foreground hover:bg-surface-3"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => addConductSub(i)}
+                              className="rounded border border-dashed border-border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-surface-3"
+                            >
+                              + anotação
+                            </button>
+                          </div>
+                        ) : subs.length ? (
                           <div className="mt-1 space-y-0.5">
                             {" "}
-                            {c.subItems
-                              .filter((s) => !s.hidden)
-                              .map((sub, si) => {
-                                const colMeta = sub.color
-                                  ? ANNOTATION_COLOR_META[sub.color]
-                                  : ANNOTATION_COLOR_META.default;
-                                return (
-                                  <div key={si} className="text-[10.5px] leading-tight">
-                                    <span className="break-words whitespace-pre-wrap">
-                                      <span className={colMeta.textClass || "text-foreground"}>
-                                        {sub.text ? (
-                                          <AnnotationText
-                                            text={sub.text}
-                                            base={sub.color ?? "default"}
-                                            defaultClass=""
-                                          />
-                                        ) : (
-                                          <span className="italic text-muted-foreground">
-                                            (anotação vazia)
-                                          </span>
-                                        )}
-                                      </span>
+                            {subs.map(({ s: sub, si }) => {
+                              const colMeta = sub.color
+                                ? ANNOTATION_COLOR_META[sub.color]
+                                : ANNOTATION_COLOR_META.default;
+                              return (
+                                <div key={si} className="text-[10.5px] leading-tight">
+                                  <span className="break-words whitespace-pre-wrap">
+                                    <span className={colMeta.textClass || "text-foreground"}>
+                                      {sub.text ? (
+                                        <AnnotationText
+                                          text={sub.text}
+                                          base={sub.color ?? "default"}
+                                          defaultClass=""
+                                        />
+                                      ) : (
+                                        <span className="italic text-muted-foreground">
+                                          (anotação vazia)
+                                        </span>
+                                      )}
                                     </span>
-                                  </div>
-                                );
-                              })}
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
                         ) : (
                           <div className="mt-1 text-[10px] italic text-muted-foreground">
