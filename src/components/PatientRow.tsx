@@ -704,7 +704,7 @@ export function PatientRow({
             <div className="flex flex-wrap gap-0.5">
               {" "}
               {patient.diagnoses.slice(-3).map((d, i) => (
-                <Chip key={i} kind={d.kind}>
+                <Chip key={i} kind={d.kind} className="!text-[10px]">
                   {d.label}
                 </Chip>
               ))}
