@@ -265,7 +265,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
             )}
 
             {(chat.length > 0 || asking) && (
-              <Conversation className="neto-panel max-h-[38vh] min-h-[96px] rounded-[18px]">
+              <Conversation className="neto-panel max-h-[40vh] min-h-[96px] overflow-y-auto rounded-[18px]">
                 <ConversationContent className="gap-2.5 p-2.5">
                   {chat.map((m, i) => (
                     <Message key={i} from={m.role} className="max-w-full">
