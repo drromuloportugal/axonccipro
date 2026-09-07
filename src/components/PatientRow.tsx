@@ -2275,7 +2275,7 @@ export function PatientRow({
               </div>
             </div>{" "}
             {/* 7 - Plano · Metas por sistema orgânico */}
-            <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
+            <div ref={planColRef} onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 <ColTitle tone={6}>✅ Condutas</ColTitle>
                 {onEdit && (
