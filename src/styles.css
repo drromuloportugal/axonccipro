@@ -146,15 +146,15 @@
   --input: oklch(0.32 0.012 260);
   --ring: oklch(0.72 0.14 230);
 
-  --neto-shell: oklch(0.22 0.06 235 / 0.94);
-  --neto-shell-deep: oklch(0.12 0.04 235 / 0.97);
-  --neto-panel: oklch(0.3 0.07 235 / 0.78);
-  --neto-panel-strong: oklch(0.38 0.09 235 / 0.82);
-  --neto-line: oklch(0.64 0.16 235 / 0.82);
-  --neto-glow: oklch(0.62 0.18 235);
-  --neto-foreground: oklch(0.98 0.008 235);
-  --neto-muted: oklch(0.8 0.06 235);
-  --neto-online: oklch(0.84 0.2 142);
+  --neto-shell: oklch(0.45 0.14 155 / 0.72);
+  --neto-shell-deep: oklch(0.25 0.05 240 / 0.3);
+  --neto-panel: oklch(0.45 0.14 235 / 0.72);
+  --neto-panel-strong: oklch(0.45 0.14 155 / 0.82);
+  --neto-line: oklch(1 0 0 / 0.2);
+  --neto-glow: oklch(0.6 0.18 235);
+  --neto-foreground: oklch(0.98 0 0);
+  --neto-muted: oklch(0.9 0 0 / 0.72);
+  --neto-online: oklch(0.75 0.2 142);
 
   --clinical-neutral: oklch(0.75 0.012 260);
   --clinical-resp: oklch(0.72 0.14 235);
