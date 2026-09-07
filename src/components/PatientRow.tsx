@@ -1078,9 +1078,7 @@ export function PatientRow({
                     className={`flex items-start gap-1.5 rounded border px-1.5 py-0.5 text-[11px] leading-snug ${meta.borderClass}`}
                   >
                     <span className="min-w-0 flex-1">
-                      <span
-                        className={`mr-1 text-[9px] font-bold uppercase tracking-wider ${meta.className}`}
-                      >
+                      <span className="mr-1 text-[9px] font-bold uppercase tracking-wider text-ink">
                         {meta.short}
                       </span>{" "}
                       {firstAnn ? (
@@ -2268,9 +2266,7 @@ export function PatientRow({
                         className={`rounded-md border px-1.5 py-1 text-[11px] ${meta.borderClass}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`text-[10px] font-bold uppercase tracking-wider ${meta.className}`}
-                          >
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-ink">
                             {" "}
                             {meta.label}
                           </span>
