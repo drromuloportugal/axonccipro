@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnnotationText } from "@/components/AnnotationText";
 import { AnnotationEditor } from "@/components/AnnotationEditor";
 
@@ -272,6 +272,16 @@ export function PatientRow({
   const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
   // Coluna 7 inicia em modo leitura; qualquer clique na coluna ativa a edição inline.
   const [planInlineEdit, setPlanInlineEdit] = useState(false);
+  const planColRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!planInlineEdit) return;
+    const handle = (e: MouseEvent) => {
+      if (planColRef.current?.contains(e.target as Node)) return;
+      setPlanInlineEdit(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [planInlineEdit]);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
@@ -2265,7 +2275,7 @@ export function PatientRow({
               </div>
             </div>{" "}
             {/* 7 - Plano · Metas por sistema orgânico */}
-            <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
+            <div ref={planColRef} onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 <ColTitle tone={6}>✅ Condutas</ColTitle>
                 {onEdit && (
