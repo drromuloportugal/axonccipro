@@ -234,7 +234,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
               </Shimmer>
             )}
 
-            {angles.length > 0 && (
+            {angles.length > 0 && chat.length === 0 && (
               <div className="space-y-1.5">
                 {angles.map((a, i) => (
                   <Button
