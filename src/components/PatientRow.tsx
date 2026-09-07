@@ -270,8 +270,8 @@ export function PatientRow({
   const [sofaOpen, setSofaOpen] = useState(false);
   const [scalesExpanded, setScalesExpanded] = useState(false);
   const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
-  // Coluna 7 é sempre editável no painel principal; cada alteração salva na hora.
-  const planInlineEdit = Boolean(onUpdate);
+  // Coluna 7 inicia em modo leitura; qualquer clique na coluna ativa a edição inline.
+  const [planInlineEdit, setPlanInlineEdit] = useState(false);
   const dcStatus = useMemo(() => dischargeStatus(patient), [patient]);
   const dcBtnClass =
     dcStatus.status === "ready"
@@ -426,13 +426,17 @@ export function PatientRow({
     ) : null;
 
   // On collapsed rows, any column click expands the row. Once expanded, a
-  // column click opens the editor for that block.
+  // column click opens the editor for that block (ou ativa edição inline no plano).
   const colClick = (tab: string) => (e: React.MouseEvent) => {
     const t = e.target as HTMLElement;
     if (t.closest("button, a, input, select, textarea, label, [role='button']")) return;
     e.stopPropagation();
     if (!open) {
       setOpen(true);
+      return;
+    }
+    if (tab === "plan" && onUpdate) {
+      setPlanInlineEdit(true);
       return;
     }
     if (onEdit) onEdit(patient, tab);
@@ -2264,21 +2268,32 @@ export function PatientRow({
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 <ColTitle tone={6}>✅ Condutas</ColTitle>
-                {planInlineEdit && (
-                  <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    ✏️ Edição direta · salva automaticamente
-                  </span>
+                {onEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(patient, "plan");
+                    }}
+                    className="ml-auto inline-flex items-center gap-1 rounded border border-border bg-surface px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-surface-3"
+                  >
+                    ✏️ editar no painel
+                  </button>
                 )}
               </div>
               <ul
                 className="list-none space-y-1 p-0"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (planInlineEdit) return;
                   const t = e.target as HTMLElement;
                   if (t.closest("button, a, input, select, textarea, label, [role='button']"))
                     return;
-                  if (onEdit) onEdit(patient, "plan");
+                  if (planInlineEdit) return;
+                  if (onUpdate) {
+                    setPlanInlineEdit(true);
+                  } else if (onEdit) {
+                    onEdit(patient, "plan");
+                  }
                 }}
               >
                 {" "}
