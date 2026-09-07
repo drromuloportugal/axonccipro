@@ -3,19 +3,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { X, PenLine, Stethoscope, BookOpen, GripVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
-  Lightbulb,
-  Loader2,
-  X,
-  Send,
-  PenLine,
-  Stethoscope,
-  BookOpen,
-  GripVertical,
-} from "lucide-react";
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+} from "@/components/ai-elements/prompt-input";
+import { Shimmer } from "@/components/ai-elements/shimmer";
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
 import { askAboutCase, suggestInsightAngles } from "@/lib/api/deep-analysis.functions";
+import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
 type Msg = { role: "user" | "assistant"; content: string };
@@ -45,7 +51,6 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
-  const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setPos((p) => ({
@@ -53,10 +58,6 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
       y: clamp(p.y, 8, window.innerHeight - 120),
     }));
   }, []);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [chat, asking]);
 
   const patient =
     patients.find((p) => p.id === patientId) ?? patients.find((p) => p.id === currentPatientId);
@@ -153,7 +154,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
     <div
       ref={rootRef}
       style={{ left: pos.x, top: pos.y }}
-      className="fixed z-[80] print:hidden"
+      className="fixed z-[80] select-none print:hidden"
       onPointerMove={onMove}
       onPointerUp={() => {
         const moved = dragRef.current?.moved;
@@ -162,43 +163,56 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
       }}
     >
       <div
-        className={`relative rounded-2xl border border-strong bg-card shadow-xl transition-all ${
-          open ? "w-[340px] max-w-[92vw] p-3" : "w-auto p-2"
-        }`}
+        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[370px] max-w-[92vw] rounded-[28px] p-3.5" : "w-[210px] rounded-[26px] py-2 pl-[72px] pr-4"}`}
       >
-        {/* quina apontadora, à direita */}
         <span
           aria-hidden
-          className="absolute -right-2 top-4 h-0 w-0 border-y-8 border-l-[10px] border-y-transparent border-l-primary"
+          className={`neto-tail absolute ${open ? "-bottom-2 right-8 h-5 w-5" : "-right-1.5 top-5 h-3 w-3"}`}
         />
 
-        <div className="flex items-center gap-2">
-          <button
+        <img
+          src={netoAvatar}
+          alt="Neto, assistente virtual"
+          width={512}
+          height={512}
+          className={`pointer-events-none absolute z-10 object-contain drop-shadow-lg transition-all duration-300 ${open ? "-left-4 -top-6 h-[86px] w-[86px]" : "-left-3 -top-3 h-[76px] w-[76px]"}`}
+        />
+        <span
+          aria-hidden
+          className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[54px] top-[45px] h-4 w-4" : "left-[51px] top-[43px] h-4 w-4"}`}
+        />
+
+        <div className={`flex items-center ${open ? "min-h-[54px] pl-[76px]" : "min-h-[42px]"}`}>
+          <Button
             type="button"
             onPointerDown={startDrag}
-            className="cursor-grab rounded-md p-1 text-muted-foreground hover:bg-muted active:cursor-grabbing"
+            variant="ghost"
+            size="icon"
+            className={`absolute cursor-grab text-neto-muted hover:bg-neto-panel active:cursor-grabbing ${open ? "left-[66px] top-2 h-7 w-7" : "-left-10 top-2 h-7 w-7 opacity-0"}`}
             title="Arrastar o balão"
             aria-label="Arrastar o balão"
           >
             <GripVertical className="h-4 w-4" />
-          </button>
-          <Lightbulb className="h-4 w-4 text-primary" />
-          <span className="text-[12px] font-bold text-foreground">
-            {open ? "Raciocínio sobre a informação" : "Insight"}
-          </span>
+          </Button>
+          <div>
+            <p className="text-[18px] font-extrabold leading-none text-neto-foreground">NETO</p>
+            <p className="mt-1 text-[10px] font-medium text-neto-muted">Assistente virtual</p>
+          </div>
           {open && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onPointerDown={(e) => e.stopPropagation()}
               onPointerUp={(e) => {
                 e.stopPropagation();
                 setOpen(false);
               }}
-              className="ml-auto rounded-md border border-border p-1 text-foreground hover:bg-muted"
+              className="ml-auto h-8 w-8 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
               aria-label="Fechar"
             >
-              <X className="h-3.5 w-3.5" />
-            </button>
+              <X className="h-4 w-4" />
+            </Button>
           )}
         </div>
 
@@ -206,118 +220,113 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
           <div
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
-            className="mt-2 space-y-2"
+            className="mt-2 space-y-2.5"
           >
             {patient && (
-              <p className="text-[10px] uppercase tracking-[0.06em] text-muted-foreground">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
                 {patient.bed} · {patient.name}
               </p>
             )}
             {info && (
-              <p className="rounded-md border border-border bg-surface-3/30 px-2 py-1.5 text-[11px] leading-snug text-foreground">
+              <p className="neto-panel rounded-[18px] px-3.5 py-3 text-[12px] leading-relaxed text-neto-foreground">
                 {info.slice(0, 220)}
                 {info.length > 220 ? "…" : ""}
               </p>
             )}
 
             {loading && (
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Estruturando os raciocínios…
-              </div>
+              <Shimmer className="text-[11px] text-neto-muted">
+                Estruturando os raciocínios…
+              </Shimmer>
             )}
 
             {angles.length > 0 && (
               <div className="space-y-1.5">
                 {angles.map((a, i) => (
-                  <button
+                  <Button
                     key={i}
                     type="button"
+                    variant="ghost"
                     onClick={() => void ask(a.question)}
                     disabled={asking}
-                    className="flex w-full items-start gap-2 rounded-md border border-border bg-muted/40 px-2 py-1.5 text-left text-[11px] font-semibold text-foreground hover:bg-muted disabled:opacity-60"
+                    className="neto-chip h-auto w-full justify-start whitespace-normal rounded-full px-3 py-2 text-left text-[11px] font-semibold leading-snug text-neto-foreground hover:bg-neto-panel-strong"
                   >
                     {a.kind === "case" ? (
-                      <Stethoscope className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                      <Stethoscope className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
                     ) : (
-                      <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                      <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
                     )}
                     {a.label || a.question.slice(0, 60)}
-                  </button>
+                  </Button>
                 ))}
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setWriting((v) => !v)}
-                  className="flex w-full items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-2 py-1.5 text-left text-[11px] font-semibold text-foreground hover:bg-primary/15"
+                  className="neto-chip h-auto w-full justify-start rounded-full px-3 py-2 text-left text-[11px] font-semibold text-neto-foreground hover:bg-neto-panel-strong"
                 >
-                  <PenLine className="h-3.5 w-3.5 text-primary" /> Escrever minha pergunta
-                </button>
+                  <PenLine className="h-3.5 w-3.5 text-neto-glow" /> Escrever minha pergunta
+                </Button>
               </div>
             )}
 
             {(chat.length > 0 || asking) && (
-              <div className="max-h-[38vh] space-y-2 overflow-y-auto rounded-md border border-border bg-background p-2">
-                {chat.map((m, i) =>
-                  m.role === "user" ? (
-                    <p
-                      key={i}
-                      className="rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] font-semibold text-foreground"
-                    >
-                      {m.content}
-                    </p>
-                  ) : (
-                    <p
-                      key={i}
-                      className="whitespace-pre-wrap text-[11px] leading-relaxed text-foreground"
-                    >
-                      {m.content}
-                    </p>
-                  ),
-                )}
-                {asking && (
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> Consultando evidência…
-                  </div>
-                )}
-                <div ref={endRef} />
-              </div>
+              <Conversation className="neto-panel max-h-[38vh] min-h-[96px] rounded-[18px]">
+                <ConversationContent className="gap-2.5 p-2.5">
+                  {chat.map((m, i) => (
+                    <Message key={i} from={m.role} className="max-w-full">
+                      <MessageContent
+                        className={
+                          m.role === "user"
+                            ? "rounded-[15px] border border-neto-line bg-neto-panel-strong px-3 py-2 text-[11px] font-semibold text-neto-foreground"
+                            : "px-1 py-1 text-[11px] leading-relaxed text-neto-foreground"
+                        }
+                      >
+                        <MessageResponse>{m.content}</MessageResponse>
+                      </MessageContent>
+                    </Message>
+                  ))}
+                  {asking && (
+                    <Shimmer className="text-[11px] text-neto-muted">
+                      Consultando evidência…
+                    </Shimmer>
+                  )}
+                </ConversationContent>
+                <ConversationScrollButton className="border-neto-line bg-neto-panel-strong text-neto-foreground hover:bg-neto-panel" />
+              </Conversation>
             )}
 
             {error && (
-              <p className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 px-2 py-1.5 text-[11px] font-semibold text-clinical-critical">
+              <p className="rounded-[14px] border border-clinical-critical/60 bg-clinical-critical/20 px-3 py-2 text-[11px] font-semibold text-neto-foreground">
                 {error}
               </p>
             )}
 
             {(writing || chat.length > 0) && (
-              <div className="flex items-end gap-1.5">
-                <textarea
+              <PromptInput
+                onSubmit={({ text }) => {
+                  const q = text || question;
+                  setQuestion("");
+                  void ask(q);
+                }}
+                className="neto-panel overflow-hidden rounded-[20px] border-neto-line bg-transparent shadow-none"
+              >
+                <PromptInputTextarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      const q = question;
-                      setQuestion("");
-                      void ask(q);
-                    }
-                  }}
                   rows={2}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-[40px] flex-1 resize-y rounded-md border border-strong bg-white px-2 py-1.5 text-[11px] outline-none focus:border-primary"
+                  className="min-h-[54px] px-3.5 py-2.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const q = question;
-                    setQuestion("");
-                    void ask(q);
-                  }}
-                  disabled={asking || !question.trim()}
-                  className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1.5 text-[11px] font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-                >
-                  <Send className="h-3.5 w-3.5" />
-                </button>
-              </div>
+                <PromptInputFooter className="justify-end px-2.5 pb-2.5 pt-0">
+                  <PromptInputSubmit
+                    status={asking ? "submitted" : undefined}
+                    disabled={asking || !question.trim()}
+                    aria-label="Enviar pergunta"
+                    className="h-9 w-9 rounded-full bg-neto-glow text-neto-shell-deep shadow-md hover:bg-neto-glow/90"
+                  />
+                </PromptInputFooter>
+              </PromptInput>
             )}
           </div>
         )}
