@@ -64,7 +64,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
 
   const startDrag = (e: React.PointerEvent) => {
     dragRef.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y, moved: false };
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    rootRef.current?.setPointerCapture?.(e.pointerId);
   };
 
   const onMove = (e: React.PointerEvent) => {
