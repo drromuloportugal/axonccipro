@@ -1057,7 +1057,7 @@ export function PatientRow({
           <div onClick={colClick("plan")} className="flex min-w-0 flex-col">
             <ColHead label="✅ Plano · Condutas" tab="plan" title="Editar plano e tarefas" />
             <ul
-              className="space-y-1"
+              className="list-none space-y-1 p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 const t = e.target as HTMLElement;
