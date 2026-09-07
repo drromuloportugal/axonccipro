@@ -334,7 +334,13 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               </Shimmer>
             )}
 
-            {angles.length > 0 && chat.length === 0 && (
+            {fhLoading && (
+              <Shimmer className="text-[11px] text-neto-muted">
+                Revisando FASTHUG MAIDENS…
+              </Shimmer>
+            )}
+
+            {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
               <div className="space-y-1.5">
                 {angles.map((a, i) => (
                   <Button
@@ -356,6 +362,14 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 <Button
                   type="button"
                   variant="ghost"
+                  onClick={() => void startFasthug()}
+                  className="neto-chip h-auto w-full justify-start rounded-full px-3 py-2 text-left text-[11px] font-semibold text-neto-foreground hover:bg-neto-panel-strong"
+                >
+                  <ClipboardCheck className="h-3.5 w-3.5 text-neto-glow" /> FASTHUG MAIDENS
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => setWriting((v) => !v)}
                   className="neto-chip h-auto w-full justify-start rounded-full px-3 py-2 text-left text-[11px] font-semibold text-neto-foreground hover:bg-neto-panel-strong"
                 >
@@ -363,6 +377,124 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 </Button>
               </div>
             )}
+
+            {fhItems.length > 0 &&
+              (() => {
+                const item = fhItems[Math.min(fhIndex, fhItems.length - 1)];
+                if (!item) return null;
+                const st = FH_STATUS[item.status];
+                return (
+                  <div className="neto-panel space-y-2 rounded-[18px] p-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-neto-muted">
+                        FASTHUG MAIDENS · {fhIndex + 1}/{fhItems.length}
+                      </span>
+                      <span className={`ml-auto text-[10px] font-bold ${st.className}`}>
+                        {st.label}
+                      </span>
+                    </div>
+
+                    <p className="text-[12px] font-bold leading-snug !text-white">
+                      <span className="mr-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-neto-glow text-[10px] font-black text-neto-shell-deep">
+                        {item.key.replace(/\d/, "")}
+                      </span>
+                      {item.title}
+                    </p>
+                    <p className="text-[11px] font-semibold leading-relaxed !text-white">
+                      {item.assessment}
+                    </p>
+
+                    {item.suggestions.length > 0 ? (
+                      <div className="space-y-1">
+                        {item.suggestions.map((s, i) => {
+                          const id = `${item.key}:${i}`;
+                          const on = !!fhChecked[id];
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => setFhChecked((prev) => ({ ...prev, [id]: !on }))}
+                              className={`flex w-full items-start gap-2 rounded-[12px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
+                                on
+                                  ? "border-neto-glow bg-neto-glow/20 !text-white"
+                                  : "border-neto-line bg-neto-panel-strong !text-white hover:bg-neto-panel"
+                              }`}
+                            >
+                              <span
+                                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
+                                  on
+                                    ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                                    : "border-neto-line"
+                                }`}
+                              >
+                                {on && <Check className="h-3 w-3" />}
+                              </span>
+                              {s}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] font-semibold text-neto-muted">
+                        Sem sugestões para este item.
+                      </p>
+                    )}
+
+                    {item.evidence && (
+                      <p className="text-[10px] leading-snug text-neto-muted">📚 {item.evidence}</p>
+                    )}
+
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={fhIndex === 0}
+                        onClick={() => setFhIndex((i) => Math.max(0, i - 1))}
+                        className="h-7 w-7 rounded-full text-neto-foreground hover:bg-neto-panel-strong"
+                        aria-label="Item anterior"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={fhIndex >= fhItems.length - 1}
+                        onClick={() => setFhIndex((i) => Math.min(fhItems.length - 1, i + 1))}
+                        className="h-7 w-7 rounded-full text-neto-foreground hover:bg-neto-panel-strong"
+                        aria-label="Próximo item"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => void ask(`${item.title}: ${item.assessment}`)}
+                        disabled={asking}
+                        className="h-7 rounded-full px-2 text-[10px] font-bold text-neto-foreground hover:bg-neto-panel-strong"
+                      >
+                        Discutir
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={applySelected}
+                        disabled={selectedCount === 0 || !onPatientChange}
+                        className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
+                      >
+                        Aplicar {selectedCount > 0 ? `(${selectedCount})` : ""}
+                      </Button>
+                    </div>
+
+                    {fhApplied > 0 && (
+                      <p className="text-[10px] font-bold text-clinical-stable">
+                        ✅ {fhApplied} sugestão(ões) aplicada(s) nas condutas do paciente.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
+
 
             {(chat.length > 0 || asking) && (
               <Conversation className="neto-panel max-h-[40vh] min-h-[96px] overflow-y-auto rounded-[18px]">
