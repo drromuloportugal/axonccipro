@@ -444,7 +444,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                       {crcl.weightKg} kg · {crcl.sex === "F" ? "feminino (×0,85)" : "masculino"}
                     </p>
                     {crcl.akiFlag && (
-                      <p className="text-[10px] font-bold text-clinical-critical">⚠️ {crcl.akiFlag}</p>
+                      <p className="text-[10px] font-bold text-clinical-critical">
+                        ⚠️ {crcl.akiFlag}
+                      </p>
                     )}
                   </div>
                 ) : (
@@ -481,7 +483,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                           {RISK_META[it.risk].label}
                         </span>
                       </div>
-                      <p className="text-[10px] leading-snug text-neto-muted">Em uso: {it.current}</p>
+                      <p className="text-[10px] leading-snug text-neto-muted">
+                        Em uso: {it.current}
+                      </p>
                       <button
                         type="button"
                         onClick={() => setRenalChecked((prev) => ({ ...prev, [id]: !on }))}
@@ -493,7 +497,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                       >
                         <span
                           className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
-                            on ? "border-neto-glow bg-neto-glow text-neto-shell-deep" : "border-neto-line"
+                            on
+                              ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                              : "border-neto-line"
                           }`}
                         >
                           {on && <Check className="h-3 w-3" />}
@@ -531,8 +537,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                       type="button"
                       onClick={applyRenal}
                       disabled={
-                        !onPatientChange ||
-                        Object.values(renalChecked).filter(Boolean).length === 0
+                        !onPatientChange || Object.values(renalChecked).filter(Boolean).length === 0
                       }
                       className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
                     >
@@ -548,8 +553,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 )}
               </div>
             )}
-
-
 
             {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
               <div className="space-y-1.5">

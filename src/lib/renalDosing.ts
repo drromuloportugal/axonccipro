@@ -32,7 +32,8 @@ export function findCreatinineRow(p: Patient) {
 function band(v: number): { band: string; bandClass: string } {
   if (v >= 90) return { band: "Função renal preservada", bandClass: "text-clinical-stable" };
   if (v >= 60) return { band: "Redução leve (60–89 mL/min)", bandClass: "text-clinical-stable" };
-  if (v >= 30) return { band: "Redução moderada (30–59 mL/min)", bandClass: "text-clinical-warning" };
+  if (v >= 30)
+    return { band: "Redução moderada (30–59 mL/min)", bandClass: "text-clinical-warning" };
   if (v >= 15) return { band: "Redução grave (15–29 mL/min)", bandClass: "text-clinical-critical" };
   return { band: "Falência renal (<15 mL/min)", bandClass: "text-clinical-critical" };
 }
@@ -58,8 +59,10 @@ export function creatinineClearance(p: Patient): CrClResult | null {
     const window = hist.slice(-8);
     const min = Math.min(...window.map((h) => h.value));
     creatDelta = Math.round((creat - min) * 100) / 100;
-    if (creat >= min * 1.5) akiFlag = "Creatinina ≥ 1,5× o menor valor recente — padrão de LRA (KDIGO).";
-    else if (creatDelta >= 0.3) akiFlag = "Elevação ≥ 0,3 mg/dL na janela recente — vigiar LRA (KDIGO).";
+    if (creat >= min * 1.5)
+      akiFlag = "Creatinina ≥ 1,5× o menor valor recente — padrão de LRA (KDIGO).";
+    else if (creatDelta >= 0.3)
+      akiFlag = "Elevação ≥ 0,3 mg/dL na janela recente — vigiar LRA (KDIGO).";
   }
 
   return {
@@ -108,7 +111,9 @@ export function renalContextText(p: Patient, crcl: CrClResult | null): string {
   ];
   if (crcl.takenAt) lines.push(`Creatinina coletada em ${crcl.takenAt}.`);
   if (crcl.creatDelta !== undefined)
-    lines.push(`Variação recente da creatinina: ${crcl.creatDelta >= 0 ? "+" : ""}${crcl.creatDelta} mg/dL.`);
+    lines.push(
+      `Variação recente da creatinina: ${crcl.creatDelta >= 0 ? "+" : ""}${crcl.creatDelta} mg/dL.`,
+    );
   if (crcl.akiFlag) lines.push(`Alerta: ${crcl.akiFlag}`);
   return lines.join("\n");
 }
