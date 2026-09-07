@@ -426,13 +426,17 @@ export function PatientRow({
     ) : null;
 
   // On collapsed rows, any column click expands the row. Once expanded, a
-  // column click opens the editor for that block.
+  // column click opens the editor for that block (ou ativa edição inline no plano).
   const colClick = (tab: string) => (e: React.MouseEvent) => {
     const t = e.target as HTMLElement;
     if (t.closest("button, a, input, select, textarea, label, [role='button']")) return;
     e.stopPropagation();
     if (!open) {
       setOpen(true);
+      return;
+    }
+    if (tab === "plan" && onUpdate) {
+      setPlanInlineEdit(true);
       return;
     }
     if (onEdit) onEdit(patient, tab);
