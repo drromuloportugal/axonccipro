@@ -273,10 +273,10 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                         className={
                           m.role === "user"
                             ? "rounded-[15px] border border-neto-line bg-neto-panel-strong px-3 py-2 text-[11px] font-semibold text-neto-foreground"
-                            : "px-1 py-1 text-[12px] font-bold leading-relaxed text-white"
+                            : "px-1 py-1 text-[12px] font-bold leading-relaxed !text-white"
                         }
                       >
-                        <MessageResponse>{m.content}</MessageResponse>
+                        <MessageResponse className="!text-white">{m.content}</MessageResponse>
                       </MessageContent>
                     </Message>
                   ))}
