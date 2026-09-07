@@ -64,6 +64,21 @@ const FH_STATUS: Record<FhStatus, { label: string; className: string }> = {
   nodata: { label: "⚪ Sem dado", className: "text-neto-muted" },
 };
 
+type RenalItem = {
+  drug: string;
+  current: string;
+  adjustment: string;
+  nephro: string;
+  risk: "alto" | "moderado" | "baixo";
+  evidence: string;
+};
+
+const RISK_META: Record<RenalItem["risk"], { label: string; className: string }> = {
+  alto: { label: "🔴 Risco alto", className: "text-clinical-critical" },
+  moderado: { label: "🟡 Risco moderado", className: "text-clinical-warning" },
+  baixo: { label: "🟢 Risco baixo", className: "text-clinical-stable" },
+};
+
 interface Props {
   patients: Patient[];
   currentPatientId?: string;
