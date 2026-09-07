@@ -437,7 +437,7 @@ Você conduz a revisão FASTHUG MAIDENS (SCCM / Vincent JL) do paciente crítico
 Para cada um dos 14 itens informe:
 - status: "ok" (adequado/contemplado), "attention" (parcial ou a otimizar), "alert" (lacuna relevante ou risco), "nodata" (não há dado no passômetro).
 - assessment: 1 a 3 frases objetivas, citando os dados que sustentam o julgamento (valores, medicações, datas). Dado ausente = "Dado não disponível no passômetro".
-- suggestions: de 0 a 3 sugestões de conduta, cada uma como frase curta e acionável, no estilo de prescrição/conduta de UTI (ex.: "Elevar cabeceira a 30–45°", "Avaliar profilaxia de TEV com enoxaparina após liberação neurocirúrgica"). Use verbos de apoio à decisão (avaliar, considerar, ajustar, monitorar, suspender se…). Não inventar dose que não conste no passômetro sem indicar que é sugestão a confirmar. Se o item já estiver adequado, retorne suggestions vazio.
+- suggestions: de 0 a 3 sugestões de conduta, cada uma como frase curta e acionável, no estilo de prescrição/conduta de UTI (ex.: "Avaliar delirium com CAM-ICU/ICDSC e tratar fator precipitante", "Avaliar profilaxia de TEV com enoxaparina após liberação neurocirúrgica"). Use verbos de apoio à decisão (avaliar, considerar, ajustar, monitorar, suspender se…). Não inventar dose que não conste no passômetro sem indicar que é sugestão a confirmar. Se o item já estiver adequado, retorne suggestions vazio.
 - evidence: uma linha curta com a referência de apoio (sociedade + documento + ano), ou "Referência específica não localizada.".
 
 Baseie a evidência na SCCM (ICU Liberation, PADIS, Surviving Sepsis Campaign) e, quando necessário, em diretriz especializada identificada. ${EVIDENCE_SOURCE} é fonte complementar de consulta.
