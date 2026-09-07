@@ -1755,7 +1755,7 @@ export const ANNOTATION_COLOR_META: Record<
     textClass: "text-orange-600 dark:text-orange-400",
     swatch: "#f97316",
   },
-  red: { label: "Vermelho", textClass: "text-red-800 dark:text-red-500", swatch: "#991b1b" },
+  red: { label: "Vermelho vivo", textClass: "text-red-600 dark:text-red-400", swatch: "#ef4444" },
   teal: { label: "Turquesa", textClass: "text-teal-500 dark:text-teal-300", swatch: "#14b8a6" },
   purple: { label: "Roxo", textClass: "text-purple-600 dark:text-purple-400", swatch: "#a855f7" },
 };
