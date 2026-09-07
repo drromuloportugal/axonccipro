@@ -432,9 +432,31 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
             {(crcl || renalLoading || renalItems.length > 0) && (
               <div className="neto-panel space-y-2 rounded-[18px] p-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-neto-muted">
-                  🧪 Função renal e ajuste antimicrobiano
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setRenalExpanded((v) => !v)}
+                  className="flex w-full items-center gap-1.5 text-left"
+                >
+                  {renalExpanded ? (
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0 text-neto-muted" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-neto-muted" />
+                  )}
+                  <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-neto-muted">
+                    🧪 Função renal e ajuste antimicrobiano
+                  </p>
+                  {crcl && !renalExpanded && (
+                    <span className="ml-auto shrink-0 text-[10px] font-black !text-white">
+                      ClCr {crcl.value} mL/min
+                    </span>
+                  )}
+                  {renalLoading && !renalExpanded && (
+                    <Loader2 className="ml-auto h-3 w-3 shrink-0 animate-spin text-neto-muted" />
+                  )}
+                </button>
+
+                {renalExpanded && (
+                  <>
                 {crcl ? (
                   <div className="space-y-0.5">
                     <p className="text-[13px] font-black leading-tight !text-white">
