@@ -87,7 +87,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [fhChecked, setFhChecked] = useState<Record<string, boolean>>({});
   const [fhApplied, setFhApplied] = useState(0);
 
-
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
 
@@ -249,7 +248,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setFhChecked({});
   };
 
-
   return (
     <div
       ref={rootRef}
@@ -335,9 +333,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
             )}
 
             {fhLoading && (
-              <Shimmer className="text-[11px] text-neto-muted">
-                Revisando FASTHUG MAIDENS…
-              </Shimmer>
+              <Shimmer className="text-[11px] text-neto-muted">Revisando FASTHUG MAIDENS…</Shimmer>
             )}
 
             {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
@@ -494,7 +490,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   </div>
                 );
               })()}
-
 
             {(chat.length > 0 || asking) && (
               <Conversation className="neto-panel max-h-[40vh] min-h-[96px] overflow-y-auto rounded-[18px]">
