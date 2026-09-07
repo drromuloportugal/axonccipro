@@ -495,3 +495,77 @@ export const reviewFasthugMaidens = createServerFn({ method: "POST" })
 
     return { items };
   });
+
+/* ===================== AJUSTE ANTIMICROBIANO PELA FUNÇÃO RENAL ===================== */
+
+const RenalInput = z.object({
+  context: z.string().min(1),
+  info: z.string().min(1),
+  renal: z.string().min(1),
+  drugs: z.array(z.string()).min(1),
+});
+
+const RENAL_SYSTEM = `${ENGINE_SYSTEM}
+
+Você atua agora como suporte de FARMACOLOGIA CLÍNICA / STEWARDSHIP em UTI, focado em AJUSTE DE DOSE ANTIMICROBIANA PELA FUNÇÃO RENAL e PRESERVAÇÃO DA FUNÇÃO RENAL.
+
+A depuração de creatinina (Cockcroft-Gault) já foi calculada pelo passômetro e é fornecida: NÃO recalcule nem contradiga esse valor; use-o como referência. Se vier como não calculável, declare "[DADO NÃO DISPONÍVEL NO PASSÔMETRO]" e indique o que falta.
+
+Para CADA antimicrobiano informado, produza:
+- drug: nome exatamente como recebido.
+- current: dose/via/intervalo em uso segundo o passômetro, ou "Dado não disponível no passômetro".
+- adjustment: recomendação objetiva para a faixa de clearance atual (dose, intervalo, infusão estendida quando aplicável, dose de ataque preservada quando indicada, necessidade de nível sérico). Deixe claro quando NÃO houver necessidade de ajuste.
+- nephro: medidas de preservação da função renal ligadas a essa droga (evitar associação nefrotóxica, hidratação, monitorização de creatinina/diurese, alvo de vale, substituição por opção menos nefrotóxica).
+- risk: "alto", "moderado" ou "baixo" — risco de nefrotoxicidade/acúmulo neste paciente.
+- evidence: referência curta (sociedade/consenso/bula + ano).
+
+Considere terapia de substituição renal, diálise intermitente ou contínua, balanço hídrico e nefrotóxicos concomitantes (contraste, vancomicina + piperacilina-tazobactam, aminoglicosídeos, polimixina, AINE, IECA/BRA) quando constarem no passômetro.
+
+Regras de precisão: não invente valores; dado ausente = "Dado não disponível no passômetro"; conflito entre registros = "⚠️ INCONSISTÊNCIA IDENTIFICADA". Evidência complementar consultada em ${EVIDENCE_SOURCE}.
+
+Responda APENAS com JSON válido, sem comentários e sem blocos de código:
+{"summary":"1 a 2 frases sobre a função renal atual e o impacto no esquema antimicrobiano","items":[{"drug":"...","current":"...","adjustment":"...","nephro":"...","risk":"moderado","evidence":"..."}]}
+Em português do Brasil.`;
+
+/** Sugere ajuste antimicrobiano conforme a depuração de creatinina calculada. */
+export const suggestRenalAntimicrobialAdjustment = createServerFn({ method: "POST" })
+  .inputValidator(RenalInput)
+  .handler(async ({ data }) => {
+    const content = await callGateway([
+      { role: "system", content: RENAL_SYSTEM },
+      {
+        role: "user",
+        content: `PASSÔMETRO DO PACIENTE:\n${data.context}\n\nFUNÇÃO RENAL CALCULADA PELO PASSÔMETRO:\n${data.renal}\n\nINFORMAÇÃO APONTADA NO PASSÔMETRO:\n"""${data.info.slice(0, 900)}"""\n\nANTIMICROBIANOS A AVALIAR (use exatamente estes nomes em "drug"):\n${data.drugs.join("\n")}`,
+      },
+    ]);
+
+    const raw = content.replace(/```json|```/g, "").trim();
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    let summary = "";
+    let list: Array<Record<string, unknown>> = [];
+    try {
+      const parsed = JSON.parse(raw.slice(start, end + 1));
+      summary = String(parsed?.summary ?? "");
+      if (Array.isArray(parsed?.items)) list = parsed.items;
+    } catch {
+      list = [];
+    }
+
+    const items = list.slice(0, 8).map((i) => {
+      const risk = String(i["risk"] ?? "moderado").toLowerCase();
+      return {
+        drug: String(i["drug"] ?? "").slice(0, 80),
+        current: String(i["current"] ?? "Dado não disponível no passômetro"),
+        adjustment: String(i["adjustment"] ?? "Dado não disponível no passômetro"),
+        nephro: String(i["nephro"] ?? ""),
+        risk: (["alto", "moderado", "baixo"].includes(risk) ? risk : "moderado") as
+          | "alto"
+          | "moderado"
+          | "baixo",
+        evidence: String(i["evidence"] ?? ""),
+      };
+    });
+
+    return { summary, items };
+  });

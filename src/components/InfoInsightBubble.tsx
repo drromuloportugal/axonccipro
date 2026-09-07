@@ -34,7 +34,14 @@ import {
   askAboutCase,
   reviewFasthugMaidens,
   suggestInsightAngles,
+  suggestRenalAntimicrobialAdjustment,
 } from "@/lib/api/deep-analysis.functions";
+import {
+  creatinineClearance,
+  pointedAntimicrobials,
+  renalContextText,
+  type CrClResult,
+} from "@/lib/renalDosing";
 import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
@@ -57,6 +64,21 @@ const FH_STATUS: Record<FhStatus, { label: string; className: string }> = {
   nodata: { label: "⚪ Sem dado", className: "text-neto-muted" },
 };
 
+type RenalItem = {
+  drug: string;
+  current: string;
+  adjustment: string;
+  nephro: string;
+  risk: "alto" | "moderado" | "baixo";
+  evidence: string;
+};
+
+const RISK_META: Record<RenalItem["risk"], { label: string; className: string }> = {
+  alto: { label: "🔴 Risco alto", className: "text-clinical-critical" },
+  moderado: { label: "🟡 Risco moderado", className: "text-clinical-warning" },
+  baixo: { label: "🟢 Risco baixo", className: "text-clinical-stable" },
+};
+
 interface Props {
   patients: Patient[];
   currentPatientId?: string;
@@ -69,6 +91,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const runAngles = useServerFn(suggestInsightAngles);
   const runAsk = useServerFn(askAboutCase);
   const runFasthug = useServerFn(reviewFasthugMaidens);
+  const runRenal = useServerFn(suggestRenalAntimicrobialAdjustment);
 
   const [pos, setPos] = useState({ x: 24, y: 220 });
   const [open, setOpen] = useState(false);
@@ -86,6 +109,12 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [fhLoading, setFhLoading] = useState(false);
   const [fhChecked, setFhChecked] = useState<Record<string, boolean>>({});
   const [fhApplied, setFhApplied] = useState(0);
+  const [crcl, setCrcl] = useState<CrClResult | null>(null);
+  const [renalItems, setRenalItems] = useState<RenalItem[]>([]);
+  const [renalSummary, setRenalSummary] = useState("");
+  const [renalLoading, setRenalLoading] = useState(false);
+  const [renalChecked, setRenalChecked] = useState<Record<string, boolean>>({});
+  const [renalApplied, setRenalApplied] = useState(0);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
@@ -151,6 +180,11 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setFhIndex(0);
     setFhChecked({});
     setFhApplied(0);
+    setCrcl(null);
+    setRenalItems([]);
+    setRenalSummary("");
+    setRenalChecked({});
+    setRenalApplied(0);
     setError(null);
     setInfo(text);
 
@@ -159,6 +193,35 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       setError("Aponte a quina do balão para uma informação do paciente e clique novamente.");
       return;
     }
+
+    // Apontou um antimicrobiano: calcula a depuração de creatinina e sugere ajuste renal.
+    const atbs = pointedAntimicrobials(p, text);
+    if (atbs.length > 0) {
+      const cr = creatinineClearance(p);
+      setCrcl(cr);
+      setRenalLoading(true);
+      void (async () => {
+        try {
+          const res = await runRenal({
+            data: {
+              context: buildPassometroContext(p),
+              info: text,
+              renal: renalContextText(p, cr),
+              drugs: atbs.map((m) =>
+                [m.name, m.dose, m.route, m.freq].filter(Boolean).join(" · ").slice(0, 140),
+              ),
+            },
+          });
+          setRenalSummary(res.summary);
+          setRenalItems(res.items as RenalItem[]);
+        } catch (e) {
+          setError(e instanceof Error ? e.message : "Falha ao calcular o ajuste antimicrobiano.");
+        } finally {
+          setRenalLoading(false);
+        }
+      })();
+    }
+
     setLoading(true);
     try {
       const res = await runAngles({ data: { context: buildPassometroContext(p), info: text } });
@@ -168,6 +231,35 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     } finally {
       setLoading(false);
     }
+  };
+
+  /** Aplica os ajustes antimicrobianos marcados como anotações nas condutas. */
+  const applyRenal = () => {
+    const p = patient;
+    const selected = renalItems.filter((_, i) => renalChecked[`r:${i}`]);
+    if (!p || !onPatientChange || selected.length === 0) return;
+    const now = new Date().toISOString();
+    const conducts: Conduct[] = p.conducts.map((c) => ({
+      ...c,
+      subItems: c.subItems ? [...c.subItems] : [],
+    }));
+    let applied = 0;
+    for (const it of selected) {
+      const system: ConductSystem = "infec";
+      let target = conducts.find((c) => c.system === system && c.team === "Médica");
+      if (!target) {
+        target = { team: "Médica", text: "", system, subItems: [], startedAt: now };
+        conducts.push(target);
+      }
+      const label = `AJUSTE RENAL · ${it.drug} · ${it.adjustment}`;
+      if (!target.subItems?.some((s) => s.text === label)) {
+        target.subItems = [...(target.subItems ?? []), { text: label, date: now }];
+        applied++;
+      }
+    }
+    onPatientChange({ ...p, conducts });
+    setRenalApplied(applied);
+    setRenalChecked({});
   };
 
   const ask = async (q: string) => {
@@ -334,6 +426,132 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
             {fhLoading && (
               <Shimmer className="text-[11px] text-neto-muted">Revisando FASTHUG MAIDENS…</Shimmer>
+            )}
+
+            {(crcl || renalLoading || renalItems.length > 0) && (
+              <div className="neto-panel space-y-2 rounded-[18px] p-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.06em] text-neto-muted">
+                  🧪 Função renal e ajuste antimicrobiano
+                </p>
+                {crcl ? (
+                  <div className="space-y-0.5">
+                    <p className="text-[13px] font-black leading-tight !text-white">
+                      ClCr {crcl.value} mL/min
+                    </p>
+                    <p className={`text-[10px] font-bold ${crcl.bandClass}`}>{crcl.band}</p>
+                    <p className="text-[10px] leading-snug text-neto-muted">
+                      Cockcroft-Gault · Cr {crcl.creat} {crcl.creatUnit} · {crcl.ageYears} anos ·{" "}
+                      {crcl.weightKg} kg · {crcl.sex === "F" ? "feminino (×0,85)" : "masculino"}
+                    </p>
+                    {crcl.akiFlag && (
+                      <p className="text-[10px] font-bold text-clinical-critical">
+                        ⚠️ {crcl.akiFlag}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[10px] font-semibold text-neto-muted">
+                    Depuração não calculável — falta creatinina, peso, idade ou sexo no passômetro.
+                  </p>
+                )}
+
+                {renalLoading && (
+                  <Shimmer className="text-[11px] text-neto-muted">
+                    Avaliando ajuste de dose renal…
+                  </Shimmer>
+                )}
+
+                {renalSummary && (
+                  <p className="text-[11px] font-semibold leading-relaxed !text-white">
+                    {renalSummary}
+                  </p>
+                )}
+
+                {renalItems.map((it, i) => {
+                  const id = `r:${i}`;
+                  const on = !!renalChecked[id];
+                  return (
+                    <div
+                      key={id}
+                      className="space-y-1 rounded-[12px] border border-neto-line bg-neto-panel-strong p-2"
+                    >
+                      <div className="flex items-start gap-1.5">
+                        <p className="text-[11px] font-black leading-snug !text-white">{it.drug}</p>
+                        <span
+                          className={`ml-auto shrink-0 text-[10px] font-bold ${RISK_META[it.risk].className}`}
+                        >
+                          {RISK_META[it.risk].label}
+                        </span>
+                      </div>
+                      <p className="text-[10px] leading-snug text-neto-muted">
+                        Em uso: {it.current}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setRenalChecked((prev) => ({ ...prev, [id]: !on }))}
+                        className={`flex w-full items-start gap-2 rounded-[10px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
+                          on
+                            ? "border-neto-glow bg-neto-glow/20 !text-white"
+                            : "border-neto-line !text-white hover:bg-neto-panel"
+                        }`}
+                      >
+                        <span
+                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
+                            on
+                              ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                              : "border-neto-line"
+                          }`}
+                        >
+                          {on && <Check className="h-3 w-3" />}
+                        </span>
+                        {it.adjustment}
+                      </button>
+                      {it.nephro && (
+                        <p className="text-[10px] font-semibold leading-snug text-clinical-warning">
+                          🛡️ {it.nephro}
+                        </p>
+                      )}
+                      {it.evidence && (
+                        <p className="text-[10px] leading-snug text-neto-muted">📚 {it.evidence}</p>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {renalItems.length > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() =>
+                        void ask(
+                          `Considerando ClCr ${crcl ? `${crcl.value} mL/min` : "não calculável"}, discuta o ajuste antimicrobiano e as medidas de preservação da função renal neste paciente.`,
+                        )
+                      }
+                      disabled={asking}
+                      className="h-7 rounded-full px-2 text-[10px] font-bold text-neto-foreground hover:bg-neto-panel-strong"
+                    >
+                      Discutir
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={applyRenal}
+                      disabled={
+                        !onPatientChange || Object.values(renalChecked).filter(Boolean).length === 0
+                      }
+                      className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
+                    >
+                      Aplicar nas condutas
+                    </Button>
+                  </div>
+                )}
+
+                {renalApplied > 0 && (
+                  <p className="text-[10px] font-bold text-clinical-stable">
+                    ✅ {renalApplied} ajuste(s) aplicado(s) nas condutas.
+                  </p>
+                )}
+              </div>
             )}
 
             {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
