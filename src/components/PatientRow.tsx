@@ -2264,17 +2264,10 @@ export function PatientRow({
             <div onClick={colClick("plan")} className="!p-1.5 text-[11px]">
               <div className="flex items-center gap-2">
                 <ColTitle tone={6}>✅ Condutas</ColTitle>
-                {onUpdate && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPlanInlineEdit((v) => !v);
-                    }}
-                    className="ml-auto rounded border border-border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground hover:bg-surface-3"
-                  >
-                    {planInlineEdit ? "✓ Concluir edição" : "✏️ Editar aqui"}
-                  </button>
+                {planInlineEdit && (
+                  <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    ✏️ Edição direta · salva automaticamente
+                  </span>
                 )}
               </div>
               <ul
