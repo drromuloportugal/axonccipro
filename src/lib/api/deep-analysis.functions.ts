@@ -5,7 +5,14 @@ const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
 const EVIDENCE_SOURCE = "https://www.openevidence.com";
 
-export const ANALYSIS_MODES = ["report", "handoff", "changes", "concerns", "working", "notworking"] as const;
+export const ANALYSIS_MODES = [
+  "report",
+  "handoff",
+  "changes",
+  "concerns",
+  "working",
+  "notworking",
+] as const;
 
 const ReportInput = z.object({
   context: z.string().min(1),
@@ -138,7 +145,6 @@ const ANALYSIS_TASK = `Produza a ANÁLISE CLÍNICA PROFUNDA nesta ordem de seç�
 IDENTIFICAÇÃO CLÍNICA / PROBLEMA CENTRAL (problema principal, problemas secundários, disfunções orgânicas, complicações, riscos atuais, intervenções principais) / LINHA DO TEMPO CLÍNICA (data, hora, evento, sistema, intervenção, resposta, relevância) / ANÁLISE MULTISSISTÊMICA (neurológico, cardiovascular, respiratório, renal, hematológico, infeccioso, gastrointestinal e nutrição, pele e mobilidade — cada um com estado, tendência, suporte, intervenção→resposta) / DISPOSITIVOS INVASIVOS (local, inserção, dias, indicação, débito/aspecto, necessidade atual sinalizada para avaliação da equipe) / LINHA TEMPORAL FARMACOLÓGICA (medicamento, dose, via, início/suspensão/ajuste, indicação, resposta observada) / ESCORES / ICU LIBERATION A-F / ÚLTIMAS 24 HORAS / ALERTAS PRIORIZADOS (com evidências) / ACHADOS QUE NECESSITAM CORRELAÇÃO / DADOS IMPORTANTES NÃO DISPONÍVEIS / SÍNTESE CLÍNICA (objetiva, começando por "Paciente criticamente enfermo com…").
 Ative MODO NEUROINTENSIVO se houver diagnóstico neurológico (separando alteração neurológica real de efeito de sedação, causa metabólica e causa sistêmica) e MODO SEPSE se houver suspeita, diagnóstico ou risco de sepse (reconhecimento, foco, culturas, antimicrobianos, lactato, perfusão, fluidos, reavaliação, controle de foco, descalonamento) — sem diagnosticar sepse automaticamente.`;
 
-
 const CHAT_SYSTEM = `Você é médico intensivista com especialização em neurologia/neurointensivismo, respondendo dúvidas clínicas de um colega sobre um paciente específico internado em UTI neurológica.
 
 Regras:
@@ -168,8 +174,10 @@ async function callGateway(messages: Array<{ role: string; content: string }>) {
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    if (res.status === 429) throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
-    if (res.status === 402) throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
+    if (res.status === 429)
+      throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
+    if (res.status === 402)
+      throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
     throw new Error(`Falha na análise (${res.status}): ${text.slice(0, 200)}`);
   }
 
@@ -211,7 +219,10 @@ export const askAboutCase = createServerFn({ method: "POST" })
         role: "user",
         content: `PASSÔMETRO DO PACIENTE:\n${data.context}${data.report ? `\n\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : ""}`,
       },
-      { role: "assistant", content: "Contexto do paciente recebido. Pode fazer a pergunta clínica." },
+      {
+        role: "assistant",
+        content: "Contexto do paciente recebido. Pode fazer a pergunta clínica.",
+      },
       ...(data.history ?? []).map((m) => ({ role: m.role as string, content: m.content })),
       { role: "user", content: data.question },
     ];
@@ -276,7 +287,9 @@ export const generateShiftSchedule = createServerFn({ method: "POST" })
       data.timeZone ? `Fuso horário: ${data.timeZone}` : "",
       "",
       `PASSÔMETRO DO PACIENTE:\n${data.context}`,
-      data.clinicalHistory ? `\nHISTÓRIA CLÍNICA REGISTRADA PELA EQUIPE:\n${data.clinicalHistory}` : "",
+      data.clinicalHistory
+        ? `\nHISTÓRIA CLÍNICA REGISTRADA PELA EQUIPE:\n${data.clinicalHistory}`
+        : "",
       data.report ? `\nRELATO CLÍNICO EVOLUTIVO JÁ PRODUZIDO:\n${data.report}` : "",
       data.previousShift ? `\nENCERRAMENTO DO PLANTÃO ANTERIOR:\n${data.previousShift}` : "",
       "",
@@ -296,7 +309,10 @@ const CloseShiftInput = z.object({
   context: z.string().min(1),
   schedule: z.string().min(1),
   windowLabel: z.string().min(1),
-  tasks: z.array(z.object({ text: z.string(), done: z.boolean() })).max(40).optional(),
+  tasks: z
+    .array(z.object({ text: z.string(), done: z.boolean() }))
+    .max(40)
+    .optional(),
   notes: z.string().optional(),
 });
 
@@ -304,9 +320,7 @@ const CloseShiftInput = z.object({
 export const closeShiftReport = createServerFn({ method: "POST" })
   .inputValidator(CloseShiftInput)
   .handler(async ({ data }) => {
-    const tasks = (data.tasks ?? [])
-      .map((t) => `${t.done ? "☑" : "☐"} ${t.text}`)
-      .join("\n");
+    const tasks = (data.tasks ?? []).map((t) => `${t.done ? "☑" : "☐"} ${t.text}`).join("\n");
     const report = await callGateway([
       { role: "system", content: SHIFT_SYSTEM },
       {
@@ -361,11 +375,35 @@ Os dois primeiros com kind "case", os dois últimos com kind "topic". Em portugu
     }
     if (angles.length < 4) {
       angles = [
-        { kind: "case", label: "Impacto neste caso", question: `Qual o significado clínico desta informação neste paciente: ${data.info.slice(0, 300)}?` },
-        { kind: "case", label: "Riscos e conduta", question: `Que riscos e condutas esta informação sugere neste paciente: ${data.info.slice(0, 300)}?` },
-        { kind: "topic", label: "Fisiopatologia", question: `Explique a fisiopatologia e os fundamentos científicos do assunto: ${data.info.slice(0, 300)}.` },
-        { kind: "topic", label: "Evidência e metas", question: `Qual a evidência atual e as metas recomendadas sobre: ${data.info.slice(0, 300)}? Cite referências.` },
+        {
+          kind: "case",
+          label: "Impacto neste caso",
+          question: `Qual o significado clínico desta informação neste paciente: ${data.info.slice(0, 300)}?`,
+        },
+        {
+          kind: "case",
+          label: "Riscos e conduta",
+          question: `Que riscos e condutas esta informação sugere neste paciente: ${data.info.slice(0, 300)}?`,
+        },
+        {
+          kind: "topic",
+          label: "Fisiopatologia",
+          question: `Explique a fisiopatologia e os fundamentos científicos do assunto: ${data.info.slice(0, 300)}.`,
+        },
+        {
+          kind: "topic",
+          label: "Evidência e metas",
+          question: `Qual a evidência atual e as metas recomendadas sobre: ${data.info.slice(0, 300)}? Cite referências.`,
+        },
       ];
     }
-    return { angles: angles.slice(0, 4).map((a) => ({ kind: a.kind === "topic" ? "topic" : "case", label: String(a.label ?? "").slice(0, 60), question: String(a.question ?? "") })) };
+    return {
+      angles: angles
+        .slice(0, 4)
+        .map((a) => ({
+          kind: a.kind === "topic" ? "topic" : "case",
+          label: String(a.label ?? "").slice(0, 60),
+          question: String(a.question ?? ""),
+        })),
+    };
   });

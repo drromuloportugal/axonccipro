@@ -3,7 +3,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Lightbulb, Loader2, X, Send, PenLine, Stethoscope, BookOpen, GripVertical } from "lucide-react";
+import {
+  Lightbulb,
+  Loader2,
+  X,
+  Send,
+  PenLine,
+  Stethoscope,
+  BookOpen,
+  GripVertical,
+} from "lucide-react";
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
 import { askAboutCase, suggestInsightAngles } from "@/lib/api/deep-analysis.functions";
@@ -39,14 +48,18 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setPos((p) => ({ x: clamp(p.x, 8, window.innerWidth - 320), y: clamp(p.y, 8, window.innerHeight - 120) }));
+    setPos((p) => ({
+      x: clamp(p.x, 8, window.innerWidth - 320),
+      y: clamp(p.y, 8, window.innerHeight - 120),
+    }));
   }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [chat, asking]);
 
-  const patient = patients.find((p) => p.id === patientId) ?? patients.find((p) => p.id === currentPatientId);
+  const patient =
+    patients.find((p) => p.id === patientId) ?? patients.find((p) => p.id === currentPatientId);
 
   const startDrag = (e: React.PointerEvent) => {
     dragRef.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y, moved: false };
@@ -76,7 +89,11 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
     const host = target.closest("[data-patient-id]") as HTMLElement | null;
     let node: HTMLElement = target;
     // sobe até um bloco com texto suficiente para dar contexto
-    for (let i = 0; i < 4 && (node.textContent ?? "").trim().length < 24 && node.parentElement; i++) {
+    for (
+      let i = 0;
+      i < 4 && (node.textContent ?? "").trim().length < 24 && node.parentElement;
+      i++
+    ) {
       node = node.parentElement;
     }
     const text = (node.textContent ?? "").replace(/\s+/g, " ").trim().slice(0, 900);
@@ -241,11 +258,17 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
               <div className="max-h-[38vh] space-y-2 overflow-y-auto rounded-md border border-border bg-background p-2">
                 {chat.map((m, i) =>
                   m.role === "user" ? (
-                    <p key={i} className="rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] font-semibold text-foreground">
+                    <p
+                      key={i}
+                      className="rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] font-semibold text-foreground"
+                    >
                       {m.content}
                     </p>
                   ) : (
-                    <p key={i} className="whitespace-pre-wrap text-[11px] leading-relaxed text-foreground">
+                    <p
+                      key={i}
+                      className="whitespace-pre-wrap text-[11px] leading-relaxed text-foreground"
+                    >
                       {m.content}
                     </p>
                   ),
