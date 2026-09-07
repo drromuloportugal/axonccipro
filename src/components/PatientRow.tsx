@@ -2290,14 +2290,10 @@ export function PatientRow({
                                 return (
                                   <div
                                     key={si}
-                                    className="flex items-start gap-1 text-[10.5px] leading-tight"
+                                    className="text-[10.5px] leading-tight"
                                   >
-                                    <span className="mt-[3px] inline-block h-2 w-2 shrink-0 rounded-full bg-muted-foreground/55" />
-                                    <span className="min-w-0 flex-1 whitespace-normal">
-                                      <span
-                                        className={`break-words ${colMeta.textClass || "text-foreground"}`}
-                                      >
-                                        {" "}
+                                    <span className="break-words whitespace-normal">
+                                      <span className={colMeta.textClass || "text-foreground"}>
                                         {sub.text ? (
                                           <AnnotationText
                                             text={sub.text}
