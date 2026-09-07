@@ -54,14 +54,11 @@ function AuthPage() {
     setInfo(null);
     try {
       if (mode === "reset") {
-        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-          email.trim(),
-          { redirectTo: `${window.location.origin}/reset-password` },
-        );
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
         if (resetError) throw resetError;
-        setInfo(
-          "Enviamos um link para seu e-mail. Abra a mensagem para criar uma nova senha.",
-        );
+        setInfo("Enviamos um link para seu e-mail. Abra a mensagem para criar uma nova senha.");
       } else if (mode === "signup") {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
@@ -80,7 +77,6 @@ function AuthPage() {
           setMode("login");
         }
       } else {
-
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
@@ -142,7 +138,6 @@ function AuthPage() {
               ? "Informe seu e-mail cadastrado. Enviaremos um link para você criar uma nova senha."
               : "Conta individual da equipe assistencial. Os dados dos pacientes são compartilhados entre todos os profissionais."}
           </p>
-
 
           {mode === "signup" && (
             <>
@@ -258,7 +253,6 @@ function AuthPage() {
           >
             {mode === "reset" ? "Voltar para entrar" : "Esqueci minha senha"}
           </button>
-
         </form>
       </div>
     </div>
