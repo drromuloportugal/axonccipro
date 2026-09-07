@@ -1,5 +1,9 @@
 import { useEffect, useRef } from "react";
-import { ANNOTATION_COLOR_META, ANNOTATION_COLOR_ORDER, parseAnnotationSegments } from "@/lib/clinical";
+import {
+  ANNOTATION_COLOR_META,
+  ANNOTATION_COLOR_ORDER,
+  parseAnnotationSegments,
+} from "@/lib/clinical";
 import type { AnnotationColor } from "@/data/patients";
 
 interface Props {
@@ -100,7 +104,8 @@ export function AnnotationEditor({ value, onChange, placeholder }: Props) {
       span.appendChild(frag);
       inserted = span;
     }
-    const lastNode = inserted.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? inserted.lastChild : inserted;
+    const lastNode =
+      inserted.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? inserted.lastChild : inserted;
     range.insertNode(inserted);
 
     // Mantém a seleção sobre o trecho recém-colorido.
