@@ -148,8 +148,16 @@ const sevLabel: Record<Severity, string> = {
   critical: "Crítico",
 };
 
-function Chip({ kind, children }: { kind: TimelineKind | "neutral"; children: React.ReactNode }) {
-  return <span className={`chip ${kindClass[kind]}`}>{children}</span>;
+function Chip({
+  kind,
+  children,
+  className,
+}: {
+  kind: TimelineKind | "neutral";
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <span className={`chip ${kindClass[kind]} ${className ?? ""}`}>{children}</span>;
 }
 
 const TITLE_GREENS = [
