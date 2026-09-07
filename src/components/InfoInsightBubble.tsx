@@ -163,7 +163,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
       }}
     >
       <div
-        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[330px] max-w-[92vw] rounded-[24px] p-3" : "w-[172px] rounded-[22px] py-1.5 pl-[60px] pr-3"}`}
+        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[330px] max-w-[92vw] rounded-[24px] p-3" : "w-[128px] rounded-[22px] py-1.5 pl-[58px] pr-2.5"}`}
       >
         <span
           aria-hidden
