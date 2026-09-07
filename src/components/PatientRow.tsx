@@ -1282,7 +1282,7 @@ export function PatientRow({
               </button>
             </div>
           </div>
-          <div className="col-shadowed-grid grid grid-cols-[1.15fr_1.2fr_1.2fr_1.2fr_1.2fr_1.35fr_1.9fr] items-start gap-1.5 px-3 py-4 text-[12px] font-semibold [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5">
+          <div className="col-shadowed-grid grid grid-cols-[1.15fr_1.2fr_1.2fr_1.2fr_1.2fr_1.35fr_1.9fr] items-start gap-2 p-2 text-[12px] font-semibold bg-[oklch(0.42_0.01_260/0.7)] [&>div]:min-w-0 [&>div]:overflow-hidden [&>div]:ios-card [&>div]:px-2.5 [&>div]:py-2.5">
             {" "}
             {/* 1 */}
             <div onClick={colClick("id")} className="col-ink">
