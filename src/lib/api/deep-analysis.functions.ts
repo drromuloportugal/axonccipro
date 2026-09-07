@@ -398,12 +398,100 @@ Os dois primeiros com kind "case", os dois últimos com kind "topic". Em portugu
       ];
     }
     return {
-      angles: angles
-        .slice(0, 4)
-        .map((a) => ({
-          kind: a.kind === "topic" ? "topic" : "case",
-          label: String(a.label ?? "").slice(0, 60),
-          question: String(a.question ?? ""),
-        })),
+      angles: angles.slice(0, 4).map((a) => ({
+        kind: a.kind === "topic" ? "topic" : "case",
+        label: String(a.label ?? "").slice(0, 60),
+        question: String(a.question ?? ""),
+      })),
     };
+  });
+
+/* ===================== MODO FASTHUG MAIDENS ===================== */
+
+const FasthugInput = z.object({ context: z.string().min(1) });
+
+/** Itens do checklist FASTHUG MAIDENS, na ordem de revisão. */
+export const FASTHUG_MAIDENS_ITEMS = [
+  { key: "F", title: "Feeding — nutrição", system: "dieta" },
+  { key: "A", title: "Analgesia", system: "neuro" },
+  { key: "S", title: "Sedação", system: "neuro" },
+  { key: "T", title: "Tromboprofilaxia", system: "hemato" },
+  { key: "H", title: "Cabeceira elevada (Head of bed)", system: "resp" },
+  { key: "U", title: "Profilaxia de úlcera de estresse", system: "gi" },
+  { key: "G", title: "Controle glicêmico", system: "renal" },
+  { key: "M", title: "Medicações — reconciliação", system: "other" },
+  { key: "A2", title: "Antimicrobianos — indicação e duração", system: "infec" },
+  { key: "I", title: "Indicação de cada droga", system: "other" },
+  { key: "D", title: "Dose e ajuste (renal/hepático)", system: "renal" },
+  { key: "E", title: "Eletrólitos e distúrbios metabólicos", system: "renal" },
+  { key: "N", title: "Não esquecer interações medicamentosas", system: "other" },
+  { key: "S2", title: "Suspensão / desprescrição (stop dates)", system: "other" },
+] as const;
+
+export type FasthugStatus = "ok" | "attention" | "alert" | "nodata";
+
+const FASTHUG_SYSTEM = `${ENGINE_SYSTEM}
+
+Você conduz a revisão FASTHUG MAIDENS (SCCM / Vincent JL) do paciente crítico, item por item, usando SOMENTE os dados do passômetro.
+
+Para cada um dos 14 itens informe:
+- status: "ok" (adequado/contemplado), "attention" (parcial ou a otimizar), "alert" (lacuna relevante ou risco), "nodata" (não há dado no passômetro).
+- assessment: 1 a 3 frases objetivas, citando os dados que sustentam o julgamento (valores, medicações, datas). Dado ausente = "Dado não disponível no passômetro".
+- suggestions: de 0 a 3 sugestões de conduta, cada uma como frase curta e acionável, no estilo de prescrição/conduta de UTI (ex.: "Elevar cabeceira a 30–45°", "Avaliar profilaxia de TEV com enoxaparina após liberação neurocirúrgica"). Use verbos de apoio à decisão (avaliar, considerar, ajustar, monitorar, suspender se…). Não inventar dose que não conste no passômetro sem indicar que é sugestão a confirmar. Se o item já estiver adequado, retorne suggestions vazio.
+- evidence: uma linha curta com a referência de apoio (sociedade + documento + ano), ou "Referência específica não localizada.".
+
+Baseie a evidência na SCCM (ICU Liberation, PADIS, Surviving Sepsis Campaign) e, quando necessário, em diretriz especializada identificada. ${EVIDENCE_SOURCE} é fonte complementar de consulta.
+
+Responda APENAS com JSON válido, sem comentários e sem blocos de código:
+{"items":[{"key":"F","status":"ok","assessment":"...","evidence":"...","suggestions":["...","..."]}, ...14 itens na ordem informada...]}
+Em português do Brasil.`;
+
+/** Revisão FASTHUG MAIDENS item por item, com sugestões aplicáveis às condutas. */
+export const reviewFasthugMaidens = createServerFn({ method: "POST" })
+  .inputValidator(FasthugInput)
+  .handler(async ({ data }) => {
+    const list = FASTHUG_MAIDENS_ITEMS.map((i) => `${i.key} — ${i.title}`).join("\n");
+    const content = await callGateway([
+      { role: "system", content: FASTHUG_SYSTEM },
+      {
+        role: "user",
+        content: `PASSÔMETRO DO PACIENTE:\n${data.context}\n\nITENS A REVISAR (use exatamente estas chaves em "key"):\n${list}`,
+      },
+    ]);
+
+    const raw = content.replace(/```json|```/g, "").trim();
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    let parsedItems: Array<Record<string, unknown>> = [];
+    try {
+      const parsed = JSON.parse(raw.slice(start, end + 1));
+      if (Array.isArray(parsed?.items)) parsedItems = parsed.items;
+    } catch {
+      parsedItems = [];
+    }
+
+    const byKey = new Map(parsedItems.map((i) => [String(i["key"] ?? ""), i]));
+    const items = FASTHUG_MAIDENS_ITEMS.map((def) => {
+      const found = byKey.get(def.key);
+      const status = String(found?.["status"] ?? "nodata");
+      const suggestions = Array.isArray(found?.["suggestions"])
+        ? (found["suggestions"] as unknown[])
+            .map((s) => String(s).trim())
+            .filter(Boolean)
+            .slice(0, 3)
+        : [];
+      return {
+        key: def.key,
+        title: def.title,
+        system: def.system as string,
+        status: (["ok", "attention", "alert", "nodata"].includes(status)
+          ? status
+          : "nodata") as FasthugStatus,
+        assessment: String(found?.["assessment"] ?? "Dado não disponível no passômetro."),
+        evidence: String(found?.["evidence"] ?? ""),
+        suggestions,
+      };
+    });
+
+    return { items };
   });
