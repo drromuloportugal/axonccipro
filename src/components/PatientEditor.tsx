@@ -83,6 +83,7 @@ import {
   parseAnnotationSegments,
   stripAnnotationMarkup,
 } from "@/lib/clinical";
+import { AnnotationEditor } from "@/components/AnnotationEditor";
 
 import {
   CULTURE_SOURCES,
