@@ -324,6 +324,40 @@ export function PatientRow({
     });
   };
 
+  // Edição direta das anotações da coluna 7 (painel principal).
+  const updateConductSub = (ci: number, si: number, text: string) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      conducts: patient.conducts.map((c, idx) =>
+        idx !== ci
+          ? c
+          : { ...c, subItems: (c.subItems ?? []).map((s, j) => (j === si ? { ...s, text } : s)) },
+      ),
+    });
+  };
+
+  const addConductSub = (ci: number) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      conducts: patient.conducts.map((c, idx) =>
+        idx !== ci ? c : { ...c, subItems: [...(c.subItems ?? []), { text: "" }] },
+      ),
+    });
+  };
+
+  const removeConductSub = (ci: number, si: number) => {
+    if (!onUpdate) return;
+    onUpdate({
+      ...patient,
+      conducts: patient.conducts.map((c, idx) =>
+        idx !== ci ? c : { ...c, subItems: (c.subItems ?? []).filter((_, j) => j !== si) },
+      ),
+    });
+  };
+
+
   // Group devices by category for expanded view
   const devicesByCat = useMemo(() => {
     const map = new Map<DeviceCategory, InvasiveDevice[]>();
