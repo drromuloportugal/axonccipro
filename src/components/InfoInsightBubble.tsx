@@ -34,7 +34,14 @@ import {
   askAboutCase,
   reviewFasthugMaidens,
   suggestInsightAngles,
+  suggestRenalAntimicrobialAdjustment,
 } from "@/lib/api/deep-analysis.functions";
+import {
+  creatinineClearance,
+  pointedAntimicrobials,
+  renalContextText,
+  type CrClResult,
+} from "@/lib/renalDosing";
 import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
