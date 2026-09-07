@@ -359,7 +359,6 @@ export function PatientRow({
     });
   };
 
-
   // Group devices by category for expanded view
   const devicesByCat = useMemo(() => {
     const map = new Map<DeviceCategory, InvasiveDevice[]>();
