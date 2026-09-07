@@ -273,7 +273,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                         className={
                           m.role === "user"
                             ? "rounded-[15px] border border-neto-line bg-neto-panel-strong px-3 py-2 text-[11px] font-semibold text-neto-foreground"
-                            : "px-1 py-1 text-[11px] leading-relaxed text-neto-foreground"
+                            : "px-1 py-1 text-[12px] font-bold leading-relaxed text-white"
                         }
                       >
                         <MessageResponse>{m.content}</MessageResponse>
@@ -310,9 +310,9 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                   onChange={(e) => setQuestion(e.target.value)}
                   rows={1}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-[42px] px-3.5 py-2 text-[11px] text-neto-foreground placeholder:text-neto-muted"
+                  className="min-h-[34px] px-3.5 py-1.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
                 />
-                <PromptInputFooter className="justify-end px-2.5 pb-2.5 pt-0">
+                <PromptInputFooter className="justify-end px-2 pb-1.5 pt-0">
                   <PromptInputSubmit
                     status={asking ? "submitted" : undefined}
                     disabled={asking || !question.trim()}
