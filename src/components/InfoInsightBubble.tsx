@@ -575,6 +575,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                     ✅ {renalApplied} ajuste(s) aplicado(s) nas condutas.
                   </p>
                 )}
+                  </>
+                )}
               </div>
             )}
 
