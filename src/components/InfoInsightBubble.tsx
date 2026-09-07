@@ -3,24 +3,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  X,
-  PenLine,
-  Stethoscope,
-  BookOpen,
-  GripVertical,
-} from "lucide-react";
+import { X, PenLine, Stethoscope, BookOpen, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@/components/ai-elements/message";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import {
   PromptInput,
   PromptInputFooter,
@@ -172,8 +162,13 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
         if (!moved) void provoke();
       }}
     >
-      <div className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[370px] max-w-[92vw] rounded-[28px] p-3.5" : "w-[210px] rounded-[26px] py-2 pl-[72px] pr-4"}`}>
-        <span aria-hidden className={`neto-tail absolute ${open ? "-bottom-2 right-8 h-5 w-5" : "-right-1.5 top-5 h-3 w-3"}`} />
+      <div
+        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[370px] max-w-[92vw] rounded-[28px] p-3.5" : "w-[210px] rounded-[26px] py-2 pl-[72px] pr-4"}`}
+      >
+        <span
+          aria-hidden
+          className={`neto-tail absolute ${open ? "-bottom-2 right-8 h-5 w-5" : "-right-1.5 top-5 h-3 w-3"}`}
+        />
 
         <img
           src={netoAvatar}
@@ -182,7 +177,10 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
           height={512}
           className={`pointer-events-none absolute z-10 object-contain drop-shadow-lg transition-all duration-300 ${open ? "-left-4 -top-6 h-[86px] w-[86px]" : "-left-3 -top-3 h-[76px] w-[76px]"}`}
         />
-        <span aria-hidden className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[54px] top-[45px] h-4 w-4" : "left-[51px] top-[43px] h-4 w-4"}`} />
+        <span
+          aria-hidden
+          className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[54px] top-[45px] h-4 w-4" : "left-[51px] top-[43px] h-4 w-4"}`}
+        />
 
         <div className={`flex items-center ${open ? "min-h-[54px] pl-[76px]" : "min-h-[42px]"}`}>
           <Button
@@ -237,7 +235,9 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
             )}
 
             {loading && (
-              <Shimmer className="text-[11px] text-neto-muted">Estruturando os raciocínios…</Shimmer>
+              <Shimmer className="text-[11px] text-neto-muted">
+                Estruturando os raciocínios…
+              </Shimmer>
             )}
 
             {angles.length > 0 && (
@@ -275,14 +275,22 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                 <ConversationContent className="gap-2.5 p-2.5">
                   {chat.map((m, i) => (
                     <Message key={i} from={m.role} className="max-w-full">
-                      <MessageContent className={m.role === "user" ? "rounded-[15px] border border-neto-line bg-neto-panel-strong px-3 py-2 text-[11px] font-semibold text-neto-foreground" : "px-1 py-1 text-[11px] leading-relaxed text-neto-foreground"}>
+                      <MessageContent
+                        className={
+                          m.role === "user"
+                            ? "rounded-[15px] border border-neto-line bg-neto-panel-strong px-3 py-2 text-[11px] font-semibold text-neto-foreground"
+                            : "px-1 py-1 text-[11px] leading-relaxed text-neto-foreground"
+                        }
+                      >
                         <MessageResponse>{m.content}</MessageResponse>
                       </MessageContent>
                     </Message>
                   ))}
-                {asking && (
-                    <Shimmer className="text-[11px] text-neto-muted">Consultando evidência…</Shimmer>
-                )}
+                  {asking && (
+                    <Shimmer className="text-[11px] text-neto-muted">
+                      Consultando evidência…
+                    </Shimmer>
+                  )}
                 </ConversationContent>
                 <ConversationScrollButton className="border-neto-line bg-neto-panel-strong text-neto-foreground hover:bg-neto-panel" />
               </Conversation>
