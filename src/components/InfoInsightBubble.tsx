@@ -312,7 +312,7 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                   placeholder="Escreva sua pergunta sobre esta informação…"
                   className="min-h-[34px] px-3.5 py-1.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
                 />
-                <PromptInputFooter className="justify-end px-2.5 pb-2.5 pt-0">
+                <PromptInputFooter className="justify-end px-2 pb-1.5 pt-0">
                   <PromptInputSubmit
                     status={asking ? "submitted" : undefined}
                     disabled={asking || !question.trim()}
