@@ -2285,7 +2285,7 @@ export function PatientRow({
                                   : ANNOTATION_COLOR_META.default;
                                 return (
                                   <div key={si} className="text-[10.5px] leading-tight">
-                                    <span className="break-words whitespace-normal">
+                                    <span className="break-words whitespace-pre-wrap">
                                       <span className={colMeta.textClass || "text-foreground"}>
                                         {sub.text ? (
                                           <AnnotationText
