@@ -163,40 +163,39 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
       }}
     >
       <div
-        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[370px] max-w-[92vw] rounded-[28px] p-3.5" : "w-[210px] rounded-[26px] py-2 pl-[72px] pr-4"}`}
+        className={`neto-glass relative text-neto-foreground transition-[width,padding,border-radius] duration-300 ${open ? "w-[330px] max-w-[92vw] rounded-[24px] p-3" : "w-[172px] rounded-[22px] py-1.5 pl-[60px] pr-3"}`}
       >
         <span
           aria-hidden
-          className={`neto-tail absolute ${open ? "-bottom-2 right-8 h-5 w-5" : "-right-1.5 top-5 h-3 w-3"}`}
+          className={`neto-tail absolute ${open ? "-bottom-2 right-8 h-5 w-5" : "-right-1.5 top-4 h-3 w-3"}`}
         />
 
         <img
           src={netoAvatar}
-          alt="Neto, assistente virtual"
+          alt="Neto"
           width={512}
           height={512}
-          className={`pointer-events-none absolute z-10 object-contain drop-shadow-lg transition-all duration-300 ${open ? "-left-4 -top-6 h-[86px] w-[86px]" : "-left-3 -top-3 h-[76px] w-[76px]"}`}
+          className={`pointer-events-none absolute z-10 object-contain drop-shadow-lg transition-all duration-300 ${open ? "-left-3 -top-5 h-[72px] w-[72px]" : "-left-2.5 -top-2.5 h-[64px] w-[64px]"}`}
         />
         <span
           aria-hidden
-          className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[54px] top-[45px] h-4 w-4" : "left-[51px] top-[43px] h-4 w-4"}`}
+          className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[45px] top-[38px] h-3.5 w-3.5" : "left-[42px] top-[36px] h-3.5 w-3.5"}`}
         />
 
-        <div className={`flex items-center ${open ? "min-h-[54px] pl-[76px]" : "min-h-[42px]"}`}>
+        <div className={`flex items-center ${open ? "min-h-[46px] pl-[64px]" : "min-h-[34px]"}`}>
           <Button
             type="button"
             onPointerDown={startDrag}
             variant="ghost"
             size="icon"
-            className={`absolute cursor-grab text-neto-muted hover:bg-neto-panel active:cursor-grabbing ${open ? "left-[66px] top-2 h-7 w-7" : "-left-10 top-2 h-7 w-7 opacity-0"}`}
+            className={`absolute cursor-grab text-neto-muted hover:bg-neto-panel active:cursor-grabbing ${open ? "left-[58px] top-1.5 h-6 w-6" : "-left-9 top-1.5 h-6 w-6 opacity-0"}`}
             title="Arrastar o balão"
             aria-label="Arrastar o balão"
           >
-            <GripVertical className="h-4 w-4" />
+            <GripVertical className="h-3.5 w-3.5" />
           </Button>
           <div>
-            <p className="text-[18px] font-extrabold leading-none text-neto-foreground">NETO</p>
-            <p className="mt-1 text-[10px] font-medium text-neto-muted">Assistente virtual</p>
+            <p className="text-[16px] font-extrabold leading-none text-neto-foreground">NETO</p>
           </div>
           {open && (
             <Button
@@ -208,10 +207,10 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                 e.stopPropagation();
                 setOpen(false);
               }}
-              className="ml-auto h-8 w-8 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
+              className="ml-auto h-7 w-7 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
               aria-label="Fechar"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </Button>
           )}
         </div>
