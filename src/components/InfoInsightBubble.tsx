@@ -148,8 +148,13 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setWriting(false);
     setChat([]);
     setAngles([]);
+    setFhItems([]);
+    setFhIndex(0);
+    setFhChecked({});
+    setFhApplied(0);
     setError(null);
     setInfo(text);
+
     const p = patients.find((x) => x.id === pid) ?? patients.find((x) => x.id === currentPatientId);
     if (!text || !p) {
       setError("Aponte a quina do balão para uma informação do paciente e clique novamente.");
