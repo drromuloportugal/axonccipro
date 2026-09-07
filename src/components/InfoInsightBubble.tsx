@@ -228,13 +228,6 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                 {patient.bed} · {patient.name}
               </p>
             )}
-            {info && (
-              <p className="neto-panel rounded-[18px] px-3.5 py-3 text-[12px] leading-relaxed text-neto-foreground">
-                {info.slice(0, 220)}
-                {info.length > 220 ? "…" : ""}
-              </p>
-            )}
-
             {loading && (
               <Shimmer className="text-[11px] text-neto-muted">
                 Estruturando os raciocínios…
