@@ -115,6 +115,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [renalLoading, setRenalLoading] = useState(false);
   const [renalChecked, setRenalChecked] = useState<Record<string, boolean>>({});
   const [renalApplied, setRenalApplied] = useState(0);
+  const [renalExpanded, setRenalExpanded] = useState(false);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
