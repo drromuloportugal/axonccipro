@@ -308,9 +308,9 @@ export function InfoInsightBubble({ patients, currentPatientId }: Props) {
                 <PromptInputTextarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  rows={2}
+                  rows={1}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-[54px] px-3.5 py-2.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
+                  className="min-h-[42px] px-3.5 py-2 text-[11px] text-neto-foreground placeholder:text-neto-muted"
                 />
                 <PromptInputFooter className="justify-end px-2.5 pb-2.5 pt-0">
                   <PromptInputSubmit
