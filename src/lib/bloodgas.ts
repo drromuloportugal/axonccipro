@@ -13,7 +13,6 @@ export interface AbgInput {
   pao2?: number;
   fio2?: number; // %
   lactate?: number;
-  magnesium?: number;
   ketones?: string;
   course?: AbgCourse;
   takenAt?: string;
