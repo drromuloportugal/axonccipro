@@ -158,7 +158,7 @@ export function useNetoVoice({ patientId, patientLabel, onTranscript, onToolResu
         void el.play().catch(() => resolve());
       });
       if (audioRef.current === el) audioRef.current = null;
-      if (activeRef.current) setStatus("listening");
+      setStatus(activeRef.current ? "listening" : "idle");
     },
     [speak],
   );
@@ -175,6 +175,7 @@ export function useNetoVoice({ patientId, patientLabel, onTranscript, onToolResu
         setPending({ ...res.requiresConfirmation, question });
       }
       await playSpeech(res.speech);
+      setStatus(activeRef.current ? "listening" : "idle");
     },
     [ask, onToolResult, patientId, playSpeech, push],
   );
@@ -305,7 +306,7 @@ export function useNetoVoice({ patientId, patientLabel, onTranscript, onToolResu
       push("user", text);
       void handleQuestion(text).catch((e: unknown) => {
         setError(e instanceof Error ? e.message : "Falha ao consultar o NETO.");
-        if (activeRef.current) setStatus("listening");
+        setStatus(activeRef.current ? "listening" : "idle");
       });
     },
     [handleQuestion, interrupt, push],
