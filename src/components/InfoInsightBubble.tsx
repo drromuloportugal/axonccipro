@@ -44,14 +44,6 @@ import {
   renalContextText,
   type CrClResult,
 } from "@/lib/renalDosing";
-import {
-  runClinicalEngine,
-  QUICK_ACTIONS,
-  type EngineIntent,
-  type EngineResult,
-} from "@/lib/clinicalEngine";
-import { NetoEngineReport } from "@/components/NetoEngineReport";
-import { NetoLivePanel } from "@/components/NetoLivePanel";
 
 import netoAvatar from "@/assets/neto-avatar.png";
 
@@ -127,8 +119,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [renalChecked, setRenalChecked] = useState<Record<string, boolean>>({});
   const [renalApplied, setRenalApplied] = useState(0);
   const [renalExpanded, setRenalExpanded] = useState(false);
-  const [engine, setEngine] = useState<EngineResult | null>(null);
-  const [engineIntent, setEngineIntent] = useState<EngineIntent | null>(null);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
@@ -200,8 +190,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setRenalChecked({});
     setRenalApplied(0);
     setRenalExpanded(false);
-    setEngine(null);
-    setEngineIntent(null);
     setError(null);
     setInfo(text);
 
@@ -322,24 +310,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     }
   };
 
-  /** Ações rápidas do Motor Clínico (determinístico, sem LLM). */
-  const runQuick = (intent: EngineIntent) => {
-    const p = patient;
-    if (!p) {
-      setError("Selecione um paciente no passômetro para rodar o Motor Clínico.");
-      return;
-    }
-    setError(null);
-    setFhItems([]);
-    setEngineIntent(intent);
-    try {
-      setEngine(runClinicalEngine(p, { intent }));
-    } catch (e) {
-      setEngine(null);
-      setError(e instanceof Error ? e.message : "Falha ao executar o Motor Clínico.");
-    }
-  };
-
   const selectedCount = Object.values(fhChecked).filter(Boolean).length;
 
   /** Aplica as sugestões marcadas como anotações nas condutas do paciente. */
@@ -452,43 +422,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
                 {patient.bed} · {patient.name}
               </p>
-            )}
-
-            {patient && (
-              <NetoLivePanel
-                patientId={patient.id}
-                patientLabel={`${patient.bed} · ${patient.name}`}
-                onTranscript={(role, text) => setChat((c) => [...c, { role, content: text }])}
-                onToolResult={(name, summary) =>
-                  setChat((c) => [...c, { role: "assistant", content: `【${name}】\n${summary}` }])
-                }
-              />
-            )}
-
-            {patient && (
-              <div className="max-h-[112px] overflow-y-auto pr-0.5">
-                <div className="flex flex-wrap gap-1">
-                  {QUICK_ACTIONS.map((a) => (
-                    <Button
-                      key={a.intent}
-                      type="button"
-                      variant="ghost"
-                      onClick={() => runQuick(a.intent)}
-                      className={`neto-chip h-auto rounded-full px-2 py-1 text-[10px] font-bold leading-none text-neto-foreground hover:bg-neto-panel-strong ${
-                        engineIntent === a.intent ? "bg-neto-glow/25 !text-white" : ""
-                      }`}
-                    >
-                      {a.emoji} {a.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {engine && (
-              <div className="max-h-[46vh] overflow-y-auto pr-0.5">
-                <NetoEngineReport result={engine} asking={asking} onDiscuss={(q) => void ask(q)} />
-              </div>
             )}
 
             {loading && (
@@ -659,7 +592,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
             )}
 
             {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
-              <div className="space-y-1.5">
+              <div className="neto-panel space-y-1.5 rounded-[18px] p-2">
                 {angles.map((a, i) => (
                   <Button
                     key={i}
