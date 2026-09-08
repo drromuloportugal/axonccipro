@@ -596,3 +596,9 @@
   color: hsl(var(--muted-foreground));
   opacity: 0.7;
 }
+
+/* NETO — o campo de escrita herda o gradiente do container, sem fundo próprio */
+[data-neto-root] textarea {
+  background-image: none !important;
+  background-color: transparent !important;
+}
