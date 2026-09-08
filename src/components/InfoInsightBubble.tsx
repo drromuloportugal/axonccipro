@@ -7,7 +7,6 @@ import {
   X,
   PenLine,
   Stethoscope,
-  BookOpen,
   GripVertical,
   ClipboardCheck,
   ChevronLeft,
@@ -792,9 +791,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 <ConversationScrollButton className="border-neto-line bg-neto-panel-strong text-neto-foreground hover:bg-neto-panel" />
               </Conversation>
             )}
-
-
-
 
             {error && (
               <p className="rounded-[14px] border border-clinical-critical/60 bg-clinical-critical/20 px-3 py-2 text-[11px] font-semibold text-neto-foreground">
