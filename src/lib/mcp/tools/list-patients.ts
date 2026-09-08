@@ -14,14 +14,14 @@ export default defineTool({
       id: p.id,
       bed: p.bed ?? null,
       name: p.name ?? null,
-      diagnosis: p.diagnosis ?? null,
+      diagnoses: (p.diagnoses ?? []).map((d) => d.label).filter(Boolean),
     }));
     return {
       content: [
         {
           type: "text",
           text: rows.length
-            ? rows.map((r) => `${r.bed ?? "—"} · ${r.name ?? r.id} · ${r.diagnosis ?? "—"}`).join("\n")
+            ? rows.map((r) => `${r.bed ?? "—"} · ${r.name ?? r.id} · ${r.diagnoses.join(", ") || "—"}`).join("\n")
             : "Nenhum paciente cadastrado.",
         },
       ],
