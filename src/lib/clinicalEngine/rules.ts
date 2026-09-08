@@ -84,12 +84,12 @@ const RULES: RuleDef[] = [
           rec(
             "Checar coleta de culturas antes do antimicrobiano e lactato seriado.",
             "Repetir lactato em 2 a 4 h enquanto houver hipoperfusão.",
-            "SSC26-LACTATE",
+            "SSC26-LACT",
           ),
           rec(
             "Revisar ressuscitação volêmica guiada por perfusão e resposta a fluidos, evitando sobrecarga.",
             "Avaliar perfusão, lactato e balanço a cada 6 h.",
-            "SSC26-RESUS",
+            "SSC26-FLUID",
           ),
         ],
         missing: [
@@ -136,7 +136,7 @@ const RULES: RuleDef[] = [
           rec(
             "Reavaliar meta de PAM individualizada, volemia e necessidade/titulação de vasopressor.",
             "Monitorização contínua de PAM e reavaliação em 1 h.",
-            "SSC26-MAP",
+            "SSC26-HEMO",
             "PROT-CHOQUE",
           ),
         ],
@@ -160,7 +160,7 @@ const RULES: RuleDef[] = [
           rec(
             "Reavaliar perfusão, débito cardíaco, foco não controlado e adequação do antimicrobiano.",
             "Repetir lactato em 2 h e reavaliar perfusão periférica.",
-            "SSC26-LACTATE",
+            "SSC26-LACT",
           ),
         ],
       };
@@ -188,13 +188,13 @@ const RULES: RuleDef[] = [
           rec(
             "Reavaliar diariamente indicação, espectro, dose por função renal e data prevista de suspensão.",
             "Registrar dia de tratamento e plano de duração a cada round.",
-            "SSC26-STEWARD",
+            "SSC26-STEW",
             "PROT-ATB",
           ),
           rec(
             "Descalonar conforme culturas e evolução clínica; usar a menor duração eficaz.",
             "Reavaliar descalonamento em 24 h.",
-            "SSC26-ABX",
+            "SSC26-ATB",
           ),
         ],
         missing:
@@ -255,7 +255,7 @@ const RULES: RuleDef[] = [
           rec(
             "Reduzir pressões alveolares ajustando volume corrente e PEEP, reavaliando complacência.",
             "Medir platô e driving pressure a cada 4 h.",
-            "ARDS-PLAT",
+            "ARDS-DP",
             "PROT-VM",
           ),
         ],
@@ -288,7 +288,7 @@ const RULES: RuleDef[] = [
           rec(
             "Manter ventilação protetora com titulação de PEEP e FiO2 pela meta de oxigenação.",
             "Gasometria e reavaliação de parâmetros em 6 h.",
-            "ARDS-PEEP",
+            "SSC26-VENT",
           ),
         ],
       };
@@ -307,7 +307,7 @@ const RULES: RuleDef[] = [
           rec(
             "Aplicar avaliação diária de aptidão ao desmame e teste de respiração espontânea quando elegível.",
             "Reavaliar critérios de desmame no round da manhã.",
-            "PADIS25-SAT",
+            "ARDS-WEAN",
             "PROT-LIBERATION",
           ),
         ],
@@ -337,13 +337,13 @@ const RULES: RuleDef[] = [
           rec(
             "Estadiar lesão renal aguda, revisar nefrotóxicos, perfusão e indicação de terapia renal substitutiva.",
             "Creatinina, diurese e eletrólitos a cada 12 h.",
-            "KDIGO-AKI",
+            "AKI-STAGE",
             "PROT-RENAL",
           ),
           rec(
             "Conferir ajuste renal de todas as medicações, especialmente antimicrobianos.",
             "Rever prescrição a cada nova creatinina.",
-            "KDIGO-DOSE",
+            "AKI-NEPHRO",
           ),
         ],
         missing:
@@ -373,7 +373,7 @@ const RULES: RuleDef[] = [
           rec(
             "Reavaliar necessidade de fluidos, considerar desressuscitação conforme perfusão.",
             "Balanço e peso diários.",
-            "SSC26-RESUS",
+            "SSC26-FLUID",
           ),
         ],
       };
@@ -400,7 +400,7 @@ const RULES: RuleDef[] = [
           rec(
             "Definir causa e velocidade de correção; em lesão cerebral evitar variação rápida de sódio.",
             "Repetir eletrólitos conforme velocidade de correção pactuada.",
-            "KDIGO-AKI",
+            "AKI-STAGE",
           ),
         ],
       };
@@ -464,7 +464,7 @@ const RULES: RuleDef[] = [
           rec(
             "Manter nimodipino conforme protocolo, euvolemia e vigilância neurológica para isquemia tardia.",
             "Exame neurológico e doppler transcraniano conforme protocolo local.",
-            "SAH-DCI",
+            "SAH-VASO",
             "PROT-NEURO",
           ),
         ],
@@ -539,7 +539,7 @@ const RULES: RuleDef[] = [
           rec(
             "Reavaliar necessidade do benzodiazepínico e considerar estratégia poupadora pelo risco de delirium.",
             "Rever indicação diariamente e monitorar delirium.",
-            "PADIS25-DELIRIUM",
+            "PADIS18-DEL",
           ),
         ],
       };
@@ -561,7 +561,7 @@ const RULES: RuleDef[] = [
           rec(
             "Aplicar escalas validadas de dor e delirium em cada turno.",
             "Registrar resultado por turno.",
-            "PADIS25-DELIRIUM",
+            "PADIS18-DEL",
             "PROT-LIBERATION",
           ),
         ],
@@ -645,7 +645,7 @@ const RULES: RuleDef[] = [
           rec(
             "Definir via e meta nutricional; priorizar via enteral precoce quando não houver contraindicação.",
             "Reavaliar tolerância e progressão a cada 12 h.",
-            "NUT-EARLY",
+            "NUT-EN",
             "PROT-NUT",
           ),
         ],
@@ -686,7 +686,7 @@ const RULES: RuleDef[] = [
           rec(
             "Discutir estratégia transfusional restritiva e investigar causa da anemia.",
             "Hemoglobina seriada e avaliação de sangramento.",
-            "TRF-RESTRICT",
+            "TRF-RESTR",
           ),
         ],
       };
@@ -708,7 +708,7 @@ const RULES: RuleDef[] = [
           rec(
             "Investigar causa, revisar anticoagulação e definir gatilho transfusional conforme procedimento previsto.",
             "Plaquetas seriadas e vigilância de sangramento.",
-            "TRF-RESTRICT",
+            "TRF-RESTR",
           ),
         ],
       };
@@ -770,7 +770,7 @@ const RULES: RuleDef[] = [
             rec(
               "Manter checagem diária de necessidade e cuidados de prevenção de infecção.",
               "Revisar necessidade de cada dispositivo no round.",
-              "DEV-DAILY",
+              "DEV-REVIEW",
               "PROT-DISP",
             ),
           ],
@@ -782,7 +782,7 @@ const RULES: RuleDef[] = [
           rec(
             "Reavaliar necessidade de cada dispositivo e planejar retirada precoce quando possível.",
             "Registrar indicação e data de reavaliação diariamente.",
-            "DEV-DAILY",
+            "DEV-REVIEW",
             "PROT-DISP",
           ),
         ],
@@ -822,7 +822,7 @@ const RULES: RuleDef[] = [
         rec(
           "Usar estrutura padronizada de passagem de plantão com pendências explícitas.",
           "Revisar pendências no início e no fim de cada turno.",
-          "SAFE-HANDOFF",
+          "SSC26-TRANS",
           "PROT-SEG",
         ),
       ],
