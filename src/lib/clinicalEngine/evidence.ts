@@ -703,4 +703,109 @@ export const DEFAULT_PROTOCOLS: InstitutionalProtocol[] = [
     precedence: false,
     active: true,
   },
+  {
+    code: "PROT-SEPSE",
+    name: "Protocolo institucional de sepse",
+    domain: "sepse",
+    statement:
+      "Triagem sistemática por turno, culturas antes do antimicrobiano, lactato seriado e reavaliação do foco.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-CHOQUE",
+    name: "Protocolo institucional de choque",
+    domain: "hemodinamica",
+    statement:
+      "Meta inicial de PAM ≥ 65 mmHg, avaliação de resposta a fluidos e titulação de vasopressor com monitorização invasiva.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-ATB",
+    name: "Protocolo institucional de antimicrobianos",
+    domain: "infeccao",
+    statement:
+      "Revisão diária de indicação, espectro, dose por função renal e data prevista de suspensão, com descalonamento guiado por cultura.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-VM",
+    name: "Protocolo institucional de ventilação protetora",
+    domain: "ventilacao",
+    statement:
+      "Volume corrente de 4 a 8 mL/kg de peso predito, platô ≤ 30 cmH2O e driving pressure ≤ 15 cmH2O.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-LIBERATION",
+    name: "Bundle de liberação da UTI (A-F)",
+    domain: "dor_sedacao_delirium",
+    statement:
+      "Avaliação de dor, despertar e respiração espontânea diários, escolha de sedação, rastreio de delirium, mobilização e envolvimento da família.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-RENAL",
+    name: "Protocolo institucional renal",
+    domain: "renal",
+    statement:
+      "Estadiamento de lesão renal aguda, suspensão de nefrotóxicos, ajuste renal de dose e critérios de terapia renal substitutiva.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-NEURO",
+    name: "Protocolo institucional neurocrítico",
+    domain: "neurocritico",
+    statement:
+      "Exame neurológico seriado, controle de pressão intracraniana e de pressão de perfusão cerebral, e vigilância de isquemia tardia na hemorragia subaracnóidea.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-TEV",
+    name: "Protocolo institucional de tromboprofilaxia",
+    domain: "trombose",
+    statement:
+      "Tromboprofilaxia farmacológica salvo contraindicação registrada; alternativa mecânica quando houver contraindicação.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-NUT",
+    name: "Protocolo institucional de nutrição",
+    domain: "nutricao",
+    statement: "Nutrição enteral precoce com progressão conforme tolerância e meta calórico-proteica definida.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-GLIC",
+    name: "Protocolo institucional de controle glicêmico",
+    domain: "endocrino",
+    statement: "Insulina conforme protocolo para faixa de 140 a 180 mg/dL, com prevenção de hipoglicemia.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-DISP",
+    name: "Protocolo institucional de dispositivos",
+    domain: "dispositivos",
+    statement: "Indicação registrada, checagem diária de necessidade e retirada precoce quando possível.",
+    precedence: false,
+    active: true,
+  },
+  {
+    code: "PROT-SEG",
+    name: "Protocolo institucional de segurança e transições",
+    domain: "seguranca",
+    statement:
+      "Checklist diário, reconciliação medicamentosa e passagem de plantão estruturada com pendências explícitas.",
+    precedence: false,
+    active: true,
+  },
 ];
