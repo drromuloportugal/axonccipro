@@ -817,18 +817,14 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   setQuestion("");
                   void ask(q);
                 }}
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--neto-panel-strong), var(--neto-panel))",
-                }}
-                className="flex min-h-[72px] overflow-hidden rounded-[20px] border border-neto-line shadow-none"
+                className="w-full [&>[data-slot=input-group]]:overflow-hidden [&>[data-slot=input-group]]:rounded-[20px] [&>[data-slot=input-group]]:border-neto-line [&>[data-slot=input-group]]:shadow-none"
               >
                 <PromptInputTextarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  rows={1}
+                  rows={2}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-0 flex-1 resize-none bg-transparent px-3.5 py-2 text-[11px] leading-relaxed !text-white placeholder:text-neto-muted"
+                  className="max-h-32 min-h-[56px] w-full resize-none !bg-transparent px-3.5 py-2.5 text-[11px] leading-relaxed !text-white placeholder:text-neto-muted"
                 />
                 <PromptInputFooter className="justify-end bg-transparent px-2 pb-1.5 pt-0">
                   <PromptInputSubmit
