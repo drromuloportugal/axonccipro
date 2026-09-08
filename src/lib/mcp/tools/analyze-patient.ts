@@ -58,7 +58,18 @@ export default defineTool({
       "## Achados priorizados",
       ...result.findings.map(
         (f) =>
-          `- ${f.priority.toUpperCase()} · ${f.title}\n  POR QUE: ${f.why.join("; ")}\n  RECOMENDAÇÃO: ${f.recommendations.join("; ")}\n  FONTE: ${f.evidence.map((e) => `${e.society} ${e.title} ${e.version}`).join(" | ")}`,
+          [
+            `- ${f.priority.toUpperCase()} · ${f.title}`,
+            `  POR QUE: ${f.why.join("; ")}`,
+            ...f.recommendations.map(
+              (r) =>
+                `  RECOMENDAÇÃO: ${r.text} — monitorizar: ${r.monitoring}${
+                  r.evidence
+                    ? ` (FONTE: ${r.evidence.society} ${r.evidence.document} ${r.evidence.version}${r.evidence.strength ? `, ${r.evidence.strength}` : ""})`
+                    : ""
+                }`,
+            ),
+          ].join("\n"),
       ),
       "",
       "## Dados faltantes",
@@ -73,12 +84,12 @@ export default defineTool({
       ...(result.inconclusive.length ? result.inconclusive.map((i) => `- ${i}`) : ["- Nada"]),
       "",
       `## Plano ${result.plan[0]?.window ?? ""}`,
-      ...result.plan.map((t) => `- [${t.due}] ${t.task}`),
+      ...result.plan.map((t) => `- [${t.time}] ${t.text}`),
     ];
 
     return {
       content: [{ type: "text", text: lines.join("\n") }],
-      structuredContent: { result: result as unknown as Record<string, unknown> },
+      structuredContent: JSON.parse(JSON.stringify({ result })) as Record<string, never>,
     };
   },
 });
