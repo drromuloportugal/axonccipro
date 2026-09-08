@@ -198,6 +198,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setRenalChecked({});
     setRenalApplied(0);
     setRenalExpanded(false);
+    setEngine(null);
+    setEngineIntent(null);
     setError(null);
     setInfo(text);
 
