@@ -709,7 +709,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   disabled={asking}
                   onClick={() =>
                     void ask(
-                      "Liste, para este paciente e com base em todo o passômetro: 1) PROBLEMAS CRÍTICOS; 2) RISCOS PRIORITÁRIOS nas próximas 12 h; 3) PENDÊNCIAS. Para cada item, apresente já a solução/conduta recomendada com a evidência consultada em https://www.openevidence.com (sociedade, ano e força quando disponível). Dado ausente = [DADO NÃO DISPONÍVEL NO PASSÔMETRO].",
+                      "Liste, para este paciente e com base em todo o passômetro: 1) PROBLEMAS; 2) RISCOS nas próximas 12 h; 3) PENDÊNCIAS. Para cada item, apresente já a solução/conduta recomendada com a evidência consultada em https://www.openevidence.com (sociedade, ano e força quando disponível). Dado ausente = [DADO NÃO DISPONÍVEL NO PASSÔMETRO]. Ao final, repita cada conduta proposta em linhas separadas, uma por linha, exatamente no formato: CONDUTA | sistema | texto curto da conduta — onde sistema é um destes: dieta, fono, resp, cardio, neuro, renal, gi, infec, hemato, skin, other.",
+                      true,
                     )
                   }
                   className="neto-chip h-auto w-full justify-start whitespace-normal rounded-full px-3 py-2 text-left text-[11px] font-semibold leading-snug text-neto-foreground hover:bg-neto-panel-strong"
