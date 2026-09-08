@@ -592,7 +592,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
             )}
 
             {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
-              <div className="space-y-1.5">
+              <div className="neto-panel space-y-1.5 rounded-[18px] p-2">
                 {angles.map((a, i) => (
                   <Button
                     key={i}
