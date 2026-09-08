@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "sdk_version": "2.0.4",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://asuclxxpsyaawjxkbloo.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "axon-pro",
+      "version": "0.1.0",
+      "title": "Axon Pro"
+    },
+    "tools": [
+      {
+        "name": "list_patients",
+        "title": "Listar pacientes",
+        "description": "Lista os pacientes do passômetro visíveis para o usuário autenticado (id, leito, nome, diagnóstico).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "analyze_patient",
+        "title": "Analisar paciente (Motor Clínico)",
+        "description": "Executa o Motor Clínico determinístico do passômetro para um paciente: problemas, escores, achados priorizados, dados faltantes, conflitos, diretrizes e plano das próximas 12 h.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "patient": {
+              "type": "string",
+              "description": "Id, leito ou parte do nome do paciente."
+            },
+            "focus": {
+              "description": "Foco da análise. Padrão: full (pipeline completo).",
+              "type": "string",
+              "enum": [
+                "full",
+                "fasthug",
+                "scores",
+                "guidelines",
+                "plan",
+                "pending",
+                "medications",
+                "ventilation",
+                "hemodynamics",
+                "renal",
+                "neuro",
+                "infection",
+                "devices",
+                "timeline"
+              ]
+            },
+            "question": {
+              "description": "Pergunta clínica em linguagem natural.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "patient"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "patient_scores",
+        "title": "Escores do paciente",
+        "description": "Retorna os escores disponíveis do paciente (SOFA, qSOFA, NEWS2, P/F e escores neurocríticos registrados) com os componentes usados e o que falta para calcular os indisponíveis.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "patient": {
+              "type": "string",
+              "description": "Id, leito ou parte do nome do paciente."
+            }
+          },
+          "required": [
+            "patient"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "fasthug_maidens",
+        "title": "Checklist FASTHUG-MAIDENS",
+        "description": "Executa o checklist FASTHUG-MAIDENS do paciente com status (OK / PENDENTE / ATENÇÃO / CONTRAINDICADO / SEM DADO), justificativa e sugestões.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "patient": {
+              "type": "string",
+              "description": "Id, leito ou parte do nome do paciente."
+            }
+          },
+          "required": [
+            "patient"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "plan_next_12h",
+        "title": "Plano das próximas 12 h",
+        "description": "Gera o plano de monitorização e reavaliação das próximas 12 h (janela 07:00→19:00 ou 19:00→07:00) para o paciente. Não prescreve nem executa condutas.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "patient": {
+              "type": "string",
+              "description": "Id, leito ou parte do nome do paciente."
+            }
+          },
+          "required": [
+            "patient"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_guidelines",
+        "title": "Consultar biblioteca de diretrizes",
+        "description": "Consulta a biblioteca de evidências versionada do app (SSC 2026, PADIS 2018/2025, diretrizes neurocríticas, renais, ventilatórias e outras) por domínio ou termo, com sociedade, versão, ano e força/certeza.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "domain": {
+              "description": "Domínio clínico. Valores: sepse, ventilacao, hemodinamica, renal, neurocritico, infeccao, medicacoes, dispositivos, nutricao, dor_sedacao_delirium, trombose, transfusao, endocrino, cardiologia, paliativo, seguranca, timeline.",
+              "type": "string"
+            },
+            "query": {
+              "description": "Termo livre para filtrar tópico ou statement.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
