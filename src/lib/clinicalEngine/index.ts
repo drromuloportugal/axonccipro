@@ -94,9 +94,9 @@ export function runClinicalEngine(patient: Patient, options: EngineOptions = {})
     missing.length ? `Dados faltantes relevantes: ${missing.length}.` : "Sem lacunas relevantes de dados.",
   ].join(" ");
 
-  const timeline = (patient.timeline ?? [])
+  const timeline = (patient.procedures ?? [])
     .slice(-12)
-    .map((t) => ({ at: t.at ?? "", label: t.label ?? t.text ?? "", domain: "timeline" as Domain }));
+    .map((t) => ({ at: t.date, label: `${t.label}${t.detail ? ` — ${t.detail}` : ""}`, domain: "timeline" as Domain }));
   pipeline.push("12. Resposta estruturada gerada com justificativa e fontes");
   pipeline.push("13. Execução registrada para auditoria");
 
