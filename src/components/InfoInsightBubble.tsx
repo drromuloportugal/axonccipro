@@ -51,6 +51,8 @@ import {
   type EngineResult,
 } from "@/lib/clinicalEngine";
 import { NetoEngineReport } from "@/components/NetoEngineReport";
+import { NetoLivePanel } from "@/components/NetoLivePanel";
+
 import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
