@@ -354,6 +354,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   return (
     <div
       ref={rootRef}
+      data-neto-root=""
       style={{ left: pos.x, top: pos.y }}
       className="fixed z-[80] select-none print:hidden"
       onPointerDown={startDrag}
