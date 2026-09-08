@@ -330,7 +330,7 @@ export function useNetoLive({ patientId, patientLabel, onTranscript, onToolResul
         const detail = await answer.text().catch(() => "");
         if (answer.status === 429 || /insufficient_quota|credit_balance/i.test(detail)) {
           throw new Error(
-            "A conta da OpenAI está sem créditos. Adicione créditos no painel de billing da OpenAI para usar a voz — o chat de texto do NETO continua funcionando.",
+            "A conta da OpenAI está sem créditos. Adicione créditos no painel de billing da OpenAI para liberar a voz.",
           );
         }
         if (answer.status === 401 || answer.status === 403) {
