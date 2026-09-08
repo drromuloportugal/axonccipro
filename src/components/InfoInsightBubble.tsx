@@ -320,6 +320,24 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     }
   };
 
+  /** Ações rápidas do Motor Clínico (determinístico, sem LLM). */
+  const runQuick = (intent: EngineIntent) => {
+    const p = patient;
+    if (!p) {
+      setError("Selecione um paciente no passômetro para rodar o Motor Clínico.");
+      return;
+    }
+    setError(null);
+    setFhItems([]);
+    setEngineIntent(intent);
+    try {
+      setEngine(runClinicalEngine(p, { intent }));
+    } catch (e) {
+      setEngine(null);
+      setError(e instanceof Error ? e.message : "Falha ao executar o Motor Clínico.");
+    }
+  };
+
   const selectedCount = Object.values(fhChecked).filter(Boolean).length;
 
   /** Aplica as sugestões marcadas como anotações nas condutas do paciente. */
