@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      clinical_audit_events: {
+        Row: {
+          created_at: string
+          guidelines: Json
+          id: string
+          patient_id: string | null
+          question: string | null
+          recommendations: Json
+          rules: Json
+          scope: string | null
+          scores: Json
+          session_id: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guidelines?: Json
+          id?: string
+          patient_id?: string | null
+          question?: string | null
+          recommendations?: Json
+          rules?: Json
+          scope?: string | null
+          scores?: Json
+          session_id?: string | null
+          source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guidelines?: Json
+          id?: string
+          patient_id?: string | null
+          question?: string | null
+          recommendations?: Json
+          rules?: Json
+          scope?: string | null
+          scores?: Json
+          session_id?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_audit_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "realtime_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinical_guidelines: {
         Row: {
           created_at: string
@@ -464,6 +517,127 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      realtime_sessions: {
+        Row: {
+          created_at: string
+          end_reason: string | null
+          ended_at: string | null
+          id: string
+          model: string
+          patient_id: string | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          model: string
+          patient_id?: string | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          model?: string
+          patient_id?: string | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      realtime_tool_calls: {
+        Row: {
+          arguments: Json
+          confirmed: boolean
+          created_at: string
+          error: string | null
+          id: string
+          patient_id: string | null
+          requires_confirmation: boolean
+          result_summary: string | null
+          session_id: string | null
+          tool_name: string
+          user_id: string
+        }
+        Insert: {
+          arguments?: Json
+          confirmed?: boolean
+          created_at?: string
+          error?: string | null
+          id?: string
+          patient_id?: string | null
+          requires_confirmation?: boolean
+          result_summary?: string | null
+          session_id?: string | null
+          tool_name: string
+          user_id: string
+        }
+        Update: {
+          arguments?: Json
+          confirmed?: boolean
+          created_at?: string
+          error?: string | null
+          id?: string
+          patient_id?: string | null
+          requires_confirmation?: boolean
+          result_summary?: string | null
+          session_id?: string | null
+          tool_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "realtime_tool_calls_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "realtime_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_interactions: {
+        Row: {
+          created_at: string
+          id: string
+          patient_id: string | null
+          role: string
+          session_id: string | null
+          transcript: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          role: string
+          session_id?: string | null
+          transcript: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          role?: string
+          session_id?: string | null
+          transcript?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_interactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "realtime_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
