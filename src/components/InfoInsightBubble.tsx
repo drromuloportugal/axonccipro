@@ -121,6 +121,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [renalAppliedIds, setRenalAppliedIds] = useState<Record<string, boolean>>({});
   const [renalApplied, setRenalApplied] = useState(0);
   const [renalExpanded, setRenalExpanded] = useState(false);
+  const [prItems, setPrItems] = useState<{ system: ConductSystem; text: string }[]>([]);
+  const [prChecked, setPrChecked] = useState<Record<string, boolean>>({});
+  const [prAppliedIds, setPrAppliedIds] = useState<Record<string, boolean>>({});
+  const [prApplied, setPrApplied] = useState(0);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
@@ -194,6 +198,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setRenalAppliedIds({});
     setRenalApplied(0);
     setRenalExpanded(false);
+    setPrItems([]);
+    setPrChecked({});
+    setPrAppliedIds({});
+    setPrApplied(0);
     setError(null);
     setInfo(text);
 
@@ -272,13 +280,53 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setRenalChecked({});
   };
 
-  const ask = async (q: string) => {
+  const CONDUCT_SYSTEMS: ConductSystem[] = [
+    "dieta",
+    "fono",
+    "resp",
+    "cardio",
+    "neuro",
+    "renal",
+    "gi",
+    "infec",
+    "hemato",
+    "skin",
+    "other",
+  ];
+
+  /** Extrai as linhas "CONDUTA | sistema | texto" e devolve texto limpo + itens. */
+  const parseConducts = (answer: string) => {
+    const items: { system: ConductSystem; text: string }[] = [];
+    const kept: string[] = [];
+    for (const raw of answer.split("\n")) {
+      const line = raw.replace(/^[\s*->•\d.]+/, "").trim();
+      const m = /^CONDUTA\s*\|\s*([a-zç]+)\s*\|\s*(.+)$/i.exec(line);
+      if (m) {
+        const sys = (m[1] ?? "").toLowerCase() as ConductSystem;
+        const text = (m[2] ?? "").replace(/[*_`]/g, "").trim();
+        if (text) {
+          items.push({ system: CONDUCT_SYSTEMS.includes(sys) ? sys : "other", text });
+        }
+        continue;
+      }
+      kept.push(raw);
+    }
+    return { text: kept.join("\n").trim(), items };
+  };
+
+  const ask = async (q: string, collectConducts = false) => {
     const p = patient;
     if (!q.trim() || !p || asking) return;
     const withUser: Msg[] = [...chat, { role: "user", content: q.trim() }];
     setChat(withUser);
     setAsking(true);
     setError(null);
+    if (collectConducts) {
+      setPrItems([]);
+      setPrChecked({});
+      setPrAppliedIds({});
+      setPrApplied(0);
+    }
     try {
       const res = await runAsk({
         data: {
@@ -287,12 +335,49 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
           history: chat.slice(-8),
         },
       });
-      setChat([...withUser, { role: "assistant", content: res.answer }]);
+      if (collectConducts) {
+        const parsed = parseConducts(res.answer);
+        setPrItems(parsed.items);
+        setChat([...withUser, { role: "assistant", content: parsed.text || res.answer }]);
+      } else {
+        setChat([...withUser, { role: "assistant", content: res.answer }]);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha ao consultar a evidência.");
     } finally {
       setAsking(false);
     }
+  };
+
+  /** Aplica as condutas propostas (Problemas · Riscos · Pendências) em roxo. */
+  const applyProblems = () => {
+    const p = patient;
+    const selected = prItems.filter((_, i) => prChecked[`pr:${i}`]);
+    if (!p || !onPatientChange || selected.length === 0) return;
+    const now = new Date().toISOString();
+    const conducts: Conduct[] = p.conducts.map((c) => ({
+      ...c,
+      subItems: c.subItems ? [...c.subItems] : [],
+    }));
+    let applied = 0;
+    for (const it of selected) {
+      let target = conducts.find((c) => c.system === it.system && c.team === "Médica");
+      if (!target) {
+        target = { team: "Médica", text: "", system: it.system, subItems: [], startedAt: now };
+        conducts.push(target);
+      }
+      if (!target.subItems?.some((s) => s.text === it.text)) {
+        target.subItems = [
+          ...(target.subItems ?? []),
+          { text: it.text, date: now, color: "purple" },
+        ];
+        applied++;
+      }
+    }
+    onPatientChange({ ...p, conducts });
+    setPrApplied(applied);
+    setPrAppliedIds((prev) => ({ ...prev, ...prChecked }));
+    setPrChecked({});
   };
 
   const startFasthug = async () => {
@@ -354,6 +439,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   return (
     <div
       ref={rootRef}
+      data-neto-root=""
       style={{ left: pos.x, top: pos.y }}
       className="fixed z-[80] select-none print:hidden"
       onPointerDown={startDrag}
@@ -626,13 +712,14 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   disabled={asking}
                   onClick={() =>
                     void ask(
-                      "Liste, para este paciente e com base em todo o passômetro: 1) PROBLEMAS CRÍTICOS; 2) RISCOS PRIORITÁRIOS nas próximas 12 h; 3) PENDÊNCIAS. Para cada item, apresente já a solução/conduta recomendada com a evidência consultada em https://www.openevidence.com (sociedade, ano e força quando disponível). Dado ausente = [DADO NÃO DISPONÍVEL NO PASSÔMETRO].",
+                      "Liste, para este paciente e com base em todo o passômetro: 1) PROBLEMAS; 2) RISCOS nas próximas 12 h; 3) PENDÊNCIAS. Para cada item, apresente já a solução/conduta recomendada com a evidência consultada em https://www.openevidence.com (sociedade, ano e força quando disponível). Dado ausente = [DADO NÃO DISPONÍVEL NO PASSÔMETRO]. Ao final, repita cada conduta proposta em linhas separadas, uma por linha, exatamente no formato: CONDUTA | sistema | texto curto da conduta — onde sistema é um destes: dieta, fono, resp, cardio, neuro, renal, gi, infec, hemato, skin, other.",
+                      true,
                     )
                   }
                   className="neto-chip h-auto w-full justify-start whitespace-normal rounded-full px-3 py-2 text-left text-[11px] font-semibold leading-snug text-neto-foreground hover:bg-neto-panel-strong"
                 >
                   <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
-                  Problemas críticos · Riscos prioritários · Pendências
+                  Problemas · Riscos · Pendências
                 </Button>
                 <Button
                   type="button"
@@ -803,6 +890,66 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               </Conversation>
             )}
 
+            {prItems.length > 0 && (
+              <div className="neto-panel space-y-2 rounded-[18px] p-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-neto-muted">
+                  Condutas propostas · Problemas · Riscos · Pendências
+                </span>
+                <Button
+                  type="button"
+                  onClick={applyProblems}
+                  disabled={
+                    Object.values(prChecked).filter(Boolean).length === 0 || !onPatientChange
+                  }
+                  className="h-9 w-full rounded-full bg-neto-online px-3 text-[12px] font-black uppercase tracking-[0.04em] text-neto-shell-deep shadow-lg ring-2 ring-white/40 hover:bg-neto-online/90 disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" /> Aplicar nas condutas
+                  {Object.values(prChecked).filter(Boolean).length > 0
+                    ? ` (${Object.values(prChecked).filter(Boolean).length})`
+                    : ""}
+                </Button>
+                <div className="space-y-1">
+                  {prItems.map((it, i) => {
+                    const id = `pr:${i}`;
+                    const on = !!prChecked[id];
+                    const done = !!prAppliedIds[id];
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setPrChecked((prev) => ({ ...prev, [id]: !on }))}
+                        className={`flex w-full items-start gap-2 rounded-[12px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
+                          done
+                            ? "border-neto-line bg-neto-panel-strong !text-[oklch(0.62_0.24_305)]"
+                            : on
+                              ? "border-neto-glow bg-neto-glow/20 !text-white"
+                              : "border-neto-line bg-neto-panel-strong !text-white hover:bg-neto-panel"
+                        }`}
+                      >
+                        <span
+                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
+                            done
+                              ? "border-[oklch(0.62_0.24_305)] bg-[oklch(0.62_0.24_305)] text-white"
+                              : on
+                                ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                                : "border-neto-line"
+                          }`}
+                        >
+                          {(on || done) && <Check className="h-3 w-3" />}
+                        </span>
+                        {it.text}
+                      </button>
+                    );
+                  })}
+                </div>
+                {prApplied > 0 && (
+                  <p className="text-[10px] font-bold text-clinical-stable">
+                    ✅ {prApplied} conduta(s) incluída(s) em roxo nas condutas do paciente.
+                  </p>
+                )}
+              </div>
+            )}
+
             {error && (
               <p className="rounded-[14px] border border-clinical-critical/60 bg-clinical-critical/20 px-3 py-2 text-[11px] font-semibold text-neto-foreground">
                 {error}
@@ -816,18 +963,14 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   setQuestion("");
                   void ask(q);
                 }}
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--neto-panel-strong), var(--neto-panel))",
-                }}
-                className="flex min-h-[72px] overflow-hidden rounded-[20px] border border-neto-line shadow-none"
+                className="w-full [&>[data-slot=input-group]]:overflow-hidden [&>[data-slot=input-group]]:rounded-[20px] [&>[data-slot=input-group]]:border-neto-line [&>[data-slot=input-group]]:shadow-none"
               >
                 <PromptInputTextarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  rows={1}
+                  rows={2}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-0 flex-1 resize-none bg-transparent px-3.5 py-2 text-[11px] leading-relaxed !text-white placeholder:text-neto-muted"
+                  className="max-h-32 min-h-[56px] w-full resize-none !bg-transparent px-3.5 py-2.5 text-[11px] leading-relaxed !text-white placeholder:text-neto-muted"
                 />
                 <PromptInputFooter className="justify-end bg-transparent px-2 pb-1.5 pt-0">
                   <PromptInputSubmit

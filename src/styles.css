@@ -406,6 +406,34 @@
   box-shadow: inset 0 1px 0 color-mix(in oklab, var(--neto-foreground) 12%, transparent);
 }
 
+/* NETO — nunca exibir fundos cinza claro dentro do assistente: sempre azul/verde */
+.neto-panel [data-slot="input-group"],
+.neto-panel pre,
+.neto-panel code,
+.neto-panel blockquote,
+.neto-panel table,
+.neto-panel th,
+.neto-panel td,
+.neto-glass [data-slot="input-group"],
+[data-neto-root] [data-slot="input-group"],
+[data-neto-root] pre,
+[data-neto-root] code,
+[data-neto-root] blockquote,
+[data-neto-root] table,
+[data-neto-root] th,
+[data-neto-root] td,
+[data-neto-root] [class*="bg-muted"],
+[data-neto-root] [class*="bg-secondary"],
+[data-neto-root] [class*="bg-card"],
+[data-neto-root] [class*="bg-background"],
+[data-neto-root] [class*="bg-input"],
+[data-neto-root] [class*="bg-accent"],
+[data-neto-root] [class*="bg-popover"] {
+  background-image: linear-gradient(135deg, var(--neto-panel-strong), var(--neto-panel)) !important;
+  background-color: transparent !important;
+  border-color: var(--neto-line);
+}
+
 @utility neto-tail {
   background: linear-gradient(135deg, var(--neto-shell-deep), var(--neto-shell));
   border-right: 1px solid var(--neto-line);
@@ -563,4 +591,10 @@
   content: attr(data-placeholder);
   color: hsl(var(--muted-foreground));
   opacity: 0.7;
+}
+
+/* NETO — o campo de escrita herda o gradiente do container, sem fundo próprio */
+[data-neto-root] textarea {
+  background-image: none !important;
+  background-color: transparent !important;
 }
