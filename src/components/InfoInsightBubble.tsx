@@ -454,37 +454,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               </p>
             )}
 
-            {patient && (
-              <NetoLivePanel
-                patientId={patient.id}
-                patientLabel={`${patient.bed} · ${patient.name}`}
-                onTranscript={(role, text) => setChat((c) => [...c, { role, content: text }])}
-                onToolResult={(name, summary) =>
-                  setChat((c) => [...c, { role: "assistant", content: `【${name}】\n${summary}` }])
-                }
-              />
-            )}
-
-            {patient && (
-              <div className="max-h-[112px] overflow-y-auto pr-0.5">
-                <div className="flex flex-wrap gap-1">
-                  {QUICK_ACTIONS.map((a) => (
-                    <Button
-                      key={a.intent}
-                      type="button"
-                      variant="ghost"
-                      onClick={() => runQuick(a.intent)}
-                      className={`neto-chip h-auto rounded-full px-2 py-1 text-[10px] font-bold leading-none text-neto-foreground hover:bg-neto-panel-strong ${
-                        engineIntent === a.intent ? "bg-neto-glow/25 !text-white" : ""
-                      }`}
-                    >
-                      {a.emoji} {a.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {engine && (
               <div className="max-h-[46vh] overflow-y-auto pr-0.5">
                 <NetoEngineReport result={engine} asking={asking} onDiscuss={(q) => void ask(q)} />
