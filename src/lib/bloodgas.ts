@@ -13,6 +13,7 @@ export interface AbgInput {
   pao2?: number;
   fio2?: number; // %
   lactate?: number;
+  magnesium?: number;
   ketones?: string;
   course?: AbgCourse;
   takenAt?: string;
@@ -65,9 +66,16 @@ export function computeAbg(i: AbgInput): AbgResult {
   const { ph, paco2, hco3, na, cl } = i;
 
   if (ph != null) {
-    if (ph < 7.35) { res.phStatus = "Acidemia"; res.phTone = ph < 7.2 ? "critical" : "attention"; }
-    else if (ph > 7.45) { res.phStatus = "Alcalemia"; res.phTone = ph > 7.55 ? "critical" : "attention"; }
-    else { res.phStatus = "Faixa de referência"; res.phTone = "normal"; }
+    if (ph < 7.35) {
+      res.phStatus = "Acidemia";
+      res.phTone = ph < 7.2 ? "critical" : "attention";
+    } else if (ph > 7.45) {
+      res.phStatus = "Alcalemia";
+      res.phTone = ph > 7.55 ? "critical" : "attention";
+    } else {
+      res.phStatus = "Faixa de referência";
+      res.phTone = "normal";
+    }
   }
 
   if (paco2 != null && ph != null) {
@@ -84,12 +92,20 @@ export function computeAbg(i: AbgInput): AbgResult {
   if (i.pao2 != null && i.fio2 != null && i.fio2 > 0) {
     const pf = Math.round(i.pao2 / (i.fio2 / 100));
     res.pfRatio = pf;
-    res.pfClass = pf < 100 ? "SDRA grave" : pf < 200 ? "SDRA moderada" : pf < 300 ? "SDRA leve" : "sem critério de SDRA";
+    res.pfClass =
+      pf < 100
+        ? "SDRA grave"
+        : pf < 200
+          ? "SDRA moderada"
+          : pf < 300
+            ? "SDRA leve"
+            : "sem critério de SDRA";
   }
 
   // Distúrbio primário
   if (ph != null && paco2 != null && hco3 != null) {
-    const acid = ph < 7.35, alk = ph > 7.45;
+    const acid = ph < 7.35,
+      alk = ph > 7.45;
     const flags: string[] = [];
     if (acid && hco3 < 22) flags.push("Acidose metabólica");
     if (alk && hco3 > 26) flags.push("Alcalose metabólica");
@@ -103,7 +119,10 @@ export function computeAbg(i: AbgInput): AbgResult {
 
     if (flags.length === 0) res.primary = "Sem distúrbio primário evidente";
     else if (flags.length === 1) res.primary = flags[0];
-    else { res.primary = flags.join(" + "); res.mixed = true; }
+    else {
+      res.primary = flags.join(" + ");
+      res.mixed = true;
+    }
 
     const agHigh = res.anionGap != null && res.anionGap > 12;
     if (flags.includes("Acidose metabólica")) {
@@ -113,12 +132,14 @@ export function computeAbg(i: AbgInput): AbgResult {
     const course: AbgCourse = i.course ?? "undefined";
 
     if (flags.includes("Acidose metabólica")) {
-      const lo = r1(1.5 * hco3 + 8 - 2), hi = r1(1.5 * hco3 + 8 + 2);
-      const verdict = paco2 >= lo && paco2 <= hi
-        ? "Compensação respiratória adequada."
-        : paco2 > hi
-          ? "PaCO₂ acima do esperado — sugere acidose respiratória associada."
-          : "PaCO₂ abaixo do esperado — sugere alcalose respiratória associada.";
+      const lo = r1(1.5 * hco3 + 8 - 2),
+        hi = r1(1.5 * hco3 + 8 + 2);
+      const verdict =
+        paco2 >= lo && paco2 <= hi
+          ? "Compensação respiratória adequada."
+          : paco2 > hi
+            ? "PaCO₂ acima do esperado — sugere acidose respiratória associada."
+            : "PaCO₂ abaixo do esperado — sugere alcalose respiratória associada.";
       res.compensation = {
         expected: `PaCO₂ esperada (Winter): ${lo}–${hi} mmHg`,
         measured: `PaCO₂ medida: ${r1(paco2)} mmHg`,
@@ -127,48 +148,64 @@ export function computeAbg(i: AbgInput): AbgResult {
       if (paco2 < lo || paco2 > hi) res.mixed = true;
     } else if (flags.includes("Alcalose metabólica")) {
       const c = 0.7 * (hco3 - 24) + 40;
-      const lo = r1(c - 5), hi = r1(c + 5);
-      const verdict = paco2 >= lo && paco2 <= hi
-        ? "Compensação respiratória adequada."
-        : paco2 > hi
-          ? "PaCO₂ acima do esperado — sugere acidose respiratória associada."
-          : "PaCO₂ abaixo do esperado — sugere alcalose respiratória associada.";
-      res.compensation = { expected: `PaCO₂ esperada: ${lo}–${hi} mmHg`, measured: `PaCO₂ medida: ${r1(paco2)} mmHg`, verdict };
+      const lo = r1(c - 5),
+        hi = r1(c + 5);
+      const verdict =
+        paco2 >= lo && paco2 <= hi
+          ? "Compensação respiratória adequada."
+          : paco2 > hi
+            ? "PaCO₂ acima do esperado — sugere acidose respiratória associada."
+            : "PaCO₂ abaixo do esperado — sugere alcalose respiratória associada.";
+      res.compensation = {
+        expected: `PaCO₂ esperada: ${lo}–${hi} mmHg`,
+        measured: `PaCO₂ medida: ${r1(paco2)} mmHg`,
+        verdict,
+      };
       if (paco2 < lo || paco2 > hi) res.mixed = true;
     } else if (flags.includes("Acidose respiratória")) {
       const ac = r1(24 + (paco2 - 40) / 10);
       const ch = r1(24 + 3.5 * ((paco2 - 40) / 10));
-      const expected = course === "acute" ? `HCO₃⁻ esperado (aguda): ${ac} mEq/L`
-        : course === "chronic" ? `HCO₃⁻ esperado (crônica): ${ch} mEq/L`
-        : `HCO₃⁻ esperado — aguda: ${ac} · crônica: ${ch} mEq/L`;
+      const expected =
+        course === "acute"
+          ? `HCO₃⁻ esperado (aguda): ${ac} mEq/L`
+          : course === "chronic"
+            ? `HCO₃⁻ esperado (crônica): ${ch} mEq/L`
+            : `HCO₃⁻ esperado — aguda: ${ac} · crônica: ${ch} mEq/L`;
       const ref = course === "chronic" ? ch : ac;
       const tol = 2;
-      const verdict = course === "undefined"
-        ? (hco3 >= Math.min(ac, ch) - tol && hco3 <= Math.max(ac, ch) + tol
+      const verdict =
+        course === "undefined"
+          ? hco3 >= Math.min(ac, ch) - tol && hco3 <= Math.max(ac, ch) + tol
             ? "HCO₃⁻ compatível com resposta compensatória (curso indefinido)."
-            : "HCO₃⁻ fora das faixas aguda e crônica — possível distúrbio misto.")
-        : (Math.abs(hco3 - ref) <= tol
+            : "HCO₃⁻ fora das faixas aguda e crônica — possível distúrbio misto."
+          : Math.abs(hco3 - ref) <= tol
             ? "Compensação metabólica adequada."
-            : hco3 > ref ? "HCO₃⁻ acima do esperado — sugere alcalose metabólica associada."
-                         : "HCO₃⁻ abaixo do esperado — sugere acidose metabólica associada.");
+            : hco3 > ref
+              ? "HCO₃⁻ acima do esperado — sugere alcalose metabólica associada."
+              : "HCO₃⁻ abaixo do esperado — sugere acidose metabólica associada.";
       res.compensation = { expected, measured: `HCO₃⁻ medido: ${r1(hco3)} mEq/L`, verdict };
       if (verdict.includes("associada") || verdict.includes("misto")) res.mixed = true;
     } else if (flags.includes("Alcalose respiratória")) {
       const ac = r1(24 - 2 * ((40 - paco2) / 10));
       const ch = r1(24 - 4.5 * ((40 - paco2) / 10));
-      const expected = course === "acute" ? `HCO₃⁻ esperado (aguda): ${ac} mEq/L`
-        : course === "chronic" ? `HCO₃⁻ esperado (crônica): ${ch} mEq/L`
-        : `HCO₃⁻ esperado — aguda: ${ac} · crônica: ${ch} mEq/L`;
+      const expected =
+        course === "acute"
+          ? `HCO₃⁻ esperado (aguda): ${ac} mEq/L`
+          : course === "chronic"
+            ? `HCO₃⁻ esperado (crônica): ${ch} mEq/L`
+            : `HCO₃⁻ esperado — aguda: ${ac} · crônica: ${ch} mEq/L`;
       const ref = course === "chronic" ? ch : ac;
       const tol = 2;
-      const verdict = course === "undefined"
-        ? (hco3 >= Math.min(ac, ch) - tol && hco3 <= Math.max(ac, ch) + tol
+      const verdict =
+        course === "undefined"
+          ? hco3 >= Math.min(ac, ch) - tol && hco3 <= Math.max(ac, ch) + tol
             ? "HCO₃⁻ compatível com resposta compensatória (curso indefinido)."
-            : "HCO₃⁻ fora das faixas aguda e crônica — possível distúrbio misto.")
-        : (Math.abs(hco3 - ref) <= tol
+            : "HCO₃⁻ fora das faixas aguda e crônica — possível distúrbio misto."
+          : Math.abs(hco3 - ref) <= tol
             ? "Compensação metabólica adequada."
-            : hco3 > ref ? "HCO₃⁻ acima do esperado — sugere alcalose metabólica associada."
-                         : "HCO₃⁻ abaixo do esperado — sugere acidose metabólica associada.");
+            : hco3 > ref
+              ? "HCO₃⁻ acima do esperado — sugere alcalose metabólica associada."
+              : "HCO₃⁻ abaixo do esperado — sugere acidose metabólica associada.";
       res.compensation = { expected, measured: `HCO₃⁻ medido: ${r1(hco3)} mEq/L`, verdict };
       if (verdict.includes("associada") || verdict.includes("misto")) res.mixed = true;
     }
@@ -181,8 +218,18 @@ export function computeAbg(i: AbgInput): AbgResult {
       tone: i.lactate >= 4 ? "critical" : i.lactate > 2 ? "attention" : "normal",
     });
   }
+  if (i.magnesium != null) {
+    const mg = r1(i.magnesium);
+    let tone: AbgLine["tone"] = "normal";
+    if (mg < 1.2 || mg > 3.0) tone = "critical";
+    else if (mg < 1.7 || mg > 2.2) tone = "attention";
+    const status =
+      mg < 1.7 ? "hipomagnesemia" : mg > 2.2 ? "hipermagnesemia" : "dentro da referência";
+    extras.push({ label: "Magnésio", value: `${mg} mg/dL — ${status}`, tone });
+  }
   if (i.ketones) extras.push({ label: "Cetonas", value: i.ketones });
-  if (res.hco3Calc != null) extras.push({ label: "HCO₃⁻ calculado", value: `${res.hco3Calc} mEq/L` });
+  if (res.hco3Calc != null)
+    extras.push({ label: "HCO₃⁻ calculado", value: `${res.hco3Calc} mEq/L` });
 
   return res;
 }

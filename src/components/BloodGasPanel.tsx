@@ -39,6 +39,7 @@ export function BloodGasPanel({ patient }: { patient: Patient }) {
       pao2: pick(patient, /PaO2|^PO2$/i),
       fio2: patient.state?.fio2,
       lactate: pick(patient, /lactat/i),
+      magnesium: pick(patient, /magn[eé]si[oa]|^Mg\+?|^Mg\b/i),
       course,
     }),
     [patient, course],
