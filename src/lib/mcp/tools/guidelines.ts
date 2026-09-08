@@ -1,6 +1,7 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { DOMAIN_LABEL, evidenceByDomain, type Domain } from "@/lib/clinicalEngine";
+import { DOMAIN_LABEL, type Domain } from "@/lib/clinicalEngine";
+import { evidenceByDomain } from "@/lib/clinicalEngine/evidence";
 
 const DOMAINS = Object.keys(DOMAIN_LABEL) as Domain[];
 
