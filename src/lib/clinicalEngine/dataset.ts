@@ -229,11 +229,14 @@ export function collectFacts(p: Patient): Facts {
 
   const weightKg = NUM(p.weight);
   const heightCm = NUM(p.height);
-  const predictedWeight = heightCm && heightCm > 120 ? Math.round(PBW(p.sex, heightCm) * 10) / 10 : null;
+  const predictedWeight =
+    heightCm && heightCm > 120 ? Math.round(PBW(p.sex, heightCm) * 10) / 10 : null;
 
   const ventText = s.vent ?? "";
   const invasiveVent = /vm|iot|tot|traq|pcv|vcv|psv|siv|a\/c|pressão control/i.test(ventText);
-  const noninvasiveSupport = /vni|bipap|cpap|cnaf|máscara|mascara|cateter|ar ambiente/i.test(ventText);
+  const noninvasiveSupport = /vni|bipap|cpap|cnaf|máscara|mascara|cateter|ar ambiente/i.test(
+    ventText,
+  );
 
   const lastIntub = (p.intubations ?? [])
     .slice()
@@ -250,9 +253,7 @@ export function collectFacts(p: Patient): Facts {
   const vtPerKg =
     vt != null && predictedWeight ? Math.round((vt / predictedWeight) * 10) / 10 : null;
   const pfRatio =
-    pao2.value != null && fio2 != null && fio2 > 0
-      ? Math.round(pao2.value / (fio2 / 100))
-      : null;
+    pao2.value != null && fio2 != null && fio2 > 0 ? Math.round(pao2.value / (fio2 / 100)) : null;
 
   const activeMeds = (p.medications ?? []).filter((m) => isMedActive(m));
   const antimicrobials = activeMeds.filter((m) => m.isAntibiotic ?? detectAntibiotic(m.name));
@@ -266,9 +267,11 @@ export function collectFacts(p: Patient): Facts {
     .filter((d): d is number => d != null && d >= 0);
   const maxAtbDays = atbDays.length ? Math.max(...atbDays) : null;
 
-  const SED_RE = /propofol|midazolam|dexmedetomidina|precedex|cetamina|ketamina|fentanil|morfina|remifentanil/i;
+  const SED_RE =
+    /propofol|midazolam|dexmedetomidina|precedex|cetamina|ketamina|fentanil|morfina|remifentanil/i;
   const BZD_RE = /midazolam|diazepam|lorazepam/i;
-  const VTE_RE = /heparina|enoxaparina|clexane|fraxiparina|hbpm|fondaparinux|varfarina|rivaroxaban|apixaban|dabigatran/i;
+  const VTE_RE =
+    /heparina|enoxaparina|clexane|fraxiparina|hbpm|fondaparinux|varfarina|rivaroxaban|apixaban|dabigatran/i;
 
   const sedatives = activeMeds.filter((m) => SED_RE.test(m.name));
   const benzodiazepines = activeMeds.filter((m) => BZD_RE.test(m.name));
@@ -282,7 +285,9 @@ export function collectFacts(p: Patient): Facts {
     const dva = s.dva ?? "";
     if (dva && !/^(não|nao|nenhum|sem)/i.test(dva.trim())) list.push(dva.trim());
     for (const m of activeMeds) {
-      if (/noradren|adrenalina|epinef|vasopressina|dobutamina|dopamina|terlipressina/i.test(m.name)) {
+      if (
+        /noradren|adrenalina|epinef|vasopressina|dobutamina|dopamina|terlipressina/i.test(m.name)
+      ) {
         list.push(`${m.name}${m.dose ? ` ${m.dose}` : ""}`);
       }
     }
@@ -311,9 +316,8 @@ export function collectFacts(p: Patient): Facts {
 
   const sahCase = /subaracn|hsa|aneurism/.test(diagnosisText);
   const ichCase = /hemorragia intra|hip |hematoma intraparenq|avch|avc hemorr/.test(diagnosisText);
-  const strokeCase = /avc isqu|avci|isquemia cerebral|infarto cerebral|trombect|tromból|trombol/.test(
-    diagnosisText,
-  );
+  const strokeCase =
+    /avc isqu|avci|isquemia cerebral|infarto cerebral|trombect|tromból|trombol/.test(diagnosisText);
   const tbiCase = /tce|traumatismo cranio|trauma cranio/.test(diagnosisText);
   const seizureCase = /status epilep|crise convuls|epilep/.test(diagnosisText);
   const neuroCase =
@@ -353,14 +357,50 @@ export function collectFacts(p: Patient): Facts {
   push(points, "glicemia", "Glicemia", NUM(s.glicemia), "mg/dL", "endocrino");
   push(points, "gcs", "Escala de coma de Glasgow (WFNS)", gcs, "", "neurocritico");
   push(points, "rass", "RASS", NUM(s.rass), "", "dor_sedacao_delirium");
-  push(points, "pic", "Pressão intracraniana", picExam.value, "mmHg", "neurocritico", "informado", picExam.at);
+  push(
+    points,
+    "pic",
+    "Pressão intracraniana",
+    picExam.value,
+    "mmHg",
+    "neurocritico",
+    "informado",
+    picExam.at,
+  );
   push(points, "diurese_h", "Diurese horária", NUM(s.diureseHoraria), "mL/h", "renal");
   push(points, "diurese_24", "Diurese em 24 h", NUM(s.diurese24 ?? s.diurese), "mL", "renal");
   push(points, "balanco", "Balanço hídrico", NUM(s.balancoHidrico), "mL", "renal");
-  push(points, "creat", "Creatinina", creat.value, creat.unit ?? "mg/dL", "renal", "informado", creat.at);
-  push(points, "lactato", "Lactato", lactate.value, lactate.unit ?? "mmol/L", "sepse", "informado", lactate.at);
+  push(
+    points,
+    "creat",
+    "Creatinina",
+    creat.value,
+    creat.unit ?? "mg/dL",
+    "renal",
+    "informado",
+    creat.at,
+  );
+  push(
+    points,
+    "lactato",
+    "Lactato",
+    lactate.value,
+    lactate.unit ?? "mmol/L",
+    "sepse",
+    "informado",
+    lactate.at,
+  );
   push(points, "hb", "Hemoglobina", hb.value, hb.unit ?? "g/dL", "transfusao", "informado", hb.at);
-  push(points, "plaq", "Plaquetas", plaq.value, plaq.unit ?? "/mm³", "transfusao", "informado", plaq.at);
+  push(
+    points,
+    "plaq",
+    "Plaquetas",
+    plaq.value,
+    plaq.unit ?? "/mm³",
+    "transfusao",
+    "informado",
+    plaq.at,
+  );
   push(points, "pao2", "PaO2", pao2.value, "mmHg", "ventilacao", "informado", pao2.at);
   push(points, "paco2", "PaCO2", paco2.value, "mmHg", "ventilacao", "informado", paco2.at);
   push(points, "ph", "pH arterial", ph.value, "", "ventilacao", "informado", ph.at);
@@ -389,15 +429,7 @@ export function collectFacts(p: Patient): Facts {
     NUM(pv?.drivingPressure) != null ? "informado" : "calculado",
   );
   push(points, "pf", "Relação PaO2/FiO2", pfRatio, "", "ventilacao", "calculado");
-  push(
-    points,
-    "pbw",
-    "Peso corporal predito",
-    predictedWeight,
-    "kg",
-    "ventilacao",
-    "calculado",
-  );
+  push(points, "pbw", "Peso corporal predito", predictedWeight, "kg", "ventilacao", "calculado");
   push(
     points,
     "crcl",
@@ -437,7 +469,9 @@ export function collectFacts(p: Patient): Facts {
     key: "devices",
     label: "Dispositivos invasivos em uso",
     value: devices.length
-      ? devices.map((d) => `${d.device.typeCode}${d.days != null ? ` (${d.days} d)` : ""}`).join(" · ")
+      ? devices
+          .map((d) => `${d.device.typeCode}${d.days != null ? ` (${d.days} d)` : ""}`)
+          .join(" · ")
       : "nenhum registrado",
     domain: "dispositivos",
     provenance: devices.length ? "informado" : "inferido",
@@ -512,7 +546,8 @@ export function collectFacts(p: Patient): Facts {
     hasInfectionFocus: infections.length > 0,
     infectionLabels: infections.map((f) => `${f.site} (${f.status})`),
     culturesCount: cultures.length,
-    positiveCultures: cultures.filter((c) => /positiv/i.test(c.result ?? "") || !!c.organism).length,
+    positiveCultures: cultures.filter((c) => /positiv/i.test(c.result ?? "") || !!c.organism)
+      .length,
     devices,
     diet: s.dieta ?? "",
     dietSuspended: /jejum|suspens|zero|npo/i.test(s.dieta ?? ""),
@@ -546,32 +581,102 @@ export function missingFromFacts(f: Facts) {
     out.push({ key, label, impact, domain });
 
   if (f.lactate.value == null)
-    add("lactato", "Lactato", "Sem lactato não é possível avaliar hipoperfusão e resposta à ressuscitação.", "sepse");
+    add(
+      "lactato",
+      "Lactato",
+      "Sem lactato não é possível avaliar hipoperfusão e resposta à ressuscitação.",
+      "sepse",
+    );
   else if (f.lactate.count < 2)
-    add("lactato_serie", "Lactato seriado", "Um único valor não permite avaliar clareamento.", "sepse");
+    add(
+      "lactato_serie",
+      "Lactato seriado",
+      "Um único valor não permite avaliar clareamento.",
+      "sepse",
+    );
   if (f.pao2.value == null)
-    add("gasometria", "Gasometria arterial", "Sem PaO2/PaCO2 não é possível calcular PaO2/FiO2 nem avaliar troca gasosa.", "ventilacao");
+    add(
+      "gasometria",
+      "Gasometria arterial",
+      "Sem PaO2/PaCO2 não é possível calcular PaO2/FiO2 nem avaliar troca gasosa.",
+      "ventilacao",
+    );
   if (f.invasiveVent && f.plateau == null)
-    add("plateau", "Pressão de platô", "Sem platô não é possível confirmar segurança da ventilação protetora.", "ventilacao");
+    add(
+      "plateau",
+      "Pressão de platô",
+      "Sem platô não é possível confirmar segurança da ventilação protetora.",
+      "ventilacao",
+    );
   if (f.invasiveVent && f.vt == null)
-    add("vt", "Volume corrente", "Sem volume corrente não é possível checar mL/kg de peso predito.", "ventilacao");
+    add(
+      "vt",
+      "Volume corrente",
+      "Sem volume corrente não é possível checar mL/kg de peso predito.",
+      "ventilacao",
+    );
   if (f.predictedWeight == null)
-    add("altura", "Altura", "Sem altura não é possível calcular o peso predito e o volume corrente-alvo.", "ventilacao");
+    add(
+      "altura",
+      "Altura",
+      "Sem altura não é possível calcular o peso predito e o volume corrente-alvo.",
+      "ventilacao",
+    );
   if (f.diureseHoraria == null && f.diurese24 == null)
-    add("diurese", "Diurese", "Sem débito urinário não é possível estadiar lesão renal aguda por diurese.", "renal");
+    add(
+      "diurese",
+      "Diurese",
+      "Sem débito urinário não é possível estadiar lesão renal aguda por diurese.",
+      "renal",
+    );
   if (f.creat.value == null)
-    add("creatinina", "Creatinina", "Sem creatinina não há estadiamento renal nem ajuste de dose.", "renal");
+    add(
+      "creatinina",
+      "Creatinina",
+      "Sem creatinina não há estadiamento renal nem ajuste de dose.",
+      "renal",
+    );
   if (f.rass == null)
-    add("rass", "RASS", "Sem RASS não é possível avaliar profundidade de sedação.", "dor_sedacao_delirium");
+    add(
+      "rass",
+      "RASS",
+      "Sem RASS não é possível avaliar profundidade de sedação.",
+      "dor_sedacao_delirium",
+    );
   if (!f.painAssessed)
-    add("dor", "Avaliação de dor (CPOT/BPS)", "Sem escala de dor a analgesia não pode ser guiada.", "dor_sedacao_delirium");
+    add(
+      "dor",
+      "Avaliação de dor (CPOT/BPS)",
+      "Sem escala de dor a analgesia não pode ser guiada.",
+      "dor_sedacao_delirium",
+    );
   if (!f.deliriumAssessed)
-    add("delirium", "Rastreio de delirium (CAM-ICU/ICDSC)", "Sem rastreio o delirium fica subdiagnosticado.", "dor_sedacao_delirium");
+    add(
+      "delirium",
+      "Rastreio de delirium (CAM-ICU/ICDSC)",
+      "Sem rastreio o delirium fica subdiagnosticado.",
+      "dor_sedacao_delirium",
+    );
   if (f.culturesCount === 0 && (f.antimicrobials.length > 0 || f.hasInfectionFocus))
-    add("culturas", "Culturas", "Sem culturas não é possível descalonar com segurança.", "infeccao");
+    add(
+      "culturas",
+      "Culturas",
+      "Sem culturas não é possível descalonar com segurança.",
+      "infeccao",
+    );
   if (f.gcs == null)
-    add("gcs", "Escala de coma de Glasgow", "Sem Glasgow não é possível avaliar o nível de consciência nem compor escores.", "neurocritico");
+    add(
+      "gcs",
+      "Escala de coma de Glasgow",
+      "Sem Glasgow não é possível avaliar o nível de consciência nem compor escores.",
+      "neurocritico",
+    );
   if (!f.goalsOfCareRegistered)
-    add("metas", "Metas de cuidado / diretivas", "Sem metas registradas as decisões de limite terapêutico ficam sem referência.", "paliativo");
+    add(
+      "metas",
+      "Metas de cuidado / diretivas",
+      "Sem metas registradas as decisões de limite terapêutico ficam sem referência.",
+      "paliativo",
+    );
   return out;
 }

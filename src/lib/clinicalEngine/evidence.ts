@@ -312,7 +312,8 @@ export const EVIDENCE: Record<string, EvidenceSeed> = {
     domain: "seguranca",
     status: "active",
     topic: "Transições de cuidado",
-    statement: "Estruturar a transição de cuidado com comunicação padronizada e plano de seguimento.",
+    statement:
+      "Estruturar a transição de cuidado com comunicação padronizada e plano de seguimento.",
     strength: "boa prática",
   },
   "SSC21-LEGACY": {
@@ -372,8 +373,7 @@ export const EVIDENCE: Record<string, EvidenceSeed> = {
     domain: "dor_sedacao_delirium",
     status: "active",
     topic: "Sono",
-    statement:
-      "Protocolo de promoção do sono com redução de ruído, luz e interrupções noturnas.",
+    statement: "Protocolo de promoção do sono com redução de ruído, luz e interrupções noturnas.",
     strength: "condicional",
     certainty: "muito baixa",
   },
@@ -414,8 +414,7 @@ export const EVIDENCE: Record<string, EvidenceSeed> = {
     domain: "ventilacao",
     status: "active",
     topic: "Pronação",
-    statement:
-      "Na SDRA moderada a grave com PaO2/FiO2 < 150, considerar pronação prolongada.",
+    statement: "Na SDRA moderada a grave com PaO2/FiO2 < 150, considerar pronação prolongada.",
     strength: "forte",
     certainty: "moderada",
   },
@@ -682,8 +681,7 @@ export const DEFAULT_PROTOCOLS: InstitutionalProtocol[] = [
     code: "INST-PAM-65",
     name: "Meta de pressão arterial média da unidade",
     domain: "hemodinamica",
-    statement:
-      "Manter PAM ≥ 65 mmHg, salvo meta individualizada registrada pela equipe.",
+    statement: "Manter PAM ≥ 65 mmHg, salvo meta individualizada registrada pela equipe.",
     precedence: false,
     active: true,
   },
@@ -779,7 +777,8 @@ export const DEFAULT_PROTOCOLS: InstitutionalProtocol[] = [
     code: "PROT-NUT",
     name: "Protocolo institucional de nutrição",
     domain: "nutricao",
-    statement: "Nutrição enteral precoce com progressão conforme tolerância e meta calórico-proteica definida.",
+    statement:
+      "Nutrição enteral precoce com progressão conforme tolerância e meta calórico-proteica definida.",
     precedence: false,
     active: true,
   },
@@ -787,7 +786,8 @@ export const DEFAULT_PROTOCOLS: InstitutionalProtocol[] = [
     code: "PROT-GLIC",
     name: "Protocolo institucional de controle glicêmico",
     domain: "endocrino",
-    statement: "Insulina conforme protocolo para faixa de 140 a 180 mg/dL, com prevenção de hipoglicemia.",
+    statement:
+      "Insulina conforme protocolo para faixa de 140 a 180 mg/dL, com prevenção de hipoglicemia.",
     precedence: false,
     active: true,
   },
@@ -795,7 +795,8 @@ export const DEFAULT_PROTOCOLS: InstitutionalProtocol[] = [
     code: "PROT-DISP",
     name: "Protocolo institucional de dispositivos",
     domain: "dispositivos",
-    statement: "Indicação registrada, checagem diária de necessidade e retirada precoce quando possível.",
+    statement:
+      "Indicação registrada, checagem diária de necessidade e retirada precoce quando possível.",
     precedence: false,
     active: true,
   },

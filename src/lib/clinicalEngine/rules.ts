@@ -64,13 +64,16 @@ const RULES: RuleDef[] = [
       if (!f.sepsisSuspected) return null;
       const q = score(scores, "qsofa");
       const why: string[] = [];
-      if (f.infectionLabels.length) why.push(`Foco infeccioso registrado: ${f.infectionLabels.join(" · ")}.`);
+      if (f.infectionLabels.length)
+        why.push(`Foco infeccioso registrado: ${f.infectionLabels.join(" · ")}.`);
       if (q?.available) why.push(`qSOFA ${q.value} ponto(s).`);
       if (f.lactate.value != null) why.push(`Lactato ${f.lactate.value} mmol/L.`);
       if (f.vasopressors.length) why.push(`Vasopressor em uso: ${f.vasopressors.join(" · ")}.`);
       if (!why.length) return null;
       const severe =
-        f.vasopressors.length > 0 || (f.lactate.value != null && f.lactate.value >= 2) || (q?.value as number) >= 2;
+        f.vasopressors.length > 0 ||
+        (f.lactate.value != null && f.lactate.value >= 2) ||
+        (q?.value as number) >= 2;
       return {
         priority: severe ? "critical" : "attention",
         why,
@@ -174,11 +177,15 @@ const RULES: RuleDef[] = [
       if (!f.antimicrobials.length) return null;
       const why = [
         `Antimicrobianos ativos: ${f.antimicrobials.map((m) => m.name).join(" · ")}.`,
-        f.maxAtbDays != null ? `Maior tempo de uso: ${f.maxAtbDays} dia(s).` : "Tempo de uso não informado.",
+        f.maxAtbDays != null
+          ? `Maior tempo de uso: ${f.maxAtbDays} dia(s).`
+          : "Tempo de uso não informado.",
         f.culturesCount
           ? `${f.culturesCount} cultura(s) registrada(s), ${f.positiveCultures} com crescimento.`
           : "Nenhuma cultura registrada.",
-        f.crcl != null ? `Depuração de creatinina ${f.crcl} mL/min.` : "Depuração de creatinina não calculável.",
+        f.crcl != null
+          ? `Depuração de creatinina ${f.crcl} mL/min.`
+          : "Depuração de creatinina não calculável.",
       ];
       const longCourse = (f.maxAtbDays ?? 0) >= 7;
       return {
@@ -244,7 +251,8 @@ const RULES: RuleDef[] = [
     run: ({ f }) => {
       if (!f.invasiveVent) return null;
       const why: string[] = [];
-      if (f.plateau != null && f.plateau > 30) why.push(`Pressão de platô ${f.plateau} cmH2O (> 30).`);
+      if (f.plateau != null && f.plateau > 30)
+        why.push(`Pressão de platô ${f.plateau} cmH2O (> 30).`);
       if (f.drivingPressure != null && f.drivingPressure > 15)
         why.push(`Driving pressure ${f.drivingPressure} cmH2O (> 15).`);
       if (!why.length) return null;
@@ -302,7 +310,9 @@ const RULES: RuleDef[] = [
       if (!f.invasiveVent || f.sbtAssessed) return null;
       return {
         priority: "pending",
-        why: ["Paciente em ventilação invasiva sem registro de despertar diário ou teste de respiração espontânea."],
+        why: [
+          "Paciente em ventilação invasiva sem registro de despertar diário ou teste de respiração espontânea.",
+        ],
         recommendations: [
           rec(
             "Aplicar avaliação diária de aptidão ao desmame e teste de respiração espontânea quando elegível.",
@@ -322,9 +332,14 @@ const RULES: RuleDef[] = [
     title: "Sinais de lesão renal aguda",
     run: ({ f }) => {
       const why: string[] = [];
-      if (f.creat.value != null && f.creat.previous != null && f.creat.value - f.creat.previous >= 0.3)
+      if (
+        f.creat.value != null &&
+        f.creat.previous != null &&
+        f.creat.value - f.creat.previous >= 0.3
+      )
         why.push(`Creatinina subiu de ${f.creat.previous} para ${f.creat.value} mg/dL.`);
-      if (f.creat.value != null && f.creat.value >= 1.5) why.push(`Creatinina atual ${f.creat.value} mg/dL.`);
+      if (f.creat.value != null && f.creat.value >= 1.5)
+        why.push(`Creatinina atual ${f.creat.value} mg/dL.`);
       if (f.diureseHoraria != null && f.weightKg && f.diureseHoraria / f.weightKg < 0.5)
         why.push(
           `Diurese ${f.diureseHoraria} mL/h para ${f.weightKg} kg = ${(f.diureseHoraria / f.weightKg).toFixed(2)} mL/kg/h (< 0,5).`,
@@ -420,7 +435,9 @@ const RULES: RuleDef[] = [
         priority: "critical",
         why: [
           `Glasgow atual ${f.gcs}${f.gcsPrevious != null ? ` (anterior ${f.gcsPrevious})` : ""}.`,
-          f.gcs <= 8 ? "Glasgow ≤ 8: risco de perda de proteção de via aérea." : "Queda ≥ 2 pontos.",
+          f.gcs <= 8
+            ? "Glasgow ≤ 8: risco de perda de proteção de via aérea."
+            : "Queda ≥ 2 pontos.",
         ],
         recommendations: [
           rec(
@@ -453,10 +470,13 @@ const RULES: RuleDef[] = [
       const why = [
         "Hemorragia subaracnóidea nos diagnósticos.",
         vaso?.available ? `VASOGRADE ${vaso.value}.` : "VASOGRADE não preenchido.",
-        fisher?.available ? `Fisher modificada ${fisher.value}.` : "Fisher modificada não preenchida.",
+        fisher?.available
+          ? `Fisher modificada ${fisher.value}.`
+          : "Fisher modificada não preenchida.",
         wfns?.available ? `WFNS ${wfns.value}.` : "WFNS não preenchido.",
       ];
-      const highRisk = vaso?.value === "VERMELHO" || (typeof fisher?.value === "number" && fisher.value >= 3);
+      const highRisk =
+        vaso?.value === "VERMELHO" || (typeof fisher?.value === "number" && fisher.value >= 3);
       return {
         priority: highRisk ? "critical" : "attention",
         why,
@@ -513,7 +533,9 @@ const RULES: RuleDef[] = [
         priority: "attention",
         why: [
           `RASS ${f.rass}.`,
-          f.sedatives.length ? `Sedativos ativos: ${f.sedatives.map((m) => m.name).join(" · ")}.` : "Sedativo não registrado.",
+          f.sedatives.length
+            ? `Sedativos ativos: ${f.sedatives.map((m) => m.name).join(" · ")}.`
+            : "Sedativo não registrado.",
         ],
         recommendations: [
           rec(
@@ -620,7 +642,9 @@ const RULES: RuleDef[] = [
       if (f.vteProphylaxis) return null;
       return {
         priority: "attention",
-        why: ["Nenhuma tromboprofilaxia farmacológica ou mecânica identificada nas medicações e condutas."],
+        why: [
+          "Nenhuma tromboprofilaxia farmacológica ou mecânica identificada nas medicações e condutas.",
+        ],
         recommendations: [
           rec(
             "Avaliar tromboprofilaxia farmacológica ou mecânica e registrar contraindicação quando houver.",
@@ -661,7 +685,10 @@ const RULES: RuleDef[] = [
       if (f.glicemia >= 80 && f.glicemia <= 180) return null;
       return {
         priority: f.glicemia < 70 || f.glicemia > 250 ? "critical" : "attention",
-        why: [`Glicemia ${f.glicemia} mg/dL.`, f.insulin ? "Insulina em uso." : "Insulina não registrada."],
+        why: [
+          `Glicemia ${f.glicemia} mg/dL.`,
+          f.insulin ? "Insulina em uso." : "Insulina não registrada.",
+        ],
         recommendations: [
           rec(
             "Ajustar protocolo de insulina para faixa-alvo evitando hipoglicemia.",
@@ -729,7 +756,9 @@ const RULES: RuleDef[] = [
       const dup = [...byName.entries()].filter(([, n]) => n > 1).map(([k]) => k);
       const why = [
         `${f.activeMeds.length} medicação(ões) ativa(s).`,
-        dup.length ? `Possível duplicidade: ${dup.join(" · ")}.` : "Nenhuma duplicidade exata detectada.",
+        dup.length
+          ? `Possível duplicidade: ${dup.join(" · ")}.`
+          : "Nenhuma duplicidade exata detectada.",
       ];
       return {
         priority: dup.length ? "attention" : "pending",
@@ -757,7 +786,9 @@ const RULES: RuleDef[] = [
         `Dispositivos em uso: ${f.devices
           .map((d) => `${d.device.typeCode}${d.days != null ? ` ${d.days} d` : ""}`)
           .join(" · ")}.`,
-        ...(long.length ? [`Permanência ≥ 7 dias: ${long.map((d) => d.device.typeCode).join(" · ")}.`] : []),
+        ...(long.length
+          ? [`Permanência ≥ 7 dias: ${long.map((d) => d.device.typeCode).join(" · ")}.`]
+          : []),
         ...(noIndication.length
           ? [`Sem indicação registrada: ${noIndication.map((d) => d.device.typeCode).join(" · ")}.`]
           : []),

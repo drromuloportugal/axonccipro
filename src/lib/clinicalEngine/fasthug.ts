@@ -90,7 +90,10 @@ export function runFasthug(f: Facts): FasthugItem[] {
     f.rass == null
       ? ["Registrar RASS a cada 4 h."]
       : f.rass <= -3
-        ? ["Definir meta de sedação leve quando não houver indicação de sedação profunda.", "Titular sedativo pelo RASS."]
+        ? [
+            "Definir meta de sedação leve quando não houver indicação de sedação profunda.",
+            "Titular sedativo pelo RASS.",
+          ]
         : ["Manter meta de sedação leve e registro por turno."],
     "PADIS18-SED",
   );
@@ -107,7 +110,9 @@ export function runFasthug(f: Facts): FasthugItem[] {
       : "Nenhuma tromboprofilaxia identificada.",
     f.vteProphylaxis
       ? ["Reavaliar diariamente e após procedimentos."]
-      : ["Avaliar tromboprofilaxia farmacológica ou mecânica e registrar contraindicação quando houver."],
+      : [
+          "Avaliar tromboprofilaxia farmacológica ou mecânica e registrar contraindicação quando houver.",
+        ],
     "VTE-PROPH",
   );
 
@@ -136,10 +141,14 @@ export function runFasthug(f: Facts): FasthugItem[] {
     "Úlcera de estresse / profilaxia gástrica",
     "FASTHUG",
     "medicacoes",
-    f.activeMeds.some((m) => /omeprazol|pantoprazol|esomeprazol|ranitidina|famotidina/i.test(m.name))
+    f.activeMeds.some((m) =>
+      /omeprazol|pantoprazol|esomeprazol|ranitidina|famotidina/i.test(m.name),
+    )
       ? "ok"
       : "pending",
-    f.activeMeds.some((m) => /omeprazol|pantoprazol|esomeprazol|ranitidina|famotidina/i.test(m.name))
+    f.activeMeds.some((m) =>
+      /omeprazol|pantoprazol|esomeprazol|ranitidina|famotidina/i.test(m.name),
+    )
       ? "Profilaxia de úlcera de estresse identificada."
       : "Nenhuma profilaxia gástrica identificada.",
     ["Reavaliar indicação conforme fatores de risco e suspender quando não houver mais indicação."],

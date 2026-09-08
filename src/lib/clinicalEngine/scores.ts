@@ -61,7 +61,9 @@ function sofaScore(p: Patient): ScoreOutput {
     components,
     missing,
     available: total != null,
-    source: saved ? "Avaliação SOFA salva na calculadora do projeto" : "Calculado com os dados do passômetro",
+    source: saved
+      ? "Avaliação SOFA salva na calculadora do projeto"
+      : "Calculado com os dados do passômetro",
     at: saved?.at,
   };
 }
@@ -108,7 +110,12 @@ function qsofaScore(f: Facts): ScoreOutput {
 /** NEWS2 simplificado com os parâmetros disponíveis no passômetro. */
 function news2Score(f: Facts): ScoreOutput {
   const parts: { label: string; value: string; point: number | null }[] = [];
-  const band = (v: number | null, ranges: [number, number, number][], label: string, unit: string) => {
+  const band = (
+    v: number | null,
+    ranges: [number, number, number][],
+    label: string,
+    unit: string,
+  ) => {
     if (v == null) {
       parts.push({ label, value: NA, point: null });
       return;
@@ -117,11 +124,56 @@ function news2Score(f: Facts): ScoreOutput {
     parts.push({ label, value: `${v} ${unit}`, point: hit ? hit[2] : 3 });
   };
 
-  band(f.fr, [[12, 20, 0], [9, 11, 1], [21, 24, 2]], "Frequência respiratória", "ipm");
-  band(f.spo2, [[96, 100, 0], [94, 95, 1], [92, 93, 2]], "Saturação de oxigênio", "%");
-  band(f.pas, [[111, 219, 0], [101, 110, 1], [91, 100, 2]], "Pressão sistólica", "mmHg");
-  band(f.fcMax, [[51, 90, 0], [91, 110, 1], [111, 130, 2]], "Frequência cardíaca", "bpm");
-  band(f.tempMax, [[36.1, 38, 0], [38.1, 39, 1], [35.1, 36, 1]], "Temperatura", "°C");
+  band(
+    f.fr,
+    [
+      [12, 20, 0],
+      [9, 11, 1],
+      [21, 24, 2],
+    ],
+    "Frequência respiratória",
+    "ipm",
+  );
+  band(
+    f.spo2,
+    [
+      [96, 100, 0],
+      [94, 95, 1],
+      [92, 93, 2],
+    ],
+    "Saturação de oxigênio",
+    "%",
+  );
+  band(
+    f.pas,
+    [
+      [111, 219, 0],
+      [101, 110, 1],
+      [91, 100, 2],
+    ],
+    "Pressão sistólica",
+    "mmHg",
+  );
+  band(
+    f.fcMax,
+    [
+      [51, 90, 0],
+      [91, 110, 1],
+      [111, 130, 2],
+    ],
+    "Frequência cardíaca",
+    "bpm",
+  );
+  band(
+    f.tempMax,
+    [
+      [36.1, 38, 0],
+      [38.1, 39, 1],
+      [35.1, 36, 1],
+    ],
+    "Temperatura",
+    "°C",
+  );
   parts.push({
     label: "Nível de consciência",
     value: f.gcs == null ? NA : `Glasgow ${f.gcs}`,
@@ -177,10 +229,7 @@ function pfScore(f: Facts): ScoreOutput {
       { label: "PaO2", value: f.pao2.value == null ? NA : `${f.pao2.value} mmHg` },
       { label: "FiO2", value: f.fio2 == null ? NA : `${f.fio2}%` },
     ],
-    missing: [
-      ...(f.pao2.value == null ? ["PaO2"] : []),
-      ...(f.fio2 == null ? ["FiO2"] : []),
-    ],
+    missing: [...(f.pao2.value == null ? ["PaO2"] : []), ...(f.fio2 == null ? ["FiO2"] : [])],
     available: v != null,
     source: "Calculado pelo Motor Clínico",
   };
@@ -211,7 +260,9 @@ function registeredScores(p: Patient): ScoreOutput[] {
           source: "Calculadora SAPS 3 do projeto",
           at: saps.at,
         }
-      : unavailable("saps3", "SAPS 3", "Calculadora SAPS 3 do projeto", ["preenchimento na aba Gestão"]),
+      : unavailable("saps3", "SAPS 3", "Calculadora SAPS 3 do projeto", [
+          "preenchimento na aba Gestão",
+        ]),
   );
 
   out.push(
@@ -231,7 +282,9 @@ function registeredScores(p: Patient): ScoreOutput[] {
           source: "Escala WFNS / Glasgow do projeto",
           at: p.wfns?.at ?? p.gcs?.at,
         }
-      : unavailable("gcs", "Escala de coma de Glasgow", "Escala WFNS do projeto", ["Glasgow na WFNS"]),
+      : unavailable("gcs", "Escala de coma de Glasgow", "Escala WFNS do projeto", [
+          "Glasgow na WFNS",
+        ]),
   );
 
   out.push(
@@ -257,11 +310,19 @@ function registeredScores(p: Patient): ScoreOutput[] {
           source: "Calculadora NIHSS do projeto",
           at: p.nihss.at,
         }
-      : unavailable("nihss", "NIHSS", "Calculadora NIHSS do projeto", ["preenchimento na aba Gestão"]),
+      : unavailable("nihss", "NIHSS", "Calculadora NIHSS do projeto", [
+          "preenchimento na aba Gestão",
+        ]),
   );
 
   const simple: [string, string, number | null | undefined, string, string | undefined][] = [
-    ["hunt_hess", "Hunt-Hess", p.huntHess?.grade, "Calculadora Hunt-Hess do projeto", p.huntHess?.at],
+    [
+      "hunt_hess",
+      "Hunt-Hess",
+      p.huntHess?.grade,
+      "Calculadora Hunt-Hess do projeto",
+      p.huntHess?.at,
+    ],
     ["wfns", "WFNS", p.wfns?.grade, "Calculadora WFNS do projeto", p.wfns?.at],
     ["fisher", "Fisher modificada", p.fisher?.grade, "Calculadora Fisher do projeto", p.fisher?.at],
     [
@@ -296,7 +357,12 @@ function registeredScores(p: Patient): ScoreOutput[] {
       ? {
           key: "vasograde",
           label: "VASOGRADE",
-          value: p.vasograde.color === "green" ? "VERDE" : p.vasograde.color === "yellow" ? "AMARELO" : "VERMELHO",
+          value:
+            p.vasograde.color === "green"
+              ? "VERDE"
+              : p.vasograde.color === "yellow"
+                ? "AMARELO"
+                : "VERMELHO",
           interpretation: "Risco de isquemia cerebral tardia conforme WFNS e Fisher modificada.",
           components: [
             { label: "WFNS", value: `${p.vasograde.wfns ?? NA}` },
@@ -307,7 +373,9 @@ function registeredScores(p: Patient): ScoreOutput[] {
           source: "Calculadora VASOGRADE do projeto",
           at: p.vasograde.at,
         }
-      : unavailable("vasograde", "VASOGRADE", "Calculadora VASOGRADE do projeto", ["preenchimento na aba Gestão"]),
+      : unavailable("vasograde", "VASOGRADE", "Calculadora VASOGRADE do projeto", [
+          "preenchimento na aba Gestão",
+        ]),
   );
 
   // Escalas de beira-leito registradas apenas como texto no passômetro.

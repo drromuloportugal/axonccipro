@@ -33,8 +33,12 @@ export function runClinicalEngine(patient: Patient, options: EngineOptions = {})
   pipeline.push("1. Paciente ativo identificado no passômetro");
 
   const facts = collectFacts(patient);
-  pipeline.push("2. Dados estruturados coletados (vitais, exames, ventilação, medicações, dispositivos)");
-  pipeline.push("3. Origem de cada dado classificada (informado / calculado / inferido / não informado)");
+  pipeline.push(
+    "2. Dados estruturados coletados (vitais, exames, ventilação, medicações, dispositivos)",
+  );
+  pipeline.push(
+    "3. Origem de cada dado classificada (informado / calculado / inferido / não informado)",
+  );
 
   const problems: string[] = [];
   if (facts.sepsisSuspected) problems.push("Infecção / sepse");
@@ -43,7 +47,8 @@ export function runClinicalEngine(patient: Patient, options: EngineOptions = {})
   if (facts.vasopressors.length) problems.push("Choque com vasopressor");
   if (facts.creat.value != null && facts.creat.value >= 1.5) problems.push("Disfunção renal");
   if (facts.neuroCase) problems.push("Lesão neurológica aguda");
-  if (!problems.length) problems.push("Nenhuma síndrome prioritária detectada com os dados disponíveis");
+  if (!problems.length)
+    problems.push("Nenhuma síndrome prioritária detectada com os dados disponíveis");
   pipeline.push("4. Problemas e síndromes prioritários detectados");
 
   const scores = runScoreEngine(patient, facts);
@@ -77,7 +82,9 @@ export function runClinicalEngine(patient: Patient, options: EngineOptions = {})
   const inconclusive: string[] = [];
   for (const s of scores) {
     if (!s.available && (intent === "scores" || intent === "full")) {
-      inconclusive.push(`${s.label}: não é possível concluir — ${s.missing.join(", ") || "dados ausentes"}.`);
+      inconclusive.push(
+        `${s.label}: não é possível concluir — ${s.missing.join(", ") || "dados ausentes"}.`,
+      );
     }
   }
   if (facts.pfRatio == null && (intent === "ventilation" || intent === "full")) {
@@ -91,12 +98,18 @@ export function runClinicalEngine(patient: Patient, options: EngineOptions = {})
     critical.length
       ? `🔴 ${critical.length} achado(s) crítico(s): ${critical.map((f) => f.title).join(" · ")}.`
       : "Nenhum achado crítico disparado pelas regras determinísticas.",
-    missing.length ? `Dados faltantes relevantes: ${missing.length}.` : "Sem lacunas relevantes de dados.",
+    missing.length
+      ? `Dados faltantes relevantes: ${missing.length}.`
+      : "Sem lacunas relevantes de dados.",
   ].join(" ");
 
   const timeline = (patient.procedures ?? [])
     .slice(-12)
-    .map((t) => ({ at: t.date, label: `${t.label}${t.detail ? ` — ${t.detail}` : ""}`, domain: "timeline" as Domain }));
+    .map((t) => ({
+      at: t.date,
+      label: `${t.label}${t.detail ? ` — ${t.detail}` : ""}`,
+      domain: "timeline" as Domain,
+    }));
   pipeline.push("12. Resposta estruturada gerada com justificativa e fontes");
   pipeline.push("13. Execução registrada para auditoria");
 
