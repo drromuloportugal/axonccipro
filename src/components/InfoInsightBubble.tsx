@@ -453,6 +453,18 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
             )}
 
             {patient && (
+              <NetoLivePanel
+                patientId={patient.id}
+                patientLabel={`${patient.bed} · ${patient.name}`}
+                onTranscript={(role, text) => setChat((c) => [...c, { role, content: text }])}
+                onToolResult={(name, summary) =>
+                  setChat((c) => [...c, { role: "assistant", content: `【${name}】\n${summary}` }])
+                }
+              />
+            )}
+
+
+            {patient && (
               <div className="max-h-[112px] overflow-y-auto pr-0.5">
                 <div className="flex flex-wrap gap-1">
                   {QUICK_ACTIONS.map((a) => (
