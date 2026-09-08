@@ -5,7 +5,7 @@
 // Nenhuma calculadora é duplicada: o motor consome os resultados registrados.
 
 import type { Patient } from "@/data/patients";
-import { calculateTotalSOFA, prefillFromPatient, SEVERITY_LABEL } from "@/lib/sofaScore";
+import { calculateTotalSOFA, prefillFromPatient, SOFA_COMPONENTS } from "@/lib/sofaScore";
 import type { Facts } from "./dataset";
 import type { ScoreOutput } from "./types";
 
@@ -32,11 +32,16 @@ function sofaScore(p: Patient): ScoreOutput {
   const inputs = saved?.inputs ?? prefillFromPatient(p);
   const result = calculateTotalSOFA(inputs);
   const total = saved?.total ?? result.total;
-  const components = result.components.map((c) => ({
-    label: c.label,
-    value: c.score == null ? NA : `${c.score} — ${c.detail}`,
-  }));
-  const missing = result.components.filter((c) => c.score == null).map((c) => c.label);
+  const components = SOFA_COMPONENTS.map(({ key, label }) => {
+    const c = result.components[key];
+    return {
+      label,
+      value: c.score == null ? NA : `${c.score} — ${c.detail}`,
+    };
+  });
+  const missing = SOFA_COMPONENTS.filter(({ key }) => result.components[key].score == null).map(
+    ({ label }) => label,
+  );
   return {
     key: "sofa",
     label: "SOFA",
@@ -44,9 +49,15 @@ function sofaScore(p: Patient): ScoreOutput {
     interpretation:
       total == null
         ? "Não é possível concluir — componentes essenciais ausentes."
-        : `${SEVERITY_LABEL[Math.min(4, Math.floor(total / 6))] ?? "Interpretação conforme trajetória"}${
-            missing.length ? ` · escore parcial (${missing.length} componente(s) sem dado)` : ""
-          }`,
+        : `${
+            total >= 12
+              ? "Disfunção orgânica muito grave"
+              : total >= 8
+                ? "Disfunção orgânica grave"
+                : total >= 4
+                  ? "Disfunção orgânica moderada"
+                  : "Disfunção orgânica leve"
+          }${missing.length ? ` · escore parcial (${missing.length} componente(s) sem dado)` : ""}`,
     components,
     missing,
     available: total != null,
