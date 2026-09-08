@@ -887,6 +887,66 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               </Conversation>
             )}
 
+            {prItems.length > 0 && (
+              <div className="neto-panel space-y-2 rounded-[18px] p-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-neto-muted">
+                  Condutas propostas · Problemas · Riscos · Pendências
+                </span>
+                <Button
+                  type="button"
+                  onClick={applyProblems}
+                  disabled={
+                    Object.values(prChecked).filter(Boolean).length === 0 || !onPatientChange
+                  }
+                  className="h-9 w-full rounded-full bg-neto-online px-3 text-[12px] font-black uppercase tracking-[0.04em] text-neto-shell-deep shadow-lg ring-2 ring-white/40 hover:bg-neto-online/90 disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" /> Aplicar nas condutas
+                  {Object.values(prChecked).filter(Boolean).length > 0
+                    ? ` (${Object.values(prChecked).filter(Boolean).length})`
+                    : ""}
+                </Button>
+                <div className="space-y-1">
+                  {prItems.map((it, i) => {
+                    const id = `pr:${i}`;
+                    const on = !!prChecked[id];
+                    const done = !!prAppliedIds[id];
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setPrChecked((prev) => ({ ...prev, [id]: !on }))}
+                        className={`flex w-full items-start gap-2 rounded-[12px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
+                          done
+                            ? "border-neto-line bg-neto-panel-strong !text-[oklch(0.62_0.24_305)]"
+                            : on
+                              ? "border-neto-glow bg-neto-glow/20 !text-white"
+                              : "border-neto-line bg-neto-panel-strong !text-white hover:bg-neto-panel"
+                        }`}
+                      >
+                        <span
+                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
+                            done
+                              ? "border-[oklch(0.62_0.24_305)] bg-[oklch(0.62_0.24_305)] text-white"
+                              : on
+                                ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                                : "border-neto-line"
+                          }`}
+                        >
+                          {(on || done) && <Check className="h-3 w-3" />}
+                        </span>
+                        {it.text}
+                      </button>
+                    );
+                  })}
+                </div>
+                {prApplied > 0 && (
+                  <p className="text-[10px] font-bold text-clinical-stable">
+                    ✅ {prApplied} conduta(s) incluída(s) em roxo nas condutas do paciente.
+                  </p>
+                )}
+              </div>
+            )}
+
             {error && (
               <p className="rounded-[14px] border border-clinical-critical/60 bg-clinical-critical/20 px-3 py-2 text-[11px] font-semibold text-neto-foreground">
                 {error}
