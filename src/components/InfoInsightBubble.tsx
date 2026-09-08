@@ -451,6 +451,37 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 {patient.bed} · {patient.name}
               </p>
             )}
+
+            {patient && (
+              <div className="max-h-[112px] overflow-y-auto pr-0.5">
+                <div className="flex flex-wrap gap-1">
+                  {QUICK_ACTIONS.map((a) => (
+                    <Button
+                      key={a.intent}
+                      type="button"
+                      variant="ghost"
+                      onClick={() => runQuick(a.intent)}
+                      className={`neto-chip h-auto rounded-full px-2 py-1 text-[10px] font-bold leading-none text-neto-foreground hover:bg-neto-panel-strong ${
+                        engineIntent === a.intent ? "bg-neto-glow/25 !text-white" : ""
+                      }`}
+                    >
+                      {a.emoji} {a.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {engine && (
+              <div className="max-h-[46vh] overflow-y-auto pr-0.5">
+                <NetoEngineReport
+                  result={engine}
+                  asking={asking}
+                  onDiscuss={(q) => void ask(q)}
+                />
+              </div>
+            )}
+
             {loading && (
               <Shimmer className="text-[11px] text-neto-muted">
                 Estruturando os raciocínios…
