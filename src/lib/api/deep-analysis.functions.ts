@@ -349,13 +349,12 @@ export const suggestInsightAngles = createServerFn({ method: "POST" })
         role: "system",
         content: `${ENGINE_SYSTEM}
 
-Você recebe um TRECHO DE INFORMAÇÃO selecionado no passômetro de um paciente crítico e deve propor quatro ângulos de raciocínio clínico curtos, específicos e úteis, na seguinte ordem:
-1 e 2 — relação direta dessa informação com ESTE caso (dados, tendência, interações, risco, conduta).
-3 e 4 — o assunto em si, do ponto de vista acadêmico/científico (fisiopatologia, evidência, diretrizes, metas), com evidência consultada em ${EVIDENCE_SOURCE}.
+Você recebe um TRECHO DE INFORMAÇÃO selecionado no passômetro de um paciente crítico e deve propor TRÊS ângulos de raciocínio clínico curtos, específicos e úteis.
+Todos os três devem relacionar a informação apontada com TODAS as informações disponíveis daquele paciente (dados, tendência, interações medicamentosas, risco, conduta, metas), não com o assunto de forma genérica. Use evidência de ${EVIDENCE_SOURCE} quando citar recomendação.
 
 Responda APENAS com JSON válido, sem comentários e sem blocos de código, no formato:
-{"angles":[{"kind":"case","label":"até 6 palavras","question":"pergunta clínica completa"},...4 itens...]}
-Os dois primeiros com kind "case", os dois últimos com kind "topic". Em português do Brasil.`,
+{"angles":[{"kind":"case","label":"até 6 palavras","question":"pergunta clínica completa"},...3 itens...]}
+Todos com kind "case". Em português do Brasil.`,
       },
       {
         role: "user",
@@ -373,33 +372,28 @@ Os dois primeiros com kind "case", os dois últimos com kind "topic". Em portugu
     } catch {
       angles = [];
     }
-    if (angles.length < 4) {
+    if (angles.length < 3) {
       angles = [
         {
           kind: "case",
           label: "Impacto neste caso",
-          question: `Qual o significado clínico desta informação neste paciente: ${data.info.slice(0, 300)}?`,
+          question: `Qual o significado clínico desta informação neste paciente, considerando todos os dados do passômetro: ${data.info.slice(0, 300)}?`,
         },
         {
           kind: "case",
           label: "Riscos e conduta",
-          question: `Que riscos e condutas esta informação sugere neste paciente: ${data.info.slice(0, 300)}?`,
+          question: `Que riscos e condutas esta informação sugere neste paciente, cruzando exames, ventilação, medicações e dispositivos: ${data.info.slice(0, 300)}?`,
         },
         {
-          kind: "topic",
-          label: "Fisiopatologia",
-          question: `Explique a fisiopatologia e os fundamentos científicos do assunto: ${data.info.slice(0, 300)}.`,
-        },
-        {
-          kind: "topic",
-          label: "Evidência e metas",
-          question: `Qual a evidência atual e as metas recomendadas sobre: ${data.info.slice(0, 300)}? Cite referências.`,
+          kind: "case",
+          label: "Metas e reavaliação",
+          question: `Quais metas e reavaliações nas próximas 12 h decorrem desta informação neste paciente: ${data.info.slice(0, 300)}?`,
         },
       ];
     }
     return {
-      angles: angles.slice(0, 4).map((a) => ({
-        kind: a.kind === "topic" ? "topic" : "case",
+      angles: angles.slice(0, 3).map((a) => ({
+        kind: "case" as const,
         label: String(a.label ?? "").slice(0, 60),
         question: String(a.question ?? ""),
       })),
