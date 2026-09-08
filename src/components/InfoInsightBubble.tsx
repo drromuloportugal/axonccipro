@@ -774,7 +774,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                               onClick={() => setFhChecked((prev) => ({ ...prev, [id]: !on }))}
                               className={`flex w-full items-start gap-2 rounded-[12px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
                                 done
-                                  ? "border-neto-line bg-neto-panel-strong !text-[oklch(0.62_0.24_305)]"
+                                  ? "border-clinical-stable bg-neto-panel-strong !text-white"
                                   : on
                                     ? "border-neto-glow bg-neto-glow/20 !text-white"
                                     : "border-neto-line bg-neto-panel-strong !text-white hover:bg-neto-panel"
@@ -783,7 +783,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                               <span
                                 className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
                                   done
-                                    ? "border-[oklch(0.62_0.24_305)] bg-[oklch(0.62_0.24_305)] text-white"
+                                    ? "border-clinical-stable bg-clinical-stable text-neto-shell-deep"
                                     : on
                                       ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
                                       : "border-neto-line"
