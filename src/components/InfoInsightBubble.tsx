@@ -358,7 +358,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       }}
     >
       <div
-        className={`neto-glass relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? "w-[330px] max-w-[92vw] rounded-[24px] p-3" : "h-14 w-14 cursor-pointer rounded-full"}`}
+        className={`relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? "neto-panel w-[330px] max-w-[92vw] rounded-[24px] p-3" : "neto-glass h-14 w-14 cursor-pointer rounded-full"}`}
       >
         <span
           aria-hidden
@@ -790,7 +790,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   onChange={(e) => setQuestion(e.target.value)}
                   rows={1}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-[34px] px-3.5 py-1.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
+                  className="min-h-[34px] w-full px-3.5 py-1.5 text-[11px] text-neto-foreground placeholder:text-neto-muted"
                 />
                 <PromptInputFooter className="justify-end px-2 pb-1.5 pt-0">
                   <PromptInputSubmit
