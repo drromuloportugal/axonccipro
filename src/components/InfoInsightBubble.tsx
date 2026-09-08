@@ -111,12 +111,14 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [fhIndex, setFhIndex] = useState(0);
   const [fhLoading, setFhLoading] = useState(false);
   const [fhChecked, setFhChecked] = useState<Record<string, boolean>>({});
+  const [fhAppliedIds, setFhAppliedIds] = useState<Record<string, boolean>>({});
   const [fhApplied, setFhApplied] = useState(0);
   const [crcl, setCrcl] = useState<CrClResult | null>(null);
   const [renalItems, setRenalItems] = useState<RenalItem[]>([]);
   const [renalSummary, setRenalSummary] = useState("");
   const [renalLoading, setRenalLoading] = useState(false);
   const [renalChecked, setRenalChecked] = useState<Record<string, boolean>>({});
+  const [renalAppliedIds, setRenalAppliedIds] = useState<Record<string, boolean>>({});
   const [renalApplied, setRenalApplied] = useState(0);
   const [renalExpanded, setRenalExpanded] = useState(false);
 
@@ -183,11 +185,13 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setFhItems([]);
     setFhIndex(0);
     setFhChecked({});
+    setFhAppliedIds({});
     setFhApplied(0);
     setCrcl(null);
     setRenalItems([]);
     setRenalSummary("");
     setRenalChecked({});
+    setRenalAppliedIds({});
     setRenalApplied(0);
     setRenalExpanded(false);
     setError(null);
@@ -264,6 +268,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     }
     onPatientChange({ ...p, conducts });
     setRenalApplied(applied);
+    setRenalAppliedIds((prev) => ({ ...prev, ...renalChecked }));
     setRenalChecked({});
   };
 
@@ -342,6 +347,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
     onPatientChange({ ...p, conducts });
     setFhApplied(applied);
+    setFhAppliedIds((prev) => ({ ...prev, ...fhChecked }));
     setFhChecked({});
   };
 
@@ -497,9 +503,24 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                       </p>
                     )}
 
+                    {renalItems.length > 0 && (
+                      <Button
+                        type="button"
+                        onClick={applyRenal}
+                        disabled={
+                          !onPatientChange ||
+                          Object.values(renalChecked).filter(Boolean).length === 0
+                        }
+                        className="h-9 w-full rounded-full bg-neto-online px-3 text-[12px] font-black uppercase tracking-[0.04em] text-neto-shell-deep shadow-lg ring-2 ring-white/40 hover:bg-neto-online/90 disabled:opacity-50"
+                      >
+                        <Check className="h-4 w-4" /> Aplicar sugestões
+                      </Button>
+                    )}
+
                     {renalItems.map((it, i) => {
                       const id = `r:${i}`;
                       const on = !!renalChecked[id];
+                      const done = !!renalAppliedIds[id];
                       return (
                         <div
                           key={id}
@@ -522,19 +543,23 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                             type="button"
                             onClick={() => setRenalChecked((prev) => ({ ...prev, [id]: !on }))}
                             className={`flex w-full items-start gap-2 rounded-[10px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
-                              on
-                                ? "border-neto-glow bg-neto-glow/20 !text-white"
-                                : "border-neto-line !text-white hover:bg-neto-panel"
+                              done
+                                ? "border-neto-line !text-[oklch(0.62_0.24_305)]"
+                                : on
+                                  ? "border-neto-glow bg-neto-glow/20 !text-white"
+                                  : "border-neto-line !text-white hover:bg-neto-panel"
                             }`}
                           >
                             <span
                               className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
-                                on
-                                  ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
-                                  : "border-neto-line"
+                                done
+                                  ? "border-[oklch(0.62_0.24_305)] bg-[oklch(0.62_0.24_305)] text-white"
+                                  : on
+                                    ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                                    : "border-neto-line"
                               }`}
                             >
-                              {on && <Check className="h-3 w-3" />}
+                              {(on || done) && <Check className="h-3 w-3" />}
                             </span>
                             {it.adjustment}
                           </button>
@@ -567,17 +592,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                         >
                           Discutir
                         </Button>
-                        <Button
-                          type="button"
-                          onClick={applyRenal}
-                          disabled={
-                            !onPatientChange ||
-                            Object.values(renalChecked).filter(Boolean).length === 0
-                          }
-                          className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
-                        >
-                          Aplicar nas condutas
-                        </Button>
                       </div>
                     )}
 
@@ -593,7 +607,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
             {angles.length > 0 && chat.length === 0 && fhItems.length === 0 && !fhLoading && (
               <div className="neto-panel space-y-1.5 rounded-[18px] p-2">
-                {angles.map((a, i) => (
+                {angles.slice(0, 3).map((a, i) => (
                   <Button
                     key={i}
                     type="button"
@@ -602,14 +616,24 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                     disabled={asking}
                     className="neto-chip h-auto w-full justify-start whitespace-normal rounded-full px-3 py-2 text-left text-[11px] font-semibold leading-snug text-neto-foreground hover:bg-neto-panel-strong"
                   >
-                    {a.kind === "case" ? (
-                      <Stethoscope className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
-                    ) : (
-                      <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
-                    )}
+                    <Stethoscope className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
                     {a.label || a.question.slice(0, 60)}
                   </Button>
                 ))}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={asking}
+                  onClick={() =>
+                    void ask(
+                      "Liste, para este paciente e com base em todo o passômetro: 1) PROBLEMAS CRÍTICOS; 2) RISCOS PRIORITÁRIOS nas próximas 12 h; 3) PENDÊNCIAS. Para cada item, apresente já a solução/conduta recomendada com a evidência consultada em https://www.openevidence.com (sociedade, ano e força quando disponível). Dado ausente = [DADO NÃO DISPONÍVEL NO PASSÔMETRO].",
+                    )
+                  }
+                  className="neto-chip h-auto w-full justify-start whitespace-normal rounded-full px-3 py-2 text-left text-[11px] font-semibold leading-snug text-neto-foreground hover:bg-neto-panel-strong"
+                >
+                  <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
+                  Problemas críticos · Riscos prioritários · Pendências
+                </Button>
                 <Button
                   type="button"
                   variant="ghost"
@@ -655,30 +679,45 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                       {item.assessment}
                     </p>
 
+                    <Button
+                      type="button"
+                      onClick={applySelected}
+                      disabled={selectedCount === 0 || !onPatientChange}
+                      className="h-9 w-full rounded-full bg-neto-online px-3 text-[12px] font-black uppercase tracking-[0.04em] text-neto-shell-deep shadow-lg ring-2 ring-white/40 hover:bg-neto-online/90 disabled:opacity-50"
+                    >
+                      <Check className="h-4 w-4" /> Aplicar sugestões
+                      {selectedCount > 0 ? ` (${selectedCount})` : ""}
+                    </Button>
+
                     {item.suggestions.length > 0 ? (
                       <div className="space-y-1">
                         {item.suggestions.map((s, i) => {
                           const id = `${item.key}:${i}`;
                           const on = !!fhChecked[id];
+                          const done = !!fhAppliedIds[id];
                           return (
                             <button
                               key={id}
                               type="button"
                               onClick={() => setFhChecked((prev) => ({ ...prev, [id]: !on }))}
                               className={`flex w-full items-start gap-2 rounded-[12px] border px-2 py-1.5 text-left text-[11px] font-semibold leading-snug transition-colors ${
-                                on
-                                  ? "border-neto-glow bg-neto-glow/20 !text-white"
-                                  : "border-neto-line bg-neto-panel-strong !text-white hover:bg-neto-panel"
+                                done
+                                  ? "border-neto-line bg-neto-panel-strong !text-[oklch(0.62_0.24_305)]"
+                                  : on
+                                    ? "border-neto-glow bg-neto-glow/20 !text-white"
+                                    : "border-neto-line bg-neto-panel-strong !text-white hover:bg-neto-panel"
                               }`}
                             >
                               <span
                                 className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border ${
-                                  on
-                                    ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
-                                    : "border-neto-line"
+                                  done
+                                    ? "border-[oklch(0.62_0.24_305)] bg-[oklch(0.62_0.24_305)] text-white"
+                                    : on
+                                      ? "border-neto-glow bg-neto-glow text-neto-shell-deep"
+                                      : "border-neto-line"
                                 }`}
                               >
-                                {on && <Check className="h-3 w-3" />}
+                                {(on || done) && <Check className="h-3 w-3" />}
                               </span>
                               {s}
                             </button>
@@ -723,17 +762,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                         variant="ghost"
                         onClick={() => void ask(`${item.title}: ${item.assessment}`)}
                         disabled={asking}
-                        className="h-7 rounded-full px-2 text-[10px] font-bold text-neto-foreground hover:bg-neto-panel-strong"
+                        className="ml-auto h-7 rounded-full px-2 text-[10px] font-bold text-neto-foreground hover:bg-neto-panel-strong"
                       >
                         Discutir
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={applySelected}
-                        disabled={selectedCount === 0 || !onPatientChange}
-                        className="ml-auto h-7 rounded-full bg-neto-glow px-2.5 text-[10px] font-bold text-neto-shell-deep hover:bg-neto-glow/90"
-                      >
-                        Aplicar {selectedCount > 0 ? `(${selectedCount})` : ""}
                       </Button>
                     </div>
 
@@ -785,16 +816,20 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   setQuestion("");
                   void ask(q);
                 }}
-                className="neto-panel flex min-h-[72px] overflow-hidden rounded-[20px] border-neto-line bg-transparent shadow-none"
+                style={{
+                  background:
+                    "linear-gradient(135deg, var(--neto-panel-strong), var(--neto-panel))",
+                }}
+                className="flex min-h-[72px] overflow-hidden rounded-[20px] border border-neto-line shadow-none"
               >
                 <PromptInputTextarea
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   rows={1}
                   placeholder="Escreva sua pergunta sobre esta informação…"
-                  className="min-h-0 flex-1 resize-none px-3.5 py-2 text-[11px] leading-relaxed text-neto-foreground placeholder:text-neto-muted"
+                  className="min-h-0 flex-1 resize-none bg-transparent px-3.5 py-2 text-[11px] leading-relaxed !text-white placeholder:text-neto-muted"
                 />
-                <PromptInputFooter className="justify-end px-2 pb-1.5 pt-0">
+                <PromptInputFooter className="justify-end bg-transparent px-2 pb-1.5 pt-0">
                   <PromptInputSubmit
                     status={asking ? "submitted" : undefined}
                     disabled={asking || !question.trim()}
