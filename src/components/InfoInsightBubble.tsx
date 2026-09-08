@@ -121,10 +121,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const [renalAppliedIds, setRenalAppliedIds] = useState<Record<string, boolean>>({});
   const [renalApplied, setRenalApplied] = useState(0);
   const [renalExpanded, setRenalExpanded] = useState(false);
-  const [prItems, setPrItems] = useState<{ system: ConductSystem; text: string }[]>([]);
-  const [prChecked, setPrChecked] = useState<Record<string, boolean>>({});
-  const [prAppliedIds, setPrAppliedIds] = useState<Record<string, boolean>>({});
-  const [prApplied, setPrApplied] = useState(0);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
