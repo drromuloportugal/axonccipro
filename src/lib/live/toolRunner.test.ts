@@ -40,7 +40,17 @@ const patient = {
   ],
   conducts: [],
   goals: [],
-  state: { glasgow: 8, rass: -3, pam: 65, dva: "NORADRENALINA", vent: "VCV", fio2: 45, diurese: 900, temp: 37.4, dieta: "enteral" },
+  state: {
+    glasgow: 8,
+    rass: -3,
+    pam: 65,
+    dva: "NORADRENALINA",
+    vent: "VCV",
+    fio2: 45,
+    diurese: 900,
+    temp: 37.4,
+    dieta: "enteral",
+  },
 } as unknown as Patient;
 
 const bare = { ...patient, exams: [], medications: [], devices: [], procedures: [] } as Patient;

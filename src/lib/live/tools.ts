@@ -78,20 +78,41 @@ const simple = (name: LiveToolName, description: string): LiveToolSpec => ({
 });
 
 export const LIVE_TOOLS: LiveToolSpec[] = [
-  simple("get_patient_summary", "Resumo objetivo do paciente: leito, idade, diagnósticos, gravidade."),
+  simple(
+    "get_patient_summary",
+    "Resumo objetivo do paciente: leito, idade, diagnósticos, gravidade.",
+  ),
   simple("get_current_vitals", "Sinais vitais e estado atual registrados no passômetro."),
   simple("get_recent_labs", "Exames laboratoriais mais recentes com data e valores críticos."),
   simple("get_medications", "Medicações em uso, dose, via, frequência e classe."),
   simple("get_devices", "Dispositivos invasivos, sítio, data de inserção e tempo de permanência."),
   simple("get_patient_timeline", "Linha do tempo de diagnósticos e procedimentos."),
   simple("run_fast_hug_maidens", "Checklist FASTHUG-MAIDENS com status e justificativa por item."),
-  simple("get_applicable_guidelines", "Diretrizes aplicáveis com sociedade, documento, versão e ano."),
-  simple("get_missing_critical_data", "Dados críticos não informados e o impacto de cada ausência."),
-  simple("review_antimicrobials", "Revisão de antimicrobianos, ajuste renal, duração e descalonamento."),
+  simple(
+    "get_applicable_guidelines",
+    "Diretrizes aplicáveis com sociedade, documento, versão e ano.",
+  ),
+  simple(
+    "get_missing_critical_data",
+    "Dados críticos não informados e o impacto de cada ausência.",
+  ),
+  simple(
+    "review_antimicrobials",
+    "Revisão de antimicrobianos, ajuste renal, duração e descalonamento.",
+  ),
   simple("analyze_ventilation", "Análise ventilatória: modo, Vt/kg PBW, PEEP/FiO2, P/F, SDRA."),
-  simple("analyze_hemodynamics", "Análise hemodinâmica: PAM, vasopressores, lactato, perfusão, balanço."),
-  simple("analyze_renal", "Análise renal: creatinina, diurese, AKI, ajuste renal, indicação de KRT."),
-  simple("analyze_neurocritical", "Análise neurocrítica: Glasgow, escores neuro, sedação, delirium."),
+  simple(
+    "analyze_hemodynamics",
+    "Análise hemodinâmica: PAM, vasopressores, lactato, perfusão, balanço.",
+  ),
+  simple(
+    "analyze_renal",
+    "Análise renal: creatinina, diurese, AKI, ajuste renal, indicação de KRT.",
+  ),
+  simple(
+    "analyze_neurocritical",
+    "Análise neurocrítica: Glasgow, escores neuro, sedação, delirium.",
+  ),
   {
     type: "function",
     name: "calculate_score",

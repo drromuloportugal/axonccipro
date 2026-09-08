@@ -77,7 +77,12 @@ export function useNetoLive({ patientId, patientLabel, onTranscript, onToolResul
       setTranscripts((t) => [...t, { id: rid(), role, text: clean }]);
       onTranscript?.(role, clean);
       void logVoice({
-        data: { sessionId: sessionIdRef.current, patientId: patientId ?? null, role, transcript: clean },
+        data: {
+          sessionId: sessionIdRef.current,
+          patientId: patientId ?? null,
+          role,
+          transcript: clean,
+        },
       }).catch(() => undefined);
     },
     [logVoice, onTranscript, patientId],

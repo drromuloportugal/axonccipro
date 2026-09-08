@@ -160,7 +160,9 @@ export function runNetoLiveTool(
           ? `Exames de ${label}: ${labs
               .slice(0, 18)
               .map((l) => `${l.label} ${l.value}${l.unit ? ` ${l.unit}` : ""}`)
-              .join("; ")}.${critical.length ? ` Críticos: ${critical.map((l) => l.label).join("; ")}.` : ""}`
+              .join(
+                "; ",
+              )}.${critical.length ? ` Críticos: ${critical.map((l) => l.label).join("; ")}.` : ""}`
           : `Nenhum exame informado para ${label}.`,
         data: labs,
       };

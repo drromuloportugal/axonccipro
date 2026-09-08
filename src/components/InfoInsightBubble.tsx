@@ -465,7 +465,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               />
             )}
 
-
             {patient && (
               <div className="max-h-[112px] overflow-y-auto pr-0.5">
                 <div className="flex flex-wrap gap-1">
