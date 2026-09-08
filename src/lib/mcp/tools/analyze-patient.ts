@@ -56,20 +56,19 @@ export default defineTool({
       ),
       "",
       "## Achados priorizados",
-      ...result.findings.map(
-        (f) =>
-          [
-            `- ${f.priority.toUpperCase()} · ${f.title}`,
-            `  POR QUE: ${f.why.join("; ")}`,
-            ...f.recommendations.map(
-              (r) =>
-                `  RECOMENDAÇÃO: ${r.text} — monitorizar: ${r.monitoring}${
-                  r.evidence
-                    ? ` (FONTE: ${r.evidence.society} ${r.evidence.document} ${r.evidence.version}${r.evidence.strength ? `, ${r.evidence.strength}` : ""})`
-                    : ""
-                }`,
-            ),
-          ].join("\n"),
+      ...result.findings.map((f) =>
+        [
+          `- ${f.priority.toUpperCase()} · ${f.title}`,
+          `  POR QUE: ${f.why.join("; ")}`,
+          ...f.recommendations.map(
+            (r) =>
+              `  RECOMENDAÇÃO: ${r.text} — monitorizar: ${r.monitoring}${
+                r.evidence
+                  ? ` (FONTE: ${r.evidence.society} ${r.evidence.document} ${r.evidence.version}${r.evidence.strength ? `, ${r.evidence.strength}` : ""})`
+                  : ""
+              }`,
+          ),
+        ].join("\n"),
       ),
       "",
       "## Dados faltantes",

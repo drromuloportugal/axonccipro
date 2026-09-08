@@ -6,6 +6,9 @@ import mainLogo from "@/assets/axon-logo.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") ? s.next : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Acesso da equipe — Passômetro UTI" },
@@ -27,6 +30,12 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const router = useRouter();
+  const { next } = Route.useSearch();
+  // Depois de entrar, volta para o destino original (ex.: consentimento OAuth).
+  const goNext = async () => {
+    if (next) window.location.href = next;
+    else await router.navigate({ to: "/" });
+  };
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -40,12 +49,13 @@ function AuthPage() {
     let cancelled = false;
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!cancelled && data.session) await router.navigate({ to: "/" });
+      if (!cancelled && data.session) await goNext();
     })();
     return () => {
       cancelled = true;
     };
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, next]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,13 +74,13 @@ function AuthPage() {
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: next ? `${window.location.origin}${next}` : window.location.origin,
             data: { nome: nome.trim() },
           },
         });
         if (signUpError) throw signUpError;
         if (data.session) {
-          await router.navigate({ to: "/" });
+          await goNext();
           router.invalidate();
         } else {
           setInfo("Conta criada. Confirme o e-mail recebido para entrar.");
@@ -82,7 +92,7 @@ function AuthPage() {
           password,
         });
         if (signInError) throw signInError;
-        await router.navigate({ to: "/" });
+        await goNext();
         router.invalidate();
       }
     } catch (err) {

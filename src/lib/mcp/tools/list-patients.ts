@@ -21,7 +21,11 @@ export default defineTool({
         {
           type: "text",
           text: rows.length
-            ? rows.map((r) => `${r.bed ?? "—"} · ${r.name ?? r.id} · ${r.diagnoses.join(", ") || "—"}`).join("\n")
+            ? rows
+                .map(
+                  (r) => `${r.bed ?? "—"} · ${r.name ?? r.id} · ${r.diagnoses.join(", ") || "—"}`,
+                )
+                .join("\n")
             : "Nenhum paciente cadastrado.",
         },
       ],
