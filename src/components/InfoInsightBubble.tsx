@@ -276,13 +276,53 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setRenalChecked({});
   };
 
-  const ask = async (q: string) => {
+  const CONDUCT_SYSTEMS: ConductSystem[] = [
+    "dieta",
+    "fono",
+    "resp",
+    "cardio",
+    "neuro",
+    "renal",
+    "gi",
+    "infec",
+    "hemato",
+    "skin",
+    "other",
+  ];
+
+  /** Extrai as linhas "CONDUTA | sistema | texto" e devolve texto limpo + itens. */
+  const parseConducts = (answer: string) => {
+    const items: { system: ConductSystem; text: string }[] = [];
+    const kept: string[] = [];
+    for (const raw of answer.split("\n")) {
+      const line = raw.replace(/^[\s*->•\d.]+/, "").trim();
+      const m = /^CONDUTA\s*\|\s*([a-zç]+)\s*\|\s*(.+)$/i.exec(line);
+      if (m) {
+        const sys = (m[1] ?? "").toLowerCase() as ConductSystem;
+        const text = (m[2] ?? "").replace(/[*_`]/g, "").trim();
+        if (text) {
+          items.push({ system: CONDUCT_SYSTEMS.includes(sys) ? sys : "other", text });
+        }
+        continue;
+      }
+      kept.push(raw);
+    }
+    return { text: kept.join("\n").trim(), items };
+  };
+
+  const ask = async (q: string, collectConducts = false) => {
     const p = patient;
     if (!q.trim() || !p || asking) return;
     const withUser: Msg[] = [...chat, { role: "user", content: q.trim() }];
     setChat(withUser);
     setAsking(true);
     setError(null);
+    if (collectConducts) {
+      setPrItems([]);
+      setPrChecked({});
+      setPrAppliedIds({});
+      setPrApplied(0);
+    }
     try {
       const res = await runAsk({
         data: {
@@ -291,12 +331,46 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
           history: chat.slice(-8),
         },
       });
-      setChat([...withUser, { role: "assistant", content: res.answer }]);
+      if (collectConducts) {
+        const parsed = parseConducts(res.answer);
+        setPrItems(parsed.items);
+        setChat([...withUser, { role: "assistant", content: parsed.text || res.answer }]);
+      } else {
+        setChat([...withUser, { role: "assistant", content: res.answer }]);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Falha ao consultar a evidência.");
     } finally {
       setAsking(false);
     }
+  };
+
+  /** Aplica as condutas propostas (Problemas · Riscos · Pendências) em roxo. */
+  const applyProblems = () => {
+    const p = patient;
+    const selected = prItems.filter((_, i) => prChecked[`pr:${i}`]);
+    if (!p || !onPatientChange || selected.length === 0) return;
+    const now = new Date().toISOString();
+    const conducts: Conduct[] = p.conducts.map((c) => ({
+      ...c,
+      subItems: c.subItems ? [...c.subItems] : [],
+    }));
+    let applied = 0;
+    for (const it of selected) {
+      let target = conducts.find((c) => c.system === it.system && c.team === "Médica");
+      if (!target) {
+        target = { team: "Médica", text: "", system: it.system, subItems: [], startedAt: now };
+        conducts.push(target);
+      }
+      if (!target.subItems?.some((s) => s.text === it.text)) {
+        target.subItems = [...(target.subItems ?? []), { text: it.text, date: now, color: "purple" }];
+        applied++;
+      }
+    }
+    onPatientChange({ ...p, conducts });
+    setPrApplied(applied);
+    setPrAppliedIds((prev) => ({ ...prev, ...prChecked }));
+    setPrChecked({});
   };
 
   const startFasthug = async () => {
