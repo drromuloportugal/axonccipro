@@ -14,6 +14,409 @@ export type Database = {
   }
   public: {
     Tables: {
+      clinical_guidelines: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          slug: string
+          society: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          slug: string
+          society: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          slug?: string
+          society?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clinical_protocols: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          domain: string
+          id: string
+          name: string
+          precedence: boolean
+          statement: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          domain: string
+          id?: string
+          name: string
+          precedence?: boolean
+          statement: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          name?: string
+          precedence?: boolean
+          statement?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      engine_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          code: string
+          created_at: string
+          domain: string
+          evidence: string | null
+          id: string
+          patient_id: string
+          priority: string
+          run_id: string | null
+          title: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          code: string
+          created_at?: string
+          domain: string
+          evidence?: string | null
+          id?: string
+          patient_id: string
+          priority: string
+          run_id?: string | null
+          title: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          code?: string
+          created_at?: string
+          domain?: string
+          evidence?: string | null
+          id?: string
+          patient_id?: string
+          priority?: string
+          run_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engine_alerts_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "engine_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engine_rules: {
+        Row: {
+          action_summary: string
+          active: boolean
+          code: string
+          condition_summary: string
+          created_at: string
+          domain: string
+          id: string
+          priority: string
+          recommendation_code: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_summary: string
+          active?: boolean
+          code: string
+          condition_summary: string
+          created_at?: string
+          domain: string
+          id?: string
+          priority?: string
+          recommendation_code?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_summary?: string
+          active?: boolean
+          code?: string
+          condition_summary?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          priority?: string
+          recommendation_code?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      engine_run_actions: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          payload: Json
+          run_id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          run_id: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          run_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engine_run_actions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "engine_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engine_runs: {
+        Row: {
+          conflicts: Json
+          created_at: string
+          data_used: Json
+          guidelines_used: Json
+          id: string
+          intent: string
+          missing_data: Json
+          patient_bed: string | null
+          patient_id: string
+          question: string | null
+          recommendations: Json
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          rules_fired: Json
+          scores: Json
+          user_id: string | null
+        }
+        Insert: {
+          conflicts?: Json
+          created_at?: string
+          data_used?: Json
+          guidelines_used?: Json
+          id?: string
+          intent: string
+          missing_data?: Json
+          patient_bed?: string | null
+          patient_id: string
+          question?: string | null
+          recommendations?: Json
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rules_fired?: Json
+          scores?: Json
+          user_id?: string | null
+        }
+        Update: {
+          conflicts?: Json
+          created_at?: string
+          data_used?: Json
+          guidelines_used?: Json
+          id?: string
+          intent?: string
+          missing_data?: Json
+          patient_bed?: string | null
+          patient_id?: string
+          question?: string | null
+          recommendations?: Json
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          rules_fired?: Json
+          scores?: Json
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      engine_tasks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          domain: string
+          due_time: string | null
+          id: string
+          patient_id: string
+          priority: string
+          run_id: string | null
+          status: string
+          text: string
+          updated_at: string
+          window_label: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          domain: string
+          due_time?: string | null
+          id?: string
+          patient_id: string
+          priority?: string
+          run_id?: string | null
+          status?: string
+          text: string
+          updated_at?: string
+          window_label: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          domain?: string
+          due_time?: string | null
+          id?: string
+          patient_id?: string
+          priority?: string
+          run_id?: string | null
+          status?: string
+          text?: string
+          updated_at?: string
+          window_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engine_tasks_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "engine_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guideline_recommendations: {
+        Row: {
+          certainty: string | null
+          code: string
+          created_at: string
+          domain: string
+          id: string
+          source_url: string | null
+          statement_summary: string
+          strength: string | null
+          topic: string
+          updated_at: string
+          version_id: string
+        }
+        Insert: {
+          certainty?: string | null
+          code: string
+          created_at?: string
+          domain: string
+          id?: string
+          source_url?: string | null
+          statement_summary: string
+          strength?: string | null
+          topic: string
+          updated_at?: string
+          version_id: string
+        }
+        Update: {
+          certainty?: string | null
+          code?: string
+          created_at?: string
+          domain?: string
+          id?: string
+          source_url?: string | null
+          statement_summary?: string
+          strength?: string | null
+          topic?: string
+          updated_at?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guideline_recommendations_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "guideline_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guideline_versions: {
+        Row: {
+          created_at: string
+          guideline_id: string
+          id: string
+          notes: string | null
+          retrieved_at: string | null
+          source_url: string | null
+          status: string
+          updated_at: string
+          version_label: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          guideline_id: string
+          id?: string
+          notes?: string | null
+          retrieved_at?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          version_label: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          guideline_id?: string
+          id?: string
+          notes?: string | null
+          retrieved_at?: string | null
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          version_label?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guideline_versions_guideline_id_fkey"
+            columns: ["guideline_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_guidelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           created_at: string
