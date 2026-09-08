@@ -716,7 +716,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                   className="neto-chip h-auto w-full justify-start whitespace-normal rounded-full px-3 py-2 text-left text-[11px] font-semibold leading-snug text-neto-foreground hover:bg-neto-panel-strong"
                 >
                   <BookOpen className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neto-glow" />
-                  Problemas críticos · Riscos prioritários · Pendências
+                  Problemas · Riscos · Pendências
                 </Button>
                 <Button
                   type="button"
