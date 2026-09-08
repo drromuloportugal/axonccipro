@@ -334,7 +334,9 @@ export function useNetoLive({ patientId, patientLabel, onTranscript, onToolResul
           );
         }
         if (answer.status === 401 || answer.status === 403) {
-          throw new Error("A chave da OpenAI foi recusada. Verifique o segredo OPENAI_API_KEY.");
+          throw new Error(
+            "A chave da OpenAI foi recusada. Revise o segredo configurado no projeto.",
+          );
         }
         throw new Error(`Não foi possível negociar o áudio (${answer.status}).`);
       }
