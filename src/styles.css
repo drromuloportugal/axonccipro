@@ -429,11 +429,7 @@
 [data-neto-root] [class*="bg-input"],
 [data-neto-root] [class*="bg-accent"],
 [data-neto-root] [class*="bg-popover"] {
-  background-image: linear-gradient(
-    135deg,
-    var(--neto-panel-strong),
-    var(--neto-panel)
-  ) !important;
+  background-image: linear-gradient(135deg, var(--neto-panel-strong), var(--neto-panel)) !important;
   background-color: transparent !important;
   border-color: var(--neto-line);
 }

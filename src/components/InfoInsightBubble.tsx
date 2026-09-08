@@ -367,7 +367,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
         conducts.push(target);
       }
       if (!target.subItems?.some((s) => s.text === it.text)) {
-        target.subItems = [...(target.subItems ?? []), { text: it.text, date: now, color: "purple" }];
+        target.subItems = [
+          ...(target.subItems ?? []),
+          { text: it.text, date: now, color: "purple" },
+        ];
         applied++;
       }
     }
