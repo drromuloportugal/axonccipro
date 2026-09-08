@@ -119,12 +119,28 @@ describe("ferramentas do NETO Live", () => {
     expect(done.summary).toContain("Reavaliação registrada");
   });
 
-  it("não expõe a chave da OpenAI no código do cliente", () => {
-    const client = ["src/lib/live/useNetoLive.ts", "src/components/NetoLivePanel.tsx"]
+  it("não expõe chave de IA nenhuma no código do cliente", () => {
+    const client = [
+      "src/lib/live/useNetoLive.ts",
+      "src/lib/live/useNetoVoice.ts",
+      "src/components/NetoLivePanel.tsx",
+    ]
       .map((f) => readFileSync(f, "utf8"))
       .join("\n");
-    expect(client).not.toContain("OPENAI_API_KEY");
     expect(client).not.toContain("sk-");
+    expect(client).not.toContain("process.env");
+    expect(client).not.toContain("api.openai.com/v1/audio");
+    // O cliente só conhece funções de servidor e o token efêmero do WebRTC.
     expect(client).toContain("clientSecret");
+    expect(client).toContain("useServerFn");
+  });
+
+  it("a voz por turnos usa o Gemini e mantém a confirmação de gravação", async () => {
+    const voice = readFileSync("src/lib/live/voice.functions.ts", "utf8");
+    expect(voice).toContain("google/gemini-3.5-transcribe");
+    expect(voice).toContain("ai.gateway.lovable.dev");
+    expect(voice).not.toContain("api.openai.com");
+    // Pedido de registro por voz nunca grava direto: devolve confirmação.
+    expect(voice).toContain("requiresConfirmation");
   });
 });
