@@ -326,7 +326,18 @@ export function useNetoLive({ patientId, patientLabel, onTranscript, onToolResul
           body: offer.sdp ?? "",
         },
       );
-      if (!answer.ok) throw new Error(`Não foi possível negociar o áudio (${answer.status}).`);
+      if (!answer.ok) {
+        const detail = await answer.text().catch(() => "");
+        if (answer.status === 429 || /insufficient_quota|credit_balance/i.test(detail)) {
+          throw new Error(
+            "A conta da OpenAI está sem créditos. Adicione créditos no painel de billing da OpenAI para usar a voz — o chat de texto do NETO continua funcionando.",
+          );
+        }
+        if (answer.status === 401 || answer.status === 403) {
+          throw new Error("A chave da OpenAI foi recusada. Verifique o segredo OPENAI_API_KEY.");
+        }
+        throw new Error(`Não foi possível negociar o áudio (${answer.status}).`);
+      }
       await pc.setRemoteDescription({ type: "answer", sdp: await answer.text() });
 
       monitorLevel(stream);
