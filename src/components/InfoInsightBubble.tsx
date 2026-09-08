@@ -424,7 +424,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
         }
         const label = `FASTHUG MAIDENS (${item.key.replace(/\d/, "")}) · ${text}`;
         if (!target.subItems?.some((s) => s.text === label)) {
-          target.subItems = [...(target.subItems ?? []), { text: label, date: now }];
+          target.subItems = [
+            ...(target.subItems ?? []),
+            { text: label, date: now, color: "purple" },
+          ];
           applied++;
         }
       });
