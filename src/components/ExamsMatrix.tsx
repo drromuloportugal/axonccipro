@@ -560,7 +560,7 @@ export function ExamsMatrix({
           </thead>
           <tbody>
             {examsBySection.map(([section, exams]) => (
-              <>
+              <Fragment key={section}>
                 <tr key={`s-${section}`}>
                   <td
                     colSpan={1 + beds.length}
@@ -640,7 +640,7 @@ export function ExamsMatrix({
                     })}
                   </tr>
                 ))}
-              </>
+              </Fragment>
             ))}
             {examsBySection.length === 0 && (
               <tr>
