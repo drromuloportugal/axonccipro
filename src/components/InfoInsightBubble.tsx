@@ -474,11 +474,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
             {engine && (
               <div className="max-h-[46vh] overflow-y-auto pr-0.5">
-                <NetoEngineReport
-                  result={engine}
-                  asking={asking}
-                  onDiscuss={(q) => void ask(q)}
-                />
+                <NetoEngineReport result={engine} asking={asking} onDiscuss={(q) => void ask(q)} />
               </div>
             )}
 
