@@ -44,6 +44,13 @@ import {
   renalContextText,
   type CrClResult,
 } from "@/lib/renalDosing";
+import {
+  runClinicalEngine,
+  QUICK_ACTIONS,
+  type EngineIntent,
+  type EngineResult,
+} from "@/lib/clinicalEngine";
+import { NetoEngineReport } from "@/components/NetoEngineReport";
 import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
