@@ -198,6 +198,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     setRenalAppliedIds({});
     setRenalApplied(0);
     setRenalExpanded(false);
+    setPrItems([]);
+    setPrChecked({});
+    setPrAppliedIds({});
+    setPrApplied(0);
     setError(null);
     setInfo(text);
 
