@@ -51,6 +51,8 @@ import {
   type EngineResult,
 } from "@/lib/clinicalEngine";
 import { NetoEngineReport } from "@/components/NetoEngineReport";
+import { NetoLivePanel } from "@/components/NetoLivePanel";
+
 import netoAvatar from "@/assets/neto-avatar.png";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
@@ -450,6 +452,17 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
               <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
                 {patient.bed} · {patient.name}
               </p>
+            )}
+
+            {patient && (
+              <NetoLivePanel
+                patientId={patient.id}
+                patientLabel={`${patient.bed} · ${patient.name}`}
+                onTranscript={(role, text) => setChat((c) => [...c, { role, content: text }])}
+                onToolResult={(name, summary) =>
+                  setChat((c) => [...c, { role: "assistant", content: `【${name}】\n${summary}` }])
+                }
+              />
             )}
 
             {patient && (
