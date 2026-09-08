@@ -588,7 +588,7 @@ export function ExamsMatrix({
                       const isImage = e.group === "img";
                       const statusClass = isImage
                         ? status === "bom"
-                          ? "border-green-500 bg-green-500 text-white"
+                          ? "border-2 border-green-500 bg-green-500/15 text-green-600"
                           : status === "aguardando"
                             ? "border-yellow-500 bg-yellow-500 text-white"
                             : "border-border bg-background"
