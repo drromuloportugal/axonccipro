@@ -182,6 +182,14 @@ export function computeAbg(i: AbgInput): AbgResult {
       tone: i.lactate >= 4 ? "critical" : i.lactate > 2 ? "attention" : "normal",
     });
   }
+  if (i.magnesium != null) {
+    const mg = r1(i.magnesium);
+    let tone: AbgLine["tone"] = "normal";
+    if (mg < 1.2 || mg > 3.0) tone = "critical";
+    else if (mg < 1.7 || mg > 2.2) tone = "attention";
+    const status = mg < 1.7 ? "hipomagnesemia" : mg > 2.2 ? "hipermagnesemia" : "dentro da referência";
+    extras.push({ label: "Magnésio", value: `${mg} mg/dL — ${status}`, tone });
+  }
   if (i.ketones) extras.push({ label: "Cetonas", value: i.ketones });
   if (res.hco3Calc != null) extras.push({ label: "HCO₃⁻ calculado", value: `${res.hco3Calc} mEq/L` });
 
