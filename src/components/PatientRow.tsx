@@ -918,8 +918,24 @@ export function PatientRow({
                 {patient.imaging!.slice(0, 2).map((im) => (
                   <div
                     key={im.id}
-                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${im.outcome === "mau" ? "alert-outline" : ""}`}
-                    title={im.outcome === "mau" ? "Mau resultado esperado" : undefined}
+                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${
+                      im.outcome === "mau"
+                        ? "alert-outline"
+                        : im.outcome === "bom"
+                          ? "border-2 border-clinical-stable/80 bg-clinical-stable/10"
+                          : im.status === "solicitado"
+                            ? "border-2 border-clinical-attention/80 bg-clinical-attention/10"
+                            : ""
+                    }`}
+                    title={
+                      im.outcome === "mau"
+                        ? "Mau resultado esperado"
+                        : im.outcome === "bom"
+                          ? "Bom resultado esperado"
+                          : im.status === "solicitado"
+                            ? "Aguardando resultado"
+                            : undefined
+                    }
                   >
                     <div className="flex items-center gap-1">
                       <span className="min-w-0 flex-1 truncate" title={im.summary}>
