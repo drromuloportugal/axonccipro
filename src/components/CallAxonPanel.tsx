@@ -22,7 +22,9 @@ export function CallAxonPanel({ patients, onClose }: Props) {
   const [anonymize, setAnonymize] = useState(true);
   const [hospital, setHospital] = useState("");
   const [unit, setUnit] = useState("UTI");
-  const [built, setBuilt] = useState<{ pack: unknown; fileName: string; report: string } | null>(null);
+  const [built, setBuilt] = useState<{ pack: unknown; fileName: string; report: string } | null>(
+    null,
+  );
 
   const active = useMemo(() => patients.filter((p) => !p.archived), [patients]);
 

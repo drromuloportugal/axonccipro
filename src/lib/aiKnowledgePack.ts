@@ -44,7 +44,10 @@ export interface PreviousPackRecord {
   version: string;
   createdAt: string;
   /** Contagens por paciente, usadas para calcular o delta incremental. */
-  counts: Record<string, { labs: number; events: number; meds: number; pending: number; scores: number }>;
+  counts: Record<
+    string,
+    { labs: number; events: number; meds: number; pending: number; scores: number }
+  >;
 }
 
 // ───────────────────────────── utilidades ─────────────────────────────
@@ -213,7 +216,14 @@ export const SEMANTIC_INDEX: Record<string, string[]> = {
   ],
   HEMATOLOGIA: ["hemoglobina", "hematócrito", "plaquetas", "INR", "transfusão", "sangramento"],
   METABOLICO: ["glicemia", "sódio", "potássio", "magnésio", "cálcio", "pH", "bicarbonato", "BE"],
-  NUTRICAO: ["dieta", "resíduo gástrico", "SNE", "jejum", "nutrição enteral", "nutrição parenteral"],
+  NUTRICAO: [
+    "dieta",
+    "resíduo gástrico",
+    "SNE",
+    "jejum",
+    "nutrição enteral",
+    "nutrição parenteral",
+  ],
   DISPOSITIVOS: ["CVC", "PAI", "SVD", "TOT", "DVE", "dreno", "cateter", "traqueostomia"],
   ESCORES: ["SOFA", "SAPS 3", "APACHE II", "qSOFA", "NEWS2", "Glasgow", "NIHSS", "VASOGRADE"],
 };
@@ -347,9 +357,24 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
   const temporalIndex: Record<string, unknown> = {};
   const relationMatrix: unknown[] = [];
   const supportIndex = {
-    VENTILACAO: { invasiva: [] as string[], nao_invasiva: [] as string[], oxigenoterapia: [] as string[], espontanea: [] as string[], nao_informado: [] as string[] },
-    HEMODINAMICA: { vasopressor: [] as unknown[], inotropico: [] as unknown[], sem_suporte: [] as string[] },
-    RENAL: { dialise: [] as string[], oliguria: [] as string[], funcao_em_piora: [] as string[], sem_alteracao_registrada: [] as string[] },
+    VENTILACAO: {
+      invasiva: [] as string[],
+      nao_invasiva: [] as string[],
+      oxigenoterapia: [] as string[],
+      espontanea: [] as string[],
+      nao_informado: [] as string[],
+    },
+    HEMODINAMICA: {
+      vasopressor: [] as unknown[],
+      inotropico: [] as unknown[],
+      sem_suporte: [] as string[],
+    },
+    RENAL: {
+      dialise: [] as string[],
+      oliguria: [] as string[],
+      funcao_em_piora: [] as string[],
+      sem_alteracao_registrada: [] as string[],
+    },
   };
   const quality = {
     pacientes_analisados: active.length,
@@ -399,7 +424,11 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       null;
     const secondary = (p.diagnoses ?? [])
       .filter((d) => d.label !== primary)
-      .map((d) => ({ label: d.label, category: d.category ?? "não classificado", date: d.date ?? null }));
+      .map((d) => ({
+        label: d.label,
+        category: d.category ?? "não classificado",
+        date: d.date ?? null,
+      }));
 
     // ── eventos
     const pushEvent = (
@@ -425,7 +454,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       });
     };
 
-    pushEvent(p.admissionICU, "admissao", `Admissão na UTI — leito ${bedId}`, "alta", "identificação");
+    pushEvent(
+      p.admissionICU,
+      "admissao",
+      `Admissão na UTI — leito ${bedId}`,
+      "alta",
+      "identificação",
+    );
     for (const e of p.procedures ?? []) {
       const l = (e.label ?? "").toLowerCase();
       const type = /intuba/.test(l)
@@ -441,17 +476,42 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
                 : /dialis|hemodiálise|hemodialise/.test(l)
                   ? "terapia_renal"
                   : "procedimento";
-      pushEvent(e.date, type, [e.label, e.detail].filter(Boolean).join(" — "), "alta", "procedimentos");
+      pushEvent(
+        e.date,
+        type,
+        [e.label, e.detail].filter(Boolean).join(" — "),
+        "alta",
+        "procedimentos",
+      );
     }
     for (const i of p.intubations ?? [])
       pushEvent(i.createdAt, "intubacao", `IOT modo ${i.mode} — ${i.status}`, "alta", "intubação");
     for (const h of p.hemotransfusions ?? [])
-      pushEvent(h.date, "transfusao", `${h.component}${h.volume ? ` · ${h.volume}` : ""}`, "media", "hemotransfusões");
+      pushEvent(
+        h.date,
+        "transfusao",
+        `${h.component}${h.volume ? ` · ${h.volume}` : ""}`,
+        "media",
+        "hemotransfusões",
+      );
     for (const ev of p.infectionTimeline ?? [])
       pushEvent(ev.at, "infeccao", `[${ev.kind}] ${ev.label}`, "alta", "linha do tempo infecciosa");
     for (const d of p.devices ?? []) {
-      pushEvent(d.insertedAt, "procedimento", `Inserção de ${d.typeCode}${d.site ? ` (${d.site})` : ""}`, "media", "dispositivos");
-      if (d.removedAt) pushEvent(d.removedAt, "procedimento", `Retirada de ${d.typeCode}`, "baixa", "dispositivos");
+      pushEvent(
+        d.insertedAt,
+        "procedimento",
+        `Inserção de ${d.typeCode}${d.site ? ` (${d.site})` : ""}`,
+        "media",
+        "dispositivos",
+      );
+      if (d.removedAt)
+        pushEvent(
+          d.removedAt,
+          "procedimento",
+          `Retirada de ${d.typeCode}`,
+          "baixa",
+          "dispositivos",
+        );
     }
     for (const m of p.medications ?? []) {
       const isVaso = VASO_NAMES.some((v) => (m.name ?? "").toLowerCase().includes(v));
@@ -463,9 +523,16 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
           isVaso ? "alta" : "media",
           "medicações",
         );
-      if (m.end) pushEvent(m.end, "mudanca_terapeutica", `Suspensão de ${m.name}`, "media", "medicações");
+      if (m.end)
+        pushEvent(m.end, "mudanca_terapeutica", `Suspensão de ${m.name}`, "media", "medicações");
       for (const c of m.changes ?? [])
-        pushEvent(c.date, "mudanca_terapeutica", `${m.name}: ${c.kind} — ${c.note}`, "media", "medicações");
+        pushEvent(
+          c.date,
+          "mudanca_terapeutica",
+          `${m.name}: ${c.kind} — ${c.note}`,
+          "media",
+          "medicações",
+        );
     }
     for (const img of p.imaging ?? [])
       pushEvent(
@@ -480,7 +547,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     for (const e of p.exams ?? []) {
       const serie = seriesFromExam(e);
       serie.forEach((s) => touch(s.at));
-      const visible = scope === "complete" ? serie : serie.filter((s) => keepInSmart(s.at)).slice(-6);
+      const visible =
+        scope === "complete" ? serie : serie.filter((s) => keepInSmart(s.at)).slice(-6);
       const labId = `LAB-${P}-${pad(patientLabIds.length + 1, 4)}`;
       patientLabIds.push(labId);
       const domain = labDomain(e.label);
@@ -500,7 +568,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         CONFIDENCE: examNum(e) === null ? "MISSING" : "DOCUMENTED",
       });
       quality.registros_analisados += Math.max(1, serie.length);
-      if (examNum(e) === null) quality.dados_incompletos.push(`${P} · ${e.label} sem valor numérico`);
+      if (examNum(e) === null)
+        quality.dados_incompletos.push(`${P} · ${e.label} sem valor numérico`);
       if (serie.length >= 2) {
         const values = serie.map((s) => s.value);
         clinicalTrends.push({
@@ -585,7 +654,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       const k = (m.name ?? "").trim().toLowerCase();
       dupMeds.set(k, (dupMeds.get(k) ?? 0) + 1);
     }
-    for (const [k, n] of dupMeds) if (n > 1) quality.duplicidades.push(`${P} · ${k} aparece ${n}× como ativa`);
+    for (const [k, n] of dupMeds)
+      if (n > 1) quality.duplicidades.push(`${P} · ${k} aparece ${n}× como ativa`);
 
     // ── dispositivos
     for (const d of p.devices ?? []) {
@@ -655,7 +725,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       .slice()
       .sort((a, b) => (ts(b.at) ?? 0) - (ts(a.at) ?? 0));
     for (const a of scope === "complete" ? sofaSorted : sofaSorted.slice(0, 4))
-      pushScore("SOFA", a.total, a.at, { round: a.round, components: a.scores, partial: a.partial }, a.partial ? "DERIVED" : "CALCULATED");
+      pushScore(
+        "SOFA",
+        a.total,
+        a.at,
+        { round: a.round, components: a.scores, partial: a.partial },
+        a.partial ? "DERIVED" : "CALCULATED",
+      );
     if (sofaSorted.length >= 2) {
       const latest = sofaSorted[0];
       const prev = sofaSorted[1];
@@ -668,7 +744,12 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
             .slice()
             .reverse()
             .map((a) => ({ at: a.at, value: a.total })),
-          TREND: classifyTrend(sofaSorted.slice().reverse().map((a) => a.total ?? NaN)),
+          TREND: classifyTrend(
+            sofaSorted
+              .slice()
+              .reverse()
+              .map((a) => a.total ?? NaN),
+          ),
           DELTA: latest.total - prev.total,
           CONFIDENCE: "CALCULATED",
         });
@@ -682,7 +763,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     const ich = p.ichScore as { score?: number; at?: string } | undefined;
     const vasograde = p.vasograde as { color?: string; at?: string } | undefined;
     const saps3 = p.saps3 as { history?: { total?: number; at?: string }[] } | undefined;
-    pushScore("Glasgow", wfns?.gcs ?? st.glasgow ?? null, wfns?.at, { origem: wfns?.gcs != null ? "WFNS" : "estado atual" }, "DOCUMENTED");
+    pushScore(
+      "Glasgow",
+      wfns?.gcs ?? st.glasgow ?? null,
+      wfns?.at,
+      { origem: wfns?.gcs != null ? "WFNS" : "estado atual" },
+      "DOCUMENTED",
+    );
     pushScore("WFNS", wfns?.grade ?? null, wfns?.at, null, "CALCULATED");
     pushScore("NIHSS", nihss?.total ?? null, nihss?.at, null, "CALCULATED");
     pushScore("Hunt-Hess", hh?.grade ?? null, hh?.at, null, "CALCULATED");
@@ -712,7 +799,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       const serie = readingSeries(def.readings);
       if (!serie.length) continue;
       serie.forEach((s) => touch(s.at));
-      const visible = scope === "complete" ? serie : serie.filter((s) => keepInSmart(s.at)).slice(-8);
+      const visible =
+        scope === "complete" ? serie : serie.filter((s) => keepInSmart(s.at)).slice(-8);
       vitals.push({
         PATIENT_ID: P,
         VARIABLE: def.label,
@@ -806,15 +894,21 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         [],
       );
     }
-    const vasoActive = activeMeds.filter((m) => VASO_NAMES.some((v) => (m.name ?? "").toLowerCase().includes(v)));
-    const inoActive = activeMeds.filter((m) => INOTROPE_NAMES.some((v) => (m.name ?? "").toLowerCase().includes(v)));
+    const vasoActive = activeMeds.filter((m) =>
+      VASO_NAMES.some((v) => (m.name ?? "").toLowerCase().includes(v)),
+    );
+    const inoActive = activeMeds.filter((m) =>
+      INOTROPE_NAMES.some((v) => (m.name ?? "").toLowerCase().includes(v)),
+    );
     if (vasoActive.length || (st.dva && st.dva !== "não"))
       pushProblem(
         "Instabilidade hemodinâmica com necessidade de vasopressor",
         vasoActive[0]?.start ?? null,
         null,
         [
-          vasoActive.length ? `Vasopressores ativos: ${vasoActive.map((m) => m.name).join(", ")}` : `DVA registrada: ${st.dva}`,
+          vasoActive.length
+            ? `Vasopressores ativos: ${vasoActive.map((m) => m.name).join(", ")}`
+            : `DVA registrada: ${st.dva}`,
           st.pam != null ? `PAM ${st.pam} mmHg` : "PAM não informada",
         ],
         "ativo",
@@ -824,7 +918,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
 
     const creat = (p.exams ?? []).find((e) => /creatinina/i.test(e.label));
     const creatSeries = creat ? seriesFromExam(creat) : [];
-    const creatTrend = creatSeries.length >= 2 ? classifyTrend(creatSeries.map((s) => s.value)) : "indeterminado";
+    const creatTrend =
+      creatSeries.length >= 2 ? classifyTrend(creatSeries.map((s) => s.value)) : "indeterminado";
     const oliguria =
       typeof st.diureseHoraria === "number" && p.weight
         ? st.diureseHoraria / p.weight < 0.5
@@ -837,8 +932,12 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         creatSeries[0]?.at ?? null,
         creatSeries[creatSeries.length - 1]?.at ?? null,
         [
-          creat ? `Creatinina: ${creatSeries.map((s) => s.value).join(" → ")} (${creatTrend})` : "Creatinina não registrada",
-          oliguria === true ? "Diurese abaixo de 0,5 mL/kg/h pelos registros disponíveis" : "Diurese sem critério de oligúria registrado",
+          creat
+            ? `Creatinina: ${creatSeries.map((s) => s.value).join(" → ")} (${creatTrend})`
+            : "Creatinina não registrada",
+          oliguria === true
+            ? "Diurese abaixo de 0,5 mL/kg/h pelos registros disponíveis"
+            : "Diurese sem critério de oligúria registrado",
         ],
         "ativo",
         [],
@@ -851,7 +950,10 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         "Insuficiência respiratória em ventilação mecânica invasiva",
         null,
         null,
-        [`Modo ventilatório registrado: ${st.vent}`, st.fio2 != null ? `FiO2 ${st.fio2}` : "FiO2 não informada"],
+        [
+          `Modo ventilatório registrado: ${st.vent}`,
+          st.fio2 != null ? `FiO2 ${st.fio2}` : "FiO2 não informada",
+        ],
         "ativo",
         [st.vent ?? "MISSING"],
         ["Avaliar critérios de desmame quando aplicável"],
@@ -909,7 +1011,11 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     const deltaFor = (hours: number) => {
       const cutoff = nowMs - hours * HOUR;
       const items: unknown[] = [];
-      const consider = (label: string, serie: { at: string | null; value: number }[], unit?: string | null) => {
+      const consider = (
+        label: string,
+        serie: { at: string | null; value: number }[],
+        unit?: string | null,
+      ) => {
         const dated = serie.filter((s) => ts(s.at ?? undefined) !== null);
         if (dated.length < 2) return;
         const before = dated.filter((s) => (ts(s.at!) ?? 0) <= cutoff);
@@ -930,9 +1036,16 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       for (const e of p.exams ?? []) consider(e.label, seriesFromExam(e), e.unit);
       for (const def of vitalDefs) {
         const s = readingSeries(def.readings);
-        consider(def.label, s.map((x) => ({ at: x.at, value: x.value })), def.unit);
+        consider(
+          def.label,
+          s.map((x) => ({ at: x.at, value: x.value })),
+          def.unit,
+        );
       }
-      const sofaAsc = sofaSorted.slice().reverse().filter((a) => a.total !== null);
+      const sofaAsc = sofaSorted
+        .slice()
+        .reverse()
+        .filter((a) => a.total !== null);
       consider(
         "SOFA",
         sofaAsc.map((a) => ({ at: a.at, value: a.total as number })),
@@ -955,7 +1068,9 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     };
     const delta12 = deltaFor(12);
     const delta24 = deltaFor(24);
-    const worsened = (delta12.CHANGES as { STATUS: DeltaStatus }[]).filter((c) => c.STATUS === "PIOROU");
+    const worsened = (delta12.CHANGES as { STATUS: DeltaStatus }[]).filter(
+      (c) => c.STATUS === "PIOROU",
+    );
     if (worsened.length)
       criticalChanges.push({
         PATIENT_ID: P,
@@ -971,10 +1086,14 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       DATE_TIME: string | null;
     }[];
     const dated = eventsOf.filter((e) => ts(e.DATE_TIME ?? undefined) !== null);
-    const sortedEv = dated.slice().sort((a, b) => (ts(a.DATE_TIME!) ?? 0) - (ts(b.DATE_TIME!) ?? 0));
+    const sortedEv = dated
+      .slice()
+      .sort((a, b) => (ts(a.DATE_TIME!) ?? 0) - (ts(b.DATE_TIME!) ?? 0));
     const winIndex: Record<string, string[]> = {};
     for (const [k, h] of Object.entries(windows))
-      winIndex[k] = sortedEv.filter((e) => nowMs - (ts(e.DATE_TIME!) ?? 0) <= h * HOUR).map((e) => e.EVENT_ID);
+      winIndex[k] = sortedEv
+        .filter((e) => nowMs - (ts(e.DATE_TIME!) ?? 0) <= h * HOUR)
+        .map((e) => e.EVENT_ID);
     temporalIndex[P] = {
       FIRST_RECORD: sortedEv[0]?.DATE_TIME ?? "MISSING",
       LAST_RECORD: sortedEv[sortedEv.length - 1]?.DATE_TIME ?? "MISSING",
@@ -1002,11 +1121,15 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       });
     else supportIndex.HEMODINAMICA.sem_suporte.push(P);
     if (inoActive.length)
-      supportIndex.HEMODINAMICA.inotropico.push({ PATIENT_ID: P, DRUGS: inoActive.map((m) => m.name) });
+      supportIndex.HEMODINAMICA.inotropico.push({
+        PATIENT_ID: P,
+        DRUGS: inoActive.map((m) => m.name),
+      });
 
     const dialysis =
-      (p.devices ?? []).some((d) => /dial|crrt|hemod/i.test(`${d.typeCode} ${d.category}`) && !d.removedAt) ||
-      /dial|crrt/i.test(st.notes ?? "");
+      (p.devices ?? []).some(
+        (d) => /dial|crrt|hemod/i.test(`${d.typeCode} ${d.category}`) && !d.removedAt,
+      ) || /dial|crrt/i.test(st.notes ?? "");
     if (dialysis) supportIndex.RENAL.dialise.push(P);
     if (oliguria === true) supportIndex.RENAL.oliguria.push(P);
     if (creatTrend === "crescente") supportIndex.RENAL.funcao_em_piora.push(P);
@@ -1137,7 +1260,9 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       quality.conflitos.push(`${P} · admissão na UTI anterior à admissão hospitalar`);
     if (!p.admissionICU) quality.dados_incompletos.push(`${P} · sem data de admissão na UTI`);
     if (wfns?.gcs != null && st.glasgow != null && wfns.gcs !== st.glasgow)
-      quality.conflitos.push(`${P} · Glasgow divergente entre WFNS (${wfns.gcs}) e estado atual (${st.glasgow})`);
+      quality.conflitos.push(
+        `${P} · Glasgow divergente entre WFNS (${wfns.gcs}) e estado atual (${st.glasgow})`,
+      );
   }
 
   // ── índices cruzados
@@ -1150,7 +1275,9 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
   const crossPatientIndex = {
     BY_SOFA: numericOf("SOFA"),
     ON_MECHANICAL_VENTILATION: supportIndex.VENTILACAO.invasiva,
-    ON_VASOPRESSOR: (supportIndex.HEMODINAMICA.vasopressor as { PATIENT_ID: string }[]).map((v) => v.PATIENT_ID),
+    ON_VASOPRESSOR: (supportIndex.HEMODINAMICA.vasopressor as { PATIENT_ID: string }[]).map(
+      (v) => v.PATIENT_ID,
+    ),
     ON_RENAL_REPLACEMENT: supportIndex.RENAL.dialise,
     BY_LAB: (() => {
       const map: Record<string, { PATIENT_ID: string; VALUE: number; AT: string | null }[]> = {};
@@ -1162,7 +1289,11 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       }[]) {
         if (l.CURRENT_VALUE_NUM === null) continue;
         const key = l.LABEL.toUpperCase();
-        (map[key] ??= []).push({ PATIENT_ID: l.PATIENT_ID, VALUE: l.CURRENT_VALUE_NUM, AT: l.TAKEN_AT });
+        (map[key] ??= []).push({
+          PATIENT_ID: l.PATIENT_ID,
+          VALUE: l.CURRENT_VALUE_NUM,
+          AT: l.TAKEN_AT,
+        });
       }
       for (const k of Object.keys(map)) map[k].sort((a, b) => b.VALUE - a.VALUE);
       return map;
@@ -1184,12 +1315,15 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
 
   // ── snapshot e round
   const hour = now.getHours() + now.getMinutes() / 60;
-  const nearRound = Math.abs(hour - 7) <= 1.5 ? "07:00" : Math.abs(hour - 19) <= 1.5 ? "19:00" : null;
+  const nearRound =
+    Math.abs(hour - 7) <= 1.5 ? "07:00" : Math.abs(hour - 19) <= 1.5 ? "19:00" : null;
   const snapshot = {
     SNAPSHOT_ID: `SNAP-${packetId(now)}`,
     AT: iso(now),
     NEAR_ROUND: nearRound ?? "fora da janela de round",
-    PATIENTS: (clinicalIndex as { PATIENT_ID: string; SOFA: unknown; REVIEW_PRIORITY: string }[]).map((c) => ({
+    PATIENTS: (
+      clinicalIndex as { PATIENT_ID: string; SOFA: unknown; REVIEW_PRIORITY: string }[]
+    ).map((c) => ({
       PATIENT_ID: c.PATIENT_ID,
       SOFA: c.SOFA,
       REVIEW_PRIORITY: c.REVIEW_PRIORITY,
@@ -1204,9 +1338,9 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     NOVOS_PROBLEMAS: "ver PROBLEMS com FIRST_DETECTED nas últimas 12h",
     PACIENTES_COM_PIORA: crossPatientIndex.DETERIORATION_12H.map((d) => d.PATIENT_ID),
     PENDENCIAS_ABERTAS: pendingTasks.length,
-    PONTOS_PARA_REVISAO: crossPatientIndex.BY_REVIEW_PRIORITY.filter((c) => c.REVIEW_PRIORITY === "alta").map(
-      (c) => c.PATIENT_ID,
-    ),
+    PONTOS_PARA_REVISAO: crossPatientIndex.BY_REVIEW_PRIORITY.filter(
+      (c) => c.REVIEW_PRIORITY === "alta",
+    ).map((c) => c.PATIENT_ID),
   };
 
   // ── delta pack incremental
@@ -1278,7 +1412,10 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       CLINICAL_ENGINE_VERSION,
       ANONYMIZED: anonymize,
     },
-    hospital: { NAME: options.hospital ?? "não informado", CONFIDENCE: options.hospital ? "DOCUMENTED" : "MISSING" },
+    hospital: {
+      NAME: options.hospital ?? "não informado",
+      CONFIDENCE: options.hospital ? "DOCUMENTED" : "MISSING",
+    },
     units: [{ UNIT: options.unit ?? "UTI", PATIENTS: active.length }],
     patients: patientsOut,
     events,
@@ -1384,7 +1521,8 @@ export const AI_INSTRUCTIONS = {
     "Quem está em ventilação mecânica?": "support_index.VENTILACAO.invasiva",
     "Quem está com balanço positivo?": "cross_patient_index.BY_FLUID_BALANCE",
     "Qual paciente teve maior aumento de SOFA?": "clinical_trends (VARIABLE = SOFA, campo DELTA)",
-    "Quem apresentou alteração neurológica?": "semantic_index.NEUROLOGICO + events tipo alteracao_neurologica",
+    "Quem apresentou alteração neurológica?":
+      "semantic_index.NEUROLOGICO + events tipo alteracao_neurologica",
   },
   DATA_VS_RECOMMENDATION: {
     DADOS_DO_AXON_PRO: "Informações registradas no passômetro.",

@@ -555,8 +555,6 @@ function Passometro() {
                   Call Axon
                 </button>
 
-
-
                 {/* Ferramentas clínicas */}
                 <button
                   onClick={() => {
@@ -990,9 +988,7 @@ function Passometro() {
         onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
       />
 
-      {callAxonOpen && (
-        <CallAxonPanel patients={patients} onClose={() => setCallAxonOpen(false)} />
-      )}
+      {callAxonOpen && <CallAxonPanel patients={patients} onClose={() => setCallAxonOpen(false)} />}
     </div>
   );
 }
