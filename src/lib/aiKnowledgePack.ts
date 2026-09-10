@@ -50,6 +50,27 @@ export interface PreviousPackRecord {
   >;
 }
 
+export const CONDUCT_COLOR_TUTORIAL = {
+  LOCATION: "clinical_conducts[].ANNOTATIONS[]",
+  PURPOSE:
+    "As cores são marcadores institucionais das condutas da coluna 7. Interpretar sempre junto ao texto registrado; a cor isolada não autoriza inferência clínica.",
+  COLOR_MEANINGS: {
+    default: "Sem classificação de cor registrada.",
+    green: "Bom resultado.",
+    yellow: "Atenção.",
+    orange: "Mantém conduta.",
+    red: "Sinal de alerta.",
+    purple: "Conduta nova.",
+    teal: "Destaque adicional sem significado institucional definido neste tutorial.",
+  },
+  READING_RULES: [
+    "Localize o paciente por PATIENT_ID antes de interpretar a conduta.",
+    "Leia COLOR_CODE e COLOR_MEANING junto com TEXT.",
+    "Não transforme o significado da cor em prescrição ou fato clínico adicional.",
+    "Use SOURCE para rastrear a origem no passômetro.",
+  ],
+} as const;
+
 // ───────────────────────────── utilidades ─────────────────────────────
 
 const HOUR = 3600_000;
@@ -348,6 +369,7 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
   const infectionFoci: unknown[] = [];
   const medications: unknown[] = [];
   const devices: unknown[] = [];
+  const clinicalConducts: unknown[] = [];
   const scores: unknown[] = [];
   const vitals: unknown[] = [];
   const fluidBalance: unknown[] = [];
@@ -414,6 +436,11 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     const patientPendingIds: string[] = [];
     const patientLabIds: string[] = [];
     const patientScoreIds: string[] = [];
+    const patientImagingIds: string[] = [];
+    const patientCultureIds: string[] = [];
+    const patientConductIds: string[] = [];
+    const patientImagingRecords: unknown[] = [];
+    const patientCultureRecords: unknown[] = [];
     const activeProblems: string[] = [];
 
     touch(p.admissionICU);
@@ -589,9 +616,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
 
     // ── imagem
     for (const img of p.imaging ?? []) {
-      if (!keepInSmart(img.performedAt)) continue;
-      imaging.push({
-        IMAGING_ID: img.id,
+      // A coluna 5 é obrigatória no pacote, inclusive no modo inteligente.
+      // O recorte de 48h não pode ocultar o histórico de imagem do paciente.
+      const imagingId = `IMG-${P}-${img.id}`;
+      patientImagingIds.push(imagingId);
+      const imagingRecord = {
+        IMAGING_ID: imagingId,
+        SOURCE_RECORD_ID: img.id,
         PATIENT_ID: P,
         MODALITY: img.modality,
         REGION: img.region,
@@ -606,10 +637,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
           IMAGE_ID: f.id,
           CAPTION: f.caption ?? "não informado",
           CAPTURED_AT: img.performedAt ?? null,
+          ATTACHMENT_PRESENT: !!f.dataUrl,
         })),
         SOURCE: src(p, "imaging", img.performedAt, "exames de imagem"),
         CONFIDENCE: img.summary ? "DOCUMENTED" : "MISSING",
-      });
+      };
+      imaging.push(imagingRecord);
+      patientImagingRecords.push(imagingRecord);
       quality.registros_analisados += 1;
       if (img.status === "solicitado") {
         const id = `PEND-${P}-${pad(patientPendingIds.length + 1, 3)}`;
@@ -629,10 +663,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
 
     // ── microbiologia (culturas + antibiograma)
     for (const c of p.cultures ?? []) {
-      if (!keepInSmart(c.collectedAt)) continue;
+      // Culturas da coluna 5 também são obrigatórias no modo inteligente.
+      const cultureId = `CULT-${P}-${c.id}`;
+      patientCultureIds.push(cultureId);
       const positive = c.result === "positiva" || !!c.organism;
-      microbiology.push({
-        CULTURE_ID: c.id,
+      const cultureRecord = {
+        CULTURE_ID: cultureId,
+        SOURCE_RECORD_ID: c.id,
         PATIENT_ID: P,
         SAMPLE: c.source,
         SAMPLE_CODE: c.sourceCode ?? "não informado",
@@ -657,7 +694,9 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         LINKED_DEVICE_ID: c.linkedDeviceId ?? null,
         SOURCE: src(p, "microbiologia", c.collectedAt, "culturas / microbiologia"),
         CONFIDENCE: c.result ? "DOCUMENTED" : "MISSING",
-      });
+      };
+      microbiology.push(cultureRecord);
+      patientCultureRecords.push(cultureRecord);
       quality.registros_analisados += 1;
       if (!c.result) quality.dados_incompletos.push(`${P} · cultura de ${c.source} sem resultado`);
       pushEvent(
@@ -679,6 +718,40 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
           "alta",
           "microbiologia",
         );
+    }
+
+    // ── condutas da coluna 7, incluindo o significado visual da anotação
+    for (const [conductIndex, conduct] of (p.conducts ?? []).entries()) {
+      const conductId = `COND-${P}-${pad(conductIndex + 1, 3)}`;
+      patientConductIds.push(conductId);
+      const sourceId = src(p, "conduta", conduct.startedAt, "coluna 7 · condutas");
+      clinicalConducts.push({
+        CONDUCT_ID: conductId,
+        PATIENT_ID: P,
+        SYSTEM: conduct.system ?? "other",
+        TEAM: conduct.team,
+        STARTED_AT: conduct.startedAt ?? null,
+        LEGACY_TEXT: conduct.text || null,
+        ANNOTATIONS: (conduct.subItems ?? []).map((annotation, annotationIndex) => {
+          const color = annotation.color ?? "default";
+          return {
+            ANNOTATION_ID: `${conductId}-A${pad(annotationIndex + 1, 2)}`,
+            TEXT: annotation.text || "MISSING",
+            COLOR_CODE: color,
+            COLOR_MEANING:
+              CONDUCT_COLOR_TUTORIAL.COLOR_MEANINGS[
+                color as keyof typeof CONDUCT_COLOR_TUTORIAL.COLOR_MEANINGS
+              ],
+            HIDDEN_ON_MAIN_PANEL: !!annotation.hidden,
+            DATE: annotation.date ?? null,
+            SOURCE: sourceId,
+            CONFIDENCE: annotation.text ? "DOCUMENTED" : "MISSING",
+          };
+        }),
+        SOURCE: sourceId,
+        CONFIDENCE: "DOCUMENTED",
+      });
+      quality.registros_analisados += 1 + (conduct.subItems ?? []).length;
     }
 
     // ── focos infecciosos vinculados à microbiologia
@@ -1293,6 +1366,21 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       CURRENT_STATUS: summary.ESTADO_ATUAL,
       ACTIVE_PROBLEMS: activeProblems,
       ONE_PAGE_SUMMARY: summary,
+      COLUMN_5_RECORDS: {
+        DESCRIPTION: "Culturas microbiológicas e exames de imagem exibidos na coluna 5.",
+        MICROBIOLOGY_IDS: patientCultureIds,
+        IMAGING_IDS: patientImagingIds,
+        MICROBIOLOGY_COUNT: patientCultureIds.length,
+        IMAGING_COUNT: patientImagingIds.length,
+        MICROBIOLOGY_RECORDS: patientCultureRecords,
+        IMAGING_RECORDS: patientImagingRecords,
+      },
+      COLUMN_7_CONDUCTS: {
+        DESCRIPTION: "Condutas e anotações clínicas exibidas na coluna 7.",
+        CONDUCT_IDS: patientConductIds,
+        CONDUCT_COUNT: patientConductIds.length,
+        COLOR_TUTORIAL: "Ver ai_instructions.CONDUCT_COLOR_TUTORIAL",
+      },
       DELTA_12H: delta12,
       DELTA_24H: delta24,
       LAST_SOFA: lastSofa ? { VALUE: lastSofa.total, AT: lastSofa.at } : "MISSING",
@@ -1341,6 +1429,10 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     if (admIcu && admHosp && admIcu < admHosp)
       quality.conflitos.push(`${P} · admissão na UTI anterior à admissão hospitalar`);
     if (!p.admissionICU) quality.dados_incompletos.push(`${P} · sem data de admissão na UTI`);
+    if (patientCultureIds.length === 0)
+      quality.dados_incompletos.push(`${P} · sem culturas microbiológicas registradas na coluna 5`);
+    if (patientImagingIds.length === 0)
+      quality.dados_incompletos.push(`${P} · sem exames de imagem registrados na coluna 5`);
     if (wfns?.gcs != null && st.glasgow != null && wfns.gcs !== st.glasgow)
       quality.conflitos.push(
         `${P} · Glasgow divergente entre WFNS (${wfns.gcs}) e estado atual (${st.glasgow})`,
@@ -1474,6 +1566,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     "VALIDAR LINHA TEMPORAL: eventos ordenados por data/hora quando disponível",
     `VALIDAR IDENTIFICAÇÃO: ${anonymize ? "pacote anonimizado" : "identificação institucional preservada"}`,
     `VALIDAR PRIVACIDADE: ${anonymize ? "nome, responsável e telefones removidos" : "exportação identificada — uso interno"}`,
+    `VALIDAR COLUNA 5: ${microbiology.length} cultura(s) e ${imaging.length} exame(s) de imagem exportados`,
+    `VALIDAR COLUNA 7: ${clinicalConducts.length} bloco(s) de conduta exportados com código de cor`,
   ];
 
   const pack = {
@@ -1507,6 +1601,7 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     infection_foci: infectionFoci,
     medications,
     devices,
+    clinical_conducts: clinicalConducts,
     scores,
     vitals,
     fluid_balance: fluidBalance,
@@ -1570,6 +1665,17 @@ export const AI_INSTRUCTIONS = {
     MISSING: "Não existe informação suficiente.",
     CONFLICTING: "Existem registros conflitantes.",
   },
+  DATA_LOCATION_TUTORIAL: {
+    COLUMN_5:
+      "Culturas microbiológicas estão em microbiology e exames de imagem em imaging. O perfil de cada paciente aponta seus registros em patients[].COLUMN_5_RECORDS pelos respectivos IDs.",
+    COLUMN_7:
+      "Condutas estão em clinical_conducts. O perfil de cada paciente aponta seus blocos em patients[].COLUMN_7_CONDUCTS.",
+    PATIENT_LINK:
+      "Cruze sempre PATIENT_ID e os IDs referenciados no perfil individual; nunca misture registros de pacientes diferentes.",
+    TRACEABILITY:
+      "Cada registro contém SOURCE, resolvido em source_map, para indicar a seção original do passômetro.",
+  },
+  CONDUCT_COLOR_TUTORIAL,
   RESPONSE_PROTOCOL: [
     "1. Identificar paciente(s).",
     "2. Identificar período.",

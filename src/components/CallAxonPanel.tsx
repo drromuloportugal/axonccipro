@@ -49,6 +49,7 @@ export function CallAxonPanel({ patients, onClose }: Props) {
       `Conflitos: ${q.conflitos.length} · Dados incompletos: ${q.dados_incompletos.length} · Duplicidades: ${q.duplicidades.length}`,
       `Eventos: ${pack.events.length} · Exames: ${pack.labs.length} · Problemas ativos: ${pack.problems.length} · Pendências: ${pack.pending_tasks.length}`,
       `Exames de imagem: ${pack.imaging.length} · Culturas / microbiologia: ${pack.microbiology.length} · Focos infecciosos: ${pack.infection_foci.length}`,
+      `Condutas da coluna 7: ${pack.clinical_conducts.length} · Tutorial de cores: incluído`,
       `Identificação: ${anonymize ? "anonimizada (A01, A02…)" : "institucional identificada"}`,
     ].join("\n");
     setBuilt({ pack, fileName, report });
@@ -156,10 +157,11 @@ export function CallAxonPanel({ patients, onClose }: Props) {
 
           <div className="rounded-xl border border-white/20 bg-white/5 p-3 text-[11px] leading-relaxed text-white/80">
             O pacote inclui identidade, índice clínico, índice semântico, índice temporal, perfis,
-            resumo de uma página, linha do tempo, motor de delta, tendências, problemas ativos,
-            eventos críticos, pendências, suportes, escores, balanço, comparação entre pacientes,
-            mapa de origem, relatório de qualidade e instruções para a IA. Dados ausentes são
-            marcados como MISSING — nada é inventado.
+            resumo de uma página, linha do tempo, culturas, antibiogramas, exames de imagem,
+            condutas da coluna 7 com tutorial de cores, tendências, problemas ativos, pendências,
+            escores, comparação entre pacientes, mapa de origem e instruções para a IA. Cada
+            cultura, imagem e conduta fica vinculada ao paciente. Dados ausentes são marcados como
+            MISSING — nada é inventado.
           </div>
 
           <button
