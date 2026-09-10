@@ -40,17 +40,20 @@ const patient = {
       status: "realizado",
     },
   ],
-} as Patient;
+} as unknown as Patient;
+
+type TestRecord = Record<string, unknown>;
 
 describe("Call Axon — colunas 5 e 7", () => {
   it("mantém culturas e imagens antigas no pacote inteligente e as vincula ao paciente", () => {
     const { pack } = buildKnowledgePack([patient], { scope: "smart", anonymize: true });
-    const profile = pack.patients[0];
+    const profile = pack.patients[0] as TestRecord;
+    const column5 = profile.COLUMN_5_RECORDS as TestRecord;
 
     expect(pack.microbiology).toHaveLength(1);
     expect(pack.imaging).toHaveLength(1);
-    expect(profile.COLUMN_5_RECORDS.MICROBIOLOGY_RECORDS).toEqual(pack.microbiology);
-    expect(profile.COLUMN_5_RECORDS.IMAGING_RECORDS).toEqual(pack.imaging);
+    expect(column5.MICROBIOLOGY_RECORDS).toEqual(pack.microbiology);
+    expect(column5.IMAGING_RECORDS).toEqual(pack.imaging);
     expect(pack.microbiology[0]).toMatchObject({
       PATIENT_ID: profile.PATIENT_ID,
       ORGANISM: "Klebsiella pneumoniae",
@@ -64,7 +67,8 @@ describe("Call Axon — colunas 5 e 7", () => {
 
   it("exporta condutas coloridas e ensina a IA a interpretar as cores", () => {
     const { pack } = buildKnowledgePack([patient], { scope: "complete", anonymize: true });
-    const annotations = pack.clinical_conducts[0].ANNOTATIONS;
+    const conduct = pack.clinical_conducts[0] as TestRecord;
+    const annotations = conduct.ANNOTATIONS as TestRecord[];
 
     expect(annotations[0]).toMatchObject({ COLOR_CODE: "green", COLOR_MEANING: "Bom resultado." });
     expect(annotations[1]).toMatchObject({ COLOR_CODE: "purple", COLOR_MEANING: "Conduta nova." });
