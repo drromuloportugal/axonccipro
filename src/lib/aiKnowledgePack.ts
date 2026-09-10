@@ -344,6 +344,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
   const events: unknown[] = [];
   const labs: unknown[] = [];
   const imaging: unknown[] = [];
+  const microbiology: unknown[] = [];
+  const infectionFoci: unknown[] = [];
   const medications: unknown[] = [];
   const devices: unknown[] = [];
   const scores: unknown[] = [];
@@ -599,6 +601,12 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         EXPECTED_OUTCOME: img.outcome ?? "não informado",
         SUMMARY: img.summary ?? "MISSING",
         REPORTED_BY: anonymize ? null : (img.reportedBy ?? null),
+        IMAGES_COUNT: (img.images ?? []).length,
+        IMAGES: (img.images ?? []).map((f) => ({
+          IMAGE_ID: f.id,
+          CAPTION: f.caption ?? "não informado",
+          CAPTURED_AT: img.performedAt ?? null,
+        })),
         SOURCE: src(p, "imaging", img.performedAt, "exames de imagem"),
         CONFIDENCE: img.summary ? "DOCUMENTED" : "MISSING",
       });
@@ -617,6 +625,80 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
           SOURCE: `IMAGING:${img.id}`,
         });
       }
+    }
+
+    // ── microbiologia (culturas + antibiograma)
+    for (const c of p.cultures ?? []) {
+      if (!keepInSmart(c.collectedAt)) continue;
+      const positive = c.result === "positiva" || !!c.organism;
+      microbiology.push({
+        CULTURE_ID: c.id,
+        PATIENT_ID: P,
+        SAMPLE: c.source,
+        SAMPLE_CODE: c.sourceCode ?? "não informado",
+        COLLECTION_SITE: c.collectionSite ?? "não informado",
+        METHOD: c.method ?? "não informado",
+        SAMPLE_COUNT: c.sampleCount ?? "não informado",
+        COLLECTED_AT: c.collectedAt ?? null,
+        RESULT: c.result ?? "não informado",
+        ORGANISM: c.organism ?? (c.result === "negativa" ? "sem crescimento" : "não informado"),
+        BACTERIAL_COUNT: c.bacterialCount ?? "não informado",
+        ASPECT: c.aspect ?? "não informado",
+        RESISTANCE_PROFILE: c.resistanceProfile ?? "não informado",
+        SENSITIVITIES: c.sensitivities ?? [],
+        RESISTANCES: c.resistances ?? [],
+        ANTIBIOGRAM: (c.antibiogram ?? []).map((a) => ({
+          DRUG: a.drug,
+          RESULT: a.result,
+          MIC: a.mic ?? "não informado",
+        })),
+        NOTES: c.notes ?? "não informado",
+        LINKED_FOCUS_ID: c.linkedFocusId ?? null,
+        LINKED_DEVICE_ID: c.linkedDeviceId ?? null,
+        SOURCE: src(p, "microbiologia", c.collectedAt, "culturas / microbiologia"),
+        CONFIDENCE: c.result ? "DOCUMENTED" : "MISSING",
+      });
+      quality.registros_analisados += 1;
+      if (!c.result) quality.dados_incompletos.push(`${P} · cultura de ${c.source} sem resultado`);
+      pushEvent(
+        c.collectedAt,
+        "cultura_coletada",
+        `Coleta de cultura — ${c.source}`,
+        "media",
+        "microbiologia",
+      );
+      if (positive)
+        pushEvent(
+          c.collectedAt,
+          "cultura_positiva",
+          `Cultura positiva (${c.source})${c.organism ? ` — ${c.organism}` : ""}${
+            c.resistanceProfile && c.resistanceProfile !== "sensivel"
+              ? ` · perfil ${c.resistanceProfile}`
+              : ""
+          }`,
+          "alta",
+          "microbiologia",
+        );
+    }
+
+    // ── focos infecciosos vinculados à microbiologia
+    for (const f of p.infections ?? []) {
+      infectionFoci.push({
+        FOCUS_ID: f.id,
+        PATIENT_ID: P,
+        SITE: f.site ?? "não informado",
+        STATUS: f.status ?? "não informado",
+        UNSTABLE: !!f.unstable,
+        STARTED_AT: f.startedAt ?? null,
+        RESOLVED_AT: f.resolvedAt ?? null,
+        RELATED_DEVICE_IDS: f.relatedDeviceIds ?? [],
+        CULTURE_IDS: f.cultureIds ?? [],
+        ANTIMICROBIALS: f.antimicrobials ?? [],
+        NOTES: f.notes ?? "não informado",
+        SOURCE: src(p, "foco_infeccioso", f.startedAt, "focos infecciosos"),
+        CONFIDENCE: f.site ? "DOCUMENTED" : "MISSING",
+      });
+      quality.registros_analisados += 1;
     }
 
     // ── medicações
@@ -1421,6 +1503,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     events,
     labs,
     imaging,
+    microbiology,
+    infection_foci: infectionFoci,
     medications,
     devices,
     scores,

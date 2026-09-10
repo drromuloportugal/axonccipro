@@ -48,6 +48,7 @@ export function CallAxonPanel({ patients, onClose }: Props) {
       `Registros analisados: ${q.registros_analisados}`,
       `Conflitos: ${q.conflitos.length} · Dados incompletos: ${q.dados_incompletos.length} · Duplicidades: ${q.duplicidades.length}`,
       `Eventos: ${pack.events.length} · Exames: ${pack.labs.length} · Problemas ativos: ${pack.problems.length} · Pendências: ${pack.pending_tasks.length}`,
+      `Exames de imagem: ${pack.imaging.length} · Culturas / microbiologia: ${pack.microbiology.length} · Focos infecciosos: ${pack.infection_foci.length}`,
       `Identificação: ${anonymize ? "anonimizada (A01, A02…)" : "institucional identificada"}`,
     ].join("\n");
     setBuilt({ pack, fileName, report });
