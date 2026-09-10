@@ -604,8 +604,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         IMAGES_COUNT: (img.images ?? []).length,
         IMAGES: (img.images ?? []).map((f) => ({
           IMAGE_ID: f.id,
-          LABEL: f.label ?? "não informado",
-          CAPTURED_AT: f.takenAt ?? img.performedAt ?? null,
+          CAPTION: f.caption ?? "não informado",
+          CAPTURED_AT: img.performedAt ?? null,
         })),
         SOURCE: src(p, "imaging", img.performedAt, "exames de imagem"),
         CONFIDENCE: img.summary ? "DOCUMENTED" : "MISSING",
