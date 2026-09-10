@@ -439,6 +439,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
     const patientImagingIds: string[] = [];
     const patientCultureIds: string[] = [];
     const patientConductIds: string[] = [];
+    const patientImagingRecords: unknown[] = [];
+    const patientCultureRecords: unknown[] = [];
     const activeProblems: string[] = [];
 
     touch(p.admissionICU);
@@ -618,7 +620,7 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       // O recorte de 48h não pode ocultar o histórico de imagem do paciente.
       const imagingId = `IMG-${P}-${img.id}`;
       patientImagingIds.push(imagingId);
-      imaging.push({
+      const imagingRecord = {
         IMAGING_ID: imagingId,
         SOURCE_RECORD_ID: img.id,
         PATIENT_ID: P,
@@ -635,11 +637,13 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
           IMAGE_ID: f.id,
           CAPTION: f.caption ?? "não informado",
           CAPTURED_AT: img.performedAt ?? null,
-          DATA_URL: f.dataUrl,
+          ATTACHMENT_PRESENT: !!f.dataUrl,
         })),
         SOURCE: src(p, "imaging", img.performedAt, "exames de imagem"),
         CONFIDENCE: img.summary ? "DOCUMENTED" : "MISSING",
-      });
+      };
+      imaging.push(imagingRecord);
+      patientImagingRecords.push(imagingRecord);
       quality.registros_analisados += 1;
       if (img.status === "solicitado") {
         const id = `PEND-${P}-${pad(patientPendingIds.length + 1, 3)}`;
@@ -663,7 +667,7 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
       const cultureId = `CULT-${P}-${c.id}`;
       patientCultureIds.push(cultureId);
       const positive = c.result === "positiva" || !!c.organism;
-      microbiology.push({
+      const cultureRecord = {
         CULTURE_ID: cultureId,
         SOURCE_RECORD_ID: c.id,
         PATIENT_ID: P,
@@ -690,7 +694,9 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         LINKED_DEVICE_ID: c.linkedDeviceId ?? null,
         SOURCE: src(p, "microbiologia", c.collectedAt, "culturas / microbiologia"),
         CONFIDENCE: c.result ? "DOCUMENTED" : "MISSING",
-      });
+      };
+      microbiology.push(cultureRecord);
+      patientCultureRecords.push(cultureRecord);
       quality.registros_analisados += 1;
       if (!c.result) quality.dados_incompletos.push(`${P} · cultura de ${c.source} sem resultado`);
       pushEvent(
@@ -1366,6 +1372,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         IMAGING_IDS: patientImagingIds,
         MICROBIOLOGY_COUNT: patientCultureIds.length,
         IMAGING_COUNT: patientImagingIds.length,
+        MICROBIOLOGY_RECORDS: patientCultureRecords,
+        IMAGING_RECORDS: patientImagingRecords,
       },
       COLUMN_7_CONDUCTS: {
         DESCRIPTION: "Condutas e anotações clínicas exibidas na coluna 7.",
