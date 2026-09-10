@@ -344,6 +344,8 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
   const events: unknown[] = [];
   const labs: unknown[] = [];
   const imaging: unknown[] = [];
+  const microbiology: unknown[] = [];
+  const infectionFoci: unknown[] = [];
   const medications: unknown[] = [];
   const devices: unknown[] = [];
   const scores: unknown[] = [];
@@ -599,6 +601,12 @@ export function buildKnowledgePack(patients: Patient[], options: PackOptions) {
         EXPECTED_OUTCOME: img.outcome ?? "não informado",
         SUMMARY: img.summary ?? "MISSING",
         REPORTED_BY: anonymize ? null : (img.reportedBy ?? null),
+        IMAGES_COUNT: (img.images ?? []).length,
+        IMAGES: (img.images ?? []).map((f) => ({
+          IMAGE_ID: f.id,
+          LABEL: f.label ?? "não informado",
+          CAPTURED_AT: f.takenAt ?? img.performedAt ?? null,
+        })),
         SOURCE: src(p, "imaging", img.performedAt, "exames de imagem"),
         CONFIDENCE: img.summary ? "DOCUMENTED" : "MISSING",
       });
