@@ -50,6 +50,27 @@ export interface PreviousPackRecord {
   >;
 }
 
+export const CONDUCT_COLOR_TUTORIAL = {
+  LOCATION: "clinical_conducts[].ANNOTATIONS[]",
+  PURPOSE:
+    "As cores são marcadores institucionais das condutas da coluna 7. Interpretar sempre junto ao texto registrado; a cor isolada não autoriza inferência clínica.",
+  COLOR_MEANINGS: {
+    default: "Sem classificação de cor registrada.",
+    green: "Bom resultado.",
+    yellow: "Atenção.",
+    orange: "Mantém conduta.",
+    red: "Sinal de alerta.",
+    purple: "Conduta nova.",
+    teal: "Destaque adicional sem significado institucional definido neste tutorial.",
+  },
+  READING_RULES: [
+    "Localize o paciente por PATIENT_ID antes de interpretar a conduta.",
+    "Leia COLOR_CODE e COLOR_MEANING junto com TEXT.",
+    "Não transforme o significado da cor em prescrição ou fato clínico adicional.",
+    "Use SOURCE para rastrear a origem no passômetro.",
+  ],
+} as const;
+
 // ───────────────────────────── utilidades ─────────────────────────────
 
 const HOUR = 3600_000;
@@ -1636,6 +1657,17 @@ export const AI_INSTRUCTIONS = {
     MISSING: "Não existe informação suficiente.",
     CONFLICTING: "Existem registros conflitantes.",
   },
+  DATA_LOCATION_TUTORIAL: {
+    COLUMN_5:
+      "Culturas microbiológicas estão em microbiology e exames de imagem em imaging. O perfil de cada paciente aponta seus registros em patients[].COLUMN_5_RECORDS pelos respectivos IDs.",
+    COLUMN_7:
+      "Condutas estão em clinical_conducts. O perfil de cada paciente aponta seus blocos em patients[].COLUMN_7_CONDUCTS.",
+    PATIENT_LINK:
+      "Cruze sempre PATIENT_ID e os IDs referenciados no perfil individual; nunca misture registros de pacientes diferentes.",
+    TRACEABILITY:
+      "Cada registro contém SOURCE, resolvido em source_map, para indicar a seção original do passômetro.",
+  },
+  CONDUCT_COLOR_TUTORIAL,
   RESPONSE_PROTOCOL: [
     "1. Identificar paciente(s).",
     "2. Identificar período.",
