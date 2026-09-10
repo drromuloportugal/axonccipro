@@ -989,6 +989,10 @@ function Passometro() {
         currentPatientId={filtered[current]?.id}
         onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
       />
+
+      {callAxonOpen && (
+        <CallAxonPanel patients={patients} onClose={() => setCallAxonOpen(false)} />
+      )}
     </div>
   );
 }
