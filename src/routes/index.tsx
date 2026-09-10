@@ -28,10 +28,12 @@ import {
   ChevronRight,
   LayoutDashboard,
   Brain,
+  Sparkles,
 } from "lucide-react";
 import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
+import { CallAxonPanel } from "@/components/CallAxonPanel";
 
 import { toast } from "sonner";
 import { useRef } from "react";
@@ -237,6 +239,7 @@ function Passometro() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [managementOpen, setManagementOpen] = useState(false);
   const [deepOpen, setDeepOpen] = useState(false);
+  const [callAxonOpen, setCallAxonOpen] = useState(false);
 
   const router = useRouter();
   const handleSignOut = async () => {
@@ -537,6 +540,19 @@ function Passometro() {
                 >
                   <Brain className="h-3.5 w-3.5" />
                   Análise profunda
+                </button>
+
+                {/* Call Axon — pacote clínico para IA */}
+                <button
+                  onClick={() => {
+                    setCallAxonOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-stable/40 bg-clinical-stable/10 px-3 py-2 text-[12px] font-semibold text-clinical-stable transition-colors hover:bg-clinical-stable/20"
+                  title="Gerar pacote de conhecimento clínico estruturado para leitura por IA"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Call Axon
                 </button>
 
                 {/* Ferramentas clínicas */}
@@ -971,6 +987,8 @@ function Passometro() {
         currentPatientId={filtered[current]?.id}
         onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
       />
+
+      {callAxonOpen && <CallAxonPanel patients={patients} onClose={() => setCallAxonOpen(false)} />}
     </div>
   );
 }
