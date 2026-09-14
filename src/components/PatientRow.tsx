@@ -925,32 +925,38 @@ export function PatientRow({
                         ? "border-2 border-clinical-critical/80 bg-clinical-critical/10"
                         : "border border-border";
                   return (
-                  <div
-                    key={im.id}
-                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${borderClass}`}
-                    title={pending ? "Resultado pendente" : im.conclusion ? `Resultado ${im.conclusion}` : undefined}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span className="min-w-0 flex-1 truncate" title={im.summary}>
-                        <span className="font-semibold text-foreground">{im.modality}</span>
-                        <span className="text-muted-foreground"> {im.region}</span>
-                      </span>
-                      {im.images && im.images.length > 0 && (
-                        <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
-                          {" "}
-                          {im.images.length}
+                    <div
+                      key={im.id}
+                      className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${borderClass}`}
+                      title={
+                        pending
+                          ? "Resultado pendente"
+                          : im.conclusion
+                            ? `Resultado ${im.conclusion}`
+                            : undefined
+                      }
+                    >
+                      <div className="flex items-center gap-1">
+                        <span className="min-w-0 flex-1 truncate" title={im.summary}>
+                          <span className="font-semibold text-foreground">{im.modality}</span>
+                          <span className="text-muted-foreground"> {im.region}</span>
                         </span>
+                        {im.images && im.images.length > 0 && (
+                          <span className="shrink-0 rounded bg-clinical-resp/15 px-1 text-[8.5px] font-bold text-clinical-resp">
+                            {" "}
+                            {im.images.length}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[9px] text-muted-foreground">
+                        {formatDateBR(im.performedAt)}
+                      </div>
+                      {im.status && (
+                        <div className="text-[9px] font-semibold uppercase tracking-wider text-foreground">
+                          {im.status === "concluido" ? "Concluído" : "Solicitado"}
+                        </div>
                       )}
                     </div>
-                    <div className="text-[9px] text-muted-foreground">
-                      {formatDateBR(im.performedAt)}
-                    </div>
-                    {im.status && (
-                      <div className="text-[9px] font-semibold uppercase tracking-wider text-foreground">
-                        {im.status === "concluido" ? "Concluído" : "Solicitado"}
-                      </div>
-                    )}
-                  </div>
                   );
                 })}
               </div>
@@ -2002,8 +2008,7 @@ export function PatientRow({
                       .imaging!.slice()
                       .reverse()
                       .map((im) => {
-                        const pending =
-                          im.status === "solicitado" || im.conclusion === "pendente";
+                        const pending = im.status === "solicitado" || im.conclusion === "pendente";
                         const borderClass = pending
                           ? "border-2 border-clinical-attention/80 bg-clinical-attention/10"
                           : im.conclusion === "normal"
