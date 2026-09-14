@@ -276,8 +276,8 @@ export function PatientRow({
   const [nihssOpen, setNihssOpen] = useState(false);
   const [vasoOpen, setVasoOpen] = useState(false);
   const [sofaOpen, setSofaOpen] = useState(false);
-  const [scalesExpanded, setScalesExpanded] = useState(false);
-  const [pastMedsExpanded, setPastMedsExpanded] = useState(false);
+  const [scalesExpanded, setScalesExpanded] = useState(true);
+  const [pastMedsExpanded, setPastMedsExpanded] = useState(true);
   // Coluna 7 inicia em modo leitura; qualquer clique na coluna ativa a edição inline.
   const [planInlineEdit, setPlanInlineEdit] = useState(false);
   const planColRef = useRef<HTMLDivElement>(null);
@@ -915,27 +915,20 @@ export function PatientRow({
             {(patient.imaging?.length ?? 0) > 0 && (
               <div className="mt-1 space-y-0.5">
                 {" "}
-                {patient.imaging!.slice(0, 2).map((im) => (
+                {patient.imaging!.slice(0, 2).map((im) => {
+                  const pending = im.status === "solicitado" || im.conclusion === "pendente";
+                  const borderClass = pending
+                    ? "border-2 border-clinical-attention/80 bg-clinical-attention/10"
+                    : im.conclusion === "normal"
+                      ? "border-2 border-clinical-stable/80 bg-clinical-stable/10"
+                      : im.conclusion === "alterado" || im.conclusion === "critico"
+                        ? "border-2 border-clinical-critical/80 bg-clinical-critical/10"
+                        : "border border-border";
+                  return (
                   <div
                     key={im.id}
-                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${
-                      im.outcome === "mau"
-                        ? "alert-outline"
-                        : im.outcome === "bom"
-                          ? "border-2 border-clinical-stable/80 bg-clinical-stable/10"
-                          : im.status === "solicitado"
-                            ? "border-2 border-clinical-attention/80 bg-clinical-attention/10"
-                            : ""
-                    }`}
-                    title={
-                      im.outcome === "mau"
-                        ? "Mau resultado esperado"
-                        : im.outcome === "bom"
-                          ? "Bom resultado esperado"
-                          : im.status === "solicitado"
-                            ? "Aguardando resultado"
-                            : undefined
-                    }
+                    className={`rounded px-1 py-0.5 text-[10.5px] leading-snug ${borderClass}`}
+                    title={pending ? "Resultado pendente" : im.conclusion ? `Resultado ${im.conclusion}` : undefined}
                   >
                     <div className="flex items-center gap-1">
                       <span className="min-w-0 flex-1 truncate" title={im.summary}>
@@ -958,7 +951,8 @@ export function PatientRow({
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>{" "}
@@ -2008,23 +2002,28 @@ export function PatientRow({
                       .imaging!.slice()
                       .reverse()
                       .map((im) => {
-                        const icon =
-                          im.conclusion === "critico"
-                            ? ""
-                            : im.conclusion === "alterado"
-                              ? ""
-                              : im.conclusion === "normal"
-                                ? ""
-                                : "";
-                        const bad = im.outcome === "mau";
+                        const pending =
+                          im.status === "solicitado" || im.conclusion === "pendente";
+                        const borderClass = pending
+                          ? "border-2 border-clinical-attention/80 bg-clinical-attention/10"
+                          : im.conclusion === "normal"
+                            ? "border-2 border-clinical-stable/80 bg-clinical-stable/10"
+                            : im.conclusion === "alterado" || im.conclusion === "critico"
+                              ? "border-2 border-clinical-critical/80 bg-clinical-critical/10"
+                              : "border border-border";
                         return (
                           <li
                             key={im.id}
-                            className={`ios-inset px-2 py-1.5 text-[11px] ${bad ? "alert-outline" : ""}`}
-                            title={bad ? "Mau resultado esperado" : undefined}
+                            className={`rounded-md px-2 py-1.5 text-[11px] ${borderClass}`}
+                            title={
+                              pending
+                                ? "Resultado pendente"
+                                : im.conclusion
+                                  ? `Resultado ${im.conclusion}`
+                                  : undefined
+                            }
                           >
                             <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                              <span>{icon}</span>
                               <span>
                                 {im.modality} · {im.region}
                               </span>
@@ -2038,9 +2037,14 @@ export function PatientRow({
                               </div>
                             )}{" "}
                             {im.summary && (
-                              <div className="mt-0.5 text-[10.5px] text-muted-foreground">
-                                {im.summary}
-                              </div>
+                              <details className="mt-1" onClick={(e) => e.stopPropagation()}>
+                                <summary className="cursor-pointer text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                  Impressão diagnóstica
+                                </summary>
+                                <div className="mt-1 text-[10.5px] text-muted-foreground">
+                                  {im.summary}
+                                </div>
+                              </details>
                             )}
                             {im.reportedBy && (
                               <div className="mt-0.5 text-[9px] text-muted-foreground">

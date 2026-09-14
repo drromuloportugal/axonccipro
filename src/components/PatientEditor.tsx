@@ -3661,12 +3661,6 @@ const CONCLUSION_OPTIONS: {
   { code: "pendente", label: "Pendente", icon: "" },
 ];
 
-const OUTCOME_OPTIONS: { code: NonNullable<ImagingExam["outcome"]> | ""; label: string }[] = [
-  { code: "", label: "Resultado: não classificado" },
-  { code: "bom", label: "Bom resultado esperado" },
-  { code: "mau", label: "Mau resultado esperado" },
-];
-
 function ImagingList({
   items,
   onChange,
@@ -3680,7 +3674,6 @@ function ImagingList({
   const [summary, setSummary] = useState("");
   const [conclusion, setConclusion] = useState<ImagingExam["conclusion"]>("alterado");
   const [status, setStatus] = useState<NonNullable<ImagingExam["status"]>>("solicitado");
-  const [outcome, setOutcome] = useState<ImagingExam["outcome"] | "">("");
   const [reportedBy, setReportedBy] = useState("");
 
   const add = () => {
@@ -3695,7 +3688,6 @@ function ImagingList({
         summary: summary.trim() || undefined,
         conclusion,
         status,
-        outcome: outcome || undefined,
         reportedBy: reportedBy.trim() || undefined,
       },
     ]);
@@ -3713,7 +3705,7 @@ function ImagingList({
         <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Adicionar exame de imagem
         </div>
-        <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_1.2fr_auto] gap-2">
+        <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_auto] gap-2">
           <select
             className={inputCls}
             value={modality}
@@ -3759,18 +3751,6 @@ function ImagingList({
             {CONCLUSION_OPTIONS.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.icon} {c.label}
-              </option>
-            ))}
-          </select>
-          <select
-            className={inputCls}
-            value={outcome ?? ""}
-            onChange={(e) => setOutcome(e.target.value as ImagingExam["outcome"] | "")}
-          >
-            {" "}
-            {OUTCOME_OPTIONS.map((o) => (
-              <option key={o.code} value={o.code}>
-                {o.label}
               </option>
             ))}
           </select>
@@ -3838,7 +3818,7 @@ function ImagingList({
                 key={im.id}
                 className="rounded-md border border-border bg-surface p-2 text-[12px]"
               >
-                <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_1.2fr_auto] gap-2">
+                <div className="grid grid-cols-[1fr_1.4fr_1fr_1fr_1fr_auto] gap-2">
                   <select
                     className={inputCls}
                     value={im.modality}
@@ -3893,22 +3873,6 @@ function ImagingList({
                     {CONCLUSION_OPTIONS.map((c) => (
                       <option key={c.code} value={c.code}>
                         {c.icon} {c.label}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    className={inputCls}
-                    value={im.outcome ?? ""}
-                    onChange={(e) =>
-                      updItem(im.id, {
-                        outcome: (e.target.value || undefined) as ImagingExam["outcome"],
-                      })
-                    }
-                  >
-                    {" "}
-                    {OUTCOME_OPTIONS.map((o) => (
-                      <option key={o.code} value={o.code}>
-                        {o.label}
                       </option>
                     ))}
                   </select>
