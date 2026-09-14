@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import mainLogo from "@/assets/axon-logo.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
     typeof s.next === "string" && s.next.startsWith("/") ? { next: s.next } : {},
   head: () => ({
