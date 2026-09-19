@@ -312,6 +312,56 @@ export function useNetoVoice({ patientId, patientLabel, onTranscript, onToolResu
     [handleQuestion, interrupt, push],
   );
 
+  /** Transcreve um arquivo de áudio (ex.: WhatsApp PTT) e processa como pergunta por voz. */
+  const sendAudioBlob = useCallback(
+    async (blob: Blob, mimeType?: string) => {
+      const type = mimeType || blob.type || "audio/ogg";
+      if (blob.size < 2048) {
+        setError("Áudio muito curto para transcrição.");
+        return;
+      }
+      if (blob.size > 14 * 1024 * 1024) {
+        setError("Áudio muito longo. Envie até 14 MB.");
+        return;
+      }
+      interrupt();
+      if (!sessionIdRef.current) {
+        try {
+          const session = await openSession({ data: { patientId: patientId ?? "" } });
+          sessionIdRef.current = session.sessionId;
+        } catch (e: unknown) {
+          setError(e instanceof Error ? e.message : "Falha ao iniciar a sessão de voz.");
+          return;
+        }
+      }
+      busyRef.current = true;
+      setStatus("transcribing");
+      try {
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        let binary = "";
+        bytes.forEach((byte) => {
+          binary += String.fromCharCode(byte);
+        });
+        const heard = await transcribe({
+          data: { audioBase64: btoa(binary), mimeType: type },
+        });
+        if (!heard.text) {
+          setError("Não foi possível reconhecer a fala neste áudio.");
+          return;
+        }
+        push("user", heard.text);
+        await handleQuestion(heard.text);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Falha ao processar o áudio.");
+      } finally {
+        busyRef.current = false;
+        if (activeRef.current) setStatus("listening");
+        else setStatus("idle");
+      }
+    },
+    [handleQuestion, interrupt, openSession, patientId, push, transcribe],
+  );
+
   /** Confirma (ou recusa) a gravação da reavaliação pedida por voz. */
   const resolvePending = useCallback(
     (approve: boolean) => {
@@ -363,6 +413,7 @@ export function useNetoVoice({ patientId, patientLabel, onTranscript, onToolResu
     stop,
     interrupt,
     sendText,
+    sendAudioBlob,
     resolvePending,
   };
 }

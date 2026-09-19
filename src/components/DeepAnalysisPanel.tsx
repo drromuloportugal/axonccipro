@@ -4,11 +4,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope, Trash2,
+  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope, Trash2, Mic, Upload,
 } from "lucide-react";
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
 import { generateCaseReport, askAboutCase } from "@/lib/api/deep-analysis.functions";
+import { transcribeVoice } from "@/lib/live/voice.functions";
 import { ShiftEscalationButton, ShiftEscalationModal } from "@/components/ShiftEscalationModal";
 
 interface Props {
@@ -81,6 +82,7 @@ function RichText({ text }: { text: string }) {
 export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist, onPatientChange }: Props) {
   const runReport = useServerFn(generateCaseReport);
   const runAsk = useServerFn(askAboutCase);
+  const runTranscribe = useServerFn(transcribeVoice);
 
   const selectable = useMemo(
     () => patients.filter((p) => !p.archived).sort((a, b) => a.bed.localeCompare(b.bed, "pt-BR", { numeric: true })),
@@ -98,7 +100,12 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const [asking, setAsking] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const [shiftOpen, setShiftOpen] = useState(false);
+  const [recordingAudio, setRecordingAudio] = useState(false);
+  const [transcribingAudio, setTranscribingAudio] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const fileVoiceRef = useRef<HTMLInputElement | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const patient = useMemo(() => selectable.find((p) => p.id === patientId), [selectable, patientId]);
   const latest = reports[0];
@@ -430,6 +437,37 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                 placeholder="Pergunte sobre o caso deste paciente…"
                 className="min-h-[46px] flex-1 resize-y rounded-md border border-strong bg-white px-2.5 py-2 text-[12px] outline-none focus:border-primary"
               />
+              <input
+                ref={fileVoiceRef}
+                type="file"
+                accept="audio/*,.ogg,.mp3,.wav,.webm,.m4a"
+                className="hidden"
+                onChange={handleAudioUpload}
+              />
+              <button
+                type="button"
+                onClick={toggleVoiceRecord}
+                disabled={transcribingAudio}
+                title={recordingAudio ? "Parar gravação" : "Falar pergunta por microfone"}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[12px] font-semibold transition-colors ${
+                  recordingAudio
+                    ? "bg-clinical-critical text-white animate-pulse"
+                    : "border border-border bg-surface-2 text-foreground hover:bg-surface-3"
+                }`}
+              >
+                <Mic className="h-3.5 w-3.5" />
+                {recordingAudio ? "Gravando…" : "Voz"}
+              </button>
+              <button
+                type="button"
+                onClick={() => fileVoiceRef.current?.click()}
+                disabled={transcribingAudio}
+                title="Enviar áudio (WhatsApp PTT .ogg, .wav, .mp3)"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-2 px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-60"
+              >
+                {transcribingAudio ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                Áudio
+              </button>
               <button
                 type="button"
                 onClick={() => void ask()}
@@ -454,3 +492,73 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     </div>
   );
 }
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setTranscribingAudio(true);
+    setChatError(null);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      bytes.forEach((b) => {
+        binary += String.fromCharCode(b);
+      });
+      const res = await runTranscribe({
+        data: { audioBase64: btoa(binary), mimeType: file.type || "audio/ogg" },
+      });
+      if (res.text) {
+        setQuestion((prev) => (prev ? `${prev} ${res.text}` : res.text));
+      } else {
+        setChatError("Nenhuma fala detectada no áudio enviado.");
+      }
+    } catch (err: unknown) {
+      setChatError(err instanceof Error ? err.message : "Falha na transcrição do áudio.");
+    } finally {
+      setTranscribingAudio(false);
+      if (fileVoiceRef.current) fileVoiceRef.current.value = "";
+    }
+  };
+
+  const toggleVoiceRecord = async () => {
+    if (recordingAudio) {
+      mediaRecorderRef.current?.stop();
+      setRecordingAudio(false);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        if (blob.size < 1000) return;
+        setTranscribingAudio(true);
+        try {
+          const bytes = new Uint8Array(await blob.arrayBuffer());
+          let binary = "";
+          bytes.forEach((b) => {
+            binary += String.fromCharCode(b);
+          });
+          const res = await runTranscribe({
+            data: { audioBase64: btoa(binary), mimeType: blob.type },
+          });
+          if (res.text) {
+            setQuestion((prev) => (prev ? `${prev} ${res.text}` : res.text));
+          }
+        } catch (err: unknown) {
+          setChatError(err instanceof Error ? err.message : "Falha na transcrição da voz.");
+        } finally {
+          setTranscribingAudio(false);
+        }
+      };
+      recorder.start();
+      setRecordingAudio(true);
+    } catch {
+      setChatError("Microfone indisponível ou permissão negada.");
+    }
+  };

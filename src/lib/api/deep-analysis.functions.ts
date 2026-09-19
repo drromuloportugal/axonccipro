@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { createAiConfig } from "@/lib/api/ai-gateway.functions";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash-preview";
+const DEFAULT_MODEL = "google/gemini-2.5-pro";
 const EVIDENCE_SOURCE = "https://www.openevidence.com";
 
 export const ANALYSIS_MODES = [
@@ -163,13 +164,12 @@ ${ENGINE_SYSTEM}
 ${ICU_LIBERATION}`;
 
 async function callGateway(messages: Array<{ role: string; content: string }>) {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada.");
+  const ai = createAiConfig(DEFAULT_MODEL);
 
-  const res = await fetch(GATEWAY_URL, {
+  const res = await fetch(ai.chatUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({ model: MODEL, messages }),
+    headers: ai.headers,
+    body: JSON.stringify({ model: ai.model, messages }),
   });
 
   if (!res.ok) {
@@ -178,6 +178,10 @@ async function callGateway(messages: Array<{ role: string; content: string }>) {
       throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
     if (res.status === 402)
       throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
+    if (res.status === 404)
+      throw new Error(
+        `Modelo de IA indisponível (${ai.model}). Verifique GEMINI_PRO_MODEL ou AI_GATEWAY_URL.`,
+      );
     throw new Error(`Falha na análise (${res.status}): ${text.slice(0, 200)}`);
   }
 

@@ -139,6 +139,8 @@ describe("ferramentas do NETO Live", () => {
     const voice = readFileSync("src/lib/live/voice.functions.ts", "utf8");
     expect(voice).toContain("google/gemini-3.5-transcribe");
     expect(voice).toContain("ai.gateway.lovable.dev");
+    expect(voice).toContain("gemini/gemini-3.8-flash");
+    expect(voice).toContain("google/gemini-2.5-pro");
     expect(voice).not.toContain("api.openai.com");
     // Pedido de registro por voz nunca grava direto: devolve confirmação.
     expect(voice).toContain("requiresConfirmation");

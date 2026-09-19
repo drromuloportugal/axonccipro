@@ -10,10 +10,24 @@ import type { EngineIntent } from "@/lib/clinicalEngine";
 
 export const VOICE_STT_MODEL = "google/gemini-3.5-transcribe";
 export const VOICE_TTS_MODEL = "openai/gpt-4o-mini-tts";
-export const VOICE_CHAT_MODEL = "openai/gpt-6-astra";
+export const VOICE_CHAT_MODEL = "google/gemini-2.5-pro";
 export const VOICE_SESSION_MODEL = "gemini-voice";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1";
+function getGatewayBaseUrl(): string {
+  return (
+    process.env["VOICE_GATEWAY_URL"] ??
+    process.env["AI_GATEWAY_URL"] ??
+    process.env["GEMINI_GATEWAY_URL"] ??
+    "https://ai.gateway.lovable.dev/v1"
+  ).replace(/\/$/, "");
+}
+
+function getTranscriptionUrl(): string {
+  return (
+    process.env["AUDIO_TRANSCRIPTION_URL"] ??
+    `${getGatewayBaseUrl()}/audio/transcriptions`
+  );
+}
 
 const SPEECH_STYLE = `Você é o NETO, assistente de UTI do Axon Pro, falando por voz em português brasileiro.
 Reescreva o relatório determinístico abaixo como fala curta de intensivista no round.
@@ -47,8 +61,12 @@ async function resolvePatient(db: PatientsDb, patientId: string): Promise<Patien
 }
 
 function gatewayKey(): string {
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key) throw new Error("Voz indisponível: a chave da Lovable AI não está configurada.");
+  const key =
+    process.env["VOICE_GATEWAY_KEY"] ??
+    process.env["AI_GATEWAY_KEY"] ??
+    process.env["GEMINI_API_KEY"] ??
+    process.env["LOVABLE_API_KEY"];
+  if (!key) throw new Error("Voz indisponível: a chave da IA não está configurada (VOICE_GATEWAY_KEY ou LOVABLE_API_KEY).");
   return key;
 }
 
@@ -99,17 +117,25 @@ export const transcribeVoice = createServerFn({ method: "POST" })
 
     const ext = data.mimeType.includes("mp4")
       ? "mp4"
+      : data.mimeType.includes("ogg") || data.mimeType.includes("opus")
+        ? "ogg"
       : data.mimeType.includes("webm")
         ? "webm"
         : data.mimeType.includes("mpeg")
           ? "mp3"
           : "wav";
 
+    const sttModel =
+      process.env["VOICE_STT_MODEL"] ??
+      (getTranscriptionUrl().includes("dgsis.com.br")
+        ? "gemini/gemini-3.8-flash"
+        : VOICE_STT_MODEL);
+
     const form = new FormData();
-    form.append("model", VOICE_STT_MODEL);
+    form.append("model", sttModel);
     form.append("file", new Blob([new Uint8Array(bytes)], { type: data.mimeType }), `fala.${ext}`);
 
-    const res = await fetch(`${GATEWAY}/audio/transcriptions`, {
+    const res = await fetch(getTranscriptionUrl(), {
       method: "POST",
       headers: { Authorization: `Bearer ${gatewayKey()}` },
       body: form,
@@ -174,14 +200,15 @@ export const askNetoVoice = createServerFn({ method: "POST" })
 
     let speech = outcome.summary;
     try {
-      const res = await fetch(`${GATEWAY}/chat/completions`, {
+      const chatModel = process.env["VOICE_CHAT_MODEL"] ?? VOICE_CHAT_MODEL;
+      const res = await fetch(`${getGatewayBaseUrl()}/chat/completions`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${gatewayKey()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: VOICE_CHAT_MODEL,
+          model: chatModel,
           reasoning_effort: "low",
           max_completion_tokens: 1200,
           messages: [
@@ -255,7 +282,7 @@ export const speakNetoVoice = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     if (!data.text.trim()) return { audioBase64: "", mimeType: "audio/mpeg" };
-    const res = await fetch(`${GATEWAY}/audio/speech`, {
+    const res = await fetch(`${getGatewayBaseUrl()}/audio/speech`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${gatewayKey()}`,

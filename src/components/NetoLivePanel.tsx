@@ -10,7 +10,9 @@ import {
   TriangleAlert,
   Volume2,
   VolumeX,
+  Upload,
 } from "lucide-react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useNetoVoice, type VoiceStatus } from "@/lib/live/useNetoVoice";
 import type { LiveToolName } from "@/lib/live/tools";
@@ -46,6 +48,14 @@ export function NetoLivePanel({ patientId, patientLabel, onTranscript, onToolRes
   const live = useNetoVoice({ patientId, patientLabel, onTranscript, onToolResult });
   const meta = STATUS_META[live.status];
   const bars = [0, 1, 2, 3, 4];
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAudioFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    void live.sendAudioBlob(file, file.type || "audio/ogg");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   return (
     <div className="neto-panel space-y-2 rounded-[18px] p-2.5">
@@ -111,6 +121,23 @@ export function NetoLivePanel({ patientId, patientLabel, onTranscript, onToolRes
         >
           {live.voice === "alloy" ? "Voz 1" : "Voz 2"}
         </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => fileInputRef.current?.click()}
+          title="Enviar áudio (WhatsApp PTT .ogg, .wav, .mp3)"
+          className="neto-chip h-8 w-8 rounded-full p-0 text-neto-foreground hover:bg-neto-panel-strong"
+        >
+          <Upload className="h-3.5 w-3.5" />
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="audio/*,.ogg,.mp3,.wav,.webm,.m4a"
+          className="hidden"
+          onChange={handleAudioFile}
+        />
 
         {(live.status === "connecting" ||
           live.status === "transcribing" ||

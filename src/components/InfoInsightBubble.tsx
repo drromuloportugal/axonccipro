@@ -45,6 +45,7 @@ import {
 } from "@/lib/renalDosing";
 
 import netoAvatar from "@/assets/neto-avatar.png";
+import { NetoLivePanel } from "@/components/NetoLivePanel";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
 type Msg = { role: "user" | "assistant"; content: string };
@@ -776,7 +777,22 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                           m.role === "user"
                             ? "rounded-[15px] border border-neto-line bg-neto-panel-strong px-3 py-2 text-[11px] font-semibold text-neto-foreground"
                             : "px-1 py-1 text-[12px] font-bold leading-relaxed !text-white"
-                        }
+            }
+
+            {patient && (
+              <NetoLivePanel
+                patientId={patient.id}
+                patientLabel={`${patient.bed} · ${patient.name}`}
+                onTranscript={(role, text) =>
+                  role === "user" && setChat((prev) => [...prev, { role, content: text }])
+                }
+                onToolResult={(name, summary) => {
+                  if (name === "run_clinical_engine") {
+                    setChat((prev) => [...prev, { role: "assistant", content: summary }]);
+                  }
+                }}
+              />
+            )}
                       >
                         <MessageResponse className="!text-white">{m.content}</MessageResponse>
                       </MessageContent>
