@@ -4,7 +4,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  X, Brain, Loader2, RefreshCw, Copy, Download, Send, MessageSquare, FileText, Stethoscope, Trash2, Mic, Upload,
+  X,
+  Brain,
+  Loader2,
+  RefreshCw,
+  Copy,
+  Download,
+  Send,
+  MessageSquare,
+  FileText,
+  Stethoscope,
+  Trash2,
+  Mic,
+  Upload,
 } from "lucide-react";
 import type { Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
@@ -26,12 +38,36 @@ const EVIDENCE_URL = "https://www.openevidence.com";
 type Mode = "report" | "handoff" | "changes" | "concerns" | "working" | "notworking";
 
 const MODES: { key: Mode; label: string; title: string }[] = [
-  { key: "report", label: "Relato de caso", title: "Relato clínico evolutivo + análise multissistêmica" },
-  { key: "handoff", label: "Passagem de plantão", title: "Passagem de plantão estruturada com ICU Liberation A-F" },
-  { key: "changes", label: "O que mudou?", title: "Alterações clinicamente relevantes priorizadas" },
-  { key: "concerns", label: "Por que estou preocupado?", title: "Achados que justificam atenção, com evidências" },
-  { key: "working", label: "O que está funcionando?", title: "Intervenções com resposta favorável documentada" },
-  { key: "notworking", label: "O que não está funcionando?", title: "Aumento de suporte sem melhora proporcional" },
+  {
+    key: "report",
+    label: "Relato de caso",
+    title: "Relato clínico evolutivo + análise multissistêmica",
+  },
+  {
+    key: "handoff",
+    label: "Passagem de plantão",
+    title: "Passagem de plantão estruturada com ICU Liberation A-F",
+  },
+  {
+    key: "changes",
+    label: "O que mudou?",
+    title: "Alterações clinicamente relevantes priorizadas",
+  },
+  {
+    key: "concerns",
+    label: "Por que estou preocupado?",
+    title: "Achados que justificam atenção, com evidências",
+  },
+  {
+    key: "working",
+    label: "O que está funcionando?",
+    title: "Intervenções com resposta favorável documentada",
+  },
+  {
+    key: "notworking",
+    label: "O que não está funcionando?",
+    title: "Aumento de suporte sem melhora proporcional",
+  },
 ];
 
 const modeLabel = (key: string) => MODES.find((m) => m.key === key)?.label ?? "Relato de caso";
@@ -50,14 +86,20 @@ function RichText({ text }: { text: string }) {
         const line = raw.replace(/\*\*(.+?)\*\*/g, "$1").replace(/^#{1,6}\s*/, "");
         const isHeading =
           /^#{1,6}\s/.test(raw) ||
-          (raw.trim().length > 0 && raw.trim() === raw.trim().toUpperCase() && /[A-ZÀ-Ú]{4,}/.test(raw.trim()) && raw.trim().length < 90);
+          (raw.trim().length > 0 &&
+            raw.trim() === raw.trim().toUpperCase() &&
+            /[A-ZÀ-Ú]{4,}/.test(raw.trim()) &&
+            raw.trim().length < 90);
         const isBullet = /^\s*[-*•]\s+/.test(raw);
         const isNumber = /^\s*\d+[.)]\s+/.test(raw);
 
         if (!line.trim()) return <div key={i} className="h-1.5" />;
         if (isHeading) {
           return (
-            <h4 key={i} className="mt-3 rounded-md bg-primary/10 px-2.5 py-1.5 text-[13px] font-bold uppercase tracking-[0.06em] text-foreground">
+            <h4
+              key={i}
+              className="mt-3 rounded-md bg-primary/10 px-2.5 py-1.5 text-[13px] font-bold uppercase tracking-[0.06em] text-foreground"
+            >
               {line.trim()}
             </h4>
           );
@@ -79,13 +121,23 @@ function RichText({ text }: { text: string }) {
   );
 }
 
-export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, onPersist, onPatientChange }: Props) {
+export function DeepAnalysisPanel({
+  open,
+  onClose,
+  patients,
+  initialPatientId,
+  onPersist,
+  onPatientChange,
+}: Props) {
   const runReport = useServerFn(generateCaseReport);
   const runAsk = useServerFn(askAboutCase);
   const runTranscribe = useServerFn(transcribeVoice);
 
   const selectable = useMemo(
-    () => patients.filter((p) => !p.archived).sort((a, b) => a.bed.localeCompare(b.bed, "pt-BR", { numeric: true })),
+    () =>
+      patients
+        .filter((p) => !p.archived)
+        .sort((a, b) => a.bed.localeCompare(b.bed, "pt-BR", { numeric: true })),
     [patients],
   );
 
@@ -107,7 +159,10 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  const patient = useMemo(() => selectable.find((p) => p.id === patientId), [selectable, patientId]);
+  const patient = useMemo(
+    () => selectable.find((p) => p.id === patientId),
+    [selectable, patientId],
+  );
   const latest = reports[0];
 
   useEffect(() => {
@@ -120,7 +175,14 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     const list: ReportItem[] = saved?.reports?.length
       ? saved.reports
       : saved?.report
-        ? [{ id: newId(), mode: "report", at: saved.reportAt ?? new Date().toISOString(), content: saved.report }]
+        ? [
+            {
+              id: newId(),
+              mode: "report",
+              at: saved.reportAt ?? new Date().toISOString(),
+              content: saved.report,
+            },
+          ]
         : [];
     setReports(list);
     setChat(((saved?.chat ?? []) as ChatMessage[]).map((m) => ({ ...m, id: m.id ?? newId() })));
@@ -151,7 +213,12 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     setError(null);
     try {
       const res = await runReport({ data: { context: buildPassometroContext(patient), mode: m } });
-      const item: ReportItem = { id: newId(), mode: m, at: new Date().toISOString(), content: res.report };
+      const item: ReportItem = {
+        id: newId(),
+        mode: m,
+        at: new Date().toISOString(),
+        content: res.report,
+      };
       const next = [item, ...reports];
       setReports(next);
       persist(next, chat);
@@ -179,7 +246,10 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
           history: chat.slice(-10).map(({ role, content }) => ({ role, content })),
         },
       });
-      const next: ChatMessage[] = [...withUser, { id: newId(), role: "assistant", content: res.answer }];
+      const next: ChatMessage[] = [
+        ...withUser,
+        { id: newId(), role: "assistant", content: res.answer },
+      ];
       setChat(next);
       persist(reports, next);
     } catch (e) {
@@ -212,7 +282,11 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
   };
 
   const copyReport = async (text: string) => {
-    try { await navigator.clipboard.writeText(text); } catch { /* ignore */ }
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /* ignore */
+    }
   };
 
   const downloadReport = (r: ReportItem) => {
@@ -304,7 +378,9 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
         <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-strong bg-card p-4 shadow-sm">
           <Brain className="h-6 w-6 text-primary" />
           <div className="min-w-[220px] flex-1">
-            <h2 className="text-[17px] font-bold text-foreground">Análise profunda — relato de caso</h2>
+            <h2 className="text-[17px] font-bold text-foreground">
+              Análise profunda — relato de caso
+            </h2>
             <p className="text-[11px] text-muted-foreground">
               Leitura do passômetro por intensivista neurológico · evidência consultada em{" "}
               <a href={EVIDENCE_URL} target="_blank" rel="noreferrer" className="underline">
@@ -334,8 +410,18 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
             disabled={loading || !patient}
             className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : reports.length ? <RefreshCw className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
-            {loading ? "Analisando o passômetro…" : reports.length ? "Gerar novo relatório" : "Gerar análise"}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : reports.length ? (
+              <RefreshCw className="h-3.5 w-3.5" />
+            ) : (
+              <FileText className="h-3.5 w-3.5" />
+            )}
+            {loading
+              ? "Analisando o passômetro…"
+              : reports.length
+                ? "Gerar novo relatório"
+                : "Gerar análise"}
           </button>
         </div>
 
@@ -367,15 +453,18 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
           </button>
         </div>
 
-
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           {/* Relatos */}
           <section className="rounded-lg border border-strong bg-card p-4 shadow-sm">
             <div className="mb-3 flex items-center gap-2">
               <Stethoscope className="h-4 w-4 text-primary" />
-              <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Relatórios gerados</h3>
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">
+                Relatórios gerados
+              </h3>
               {reports.length > 0 && (
-                <span className="ml-auto text-[11px] text-muted-foreground">{reports.length} salvo(s)</span>
+                <span className="ml-auto text-[11px] text-muted-foreground">
+                  {reports.length} salvo(s)
+                </span>
               )}
             </div>
 
@@ -387,15 +476,16 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
 
             {reports.length === 0 && !loading && !error && (
               <p className="text-[12px] text-muted-foreground">
-                Selecione o paciente e gere o relato. A análise reconstrói a trajetória clínica de forma cronológica e
-                contextualizada, com impressão do intensivista, problemas ativos e plano atual, sem inventar dados
-                ausentes do passômetro.
+                Selecione o paciente e gere o relato. A análise reconstrói a trajetória clínica de
+                forma cronológica e contextualizada, com impressão do intensivista, problemas ativos
+                e plano atual, sem inventar dados ausentes do passômetro.
               </p>
             )}
 
             {loading && (
               <div className="mb-3 flex items-center gap-2 text-[12px] text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Reconstruindo a história clínica do paciente…
+                <Loader2 className="h-4 w-4 animate-spin" /> Reconstruindo a história clínica do
+                paciente…
               </div>
             )}
 
@@ -406,12 +496,24 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                     <span className="rounded-md bg-primary/15 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-foreground">
                       {modeLabel(r.mode)}
                     </span>
-                    <span className="text-[11px] text-muted-foreground">{new Date(r.at).toLocaleString("pt-BR")}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {new Date(r.at).toLocaleString("pt-BR")}
+                    </span>
                     <div className="ml-auto flex items-center gap-2">
-                      <button type="button" onClick={() => void copyReport(r.content)} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Copiar">
+                      <button
+                        type="button"
+                        onClick={() => void copyReport(r.content)}
+                        className="rounded-md border border-border p-1.5 hover:bg-muted"
+                        title="Copiar"
+                      >
                         <Copy className="h-3.5 w-3.5" />
                       </button>
-                      <button type="button" onClick={() => downloadReport(r)} className="rounded-md border border-border p-1.5 hover:bg-muted" title="Baixar">
+                      <button
+                        type="button"
+                        onClick={() => downloadReport(r)}
+                        className="rounded-md border border-border p-1.5 hover:bg-muted"
+                        title="Baixar"
+                      >
                         <Download className="h-3.5 w-3.5" />
                       </button>
                       <button
@@ -434,7 +536,9 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
           <section className="flex max-h-[75vh] flex-col rounded-lg border border-strong bg-card p-4 shadow-sm">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" />
-              <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">Consulta ao especialista</h3>
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">
+                Consulta ao especialista
+              </h3>
               <div className="ml-auto flex items-center gap-2">
                 {chat.length > 0 && (
                   <button
@@ -453,9 +557,10 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
             <div className="mb-3 flex-1 space-y-3 overflow-y-auto pr-1">
               {chat.length === 0 && (
                 <p className="text-[12px] text-muted-foreground">
-                  Pergunte sobre o caso — conduta, diagnóstico diferencial, escores, vasoespasmo, sedação, sódio,
-                  antimicrobianos, prognóstico. As respostas são fundamentadas nos dados deste paciente e em evidência
-                  consultada em openevidence.com, com referências ao final.
+                  Pergunte sobre o caso — conduta, diagnóstico diferencial, escores, vasoespasmo,
+                  sedação, sódio, antimicrobianos, prognóstico. As respostas são fundamentadas nos
+                  dados deste paciente e em evidência consultada em openevidence.com, com
+                  referências ao final.
                 </p>
               )}
               {chat.map((m) => (
@@ -481,7 +586,8 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
               ))}
               {asking && (
                 <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Consultando evidência e formulando a resposta…
+                  <Loader2 className="h-4 w-4 animate-spin" /> Consultando evidência e formulando a
+                  resposta…
                 </div>
               )}
               {chatError && (
@@ -534,7 +640,11 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
                 title="Enviar áudio (WhatsApp PTT .ogg, .wav, .mp3)"
                 className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-2 px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-surface-3 disabled:opacity-60"
               >
-                {transcribingAudio ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                {transcribingAudio ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5" />
+                )}
                 Áudio
               </button>
               <button
