@@ -226,6 +226,75 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     URL.revokeObjectURL(url);
   };
 
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setTranscribingAudio(true);
+    setChatError(null);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      bytes.forEach((b) => {
+        binary += String.fromCharCode(b);
+      });
+      const res = await runTranscribe({
+        data: { audioBase64: btoa(binary), mimeType: file.type || "audio/ogg" },
+      });
+      if (res.text) {
+        setQuestion((prev) => (prev ? `${prev} ${res.text}` : res.text));
+      } else {
+        setChatError("Nenhuma fala detectada no áudio enviado.");
+      }
+    } catch (err: unknown) {
+      setChatError(err instanceof Error ? err.message : "Falha na transcrição do áudio.");
+    } finally {
+      setTranscribingAudio(false);
+      if (fileVoiceRef.current) fileVoiceRef.current.value = "";
+    }
+  };
+
+  const toggleVoiceRecord = async () => {
+    if (recordingAudio) {
+      mediaRecorderRef.current?.stop();
+      setRecordingAudio(false);
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        if (blob.size < 1000) return;
+        setTranscribingAudio(true);
+        try {
+          const bytes = new Uint8Array(await blob.arrayBuffer());
+          let binary = "";
+          bytes.forEach((b) => {
+            binary += String.fromCharCode(b);
+          });
+          const res = await runTranscribe({
+            data: { audioBase64: btoa(binary), mimeType: blob.type },
+          });
+          if (res.text) setQuestion((prev) => (prev ? `${prev} ${res.text}` : res.text));
+        } catch (err: unknown) {
+          setChatError(err instanceof Error ? err.message : "Falha na transcrição da voz.");
+        } finally {
+          setTranscribingAudio(false);
+        }
+      };
+      recorder.start();
+      setRecordingAudio(true);
+    } catch {
+      setChatError("Microfone indisponível ou permissão negada.");
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -492,73 +561,3 @@ export function DeepAnalysisPanel({ open, onClose, patients, initialPatientId, o
     </div>
   );
 }
-  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setTranscribingAudio(true);
-    setChatError(null);
-    try {
-      const bytes = new Uint8Array(await file.arrayBuffer());
-      let binary = "";
-      bytes.forEach((b) => {
-        binary += String.fromCharCode(b);
-      });
-      const res = await runTranscribe({
-        data: { audioBase64: btoa(binary), mimeType: file.type || "audio/ogg" },
-      });
-      if (res.text) {
-        setQuestion((prev) => (prev ? `${prev} ${res.text}` : res.text));
-      } else {
-        setChatError("Nenhuma fala detectada no áudio enviado.");
-      }
-    } catch (err: unknown) {
-      setChatError(err instanceof Error ? err.message : "Falha na transcrição do áudio.");
-    } finally {
-      setTranscribingAudio(false);
-      if (fileVoiceRef.current) fileVoiceRef.current.value = "";
-    }
-  };
-
-  const toggleVoiceRecord = async () => {
-    if (recordingAudio) {
-      mediaRecorderRef.current?.stop();
-      setRecordingAudio(false);
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioChunksRef.current = [];
-      const recorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = recorder;
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) audioChunksRef.current.push(event.data);
-      };
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
-        if (blob.size < 1000) return;
-        setTranscribingAudio(true);
-        try {
-          const bytes = new Uint8Array(await blob.arrayBuffer());
-          let binary = "";
-          bytes.forEach((b) => {
-            binary += String.fromCharCode(b);
-          });
-          const res = await runTranscribe({
-            data: { audioBase64: btoa(binary), mimeType: blob.type },
-          });
-          if (res.text) {
-            setQuestion((prev) => (prev ? `${prev} ${res.text}` : res.text));
-          }
-        } catch (err: unknown) {
-          setChatError(err instanceof Error ? err.message : "Falha na transcrição da voz.");
-        } finally {
-          setTranscribingAudio(false);
-        }
-      };
-      recorder.start();
-      setRecordingAudio(true);
-    } catch {
-      setChatError("Microfone indisponível ou permissão negada.");
-    }
-  };
