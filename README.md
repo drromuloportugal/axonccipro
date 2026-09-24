@@ -1038,25 +1038,12 @@ Alertas de troca de dispositivos.
 
 Integração futura com prontuário eletrônico.A única alteração estrutural que eu faria seria transformar a Coluna 6 em um verdadeiro “Estado Atual” automático, calculado a partir das outras colunas. Assim o médico não precisa reler todo o histórico para saber como o paciente está naquele momento. É como ter um “resumo executivo da UTI” atualizado em tempo real.
 
-This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://axonccipro.lovable.app
+## Desenvolvimento
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/f78cbda5-1515-4234-bd46-a79ab329ab20).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Este projeto é mantido de forma independente. Para executá-lo localmente, instale as dependências e use os comandos definidos em `package.json`.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install
+bun run dev
 ```
