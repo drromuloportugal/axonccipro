@@ -116,8 +116,8 @@ const POS = {
   cervical: { x: 100, y: 77 },
   // Dreno torácico: parede lateral no 4º–5º EIC, discretamente abaixo da
   // linha mamilar (anterior view: D do paciente fica à esquerda do visor).
-  hemitoraxD:{x: 48, y: 145 },
-  hemitoraxE:{x: 152, y: 145 },
+  hemitoraxD:{x: 55, y: 145 },
+  hemitoraxE:{x: 145, y: 145 },
   bladder: { x: 100, y: 226 },
   urethral: { x: 100, y: 249 },
   suprapubic: { x: 100, y: 222 },
