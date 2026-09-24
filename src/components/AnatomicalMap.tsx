@@ -13,8 +13,8 @@ import {
 import { STAGE_META, LPP_SITE_BY_KEY, summarizeLPP } from "@/lib/lpp";
 import { PressureInjuryForm } from "@/components/PressureInjuryForm";
 import { EquipmentBoard } from "@/components/EquipmentBoard";
-import bodyAnterior from "@/assets/body-anterior.jpg.asset.json";
-import bodyPosterior from "@/assets/body-posterior.jpg.asset.json";
+import bodyAnterior from "@/assets/body-anterior.png";
+import bodyPosterior from "@/assets/body-posterior.png";
 import { Plus, Trash2 } from "lucide-react";
 
 interface Props {
@@ -36,7 +36,7 @@ interface Props {
 // ============================================================================
 
 function BodyImage({ view }: { view: AnatView }) {
-  const href = view === "anterior" ? bodyAnterior.url : bodyPosterior.url;
+  const href = view === "anterior" ? bodyAnterior : bodyPosterior;
   return (
     <image
       href={href}
