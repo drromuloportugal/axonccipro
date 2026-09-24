@@ -9,7 +9,7 @@ type AnalysisRequest = {
 // O gateway Cloud expõe uma API compatível com OpenAI. A chave fica somente
 // nos Edge Function Secrets do Supabase, nunca no cliente ou no Vercel.
 const CLOUD_API_URL = "https://gtw.cloud2.dgsis.com.br/v1/chat/completions";
-const MODEL = "google/gemini-2.5-pro";
+const MODEL = "gemini-3.8-flash";
 
 const SYSTEM_INSTRUCTION =
   "Você é um assistente de apoio clínico. Analise apenas o texto fornecido, explicite incertezas e sugira pontos para revisão pela equipe de saúde. Não faça diagnósticos definitivos, não prescreva e não substitua avaliação profissional. Em situação de urgência, oriente avaliação imediata por profissional habilitado.";
@@ -78,7 +78,8 @@ export default {
     });
 
     if (!response.ok) {
-      console.error("Cloud API request failed", response.status);
+      const providerError = (await response.text()).slice(0, 500);
+      console.error("Cloud API request failed", response.status, providerError);
       return Response.json({ error: "Falha ao consultar o serviço de análise." }, { status: 502 });
     }
 
