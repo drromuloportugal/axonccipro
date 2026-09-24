@@ -45,8 +45,8 @@ const MODES: { key: Mode; label: string; title: string }[] = [
   },
   {
     key: "handoff",
-    label: "Passagem de plantão",
-    title: "Passagem de plantão estruturada com ICU Liberation A-F",
+    label: "SBAR — Passagem de plantão",
+    title: "Passagem SBAR estruturada, gerada como rascunho para validação médica",
   },
   {
     key: "changes",

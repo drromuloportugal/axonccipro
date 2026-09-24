@@ -127,9 +127,62 @@ F FAMILY ENGAGEMENT: presença, comunicação, conferências, objetivos de cuida
 Cada componente ausente deve ser marcado "Dado não disponível".`;
 
 const MODE_TASKS: Record<string, string> = {
-  handoff: `Produza a PASSAGEM DE PLANTÃO estruturada, exatamente nestas seções:
-IDENTIFICAÇÃO / MOTIVO DA INTERNAÇÃO / DIAGNÓSTICO PRINCIPAL / EVENTOS IMPORTANTES / ESTADO ATUAL / SUPORTE RESPIRATÓRIO / SUPORTE HEMODINÂMICO / NEUROLÓGICO / RENAL E METABÓLICO / INFECÇÃO / HEMATOLOGIA / DISPOSITIVOS / MEDICAÇÕES CRÍTICAS / ICU LIBERATION A-F / O QUE MUDOU NAS ÚLTIMAS 24 HORAS / PRINCIPAIS RISCOS / O QUE PRECISA SER OBSERVADO NO PRÓXIMO TURNO / DADOS IMPORTANTES NÃO DISPONÍVEIS.
-Cada item objetivo, com data/hora quando disponível.`,
+  handoff: `Produza uma PASSAGEM DE PLANTÃO — SBAR, pronta para revisão médica. Use EXATAMENTE a estrutura abaixo, em Markdown, mantendo-a concisa e adequada para leitura em 30–60 segundos.
+
+# PASSAGEM DE PLANTÃO — SBAR
+## CABEÇALHO
+Leito / Paciente (sem identificadores além dos já exibidos pelo sistema) / Idade / Sexo / Data de internação / Dias de internação / Diagnóstico principal / Data-hora da passagem / Profissional responsável.
+Preencha somente campos existentes no PASSÔMETRO. Para todo dado ausente, escreva “não informado”. Para profissional responsável, não invente nome. Após o cabeçalho, apresente o estado atual como 🟢 ESTÁVEL, 🟡 ATENÇÃO, 🟠 INSTÁVEL ou 🔴 CRÍTICO SOMENTE se os dados registrados sustentarem essa classificação; se não sustentarem, use ⚪ ESTADO INDETERMINADO. Isto não substitui julgamento médico.
+
+## S — SITUAÇÃO
+Em 1–2 frases, responda: quem é o paciente, por que está internado e qual é o problema ativo prioritário agora. Inclua suporte ventilatório, vasopressor, alteração neurológica relevante, instabilidade ou intercorrência recente somente quando documentados.
+
+## B — CONTEXTO
+### Antecedentes relevantes
+Comorbidades, cirurgias, alergias e medicações prévias que alterem decisões no próximo plantão.
+### História da internação
+Motivo de admissão, diagnósticos estabelecidos, procedimentos/cirurgias, dispositivos, antimicrobianos, culturas e complicações relevantes.
+### Evolução recente (24–48 h)
+Apenas mudanças documentadas que influenciam o próximo turno. Sem copiar o prontuário inteiro.
+
+## A — AVALIAÇÃO
+### Sinais vitais atuais e tendência
+PA, PAM, FC, FR, SpO₂, temperatura e glicemia quando disponíveis. Para cada tendência, use ↑ / ↓ / → somente quando houver comparação temporal; com dado isolado, escreva “tendência indeterminada”. Sempre informe data/hora disponível e nunca apresente dado antigo como atual.
+### Neurológico
+Glasgow, pupilas, déficit focal, sedação/analgesia, delirium, crises, PIC/PPC e neuromonitorização, quando aplicáveis e documentados.
+### Respiratório
+Ventilação, modo, FiO₂, PEEP, volume corrente, pressões, SpO₂, gasometria, secreções e imagem relevante, somente quando documentados.
+### Cardiovascular
+PA/PAM, FC/ritmo, perfusão, lactato, vasopressores/inotrópicos e doses documentadas.
+### Renal / metabólico
+Diurese, balanço, creatinina, ureia, Na, K, Mg, Ca e glicemia.
+### Infeccioso / hematológico
+Temperatura, leucócitos, PCR/procalcitonina, culturas, foco, antimicrobianos e dia de tratamento; Hb, hematócrito, plaquetas, coagulação e anticoagulação/profilaxia quando relevantes.
+### Gastrointestinal / nutrição e dispositivos
+Dieta, via, tolerância e evacuação. Liste CVC, acesso arterial, SVD, TOT/traqueostomia, drenos, sondas e demais dispositivos com data de instalação e indicação atual, quando disponíveis.
+
+## PROBLEMAS ATIVOS PRIORIZADOS
+Liste P1, P2, P3… Para cada um: **Problema** / **Estado** (melhorando, estável, piorando ou indeterminado) / **Evidências documentadas** / **Conduta atual registrada** / **Pendências**. Nunca transforme hipótese em diagnóstico nem infira melhora/piora sem critérios suficientes.
+
+## R — RECOMENDAÇÃO / PLANO PARA O PRÓXIMO PLANTÃO
+### Condutas a manter
+Somente tratamentos e medidas documentados como ativos.
+### Condutas programadas e pendências
+Exames, culturas, imagens, procedimentos, pareceres ou avaliações já planejados/documentados.
+### Monitorização e pontos de atenção
+Parâmetros a acompanhar conforme plano/metas já registradas; destaque alterações relevantes com as respectivas evidências.
+### Metas do próximo plantão
+Somente metas documentadas; caso contrário, “não informadas”.
+### Se acontecer → considerar/avisar
+Inclua exclusivamente contingências e limites explicitamente documentados. Nunca crie limites terapêuticos automaticamente.
+
+## CHECKLIST DE PENDÊNCIAS
+Use ☐ para cada pendência: tarefa — prioridade (🔴 alta / 🟡 média / 🟢 baixa, somente se sustentada nos dados) — horário previsto — responsável. Use “não informado” nos campos ausentes.
+
+## DADOS IMPORTANTES NÃO DISPONÍVEIS
+Liste somente ausências que limitem a interpretação clínica.
+
+REGRAS ABSOLUTAS: use exclusivamente informações do PASSÔMETRO; não invente dados, diagnósticos, tendências, metas, prescrições, horários, profissional ou referências. Diferencie FATO, TENDÊNCIA, INTERPRETAÇÃO e SUGESTÃO. Todo conteúdo é “Rascunho gerado por IA — requer validação profissional”; o sistema não deve declarar SBAR validado. Recomendações são sugestões para avaliação do profissional responsável e não substituem decisão médica.`,
   changes: `Produza a tela "O QUE MUDOU?" — apenas alterações clinicamente relevantes, ordenadas por prioridade, uma por linha, no formato:
 [ALTA PRIORIDADE|ALERTA|ATENÇÃO|INFORMATIVO] variável: valor anterior → valor atual (intervalo) · direção · intervenção relacionada · resposta · Evidências: ...
 Depois, as seções: O QUE MELHOROU / O QUE PIOROU / O QUE PERMANECE ESTÁVEL / NOVOS EVENTOS / INTERVENÇÕES E RESPOSTAS / PRINCIPAIS RISCOS / DADOS IMPORTANTES NÃO DISPONÍVEIS. Nada de alterações sem mudança documentada.`,
