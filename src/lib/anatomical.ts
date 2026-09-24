@@ -90,18 +90,18 @@ export interface Marker {
 // Anterior view convention: viewer's LEFT = patient's RIGHT (D).
 // So D (direita do paciente) must sit at LOWER x; E at HIGHER x.
 const POS = {
-  jugularD: { x: 87, y: 66 },
-  jugularE: { x: 113, y: 66 },
+  jugularD: { x: 87, y: 75 },
+  jugularE: { x: 113, y: 75 },
   subclavD: { x: 76, y: 87 },
   subclavE: { x: 124, y: 87 },
-  femoralD: { x: 85, y: 289 },
-  femoralE: { x: 115, y: 289 },
-  // Arm/hand points are centered over the actual vessel surface on the
-  // current full-body model (anterior view: viewer left = patient right).
-  radialD: { x: 50, y: 233 },
-  radialE: { x: 150, y: 233 },
-  braquialD:{ x: 60, y: 177 },
-  braquialE:{ x: 140, y: 177 },
+  femoralD: { x: 85, y: 260 },
+  femoralE: { x: 115, y: 260 },
+  // Surface landmarks calibrated against the local full-body illustration.
+  // Anterior view: viewer left = patient right.
+  radialD: { x: 52, y: 265 },
+  radialE: { x: 148, y: 265 },
+  braquialD:{ x: 61, y: 151 },
+  braquialE:{ x: 139, y: 151 },
   pediosaD: { x: 85, y: 457 },
   pediosaE: { x: 115, y: 457 },
   basilicaD:{ x: 40, y: 197 },
@@ -114,24 +114,24 @@ const POS = {
   mouth: { x: 100, y: 47 },
   trachea: { x: 100, y: 88 },
   cervical: { x: 100, y: 77 },
-  hemitoraxD:{x: 58, y: 147 },
-  hemitoraxE:{x: 142, y: 147 },
-  bladder: { x: 100, y: 263 },
-  urethral: { x: 100, y: 294 },
-  suprapubic: { x: 100, y: 255 },
-  stomach: { x: 116, y: 181 },
+  hemitoraxD:{x: 53, y: 155 },
+  hemitoraxE:{x: 147, y: 155 },
+  bladder: { x: 100, y: 226 },
+  urethral: { x: 100, y: 249 },
+  suprapubic: { x: 100, y: 222 },
+  stomach: { x: 116, y: 175 },
   abdLeftPt:{ x: 122, y: 217 }, // patient left abdomen = viewer right
   abdLowerPt:{x: 108, y: 247 },
-  lombar: { x: 100, y: 257 }, // posterior
+  lombar: { x: 100, y: 235 }, // posterior
   vbile: { x: 127, y: 197 },
-  handD: { x: 48, y: 263 },
-  handE: { x: 152, y: 263 },
-  forearmD: { x: 52, y: 199 },
-  forearmE: { x: 148, y: 199 },
-  cubitalD: { x: 57, y: 187 },
-  cubitalE: { x: 143, y: 187 },
-  jugExtD: { x: 91, y: 67 },
-  jugExtE: { x: 109, y: 67 },
+  handD: { x: 48, y: 278 },
+  handE: { x: 152, y: 278 },
+  forearmD: { x: 53, y: 230 },
+  forearmE: { x: 147, y: 230 },
+  cubitalD: { x: 57, y: 204 },
+  cubitalE: { x: 143, y: 204 },
+  jugExtD: { x: 75, y: 73 },
+  jugExtE: { x: 125, y: 73 },
 };
 
 
