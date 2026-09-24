@@ -1,32 +1,31 @@
-// Voz do NETO apoiada no Gemini (Lovable AI): transcrição, raciocínio clínico
+// Voz do NETO apoiada no Gemini: transcrição, raciocínio clínico
 // determinístico e fala. Nenhuma chave sai do servidor e nenhum áudio é gravado.
 
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Patient } from "@/data/patients";
 import { runNetoLiveTool } from "./toolRunner";
 import { detectIntent } from "@/lib/clinicalEngine/intent";
 import type { EngineIntent } from "@/lib/clinicalEngine";
 
-export const VOICE_STT_MODEL = "google/gemini-3.5-transcribe";
-export const VOICE_TTS_MODEL = "openai/gpt-4o-mini-tts";
-export const VOICE_CHAT_MODEL = "google/gemini-2.5-pro";
 export const VOICE_SESSION_MODEL = "gemini-voice";
 
-function getGatewayBaseUrl(): string {
-  return (
-    process.env["VOICE_GATEWAY_URL"] ??
-    process.env["AI_GATEWAY_URL"] ??
-    process.env["GEMINI_GATEWAY_URL"] ??
-    "https://ai.gateway.lovable.dev/v1"
-  ).replace(/\/$/, "");
-}
+async function invokeEdgeFunction(name: string, body: Record<string, unknown>) {
+  const supabaseUrl = process.env["SUPABASE_URL"]?.replace(/\/$/, "");
+  const authorization = getRequest()?.headers.get("authorization");
+  if (!supabaseUrl || !authorization) {
+    throw new Error("Sessão ou configuração do Supabase indisponível.");
+  }
 
-function getTranscriptionUrl(): string {
-  return (
-    process.env["AUDIO_TRANSCRIPTION_URL"] ??
-    `${getGatewayBaseUrl()}/audio/transcriptions`
-  );
+  const response = await fetch(`${supabaseUrl}/functions/v1/${name}`, {
+    method: "POST",
+    headers: { Authorization: authorization, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(String(payload?.error ?? "Falha no serviço de voz."));
+  return payload;
 }
 
 const SPEECH_STYLE = `Você é o NETO, assistente de UTI do Axon Pro, falando por voz em português brasileiro.
@@ -58,29 +57,6 @@ async function resolvePatient(db: PatientsDb, patientId: string): Promise<Patien
     patients.find((p) => (p.name ?? "").toLowerCase().includes(q));
   if (!found) throw new Error(`Paciente "${query}" não encontrado no passômetro.`);
   return found;
-}
-
-function gatewayKey(): string {
-  const key =
-    process.env["VOICE_GATEWAY_KEY"] ??
-    process.env["AI_GATEWAY_KEY"] ??
-    process.env["GEMINI_API_KEY"] ??
-    process.env["LOVABLE_API_KEY"];
-  if (!key) throw new Error("Voz indisponível: a chave da IA não está configurada (VOICE_GATEWAY_KEY ou LOVABLE_API_KEY).");
-  return key;
-}
-
-function gatewayError(status: number, detail: string): Error {
-  if (status === 402) {
-    return new Error("Os créditos de IA do app acabaram. Adicione créditos para usar a voz.");
-  }
-  if (status === 403) {
-    return new Error("A IA está bloqueada nas configurações do workspace.");
-  }
-  if (status === 429) {
-    return new Error("Muitas chamadas em sequência. Aguarde alguns segundos e fale novamente.");
-  }
-  return new Error(`Falha na voz do NETO (${status}). ${detail.slice(0, 200)}`);
 }
 
 /** Abre a sessão de voz (apenas auditoria — nenhuma conexão externa persistente). */
@@ -115,33 +91,11 @@ export const transcribeVoice = createServerFn({ method: "POST" })
       throw new Error("Trecho de fala muito longo. Fale em blocos mais curtos.");
     }
 
-    const ext = data.mimeType.includes("mp4")
-      ? "mp4"
-      : data.mimeType.includes("ogg") || data.mimeType.includes("opus")
-        ? "ogg"
-      : data.mimeType.includes("webm")
-        ? "webm"
-        : data.mimeType.includes("mpeg")
-          ? "mp3"
-          : "wav";
-
-    const sttModel =
-      process.env["VOICE_STT_MODEL"] ??
-      (getTranscriptionUrl().includes("dgsis.com.br")
-        ? "gemini/gemini-3.8-flash"
-        : VOICE_STT_MODEL);
-
-    const form = new FormData();
-    form.append("model", sttModel);
-    form.append("file", new Blob([new Uint8Array(bytes)], { type: data.mimeType }), `fala.${ext}`);
-
-    const res = await fetch(getTranscriptionUrl(), {
-      method: "POST",
-      headers: { Authorization: `Bearer ${gatewayKey()}` },
-      body: form,
+    const payload = await invokeEdgeFunction("axon-voice", {
+      action: "transcribe",
+      audioBase64: data.audioBase64,
+      mimeType: data.mimeType,
     });
-    if (!res.ok) throw gatewayError(res.status, await res.text().catch(() => ""));
-    const payload = (await res.json()) as { text?: string };
     return { text: String(payload.text ?? "").trim(), tooShort: false as const };
   });
 
@@ -200,35 +154,20 @@ export const askNetoVoice = createServerFn({ method: "POST" })
 
     let speech = outcome.summary;
     try {
-      const chatModel = process.env["VOICE_CHAT_MODEL"] ?? VOICE_CHAT_MODEL;
-      const res = await fetch(`${getGatewayBaseUrl()}/chat/completions`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${gatewayKey()}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: chatModel,
-          reasoning_effort: "low",
-          max_completion_tokens: 1200,
-          messages: [
-            { role: "system", content: SPEECH_STYLE },
-            {
-              role: "user",
-              content: `Pergunta do médico: "${data.question}"\n\nRelatório determinístico do Motor Clínico (única fonte de dados):\n${outcome.summary}`,
-            },
-          ],
-        }),
+      const payload = await invokeEdgeFunction("axon-gemini-analysis", {
+        messages: [
+          { role: "system", content: SPEECH_STYLE },
+          {
+            role: "user",
+            content: `Pergunta do médico: "${data.question}"\n\nRelatório determinístico do Motor Clínico (única fonte de dados):\n${outcome.summary}`,
+          },
+        ],
       });
-      if (!res.ok) throw gatewayError(res.status, await res.text().catch(() => ""));
-      const payload = (await res.json()) as {
-        choices?: { message?: { content?: string } }[];
-      };
-      const text = payload.choices?.[0]?.message?.content?.trim();
+      const text = String(payload?.analysis ?? "").trim();
       if (text) speech = text;
     } catch (e) {
       // Fallback seguro: fala o relatório determinístico, sem inventar nada.
-      if (e instanceof Error && /créditos|bloqueada/i.test(e.message)) throw e;
+      if (e instanceof Error && /indisponível/i.test(e.message)) throw e;
     }
 
     await db.from("voice_interactions").insert({
@@ -278,27 +217,17 @@ export const speakNetoVoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { text: string; voice?: string }) => ({
     text: String(data?.text ?? "").slice(0, 4000),
-    voice: data?.voice === "shimmer" ? "shimmer" : "alloy",
+    voice: "Kore",
   }))
   .handler(async ({ data }) => {
-    if (!data.text.trim()) return { audioBase64: "", mimeType: "audio/mpeg" };
-    const res = await fetch(`${getGatewayBaseUrl()}/audio/speech`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${gatewayKey()}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: VOICE_TTS_MODEL,
-        input: data.text,
-        voice: data.voice,
-        response_format: "mp3",
-        stream_format: "audio",
-        instructions:
-          "Fale em português brasileiro, tom calmo e profissional de intensivista em round, ritmo objetivo.",
-      }),
+    if (!data.text.trim()) return { audioBase64: "", mimeType: "audio/wav" };
+    const payload = await invokeEdgeFunction("axon-voice", {
+      action: "speak",
+      text: data.text,
+      voice: data.voice,
     });
-    if (!res.ok) throw gatewayError(res.status, await res.text().catch(() => ""));
-    const buffer = Buffer.from(await res.arrayBuffer());
-    return { audioBase64: buffer.toString("base64"), mimeType: "audio/mpeg" };
+    return {
+      audioBase64: String(payload.audioBase64 ?? ""),
+      mimeType: String(payload.mimeType ?? "audio/wav"),
+    };
   });

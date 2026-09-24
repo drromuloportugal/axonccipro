@@ -1,12 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 const InputSchema = z.object({
   context: z.string().min(1),
 });
-
-const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3-flash-preview";
 
 const SYSTEM_PROMPT = `Você é um farmacêutico clínico especialista em UTI com formação em farmacologia clínica avançada.
 Sua função é realizar uma análise medicamentosa completa e contextualizada da prescrição de um paciente crítico,
@@ -78,33 +76,33 @@ Regras:
 export const analyzeMedications = createServerFn({ method: "POST" })
   .inputValidator(InputSchema)
   .handler(async ({ data }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY não configurada.");
+    const supabaseUrl = process.env["SUPABASE_URL"]?.replace(/\/$/, "");
+    const authorization = getRequest()?.headers.get("authorization");
+    if (!supabaseUrl || !authorization) {
+      throw new Error("Sessão ou configuração do Supabase indisponível.");
+    }
 
-    const res = await fetch(GATEWAY_URL, {
+    const res = await fetch(`${supabaseUrl}/functions/v1/axon-gemini-analysis`, {
       method: "POST",
       headers: {
- "Content-Type": "application/json",
- "Lovable-API-Key": apiKey,
+        Authorization: authorization,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: MODEL,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: data.context },
         ],
-        response_format: { type: "json_object" },
       }),
     });
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       if (res.status === 429) throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
-      if (res.status === 402) throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
       throw new Error(`Falha na análise (${res.status}): ${text.slice(0, 200)}`);
     }
 
     const json = await res.json();
-    const content: string = json?.choices?.[0]?.message?.content ?? "{}";
+    const content: string = json?.analysis ?? "{}";
     return { analysisJson: content };
   });

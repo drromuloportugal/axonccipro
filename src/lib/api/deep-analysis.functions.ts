@@ -1,9 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { createAiConfig } from "@/lib/api/ai-gateway.functions";
 
-const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const DEFAULT_MODEL = "google/gemini-2.5-pro";
 const EVIDENCE_SOURCE = "https://www.openevidence.com";
 
 export const ANALYSIS_MODES = [
@@ -164,29 +162,32 @@ ${ENGINE_SYSTEM}
 ${ICU_LIBERATION}`;
 
 async function callGateway(messages: Array<{ role: string; content: string }>) {
-  const ai = createAiConfig(DEFAULT_MODEL);
+  const supabaseUrl = process.env["SUPABASE_URL"]?.replace(/\/$/, "");
+  const authorization = getRequest()?.headers.get("authorization");
+  if (!supabaseUrl || !authorization) {
+    throw new Error("Sessão ou configuração do Supabase indisponível.");
+  }
 
-  const res = await fetch(ai.chatUrl, {
+  const res = await fetch(`${supabaseUrl}/functions/v1/axon-gemini-analysis`, {
     method: "POST",
-    headers: ai.headers,
-    body: JSON.stringify({ model: ai.model, messages }),
+    headers: { Authorization: authorization, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages: messages.map((message) => ({
+        role: message.role === "assistant" || message.role === "system" ? message.role : "user",
+        content: message.content,
+      })),
+    }),
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     if (res.status === 429)
       throw new Error("Limite de requisições atingido. Tente novamente em instantes.");
-    if (res.status === 402)
-      throw new Error("Créditos de IA esgotados no workspace. Adicione créditos para continuar.");
-    if (res.status === 404)
-      throw new Error(
-        `Modelo de IA indisponível (${ai.model}). Verifique GEMINI_PRO_MODEL ou AI_GATEWAY_URL.`,
-      );
     throw new Error(`Falha na análise (${res.status}): ${text.slice(0, 200)}`);
   }
 
   const json = await res.json();
-  const content: string = json?.choices?.[0]?.message?.content ?? "";
+  const content: string = json?.analysis ?? "";
   if (!content.trim()) throw new Error("A IA não retornou conteúdo. Tente novamente.");
   return content;
 }

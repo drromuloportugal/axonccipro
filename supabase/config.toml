@@ -1,1 +1,7 @@
-project_id = "asuclxxpsyaawjxkbloo"
+project_id = "lmvqjoupxvamxcxphafu"
+
+[functions.axon-gemini-analysis]
+verify_jwt = true
+
+[functions.axon-voice]
+verify_jwt = true
