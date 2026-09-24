@@ -1,7 +1,6 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
-import { patients as seedPatients } from "@/data/patients";
 import type { Patient, Severity } from "@/data/patients";
 import { PatientRow } from "@/components/PatientRow";
 import { PatientEditor } from "@/components/PatientEditor";
@@ -68,7 +67,7 @@ type Filter = "all" | Severity | "discharged";
 function Passometro() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
-  const [patients, setPatients] = useState<Patient[]>(seedPatients);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoaded, setPatientsLoaded] = useState(false);
 
   const [fontScale, setFontScale] = useState<number>(1);
@@ -145,50 +144,21 @@ function Passometro() {
         /* ignore */
       }
 
-      // Garante que os leitos de demonstração recém-adicionados apareçam
-      // mesmo quando já existem dados salvos (banco ou localStorage).
-      // Também preenche campos novos (ex: startedAt das condutas) nos pacientes demo.
-      const mergeSeed = (list: Patient[]) => {
-        const byId = new Map(list.map((p) => [p.id, p]));
-        const byBed = new Map(list.map((p) => [p.bed, p]));
-        const missing = seedPatients.filter((s) => !byId.has(s.id) && !byBed.has(s.bed));
-        const backfilled = list.map((p) => {
-          const seed = seedPatients.find((s) => s.id === p.id);
-          if (!seed || !p.conducts || !seed.conducts) return p;
-          let changed = false;
-          const nextConducts = p.conducts.map((c, i) => {
-            const sc = seed.conducts[i];
-            if (!c.startedAt && sc?.startedAt) {
-              changed = true;
-              return { ...c, startedAt: sc.startedAt };
-            }
-            return c;
-          });
-          return changed ? { ...p, conducts: nextConducts } : p;
-        });
-        return missing.length ? [...backfilled, ...missing] : backfilled;
-      };
-
       try {
         const { patients: remote } = await listPatients();
         if (cancelled) return;
         if (remote.length) {
-          const merged = mergeSeed(remote);
-          setPatients(merged);
-          if (merged.length !== remote.length) {
-            await savePatients({ data: { patients: merged } });
-          }
+          setPatients(remote);
         } else if (local.length) {
-          const sanitized = mergeSeed(local);
-          setPatients(sanitized);
-          await savePatients({ data: { patients: sanitized } });
+          setPatients(local);
+          await savePatients({ data: { patients: local } });
           toast.success("Pacientes migrados para o banco de dados");
         } else {
-          setPatients(seedPatients);
+          setPatients([]);
         }
       } catch {
         if (cancelled) return;
-        if (local.length) setPatients(mergeSeed(local));
+        if (local.length) setPatients(local);
         toast.error("Não foi possível carregar os pacientes do banco");
       } finally {
         if (!cancelled) setPatientsLoaded(true);
