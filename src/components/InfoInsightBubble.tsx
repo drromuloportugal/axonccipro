@@ -32,11 +32,11 @@ import { Shimmer } from "@/components/ai-elements/shimmer";
 import type { Conduct, ConductSystem, Patient } from "@/data/patients";
 import { buildPassometroContext } from "@/lib/deepAnalysis";
 import {
-  askAboutCase,
+  
   reviewFasthugMaidens,
   suggestInsightAngles,
-  suggestRenalAntimicrobialAdjustment,
-} from "@/lib/api/deep-analysis.functions";
+  suggestRenalAntimicrobialAdjustment,} from "@/lib/api/deep-analysis.functions";
+import { supabase } from "@/integrations/supabase/client";
 import {
   creatinineClearance,
   pointedAntimicrobials,
@@ -91,7 +91,7 @@ const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(ma
 
 export function InfoInsightBubble({ patients, currentPatientId, onPatientChange }: Props) {
   const runAngles = useServerFn(suggestInsightAngles);
-  const runAsk = useServerFn(askAboutCase);
+  // A consulta principal é feita diretamente pela Edge Function Gemini.
   const runFasthug = useServerFn(reviewFasthugMaidens);
   const runRenal = useServerFn(suggestRenalAntimicrobialAdjustment);
 
