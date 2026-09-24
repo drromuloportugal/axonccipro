@@ -448,20 +448,17 @@ function Passometro() {
           boxShadow: "0 2px 18px rgba(15, 23, 42, 0.35)",
         }}
       >
-        <div className="relative flex items-center justify-center px-6 py-4">
-          {/* Logo — centered, spans the header width */}
-          <div className="flex min-w-0 flex-1 items-center justify-center">
-            <img
-              src={axonLogo.url}
-              alt="Axon Critical Care Intelligence"
-              className="h-auto w-auto max-w-full object-contain"
-              style={{
-                maxHeight: "4rem",
-                filter:
-                  "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
-              }}
-            />
-          </div>
+        <div className="relative flex min-h-20 items-center justify-center px-20 py-3 sm:px-24">
+          {/* Logo stays centered and never overlaps the tools button. */}
+          <img
+            src={axonLogo.url}
+            alt="Axon Critical Care Intelligence"
+            className="block h-auto max-h-12 w-auto max-w-full object-contain sm:max-h-14"
+            style={{
+              filter:
+                "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
+            }}
+          />
 
           {/* Circular hamburger — tools drawer */}
           <div className="absolute right-4 top-1/2 z-30 -translate-y-1/2">
