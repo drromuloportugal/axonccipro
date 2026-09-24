@@ -37,12 +37,14 @@ interface Props {
 
 function BodyImage({ view }: { view: AnatView }) {
   const href = view === "anterior" ? bodyAnterior : bodyPosterior;
+  // Crop the wide baked-in margins so the model retains useful proportions
+  // between the equipment cards, while its center remains on the map axis.
   return (
     <image
       href={href}
-      x={13}
+      x={-42}
       y={-10.3}
-      width={174}
+      width={284}
       height={521}
       preserveAspectRatio="none"
       style={{ pointerEvents: "none" }}
@@ -110,7 +112,7 @@ function BodyPanel({
  <div className="flex flex-col items-center">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
  </div>
- <svg viewBox="0 0 200 510" className="block h-[440px] w-full max-w-[220px]"> <BodyImage view={view} />
+ <svg viewBox="0 0 200 510" className="block h-[440px] w-[190px] shrink-0 max-w-full"> <BodyImage view={view} />
 
         {/* Infection halos — concentric rings with intensity scaled per status:
             suspeito (yellow, leve), provavel (laranja, médio), confirmado (vermelho, forte).
@@ -368,7 +370,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </div>
 
 
- <div className="grid items-start gap-2 lg:grid-cols-[minmax(150px,1fr)_auto_auto_minmax(150px,1fr)]">
+ <div className="grid items-start gap-2 lg:grid-cols-[minmax(120px,0.9fr)_190px_190px_minmax(120px,0.9fr)]">
  <EquipmentBoard patient={patient} devices={devices} side="left" />
   <BodyPanel
             label="Anterior" view="anterior"
