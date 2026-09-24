@@ -17,6 +17,11 @@ import bodyAnterior from "@/assets/body-anterior.png";
 import bodyPosterior from "@/assets/body-posterior.png";
 import { Plus, Trash2 } from "lucide-react";
 
+// Device, infection and LPP anchors were authored on a 200px-wide map. The
+// local illustrations use their native 340px-wide frame, so translate only
+// their X coordinates — never scale the SVG marker shapes themselves.
+const MAP_X_SCALE = 340 / 200;
+
 interface Props {
   devices: InvasiveDevice[];
   /** Devices from the previous reference (e.g. 7 days ago) for comparison mode. */
@@ -60,6 +65,7 @@ function Marker({ x, y, shape, color, onClick, highlight }: {
   x: number; y: number; shape: string; color: string;
   onClick: () => void; highlight?: "added" | "removed";
 }) {
+  const sx = x * MAP_X_SCALE;
   const ring = highlight === "added" ? "hsl(142 70% 45%)" : highlight === "removed" ? "hsl(0 80% 55%)" : null;
   const common = {
     fill: color, stroke: "white", strokeWidth: 1.1,
@@ -67,16 +73,16 @@ function Marker({ x, y, shape, color, onClick, highlight }: {
     onClick,
   };
   return (
- <g> {ring && <circle cx={x} cy={y} r={9} fill="none" stroke={ring} strokeWidth={1.4} strokeDasharray="2 2" />}
-      {shape === "circle"&& <circle cx={x} cy={y} r={5} {...common} />}
+ <g> {ring && <circle cx={sx} cy={y} r={9} fill="none" stroke={ring} strokeWidth={1.4} strokeDasharray="2 2" />}
+      {shape === "circle"&& <circle cx={sx} cy={y} r={5} {...common} />}
       {shape === "ring"&& <g onClick={onClick} style={common.style}>
- <circle cx={x} cy={y} r={5.4} fill="none" stroke="white" strokeWidth={3.2} />
- <circle cx={x} cy={y} r={5.4} fill="none" stroke={color} strokeWidth={2} />
+ <circle cx={sx} cy={y} r={5.4} fill="none" stroke="white" strokeWidth={3.2} />
+ <circle cx={sx} cy={y} r={5.4} fill="none" stroke={color} strokeWidth={2} />
  </g>}
-      {shape === "square"&& <rect x={x - 4.4} y={y - 4.4} width={8.8} height={8.8} rx={1.4} {...common} />}
-      {shape === "diamond"&& <rect x={x - 4.2} y={y - 4.2} width={8.4} height={8.4} rx={1} transform={`rotate(45 ${x} ${y})`} {...common} />}
+      {shape === "square"&& <rect x={sx - 4.4} y={y - 4.4} width={8.8} height={8.8} rx={1.4} {...common} />}
+      {shape === "diamond"&& <rect x={sx - 4.2} y={y - 4.2} width={8.4} height={8.4} rx={1} transform={`rotate(45 ${sx} ${y})`} {...common} />}
       {shape === "triangle" && (
- <polygon points={`${x},${y - 5.8} ${x - 5.2},${y + 3.8} ${x + 5.2},${y + 3.8}`} strokeLinejoin="round" {...common} /> )}
+ <polygon points={`${sx},${y - 5.8} ${sx - 5.2},${y + 3.8} ${sx + 5.2},${y + 3.8}`} strokeLinejoin="round" {...common} /> )}
  </g> );
 }
 
@@ -112,7 +118,6 @@ function BodyPanel({
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
  </div>
  <svg viewBox="0 0 340 510" className="block h-[440px] w-[292px] shrink-0 max-w-full"> <BodyImage view={view} />
- <g transform="scale(1.7 1)">
 
         {/* Infection halos — concentric rings with intensity scaled per status:
             suspeito (yellow, leve), provavel (laranja, médio), confirmado (vermelho, forte).
@@ -134,7 +139,7 @@ function BodyPanel({
             byKey.set(key, k + 1);
             const dx = k > 0 ? Math.cos((k * 2.4)) * 8 : 0;
             const dy = k > 0 ? Math.sin((k * 2.4)) * 8 : 0;
-            const cx = meta.anchor.x + dx;
+            const cx = (meta.anchor.x + dx) * MAP_X_SCALE;
             const cy = meta.anchor.y + dy;
             const baseR = meta.radius + intensity * 3;
             const fillOpacity = isActive ? 0.08 + intensity * 0.07 : 0.05;
@@ -185,7 +190,7 @@ function BodyPanel({
           return ms.map((m, i) => (
  <g key={`${d.id}-${i}`} opacity={dim ? 0.18 : 1} className={alert ? "svg-alert-blink" : undefined}>
               {alert && (
- <circle cx={m.x} cy={m.y} r={9} fill="none" stroke="rgb(220 38 38)" strokeWidth={1.5} strokeDasharray="2.5 2" /> )}
+ <circle cx={m.x * MAP_X_SCALE} cy={m.y} r={9} fill="none" stroke="rgb(220 38 38)" strokeWidth={1.5} strokeDasharray="2.5 2" /> )}
  <Marker
                 {...m}
                 color={tc.color}
@@ -199,7 +204,7 @@ function BodyPanel({
         {lppForView.map((l) => {
           const meta = STAGE_META[l.stage];
           const def = LPP_SITE_BY_KEY[l.site];
-          const x = l.x ?? def?.x ?? 100;
+          const x = (l.x ?? def?.x ?? 100) * MAP_X_SCALE;
           const y = l.y ?? def?.y ?? 100;
           const isResolved = !!l.resolvedAt;
           const r = 6.4;
@@ -228,7 +233,6 @@ function BodyPanel({
  </text> )}
  </g> );
         })}
- </g>
  </svg>
  </div> );
 }
