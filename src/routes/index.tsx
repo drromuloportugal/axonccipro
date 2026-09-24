@@ -29,7 +29,7 @@ import {
   Brain,
   Sparkles,
 } from "lucide-react";
-import axonLogo from "@/assets/axon-critical-care-logo.jpeg";
+import axonLogo from "@/assets/axon-critical-care-logo-transparent.png";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
 import { CallAxonPanel } from "@/components/CallAxonPanel";

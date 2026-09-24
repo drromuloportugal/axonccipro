@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Lock, User, LogIn, UserPlus, Mail, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import mainLogo from "@/assets/axon-critical-care-logo.jpeg";
+import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,

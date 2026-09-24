@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Lock, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import mainLogo from "@/assets/axon-critical-care-logo.jpeg";
+import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
