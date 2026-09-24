@@ -130,36 +130,19 @@ function Passometro() {
     }
   }, []);
 
-  // Carrega os pacientes do banco (compartilhado pela equipe).
-  // Na primeira execução, migra o que estiver salvo localmente.
+  // O Supabase é a única fonte de pacientes. Isso mantém a mesma lista em
+  // todos os computadores que usam a mesma conta.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      let local: Patient[] = [];
-      try {
-        const raw = localStorage.getItem("passometro:patients");
-        const parsed = raw ? JSON.parse(raw) : null;
-        if (Array.isArray(parsed) && parsed.length) local = parsed as Patient[];
-      } catch {
-        /* ignore */
-      }
-
       try {
         const { patients: remote } = await listPatients();
         if (cancelled) return;
-        if (remote.length) {
-          setPatients(remote);
-        } else if (local.length) {
-          setPatients(local);
-          await savePatients({ data: { patients: local } });
-          toast.success("Pacientes migrados para o banco de dados");
-        } else {
-          setPatients([]);
-        }
+        setPatients(remote);
       } catch {
         if (cancelled) return;
-        if (local.length) setPatients(local);
-        toast.error("Não foi possível carregar os pacientes do banco");
+        setPatients([]);
+        toast.error("Não foi possível carregar os pacientes centralizados");
       } finally {
         if (!cancelled) setPatientsLoaded(true);
       }
@@ -169,14 +152,9 @@ function Passometro() {
     };
   }, []);
 
-  // Salva no banco a cada alteração (com debounce) e mantém cópia local de segurança.
+  // Salva no banco a cada alteração (com debounce).
   useEffect(() => {
     if (!patientsLoaded) return;
-    try {
-      localStorage.setItem("passometro:patients", JSON.stringify(patients));
-    } catch {
-      /* ignore */
-    }
     const id = window.setTimeout(() => {
       savePatients({ data: { patients } }).catch(() => {
         toast.error("Falha ao salvar no banco de dados");

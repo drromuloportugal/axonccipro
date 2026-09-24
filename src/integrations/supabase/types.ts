@@ -494,6 +494,27 @@ export type Database = {
         }
         Relationships: []
       }
+      passometro_patient_snapshots: {
+        Row: {
+          data: Json
+          patient_id: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          data: Json
+          patient_id: string
+          position: number
+          updated_at?: string
+        }
+        Update: {
+          data?: Json
+          patient_id?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
