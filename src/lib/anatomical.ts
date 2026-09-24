@@ -96,10 +96,12 @@ const POS = {
   subclavE: { x: 124, y: 87 },
   femoralD: { x: 85, y: 289 },
   femoralE: { x: 115, y: 289 },
-  radialD: { x: 34, y: 233 },
-  radialE: { x: 166, y: 233 },
-  braquialD:{ x: 44, y: 177 },
-  braquialE:{ x: 156, y: 177 },
+  // Arm/hand points are centered over the actual vessel surface on the
+  // current full-body model (anterior view: viewer left = patient right).
+  radialD: { x: 50, y: 233 },
+  radialE: { x: 150, y: 233 },
+  braquialD:{ x: 60, y: 177 },
+  braquialE:{ x: 140, y: 177 },
   pediosaD: { x: 85, y: 457 },
   pediosaE: { x: 115, y: 457 },
   basilicaD:{ x: 40, y: 197 },
@@ -110,23 +112,24 @@ const POS = {
   noseD: { x: 97, y: 41 },
   noseE: { x: 103, y: 41 },
   mouth: { x: 100, y: 47 },
-  trachea: { x: 100, y: 121 },
+  trachea: { x: 100, y: 88 },
   cervical: { x: 100, y: 77 },
   hemitoraxD:{x: 58, y: 147 },
   hemitoraxE:{x: 142, y: 147 },
-  pelvis: { x: 100, y: 251 },
-  belowPelvis:{x:100, y: 294 },
-  stomach: { x: 104, y: 181 },
+  bladder: { x: 100, y: 263 },
+  urethral: { x: 100, y: 294 },
+  suprapubic: { x: 100, y: 255 },
+  stomach: { x: 116, y: 181 },
   abdLeftPt:{ x: 122, y: 217 }, // patient left abdomen = viewer right
   abdLowerPt:{x: 108, y: 247 },
   lombar: { x: 100, y: 257 }, // posterior
   vbile: { x: 127, y: 197 },
-  handD: { x: 24, y: 263 },
-  handE: { x: 176, y: 263 },
-  forearmD: { x: 32, y: 199 },
-  forearmE: { x: 168, y: 199 },
-  cubitalD: { x: 42, y: 187 },
-  cubitalE: { x: 158, y: 187 },
+  handD: { x: 48, y: 263 },
+  handE: { x: 152, y: 263 },
+  forearmD: { x: 52, y: 199 },
+  forearmE: { x: 148, y: 199 },
+  cubitalD: { x: 57, y: 187 },
+  cubitalE: { x: 143, y: 187 },
   jugExtD: { x: 91, y: 67 },
   jugExtE: { x: 109, y: 67 },
 };
@@ -195,6 +198,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     // ── Airway / Ventilation ──────────────────────────────────────────
     case "TOT":
     case "VMI":
+      if (d.site === "TQT") return [{ ...POS.cervical, shape: "ring" }];
       return [{ ...POS.mouth, shape: "circle", line: { x1: POS.mouth.x, y1: POS.mouth.y, x2: POS.trachea.x, y2: POS.trachea.y } }];
     case "TNT": {
       const nose = side === "E" ? POS.noseE : POS.noseD;
@@ -214,8 +218,10 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     // ── Urinary ───────────────────────────────────────────────────────
     case "SVD":
     case "SVA":
+      if (d.site === "Suprapúbica") return [{ ...POS.suprapubic, shape: "circle" }];
+      return [{ ...POS.urethral, shape: "circle", line: { x1: POS.bladder.x, y1: POS.bladder.y, x2: POS.urethral.x, y2: POS.urethral.y } }];
     case "CISTO":
-      return [{ ...POS.pelvis, shape: "circle", line: { x1: POS.pelvis.x, y1: POS.pelvis.y, x2: POS.belowPelvis.x, y2: POS.belowPelvis.y } }];
+      return [{ ...POS.suprapubic, shape: "circle" }];
 
     // ── Enteral ───────────────────────────────────────────────────────
     case "SNG":
@@ -223,6 +229,8 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
       const nose = side === "E" ? POS.noseE : POS.noseD;
       return [{ ...nose, shape: "circle", line: { x1: nose.x, y1: nose.y, x2: POS.stomach.x, y2: POS.stomach.y } }];
     }
+    case "SOE":
+      return [{ ...POS.mouth, shape: "circle", line: { x1: POS.mouth.x, y1: POS.mouth.y, x2: POS.stomach.x, y2: POS.stomach.y } }];
     case "GTT": return [{ x: 102, y: 180, shape: "ring" }];
     case "JTT": return [{ ...POS.abdLowerPt, shape: "ring" }];
 
@@ -233,10 +241,9 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     case "PICmon": return [{ ...POS.topHead, shape: "diamond" }];
 
     // ── Ostomies ──────────────────────────────────────────────────────
-    case "COL":
-    case "ILE":
-    case "URO":
-      return [{ ...POS.abdLeftPt, shape: "ring" }];
+    case "COL": return [{ x: 122, y: 226, shape: "ring" }];
+    case "ILE": return [{ x: 82, y: 226, shape: "ring" }];
+    case "URO": return [{ x: 82, y: 238, shape: "ring" }];
 
     // ── Drains ────────────────────────────────────────────────────────
     case "DRT": {
@@ -251,15 +258,28 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     case "HVAC":
     case "BLAKE":
     case "PENROSE":
-    case "JP": return [{ ...POS.abdLowerPt, shape: "square" }];
+    case "JP":
+      if (d.site === "Cervical") return [{ ...POS.cervical, shape: "square" }];
+      if (d.site === "Tórax") return [{ ...(side === "E" ? POS.hemitoraxE : POS.hemitoraxD), shape: "square" }];
+      return [{ ...POS.abdLowerPt, shape: "square" }];
 
     // ── Advanced therapies ────────────────────────────────────────────
     case "ECMO_VV":
     case "ECMO_VA": {
+      if (t === "ECMO_VV" && d.site?.includes("Jugular")) {
+        const jugular = side === "E" ? POS.jugularE : POS.jugularD;
+        const femoral = side === "E" ? POS.femoralE : POS.femoralD;
+        return [{ ...jugular, shape: "diamond" }, { ...femoral, shape: "diamond" }];
+      }
+      if (t === "ECMO_VA" && d.site?.startsWith("Central")) return [{ x: 100, y: 147, shape: "diamond" }];
       const at = side === "E" ? POS.femoralE : POS.femoralD;
       return [{ ...at, shape: "diamond" }];
     }
     case "IABP": return [{ ...(side === "E" ? POS.femoralE : POS.femoralD), shape: "diamond" }];
+    case "MP_TV": return [centralAt(d, side)];
+    case "MP_TC": return [{ x: 72, y: 145, shape: "ring" }, { x: 128, y: 170, shape: "ring" }];
+    case "MP_DEF":
+      return [{ ...(side === "E" ? { x: 130, y: 108 } : { x: 70, y: 108 }), shape: "ring" }];
 
     default: return [];
   }

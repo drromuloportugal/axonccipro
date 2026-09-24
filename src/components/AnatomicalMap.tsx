@@ -61,8 +61,9 @@ function BodyImage({ view }: { view: AnatView }) {
 // Marker shapes
 // ============================================================================
 
-function Marker({ x, y, shape, color, onClick, highlight }: {
+function Marker({ x, y, shape, color, line, onClick, highlight }: {
   x: number; y: number; shape: string; color: string;
+  line?: { x1: number; y1: number; x2: number; y2: number };
   onClick: () => void; highlight?: "added" | "removed";
 }) {
   const sx = x * MAP_X_SCALE;
@@ -73,7 +74,11 @@ function Marker({ x, y, shape, color, onClick, highlight }: {
     onClick,
   };
   return (
- <g> {ring && <circle cx={sx} cy={y} r={9} fill="none" stroke={ring} strokeWidth={1.4} strokeDasharray="2 2" />}
+ <g>
+      {line && <line x1={line.x1 * MAP_X_SCALE} y1={line.y1} x2={line.x2 * MAP_X_SCALE} y2={line.y2}
+        stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeDasharray="3 2"
+        style={{ pointerEvents: "none", filter: "drop-shadow(0 1px 1px rgba(0,0,0,.35))" }} />}
+      {ring && <circle cx={sx} cy={y} r={9} fill="none" stroke={ring} strokeWidth={1.4} strokeDasharray="2 2" />}
       {shape === "circle"&& <circle cx={sx} cy={y} r={5} {...common} />}
       {shape === "ring"&& <g onClick={onClick} style={common.style}>
  <circle cx={sx} cy={y} r={5.4} fill="none" stroke="white" strokeWidth={3.2} />
