@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Lock, User, LogIn, UserPlus, Mail, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import mainLogo from "@/assets/axon-logo.png.asset.json";
+import mainLogo from "@/assets/axon-critical-care-logo.jpeg";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -120,9 +120,9 @@ function AuthPage() {
           }}
         >
           <img
-            src={mainLogo.url}
-            alt="Passômetro UTI"
-            className="h-auto w-auto max-w-full object-contain"
+            src={mainLogo}
+            alt="Axon Critical Care Intelligence"
+            className="h-auto w-auto max-w-full rounded-md object-contain"
             style={{
               maxHeight: "4.5rem",
               filter:
