@@ -16,12 +16,12 @@ Write-Host "Preparando publicação do Axon..." -ForegroundColor Cyan
 & $git -C $repo add -A -- . ':(exclude).env'
 
 & $git -C $repo diff --cached --quiet
-if ($LASTEXITCODE -eq 0) {
-  Write-Host "Não há alterações de código para publicar." -ForegroundColor Yellow
-  exit 0
+if ($LASTEXITCODE -ne 0) {
+  & $git -C $repo commit -m $Mensagem
+} else {
+  Write-Host "Nenhuma alteração nova para registrar; enviando commits pendentes." -ForegroundColor Yellow
 }
 
-& $git -C $repo commit -m $Mensagem
 & $git -C $repo push origin migration/no-lovable
 
 Write-Host "Publicado. A Vercel iniciará o deploy automaticamente." -ForegroundColor Green
