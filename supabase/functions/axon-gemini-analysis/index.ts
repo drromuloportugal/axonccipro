@@ -6,7 +6,10 @@ type AnalysisRequest = {
   messages?: Array<{ role: "system" | "user" | "assistant"; content: string }>;
 };
 
-const MODEL = "gemini-2.5-pro";
+// O gateway Cloud expõe uma API compatível com OpenAI. A chave fica somente
+// nos Edge Function Secrets do Supabase, nunca no cliente ou no Vercel.
+const CLOUD_API_URL = "https://gtw.cloud2.dgsis.com.br/v1/chat/completions";
+const MODEL = "google/gemini-2.5-pro";
 
 const SYSTEM_INSTRUCTION =
   "Você é um assistente de apoio clínico. Analise apenas o texto fornecido, explicite incertezas e sugira pontos para revisão pela equipe de saúde. Não faça diagnósticos definitivos, não prescreva e não substitua avaliação profissional. Em situação de urgência, oriente avaliação imediata por profissional habilitado.";
@@ -47,55 +50,46 @@ export default {
       return Response.json({ error: "Solicitação de análise muito grande." }, { status: 400 });
     }
 
-    const apiKey = Deno.env.get("gemini");
+    const apiKey = Deno.env.get("cloud_api_key");
     if (!apiKey) {
-      console.error("Missing Gemini secret");
+      console.error("Missing Cloud API secret");
       return Response.json({ error: "Serviço de análise indisponível." }, { status: 503 });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": apiKey,
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [
-              {
-                text:
-                  messages?.find((message) => message.role === "system")?.content ??
-                  SYSTEM_INSTRUCTION,
-              },
-            ],
-          },
-          contents:
-            messages
-              ?.filter((message) => message.role !== "system")
-              .map((message) => ({
-                role: message.role === "assistant" ? "model" : "user",
-                parts: [{ text: message.content }],
-              })) ?? [{ role: "user", parts: [{ text }] }],
-          generationConfig: { temperature: 0.2, maxOutputTokens: 1500 },
-        }),
+    const completionMessages = messages?.length
+      ? messages.map((message) => ({ role: message.role, content: message.content }))
+      : [
+          { role: "system", content: SYSTEM_INSTRUCTION },
+          { role: "user", content: text! },
+        ];
+
+    const response = await fetch(CLOUD_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
-    );
+      body: JSON.stringify({
+        model: MODEL,
+        messages: completionMessages,
+        temperature: 0.2,
+        max_tokens: 1500,
+      }),
+    });
 
     if (!response.ok) {
-      console.error("Gemini request failed", response.status);
-      return Response.json({ error: "Falha ao consultar o Gemini." }, { status: 502 });
+      console.error("Cloud API request failed", response.status);
+      return Response.json({ error: "Falha ao consultar o serviço de análise." }, { status: 502 });
     }
 
     const data = await response.json();
-    const analysis =
-      data?.candidates?.[0]?.content?.parts
-        ?.map((part: { text?: string }) => part.text ?? "")
-        .join("") ?? "";
+    const content = data?.choices?.[0]?.message?.content;
+    const analysis = Array.isArray(content)
+      ? content.map((part: { text?: string }) => part.text ?? "").join("")
+      : String(content ?? "");
 
     if (!analysis) {
-      return Response.json({ error: "O Gemini não retornou uma análise." }, { status: 502 });
+      return Response.json({ error: "O serviço de análise não retornou conteúdo." }, { status: 502 });
     }
 
     return Response.json({ analysis, model: MODEL });
