@@ -14,6 +14,69 @@ const MODEL = "gemini-3.8-flash";
 const SYSTEM_INSTRUCTION =
   "Você é um assistente de apoio clínico. Analise apenas o texto fornecido, explicite incertezas e sugira pontos para revisão pela equipe de saúde. Não faça diagnósticos definitivos, não prescreva e não substitua avaliação profissional. Em situação de urgência, oriente avaliação imediata por profissional habilitado.";
 
+/**
+ * Alguns gateways compatíveis com OpenAI devolvem objetos JSON consecutivos
+ * (ou linhas `data:`) mesmo sem streaming. `response.json()` falha nesse
+ * caso e transformava uma falha do provedor em erro 500 da Edge Function.
+ */
+function parseProviderPayloads(raw: string): unknown[] {
+  try {
+    return [JSON.parse(raw)];
+  } catch {
+    // Continua abaixo: a resposta pode conter objetos JSON concatenados.
+  }
+
+  const payloads: unknown[] = [];
+  let start = -1;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+
+  for (let index = 0; index < raw.length; index += 1) {
+    const char = raw[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') {
+      quoted = true;
+      continue;
+    }
+    if (char === "{") {
+      if (depth === 0) start = index;
+      depth += 1;
+      continue;
+    }
+    if (char === "}" && depth > 0) {
+      depth -= 1;
+      if (depth === 0 && start >= 0) {
+        try {
+          payloads.push(JSON.parse(raw.slice(start, index + 1)));
+        } catch {
+          // Ignora somente o bloco inválido e procura o próximo.
+        }
+        start = -1;
+      }
+    }
+  }
+  return payloads;
+}
+
+function extractAnalysis(payloads: unknown[]): string {
+  return payloads
+    .map((payload: any) => payload?.choices?.[0]?.message?.content ?? payload?.choices?.[0]?.delta?.content ?? "")
+    .map((content: unknown) =>
+      Array.isArray(content)
+        ? content.map((part: { text?: string }) => part.text ?? "").join("")
+        : String(content ?? ""),
+    )
+    .filter(Boolean)
+    .join("")
+    .trim();
+}
+
 export default {
   fetch: withSupabase({ auth: "user" }, async (req) => {
     if (req.method !== "POST") {
@@ -63,19 +126,28 @@ export default {
           { role: "user", content: text! },
         ];
 
-    const response = await fetch(CLOUD_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: completionMessages,
-        temperature: 0.2,
-        max_tokens: 1500,
-      }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(CLOUD_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: completionMessages,
+          temperature: 0.2,
+          max_tokens: 1500,
+          stream: false,
+        }),
+        signal: AbortSignal.timeout(90_000),
+      });
+    } catch (error) {
+      console.error("Cloud API connection failed", error);
+      return Response.json({ error: "O serviço de análise não respondeu a tempo." }, { status: 503 });
+    }
 
     if (!response.ok) {
       const providerError = (await response.text()).slice(0, 500);
@@ -83,13 +155,11 @@ export default {
       return Response.json({ error: "Falha ao consultar o serviço de análise." }, { status: 502 });
     }
 
-    const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content;
-    const analysis = Array.isArray(content)
-      ? content.map((part: { text?: string }) => part.text ?? "").join("")
-      : String(content ?? "");
+    const providerBody = await response.text();
+    const analysis = extractAnalysis(parseProviderPayloads(providerBody));
 
     if (!analysis) {
+      console.error("Cloud API returned no readable content", providerBody.slice(0, 500));
       return Response.json({ error: "O serviço de análise não retornou conteúdo." }, { status: 502 });
     }
 
