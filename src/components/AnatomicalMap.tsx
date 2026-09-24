@@ -42,10 +42,10 @@ function BodyImage({ view }: { view: AnatView }) {
     <image
       href={href}
       x={0}
-      y={-10.3}
+      y={0}
       width={340}
-      height={521}
-      preserveAspectRatio="none"
+      height={510}
+      preserveAspectRatio="xMidYMid meet"
       style={{ pointerEvents: "none" }}
     />
   );
