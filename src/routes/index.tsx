@@ -383,6 +383,14 @@ function Passometro() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json,.json"
+        multiple
+        className="hidden"
+        onChange={(e) => handleImportFiles(e.target.files)}
+      />
       {/* Header — centered Axon logo, tools tucked inside a circular hamburger menu */}
       <header
         ref={headerRef}
@@ -442,15 +450,6 @@ function Passometro() {
                     className="w-full rounded-md border border-border bg-white/90 py-1.5 pl-8 pr-3 text-[12px] outline-none placeholder:text-muted-foreground focus:border-primary"
                   />
                 </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="application/json,.json"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleImportFiles(e.target.files)}
-                />
 
                 {/* Sair da conta */}
                 <button
@@ -563,6 +562,9 @@ function Passometro() {
                 <button
                   onClick={() => {
                     exportPatients(patients);
+                    toast.success("Exportação iniciada", {
+                      description: `${patients.length} paciente(s) em arquivo JSON.`,
+                    });
                     setToolsOpen(false);
                   }}
                   className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"

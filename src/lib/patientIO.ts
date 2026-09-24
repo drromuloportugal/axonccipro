@@ -21,15 +21,20 @@ export function patientFileName(p: Patient): string {
 }
 
 function download(filename: string, json: string) {
-  const blob = new Blob([json], { type: "application/json" });
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.style.display = "none";
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  // Mantém a URL viva até o navegador iniciar o download. Revogá-la no
+  // mesmo ciclo pode cancelar a transferência em alguns navegadores.
+  window.setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 1_000);
 }
 
 export function exportPatient(p: Patient) {
