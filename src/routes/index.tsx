@@ -15,9 +15,7 @@ import {
   Plus,
   Upload,
   Download,
-  Type,
   FlaskConical,
-  Minus,
   Syringe,
   Menu,
   X,
@@ -25,11 +23,9 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
   Brain,
   Sparkles,
   Sun,
-  Moon,
   Palette,
 } from "lucide-react";
 import axonLogo from "@/assets/axon-critical-care-logo-transparent.png";
@@ -66,16 +62,6 @@ export const Route = createFileRoute("/")({
 });
 
 type Filter = "all" | Severity | "discharged";
-type AppTheme = "light" | "dark" | "axon";
-
-const THEME_KEY = "passometro:theme";
-
-function applyTheme(theme: AppTheme) {
-  const root = document.documentElement;
-  root.classList.toggle("dark", theme === "dark");
-  root.classList.toggle("axon-theme", theme === "axon");
-  root.dataset.theme = theme;
-}
 
 function Passometro() {
   const [query, setQuery] = useState("");
@@ -83,8 +69,6 @@ function Passometro() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoaded, setPatientsLoaded] = useState(false);
 
-  const [fontScale, setFontScale] = useState<number>(1);
-  const [theme, setTheme] = useState<AppTheme>("axon");
   const [examsOpen, setExamsOpen] = useState(false);
   const [dilutionOpen, setDilutionOpen] = useState(false);
 
@@ -125,36 +109,17 @@ function Passometro() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const FONT_MIN = 0.7;
-  const FONT_MAX = 2.0;
-  const FONT_STEP = 0.1;
-
   useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      const nextTheme: AppTheme =
-        savedTheme === "light" || savedTheme === "dark" || savedTheme === "axon" ? savedTheme : "axon";
-      setTheme(nextTheme);
-      applyTheme(nextTheme);
-      const f = localStorage.getItem("passometro:fontScale");
-      if (f) {
-        const n = Number(f);
-        if (Number.isFinite(n) && n >= FONT_MIN && n <= FONT_MAX) setFontScale(n);
-      }
+      document.documentElement.classList.remove("dark", "axon-theme");
+      document.documentElement.dataset.theme = "light";
+      document.documentElement.style.setProperty("--app-font-scale", "1");
+      localStorage.setItem("passometro:theme", "light");
+      localStorage.removeItem("passometro:fontScale");
     } catch {
       /* ignore */
     }
   }, []);
-
-  const selectTheme = (nextTheme: AppTheme) => {
-    setTheme(nextTheme);
-    applyTheme(nextTheme);
-    try {
-      localStorage.setItem(THEME_KEY, nextTheme);
-    } catch {
-      /* keep the selection for this session even if storage is unavailable */
-    }
-  };
 
   // O Supabase é a única fonte de pacientes. Isso mantém a mesma lista em
   // todos os computadores que usam a mesma conta.
@@ -188,22 +153,6 @@ function Passometro() {
     }, 600);
     return () => window.clearTimeout(id);
   }, [patients, patientsLoaded]);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty("--app-font-scale", String(fontScale));
-    try {
-      localStorage.setItem("passometro:fontScale", String(fontScale));
-    } catch {
-      /* ignore */
-    }
-  }, [fontScale]);
-
-  const bumpFont = (delta: number) => {
-    setFontScale((s) => {
-      const next = Math.round((s + delta) * 100) / 100;
-      return Math.min(FONT_MAX, Math.max(FONT_MIN, next));
-    });
-  };
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Patient | null>(null);
@@ -481,50 +430,20 @@ function Passometro() {
                   <div className="mb-1 flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
                     <Palette className="h-3.5 w-3.5" /> Aparência
                   </div>
-                  <div className="grid grid-cols-3 gap-1">
-                    {([
-                      { value: "light", label: "Claro", icon: Sun },
-                      { value: "dark", label: "Escuro", icon: Moon },
-                      { value: "axon", label: "AXON", icon: Sparkles },
-                    ] as const).map(({ value, label, icon: Icon }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => selectTheme(value)}
-                        aria-pressed={theme === value}
-                        className={`flex flex-col items-center gap-1 rounded-lg border px-1 py-2 text-[10px] font-semibold transition-colors ${
-                          theme === value
-                            ? "border-primary bg-primary/15 text-primary"
-                            : "border-transparent text-muted-foreground hover:bg-accent hover:text-foreground"
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                        {label}
-                      </button>
-                    ))}
+                  <div className="flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-2 py-2 text-[11px] font-semibold text-primary">
+                    <Sun className="h-3.5 w-3.5" /> Claro (padrão)
                   </div>
                 </div>
 
-                {/* Sair da conta */}
-                <button
-                  onClick={handleSignOut}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-strong bg-muted px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-muted/70"
-                  title="Encerrar a sessão desta conta"
-                >
-                  Sair da conta
-                </button>
-
-                {/* Gestão */}
                 <button
                   onClick={() => {
-                    setManagementOpen(true);
+                    openNew();
                     setToolsOpen(false);
                   }}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-3 py-2 text-[12px] font-semibold text-clinical-attention transition-colors hover:bg-clinical-attention/20"
-                  title="Dashboard executivo de gestão da UTI"
+                  className="inline-flex w-full items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
-                  <LayoutDashboard className="h-3.5 w-3.5" />
-                  Gestão
+                  <Plus className="h-3.5 w-3.5" />
+                  Novo paciente
                 </button>
 
                 {/* Análise profunda */}
@@ -540,6 +459,18 @@ function Passometro() {
                   Análise profunda
                 </button>
 
+                <button
+                  onClick={() => {
+                    setExamsOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-resp/40 bg-clinical-resp/10 px-3 py-2 text-[12px] font-semibold text-clinical-resp transition-colors hover:bg-clinical-resp/20"
+                  title="Central de exames — todos os leitos"
+                >
+                  <FlaskConical className="h-3.5 w-3.5" />
+                  Exames
+                </button>
+
                 {/* Call Axon — pacote clínico para IA */}
                 <button
                   onClick={() => {
@@ -553,18 +484,6 @@ function Passometro() {
                   Call Axon
                 </button>
 
-                {/* Ferramentas clínicas */}
-                <button
-                  onClick={() => {
-                    setExamsOpen(true);
-                    setToolsOpen(false);
-                  }}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-resp/40 bg-clinical-resp/10 px-3 py-2 text-[12px] font-semibold text-clinical-resp transition-colors hover:bg-clinical-resp/20"
-                  title="Central de exames — todos os leitos"
-                >
-                  <FlaskConical className="h-3.5 w-3.5" />
-                  Exames
-                </button>
                 <button
                   onClick={() => {
                     setDilutionOpen(true);
@@ -576,6 +495,7 @@ function Passometro() {
                   <Syringe className="h-3.5 w-3.5" />
                   Farmácia
                 </button>
+
                 <button
                   onClick={() => {
                     setHistoryOpen(true);
@@ -586,22 +506,10 @@ function Passometro() {
                 >
                   <Archive className="h-3.5 w-3.5" />
                   Histórico
-                  <span className="ml-auto font-mono text-[11px] tabular-nums text-muted-foreground">
-                    {archived.length}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    openNew();
-                    setToolsOpen(false);
-                  }}
-                  className="inline-flex w-full items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Novo paciente
+                  <span className="ml-auto font-mono text-[11px] tabular-nums text-muted-foreground">{archived.length}</span>
                 </button>
 
-                {/* Dados + Sistema */}
+                {/* Dados e sessão */}
                 <button
                   onClick={() => {
                     handleImportClick();
@@ -616,9 +524,7 @@ function Passometro() {
                 <button
                   onClick={() => {
                     exportPatients(patients);
-                    toast.success("Exportação iniciada", {
-                      description: `${patients.length} paciente(s) em arquivo JSON.`,
-                    });
+                    toast.success("Exportação iniciada", { description: `${patients.length} paciente(s) em arquivo JSON.` });
                     setToolsOpen(false);
                   }}
                   className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-surface/80 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
@@ -628,47 +534,13 @@ function Passometro() {
                   Exportar
                 </button>
 
-                {/* Font scale */}
-                <div
-                  className="flex items-center justify-between rounded-md border border-border bg-surface/80 px-2 py-1.5"
-                  title="Tamanho da fonte"
+                <button
+                  onClick={handleSignOut}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-strong bg-muted px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-muted/70"
+                  title="Encerrar a sessão desta conta"
                 >
-                  <div className="flex items-center gap-1.5">
-                    <Type className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-[11px] font-semibold text-foreground">FONTE</span>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      type="button"
-                      onClick={() => bumpFont(-FONT_STEP)}
-                      disabled={fontScale <= FONT_MIN + 0.001}
-                      className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground disabled:opacity-40"
-                      title="Diminuir fonte"
-                    >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="min-w-[2.4rem] text-center font-mono text-[11px] tabular-nums text-foreground">
-                      {Math.round(fontScale * 100)}%
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => bumpFont(+FONT_STEP)}
-                      disabled={fontScale >= FONT_MAX - 0.001}
-                      className="rounded px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground disabled:opacity-40"
-                      title="Aumentar fonte"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFontScale(1)}
-                      className="ml-0.5 rounded px-1 py-0.5 text-[10px] font-semibold text-muted-foreground transition-colors hover:bg-surface-3 hover:text-foreground"
-                      title="Restaurar tamanho padrão"
-                    >
-                      A
-                    </button>
-                  </div>
-                </div>
+                  Sair da conta
+                </button>
               </div>
             )}
           </div>
