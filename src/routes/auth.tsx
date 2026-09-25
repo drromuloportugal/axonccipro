@@ -124,7 +124,7 @@ function AuthPage() {
             alt="Axon Critical Care Intelligence"
             className="h-auto w-auto max-w-full rounded-md object-contain"
             style={{
-              maxHeight: "4.5rem",
+              maxHeight: "11.25rem",
               filter:
                 "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
             }}
