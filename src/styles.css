@@ -115,35 +115,36 @@
 }
 
 .dark {
-  --background: oklch(0.16 0.01 260);
+  /* Tema escuro AXON: azul-marinho profundo, não cinza neutro. */
+  --background: oklch(0.16 0.035 255);
   --foreground: oklch(0.96 0.005 250);
-  --surface: oklch(0.2 0.012 260);
-  --surface-2: oklch(0.235 0.012 260);
-  --surface-3: oklch(0.28 0.012 260);
+  --surface: oklch(0.205 0.04 252 / 0.84);
+  --surface-2: oklch(0.24 0.045 250 / 0.86);
+  --surface-3: oklch(0.285 0.05 247 / 0.88);
 
-  --card: oklch(0.2 0.012 260);
+  --card: oklch(0.21 0.045 252 / 0.82);
   --card-foreground: oklch(0.96 0.005 250);
-  --popover: oklch(0.2 0.012 260);
+  --popover: oklch(0.19 0.045 252 / 0.9);
   --popover-foreground: oklch(0.96 0.005 250);
 
   --primary: oklch(0.72 0.14 230);
   --primary-foreground: oklch(0.15 0.02 260);
 
-  --secondary: oklch(0.27 0.012 260);
+  --secondary: oklch(0.27 0.05 252);
   --secondary-foreground: oklch(0.96 0.005 250);
 
-  --muted: oklch(0.26 0.012 260);
-  --muted-foreground: oklch(1 0 0); /* campos fixos legíveis no fundo escuro */
+  --muted: oklch(0.26 0.04 252);
+  --muted-foreground: oklch(0.82 0.025 240);
 
-  --accent: oklch(0.27 0.015 230);
+  --accent: oklch(0.3 0.075 230);
   --accent-foreground: oklch(0.96 0.005 250);
 
   --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.32 0.012 260);
-  --border-strong: oklch(0.95 0 0); /* near-white column dividers in dark */
-  --input: oklch(0.32 0.012 260);
+  --border: oklch(0.42 0.075 238 / 0.72);
+  --border-strong: oklch(0.7 0.09 225 / 0.8);
+  --input: oklch(0.28 0.05 252);
   --ring: oklch(0.72 0.14 230);
 
   --neto-shell: oklch(0.45 0.14 155 / 0.72);
@@ -465,6 +466,94 @@
     0 1px 2px oklch(0.2 0.02 240 / 0.05),
     0 10px 22px -8px oklch(0.25 0.04 240 / 0.22),
     inset 0 1px 0 color-mix(in oklab, white 72%, transparent);
+}
+
+/* AXON — a default clinical-blue theme that remains calm in a dense ICU workflow. */
+.axon-theme .axon-app-shell {
+  background:
+    radial-gradient(circle at 8% -10%, oklch(0.84 0.11 215 / 0.28), transparent 28rem),
+    radial-gradient(circle at 95% 8%, oklch(0.72 0.15 155 / 0.16), transparent 24rem),
+    var(--color-background);
+}
+
+.dark .axon-app-shell {
+  background:
+    radial-gradient(circle at 8% -10%, oklch(0.5 0.16 225 / 0.28), transparent 30rem),
+    radial-gradient(circle at 96% 2%, oklch(0.55 0.16 155 / 0.16), transparent 24rem),
+    linear-gradient(145deg, oklch(0.14 0.04 258), oklch(0.18 0.06 245));
+}
+
+.dark .axon-tools-menu,
+.dark .axon-tools-menu > div,
+.dark .axon-tools-menu [class*="bg-surface"] {
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+
+.dark .axon-tools-menu {
+  border-color: oklch(0.68 0.12 220 / 0.4);
+  box-shadow: 0 24px 60px -16px oklch(0.04 0.03 260 / 0.78), inset 0 1px 0 oklch(0.8 0.1 210 / 0.16);
+}
+
+/* Auth screens deliberately carry the visual identity regardless of dashboard theme. */
+.axon-auth {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 10% 15%, oklch(0.55 0.16 220 / 0.42), transparent 26rem),
+    radial-gradient(circle at 88% 12%, oklch(0.6 0.16 155 / 0.27), transparent 23rem),
+    radial-gradient(circle at 54% 100%, oklch(0.38 0.14 242 / 0.52), transparent 32rem),
+    linear-gradient(145deg, #06152e 0%, #0b2851 48%, #062941 100%);
+}
+.axon-auth::before,
+.axon-auth::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 34rem;
+  height: 34rem;
+  border: 1px solid rgb(125 211 252 / 0.16);
+  border-radius: 9999px;
+  filter: blur(0.2px);
+}
+.axon-auth::before { left: -20rem; bottom: -18rem; box-shadow: 0 0 85px rgb(34 211 238 / 0.2); }
+.axon-auth::after { right: -19rem; top: -19rem; box-shadow: 0 0 95px rgb(74 222 128 / 0.16); }
+.axon-auth-logo,
+.axon-auth-card {
+  border: 1px solid rgb(186 230 253 / 0.28);
+  background: linear-gradient(135deg, rgb(8 47 73 / 0.62), rgb(15 61 111 / 0.46) 58%, rgb(6 78 59 / 0.35));
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+.axon-auth-logo {
+  border-bottom: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  box-shadow: inset 0 1px 0 rgb(224 242 254 / 0.18);
+}
+.axon-auth-logo img { max-height: 10rem; filter: drop-shadow(0 8px 24px rgb(0 0 0 / 0.42)) drop-shadow(0 0 26px rgb(74 222 128 / 0.28)); }
+.axon-auth-card {
+  border-radius: 0 0 1.25rem 1.25rem;
+  color: #effaff;
+  box-shadow: 0 28px 70px -28px rgb(0 0 0 / 0.82), inset 0 1px 0 rgb(224 242 254 / 0.14);
+}
+.axon-auth-card .text-foreground { color: #effaff; }
+.axon-auth-card .text-muted-foreground { color: rgb(207 250 254 / 0.75); }
+.axon-auth-input {
+  border: 1px solid rgb(125 211 252 / 0.28);
+  border-radius: 0.6rem;
+  background: rgb(2 20 43 / 0.43);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.axon-auth-input:focus-within { border-color: rgb(103 232 249 / 0.84); background: rgb(4 31 59 / 0.7); box-shadow: 0 0 0 3px rgb(34 211 238 / 0.13), 0 0 22px rgb(34 211 238 / 0.13); }
+.axon-auth-input input { color: #f0fdfa; }
+.axon-auth-input input::placeholder { color: rgb(207 250 254 / 0.48); }
+.axon-auth-submit { border: 1px solid rgb(165 243 252 / 0.36); border-radius: 0.65rem; background: linear-gradient(105deg, #0e7490, #2563eb 55%, #059669); box-shadow: 0 12px 28px -14px rgb(6 182 212 / 0.85); }
+.axon-auth-submit:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 15px 32px -14px rgb(34 211 238 / 0.9); }
+@media (max-width: 640px) {
+  .axon-auth { align-items: flex-start; padding-top: 2.5rem; }
+  .axon-auth-logo img { max-height: 7.5rem; }
+  .axon-auth::before, .axon-auth::after { width: 24rem; height: 24rem; }
 }
 
 /* Cartões de monitorização laterais: acabamento clínico com volume sutil. */

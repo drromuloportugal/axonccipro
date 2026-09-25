@@ -109,15 +109,10 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+    <div className="axon-auth flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         <div
-          className="flex items-center justify-center rounded-t-md border-2 border-b-0 border-strong px-6 py-6"
-          style={{
-            background:
-              "linear-gradient(100deg, color-mix(in oklab, oklch(0.5 0.16 155) 72%, transparent), color-mix(in oklab, oklch(0.35 0.05 240) 30%, transparent) 45%, color-mix(in oklab, oklch(0.5 0.16 235) 72%, transparent))",
-            backdropFilter: "blur(14px) saturate(150%)",
-          }}
+          className="axon-auth-logo flex items-center justify-center px-6 py-7"
         >
           <img
             src={mainLogo}
@@ -133,7 +128,7 @@ function AuthPage() {
 
         <form
           onSubmit={onSubmit}
-          className="rounded-b-md border-2 border-strong bg-card p-6 shadow-lg"
+          className="axon-auth-card p-6 shadow-lg sm:p-7"
         >
           <h1 className="f-fixed text-lg font-bold uppercase tracking-wide text-foreground">
             {mode === "login"
@@ -153,7 +148,7 @@ function AuthPage() {
               <label className="f-fixed mt-5 block text-xs font-semibold uppercase tracking-wide text-foreground">
                 Nome
               </label>
-              <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
+              <div className="axon-auth-input mt-1 flex items-center gap-2 px-3 py-2.5">
                 <User className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
                 <input
                   value={nome}
@@ -170,7 +165,7 @@ function AuthPage() {
           <label className="f-fixed mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground">
             E-mail
           </label>
-          <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
+          <div className="axon-auth-input mt-1 flex items-center gap-2 px-3 py-2.5">
             <Mail className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
             <input
               value={email}
@@ -190,7 +185,7 @@ function AuthPage() {
               <label className="f-fixed mt-4 block text-xs font-semibold uppercase tracking-wide text-foreground">
                 Senha
               </label>
-              <div className="mt-1 flex items-center gap-2 border-2 border-strong bg-background px-3 py-2">
+              <div className="axon-auth-input mt-1 flex items-center gap-2 px-3 py-2.5">
                 <Lock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
                 <input
                   value={password}
@@ -221,7 +216,7 @@ function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="f-fixed mt-6 flex w-full items-center justify-center gap-2 border-2 border-strong bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+            className="axon-auth-submit f-fixed mt-6 flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors disabled:opacity-60"
           >
             {mode === "login" ? (
               <LogIn className="h-4 w-4" aria-hidden />

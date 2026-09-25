@@ -28,6 +28,9 @@ import {
   LayoutDashboard,
   Brain,
   Sparkles,
+  Sun,
+  Moon,
+  Palette,
 } from "lucide-react";
 import axonLogo from "@/assets/axon-critical-care-logo-transparent.png";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
@@ -63,6 +66,16 @@ export const Route = createFileRoute("/")({
 });
 
 type Filter = "all" | Severity | "discharged";
+type AppTheme = "light" | "dark" | "axon";
+
+const THEME_KEY = "passometro:theme";
+
+function applyTheme(theme: AppTheme) {
+  const root = document.documentElement;
+  root.classList.toggle("dark", theme === "dark");
+  root.classList.toggle("axon-theme", theme === "axon");
+  root.dataset.theme = theme;
+}
 
 function Passometro() {
   const [query, setQuery] = useState("");
@@ -71,6 +84,7 @@ function Passometro() {
   const [patientsLoaded, setPatientsLoaded] = useState(false);
 
   const [fontScale, setFontScale] = useState<number>(1);
+  const [theme, setTheme] = useState<AppTheme>("axon");
   const [examsOpen, setExamsOpen] = useState(false);
   const [dilutionOpen, setDilutionOpen] = useState(false);
 
@@ -115,11 +129,13 @@ function Passometro() {
   const FONT_MAX = 2.0;
   const FONT_STEP = 0.1;
 
-  // Force light mode and clear any previously stored dark preference.
   useEffect(() => {
     try {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("passometro:theme", "light");
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      const nextTheme: AppTheme =
+        savedTheme === "light" || savedTheme === "dark" || savedTheme === "axon" ? savedTheme : "axon";
+      setTheme(nextTheme);
+      applyTheme(nextTheme);
       const f = localStorage.getItem("passometro:fontScale");
       if (f) {
         const n = Number(f);
@@ -129,6 +145,16 @@ function Passometro() {
       /* ignore */
     }
   }, []);
+
+  const selectTheme = (nextTheme: AppTheme) => {
+    setTheme(nextTheme);
+    applyTheme(nextTheme);
+    try {
+      localStorage.setItem(THEME_KEY, nextTheme);
+    } catch {
+      /* keep the selection for this session even if storage is unavailable */
+    }
+  };
 
   // O Supabase é a única fonte de pacientes. Isso mantém a mesma lista em
   // todos os computadores que usam a mesma conta.
@@ -382,7 +408,7 @@ function Passometro() {
   }, [printing]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground axon-app-shell">
       <input
         ref={fileInputRef}
         type="file"
@@ -421,7 +447,7 @@ function Passometro() {
             <button
               type="button"
               onClick={() => setToolsOpen((o) => !o)}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-white/90 text-foreground shadow-lg backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-card/90 text-foreground shadow-lg backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
               style={{
                 boxShadow:
                   "0 10px 30px -8px color-mix(in oklab, var(--clinical-resp) 40%, transparent), 0 8px 22px -10px color-mix(in oklab, var(--clinical-stable) 35%, transparent)",
@@ -434,7 +460,7 @@ function Passometro() {
 
             {toolsOpen && (
               <div
-                className="absolute right-0 top-full mt-3 flex w-72 flex-col gap-2 rounded-2xl border border-white/60 bg-white/95 p-3 shadow-2xl backdrop-blur-xl"
+                className="axon-tools-menu absolute right-0 top-full mt-3 flex w-72 flex-col gap-2 rounded-2xl border border-white/60 bg-popover/95 p-3 shadow-2xl backdrop-blur-xl"
                 style={{
                   boxShadow:
                     "0 24px 60px -16px color-mix(in oklab, var(--clinical-resp) 35%, transparent), 0 18px 44px -18px color-mix(in oklab, var(--clinical-stable) 30%, transparent)",
@@ -447,8 +473,36 @@ function Passometro() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Buscar paciente ou leito"
-                    className="w-full rounded-md border border-border bg-white/90 py-1.5 pl-8 pr-3 text-[12px] outline-none placeholder:text-muted-foreground focus:border-primary"
+                    className="w-full rounded-md border border-border bg-background/80 py-1.5 pl-8 pr-3 text-[12px] outline-none placeholder:text-muted-foreground focus:border-primary"
                   />
+                </div>
+
+                <div className="rounded-xl border border-border/80 bg-surface/70 p-2" aria-label="Aparência">
+                  <div className="mb-1 flex items-center gap-1.5 px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    <Palette className="h-3.5 w-3.5" /> Aparência
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    {([
+                      { value: "light", label: "Claro", icon: Sun },
+                      { value: "dark", label: "Escuro", icon: Moon },
+                      { value: "axon", label: "AXON", icon: Sparkles },
+                    ] as const).map(({ value, label, icon: Icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => selectTheme(value)}
+                        aria-pressed={theme === value}
+                        className={`flex flex-col items-center gap-1 rounded-lg border px-1 py-2 text-[10px] font-semibold transition-colors ${
+                          theme === value
+                            ? "border-primary bg-primary/15 text-primary"
+                            : "border-transparent text-muted-foreground hover:bg-accent hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Sair da conta */}
@@ -527,7 +581,7 @@ function Passometro() {
                     setHistoryOpen(true);
                     setToolsOpen(false);
                   }}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-surface-3"
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-surface/80 px-3 py-2 text-[12px] font-semibold text-foreground transition-colors hover:bg-surface-3"
                   title="Pacientes arquivados"
                 >
                   <Archive className="h-3.5 w-3.5" />
@@ -553,7 +607,7 @@ function Passometro() {
                     handleImportClick();
                     setToolsOpen(false);
                   }}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-surface/80 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
                   title="Importar pacientes (JSON)"
                 >
                   <Upload className="h-3.5 w-3.5" />
@@ -567,7 +621,7 @@ function Passometro() {
                     });
                     setToolsOpen(false);
                   }}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-surface/80 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
                   title="Exportar todos os pacientes (JSON)"
                 >
                   <Download className="h-3.5 w-3.5" />
@@ -576,7 +630,7 @@ function Passometro() {
 
                 {/* Font scale */}
                 <div
-                  className="flex items-center justify-between rounded-md border border-border bg-white/90 px-2 py-1.5"
+                  className="flex items-center justify-between rounded-md border border-border bg-surface/80 px-2 py-1.5"
                   title="Tamanho da fonte"
                 >
                   <div className="flex items-center gap-1.5">
