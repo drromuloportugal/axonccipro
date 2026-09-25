@@ -63,15 +63,15 @@ function MonitorCard({
   footer?: string;
 }) {
   return (
-    <div className="anat-map-box">
-      <div className={`flex items-center gap-1.5 border-b border-border/40 px-2 py-1 ${tone}`}>
+    <div className="anat-map-box anat-map-readout-card">
+      <div className={`flex items-center gap-1.5 border-b border-border/40 px-2 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] ${tone}`}>
         <span className="text-sm leading-none" aria-hidden="true">{icon}</span>
         <span className="truncate text-[10px] font-bold uppercase tracking-[0.08em]">{title}</span>
         <span className="ml-auto h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-clinical-stable" />
       </div>
       <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 px-2 py-1.5">
         {readouts.map((r) => (
-          <div key={r.label} className="flex flex-col leading-tight">
+          <div key={r.label} className="flex flex-col rounded-md bg-white/35 px-1 py-0.5 leading-tight shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]">
             <span className="f-fixed text-[8.5px] uppercase">{r.label}</span>
             <span className={`f-var text-[12px] ${r.alert ? "alert-value" : "text-foreground"}`} title={r.alert ? "Valor alterado" : undefined}>
               {r.value}
@@ -81,7 +81,7 @@ function MonitorCard({
         ))}
       </div>
       {footer ? (
-        <div className="border-t border-border/40 px-2 py-1 text-[9px] text-muted-foreground">{footer}</div>
+        <div className="border-t border-border/40 bg-white/25 px-2 py-1 text-[9px] text-muted-foreground">{footer}</div>
       ) : null}
     </div>
   );
