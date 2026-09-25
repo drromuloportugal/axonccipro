@@ -425,9 +425,9 @@ function Passometro() {
         }`}
         style={{
           background:
-            "linear-gradient(100deg, color-mix(in oklab, oklch(0.5 0.16 155) 72%, transparent), color-mix(in oklab, oklch(0.35 0.05 240) 30%, transparent) 45%, color-mix(in oklab, oklch(0.5 0.16 235) 72%, transparent))",
-          backdropFilter: "blur(14px) saturate(150%)",
-          boxShadow: "0 2px 18px rgba(15, 23, 42, 0.35)",
+            "linear-gradient(105deg, rgba(6, 21, 46, 0.94), rgba(11, 40, 81, 0.9) 52%, rgba(6, 41, 65, 0.92))",
+          backdropFilter: "blur(20px) saturate(145%)",
+          boxShadow: "0 4px 24px rgba(4, 18, 42, 0.38)",
         }}
       >
         <div className="relative flex min-h-20 items-center justify-center px-20 py-3 sm:px-24">
@@ -435,7 +435,7 @@ function Passometro() {
           <img
             src={axonLogo}
             alt="Axon Critical Care Intelligence"
-            className="block h-auto max-h-16 w-auto max-w-full scale-[2.5] rounded-md object-contain sm:max-h-20"
+            className="block h-auto max-h-16 w-auto max-w-full scale-[1.25] rounded-md object-contain sm:max-h-20"
             style={{
               filter:
                 "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",

@@ -471,9 +471,27 @@
 /* AXON — a default clinical-blue theme that remains calm in a dense ICU workflow. */
 .axon-theme .axon-app-shell {
   background:
-    radial-gradient(circle at 8% -10%, oklch(0.84 0.11 215 / 0.28), transparent 28rem),
-    radial-gradient(circle at 95% 8%, oklch(0.72 0.15 155 / 0.16), transparent 24rem),
-    var(--color-background);
+    radial-gradient(circle at 8% -10%, oklch(0.84 0.11 215 / 0.2), transparent 30rem),
+    radial-gradient(circle at 94% 6%, oklch(0.78 0.13 155 / 0.12), transparent 26rem),
+    linear-gradient(145deg, oklch(0.975 0.012 225 / 0.86), oklch(0.94 0.03 220 / 0.62) 52%, oklch(0.95 0.025 170 / 0.48));
+  background-attachment: fixed;
+}
+
+.axon-theme .axon-app-shell > :not(.no-print) {
+  position: relative;
+}
+
+.axon-theme .axon-app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 5.75rem 0 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.38), rgb(224 242 254 / 0.16) 48%, rgb(209 250 229 / 0.14)),
+    radial-gradient(circle at 22% 36%, rgb(255 255 255 / 0.52), transparent 22rem);
+  backdrop-filter: blur(2px) saturate(118%);
+  -webkit-backdrop-filter: blur(2px) saturate(118%);
 }
 
 .dark .axon-app-shell {
