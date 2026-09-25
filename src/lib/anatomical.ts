@@ -90,8 +90,9 @@ export interface Marker {
 // Anterior view convention: viewer's LEFT = patient's RIGHT (D).
 // So D (direita do paciente) must sit at LOWER x; E at HIGHER x.
 const POS = {
-  jugularD: { x: 87, y: 75 },
-  jugularE: { x: 113, y: 75 },
+  // Inserção jugular interna: discretamente mais medial, junto à borda do ECM.
+  jugularD: { x: 91, y: 75 },
+  jugularE: { x: 109, y: 75 },
   subclavD: { x: 76, y: 87 },
   subclavE: { x: 124, y: 87 },
   femoralD: { x: 85, y: 260 },
