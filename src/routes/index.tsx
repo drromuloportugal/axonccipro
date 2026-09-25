@@ -404,12 +404,12 @@ function Passometro() {
           boxShadow: "0 2px 18px rgba(15, 23, 42, 0.35)",
         }}
       >
-        <div className="relative flex min-h-56 items-center justify-center px-20 py-3 sm:px-24">
+        <div className="relative flex min-h-20 items-center justify-center px-20 py-3 sm:px-24">
           {/* Logo stays centered and never overlaps the tools button. */}
           <img
             src={axonLogo}
             alt="Axon Critical Care Intelligence"
-            className="block h-auto max-h-40 w-auto max-w-full rounded-md object-contain sm:max-h-52"
+            className="block h-auto max-h-16 w-auto max-w-full scale-[2.5] rounded-md object-contain sm:max-h-20"
             style={{
               filter:
                 "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
