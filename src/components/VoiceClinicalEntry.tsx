@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { transcribeVoice } from "@/lib/live/voice.functions";
 import type { Conduct, InvasiveDevice, Medication, Patient, TimelineEvent } from "@/data/patients";
 import { DEVICE_TYPES } from "@/data/devices";
+import { DRUGS } from "@/lib/clinical";
 
 type Proposal = { label: string; detail: string };
 type BrowserRecognition = {
@@ -201,7 +202,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
   };
 }
 
-export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChange }: { patient: Patient; activeTab: string; onApply: (next: Patient) => void; onPendingChange?: (tab: string | null) => void }) {
+export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChange, onPumpDrug }: { patient: Patient; activeTab: string; onApply: (next: Patient) => void; onPendingChange?: (tab: string | null) => void; onPumpDrug?: (name: string | null) => void }) {
   const runTranscribe = useServerFn(transcribeVoice);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<BrowserRecognition | null>(null);
@@ -213,8 +214,11 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
   const [applied, setApplied] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const draft = proposalFromTranscript(patient, transcript);
+  const voicedPumpDrug = activeTab === "med" && /(?:adicionar|incluir|iniciar)\b/i.test(transcript)
+    ? DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(transcript))
+    : undefined;
   const tabActions = activeTab === "proc" ? draft.devices.length
-    : activeTab === "med" ? draft.medications.length
+    : activeTab === "med" ? draft.medications.length + (voicedPumpDrug ? 1 : 0)
       : activeTab === "sup" ? Object.keys(draft.state).length
         : activeTab === "hist" ? draft.diagnoses.length
           : activeTab === "plan" ? draft.conducts.length : 0;
@@ -276,6 +280,13 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
 
   const apply = () => {
     if (!tabActions) return;
+    if (voicedPumpDrug) {
+      onPumpDrug?.(voicedPumpDrug.name);
+      onPendingChange?.(null);
+      setTranscript("");
+      setApplied(true);
+      return;
+    }
     const parsed = applyVoiceTranscript(patient, transcript).patient;
     const next = activeTab === "proc" ? { ...patient, devices: parsed.devices }
       : activeTab === "med" ? { ...patient, medications: parsed.medications }
@@ -302,7 +313,7 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
     {applied && <p className="mt-2 text-xs font-medium text-emerald-700">Alterações confirmadas e aplicadas ao paciente.</p>}
     {!!transcript.trim() && <div className={`mt-3 rounded-lg border bg-background/80 p-2 ${analyzing && !tabActions ? "border-destructive" : ""}`}>
       <p className="flex items-center gap-1 text-xs font-semibold"><ClipboardCheck className="h-3.5 w-3.5" /> Proposta para revisão</p>
-      {tabActions ? <ul className="mt-1 space-y-1 text-xs">{draft.proposals.filter((item) => activeTab === "proc" ? item.label === "Dispositivo invasivo" : activeTab === "med" ? item.label === "Medicação" : activeTab === "sup" ? !["Dispositivo invasivo", "Medicação", "Diagnóstico atual", "Conduta / plano", "Evolução ditada"].includes(item.label) : true).map((item, index) => <li key={`${item.label}-${index}`}><b>{item.label}:</b> {item.detail}</li>)}</ul> : <p className="mt-1 text-xs text-muted-foreground">Não encontrei uma ação aplicável em <b>{tabLabel}</b>. Clique em Análise para destacar os campos necessários nesta aba.</p>}
+      {tabActions ? <ul className="mt-1 space-y-1 text-xs">{voicedPumpDrug && <li><b>Medicação em bomba:</b> {voicedPumpDrug.name} · BIC · informar dose mínima e máxima</li>}{draft.proposals.filter((item) => activeTab === "proc" ? item.label === "Dispositivo invasivo" : activeTab === "med" ? item.label === "Medicação" : activeTab === "sup" ? !["Dispositivo invasivo", "Medicação", "Diagnóstico atual", "Conduta / plano", "Evolução ditada"].includes(item.label) : true).map((item, index) => <li key={`${item.label}-${index}`}><b>{item.label}:</b> {item.detail}</li>)}</ul> : <p className="mt-1 text-xs text-muted-foreground">Não encontrei uma ação aplicável em <b>{tabLabel}</b>. Clique em Análise para destacar os campos necessários nesta aba.</p>}
       <div className="mt-2 flex justify-end"><Button type="button" size="sm" onClick={tabActions ? apply : () => { setAnalyzing(true); onPendingChange?.(activeTab); }}>{tabActions ? <><Check className="mr-1 h-4 w-4" />Confirmar e aplicar</> : "Análise"}</Button></div>
     </div>}
   </section>;

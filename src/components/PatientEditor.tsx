@@ -208,6 +208,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
   const [allergiesTxt, setAllergiesTxt] = useState("");
   const [tab, setTab] = useState(initialTab ?? "id");
   const [voicePendingTab, setVoicePendingTab] = useState<string | null>(null);
+  const [voicePumpDrug, setVoicePumpDrug] = useState<string | null>(null);
 
   const pRef = useRef<Patient>(p);
   const pastRef = useRef<Patient[]>([]);
@@ -284,7 +285,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
           <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
         </DialogHeader>
 
-        <VoiceClinicalEntry patient={p} activeTab={tab} onPendingChange={setVoicePendingTab} onApply={(next) => { commit(next); onPersist?.(next); }} />
+        <VoiceClinicalEntry patient={p} activeTab={tab} onPendingChange={setVoicePendingTab} onPumpDrug={setVoicePumpDrug} onApply={(next) => { commit(next); onPersist?.(next); }} />
 
         <Tabs value={tab} onValueChange={(nextTab) => { setTab(nextTab); setVoicePendingTab(null); }} className="w-full">
           <TabsList className="grid w-full grid-cols-9">
@@ -808,6 +809,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
               <MedicationsList
                 items={p.medications}
                 weightKg={p.weight}
+                voicePumpDrug={voicePumpDrug}
                 onChange={(v) => upd("medications", v)}
               />
             </Section>
@@ -1872,10 +1874,12 @@ function DoseRangeBar({
 function MedicationsList({
   items,
   weightKg,
+  voicePumpDrug,
   onChange,
 }: {
   items: Medication[];
   weightKg: number;
+  voicePumpDrug?: string | null;
   onChange: (v: Medication[]) => void;
 }) {
   const [drugName, setDrugName] = useState(DRUGS[0].name);
@@ -2055,6 +2059,19 @@ function MedicationsList({
   // ---- Fluxo de inclusão: escolher o tipo primeiro ----
   type EntryType = "pump" | "antibiotic" | "hydration" | "hemotransfusion" | "other";
   const [entryType, setEntryType] = useState<EntryType | null>(null);
+  const [voiceDosePending, setVoiceDosePending] = useState(false);
+
+  useEffect(() => {
+    if (!voicePumpDrug) return;
+    const selected = drugByName(voicePumpDrug);
+    if (!selected) return;
+    setEntryType("pump");
+    setDrugName(selected.name);
+    setDose(selected.usual);
+    setDoseMin(selected.min);
+    setDoseMax(selected.max);
+    setVoiceDosePending(true);
+  }, [voicePumpDrug]);
 
   const HEMO_COMPONENTS: string[] = [
     "Concentrado de hemácias",
@@ -2355,6 +2372,7 @@ function MedicationsList({
               </optgroup>
             </select>{" "}
             {drug && (
+              <div className={voiceDosePending ? "rounded-md border border-destructive p-1 ring-1 ring-destructive/20" : ""}>
               <DoseRangeBar
                 min={drug.min}
                 max={drug.max}
@@ -2365,14 +2383,18 @@ function MedicationsList({
                   setDoseMin(lo);
                   setDoseMax(hi);
                   setDose(hi);
+                  setVoiceDosePending(false);
                 }}
               />
+              {voiceDosePending && <p className="mt-1 text-[10px] font-medium text-destructive">Informe/ajuste dose mínima e máxima antes de adicionar.</p>}
+              </div>
             )}
             <Button
               size="sm"
               onClick={() => {
                 addCalc();
                 setEntryType(null);
+                setVoiceDosePending(false);
               }}
             >
               <Plus className="mr-1 h-3.5 w-3.5" />
