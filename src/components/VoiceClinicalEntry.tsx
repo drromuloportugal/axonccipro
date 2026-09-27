@@ -137,6 +137,7 @@ export type VoiceCommandReview = {
   missing: string[];
   suggestedColumn: "Estado atual" | "Medicações" | "Invasões" | "Plano" | "História";
   canApply: boolean;
+  canConfirmSuggestion: boolean;
   requiresConfirmation: boolean;
   requestedColumn?: "Estado atual" | "Medicações" | "Invasões" | "Plano" | "História";
 };
@@ -187,6 +188,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
     missing,
     suggestedColumn,
     canApply: explicitCount > 0 && missing.length === 0,
+    canConfirmSuggestion: explicitCount > 0,
     // Inserção/alteração de dispositivo é exibida para conferência mesmo quando
     // a sigla e o sítio foram identificados pelo catálogo clínico.
     requiresConfirmation: deviceIntent,

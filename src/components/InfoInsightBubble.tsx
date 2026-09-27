@@ -378,7 +378,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
   };
 
   const confirmVoiceReview = () => {
-    if (!voiceReview || voiceReview.review.missing.length > 0) return;
+    if (!voiceReview || !voiceReview.review.canConfirmSuggestion) return;
     const result = applyVoiceTranscript(voiceReview.before, voiceReview.transcript);
     onVoiceApplied?.(voiceReview.before);
     onPatientChange?.(result.patient);
@@ -517,6 +517,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
             {voiceReview && (
               <div className="space-y-2 rounded-[16px] border border-primary/35 bg-primary/[0.06] p-2.5 text-xs">
                 <p className="font-semibold">Confirmar comando de voz</p>
+                <div className="max-h-52 space-y-2 overflow-y-auto pr-1">
                 <p className="rounded-md bg-background/70 p-2 italic">“{voiceReview.transcript}”</p>
                 <div className="rounded-md border bg-background/70 p-2">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Coluna que será alterada</p>
@@ -536,9 +537,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
                     setVoiceReview((previous) => previous ? { ...previous, transcript, review: reviewVoiceCommand(previous.before, transcript) } : null);
                   }} className="mt-2 min-h-16 w-full rounded border bg-background p-1.5 text-xs" />
                 </div>}
+                </div>
                 <div className="flex justify-end gap-2">
                   <Button type="button" size="sm" variant="outline" onPointerDown={(event) => event.stopPropagation()} onClick={() => setVoiceReview(null)}>Cancelar</Button>
-                  <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} disabled={voiceReview.review.missing.length > 0} title={voiceReview.review.missing.length ? "Complete as pendências listadas antes de confirmar" : "Incluir a informação sugerida no dashboard"} onClick={confirmVoiceReview}>Confirmar e incluir</Button>
+                  <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} disabled={!voiceReview.review.canConfirmSuggestion} title={voiceReview.review.canConfirmSuggestion ? "Incluir a sugestão reconhecida no dashboard" : "Diga ou complete um dado clínico que possa ser incluído"} onClick={confirmVoiceReview}>Confirmar e incluir</Button>
                 </div>
               </div>
             )}
