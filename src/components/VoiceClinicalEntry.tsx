@@ -72,8 +72,10 @@ export function proposalFromTranscript(patient: Patient, transcript: string) {
   }
 
   const devices: InvasiveDevice[] = [];
-  const foundDevice = DEVICE_TYPES.find((device) => low.includes(device.label.toLocaleLowerCase("pt-BR")) || low.includes(device.code.toLocaleLowerCase("pt-BR")));
-  if (foundDevice && /(?:inserir|instalar|passar|dispositivo|cateter|sonda|dreno|tubo)/i.test(text)) {
+  const foundDevice =
+    (/\b(?:iot|tot|tubo oro(?:traqueal)?)\b/i.test(text) ? DEVICE_TYPES.find((device) => device.code === "TOT") : undefined) ??
+    DEVICE_TYPES.find((device) => low.includes(device.label.toLocaleLowerCase("pt-BR")) || low.includes(device.code.toLocaleLowerCase("pt-BR")));
+  if (foundDevice && /(?:incluir|inserir|instalar|passar|dispositivo|cateter|sonda|dreno|tubo)/i.test(text)) {
     const side = /\b(?:lado\s+)?direit[oa]\b|\bD\b/i.test(text) ? "D" : /\b(?:lado\s+)?esquerd[oa]\b|\bE\b/i.test(text) ? "E" : undefined;
     const site = foundDevice.sites.find((item) => low.includes(item.toLocaleLowerCase("pt-BR"))) ?? foundDevice.sites.find((item) => side ? item.endsWith(` ${side}`) : true);
     devices.push({ id: `voice_${Date.now()}`, category: foundDevice.category, typeCode: foundDevice.code, site, side, insertedAt: new Date().toISOString(), recommendedMaxDays: foundDevice.recommendedMaxDays });
@@ -121,6 +123,7 @@ export type VoiceCommandReview = {
   missing: string[];
   suggestedColumn: "Estado atual" | "Medicações" | "Invasões" | "Plano" | "História";
   canApply: boolean;
+  requiresConfirmation: boolean;
 };
 
 /** Interpretação local, baseada nos catálogos e dados já existentes do paciente. */
@@ -129,7 +132,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
   const low = transcript.toLocaleLowerCase("pt-BR");
   const explicitCount = Object.keys(draft.state).length + draft.medications.length + draft.devices.length + draft.diagnoses.length + draft.conducts.length;
   const medicationIntent = /medica[cç][aã]o|medicamento|iniciar|administrar/i.test(transcript);
-  const deviceIntent = /dispositivo|cateter|sonda|dreno|tubo|inserir|instalar|passar/i.test(transcript);
+  const deviceIntent = /iot|tot|dispositivo|cateter|sonda|dreno|tubo|incluir|inserir|instalar|passar/i.test(transcript);
   const planIntent = /conduta|meta|plano|reavaliar|solicitar/i.test(transcript);
   const missing: string[] = [];
   let suggestedColumn: VoiceCommandReview["suggestedColumn"] = "Estado atual";
@@ -149,7 +152,15 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
     suggestedColumn = knownMedication ? "Medicações" : "História";
     missing.push(knownMedication ? `dose, via ou frequência para ${knownMedication.name}` : "qual dado clínico deve ser registrado e seu valor");
   }
-  return { proposals: draft.proposals, missing, suggestedColumn, canApply: explicitCount > 0 && missing.length === 0 };
+  return {
+    proposals: draft.proposals,
+    missing,
+    suggestedColumn,
+    canApply: explicitCount > 0 && missing.length === 0,
+    // Inserção/alteração de dispositivo é exibida para conferência mesmo quando
+    // a sigla e o sítio foram identificados pelo catálogo clínico.
+    requiresConfirmation: deviceIntent,
+  };
 }
 
 export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onApply: (next: Patient) => void }) {
