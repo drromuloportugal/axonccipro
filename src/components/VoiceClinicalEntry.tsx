@@ -7,6 +7,7 @@ import type { Conduct, InvasiveDevice, Medication, Patient, TimelineEvent } from
 import { DEVICE_TYPES } from "@/data/devices";
 import { DRUGS } from "@/lib/clinical";
 import { medicationNameFromSpeech } from "@/data/medicationAliases";
+import { matchVoiceDevice, voiceDeviceSuggestions } from "@/lib/voiceClinicalCatalog";
 
 type Proposal = { label: string; detail: string };
 type BrowserRecognition = {
@@ -33,38 +34,16 @@ const b64 = async (blob: Blob) => {
   return btoa(binary);
 };
 
-const fold = (value: string) => value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-const editDistance = (a: string, b: string) => {
-  const row = Array.from({ length: b.length + 1 }, (_, index) => index);
-  for (let i = 1; i <= a.length; i++) {
-    let diagonal = row[0]; row[0] = i;
-    for (let j = 1; j <= b.length; j++) {
-      const above = row[j];
-      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
-      diagonal = above;
-    }
-  }
-  return row[b.length];
-};
-
 /** Corrige somente termos de catálogo próximos; não cria dados clínicos. */
 function correctVoiceIntent(text: string, activeTab: string) {
   let corrected = text.replace(/\bi[\s.-]*o[\s.-]*t\b/gi, "IOT");
-  // Dentro de Invasões, “IT” isolado costuma ser uma transcrição abreviada de
-  // IOT; ainda assim o resultado segue para confirmação do profissional.
-  if (activeTab === "proc") corrected = corrected.replace(/\bIT\b/gi, "IOT");
+  const device = activeTab === "proc" ? matchVoiceDevice(corrected, true) : undefined;
+  // Para "IT" transcrito na aba de invasões, explica a hipótese clínica; não
+  // compara a sigla com outros códigos nem escolhe um dispositivo às cegas.
+  if (device?.confidence === "inferred") corrected = `${corrected} IOT`;
   if (activeTab === "med") {
     const canonical = medicationNameFromSpeech(corrected);
     if (canonical) corrected = `${corrected} ${canonical}`;
-    const tokens = fold(corrected).match(/[a-z]{4,}/g) ?? [];
-    const nearest = tokens
-      .map((token) => ({ token, drug: DRUGS.find((candidate) => editDistance(token, fold(candidate.name)) <= 2) }))
-      .find((item) => item.drug)?.drug;
-    if (nearest && !new RegExp(`\\b${nearest.name}\\b`, "i").test(corrected)) corrected = `${corrected} ${nearest.name}`;
-  }
-  if (activeTab === "proc") {
-    const device = DEVICE_TYPES.find((candidate) => (fold(corrected).match(/[a-z]{3,}/g) ?? []).some((token) => editDistance(token, fold(candidate.code)) <= 1 || editDistance(token, fold(candidate.label)) <= 3));
-    if (device && !new RegExp(`\\b${device.code}\\b`, "i").test(corrected)) corrected = `${corrected} incluir ${device.code}`;
   }
   return corrected.replace(/\s+/g, " ").trim();
 }
@@ -117,14 +96,13 @@ export function proposalFromTranscript(patient: Patient, transcript: string) {
   }
 
   const devices: InvasiveDevice[] = [];
-  const foundDevice =
-    (/\b(?:iot|tot|tubo oro(?:traqueal)?)\b/i.test(text) ? DEVICE_TYPES.find((device) => device.code === "TOT") : undefined) ??
-    DEVICE_TYPES.find((device) => low.includes(device.label.toLocaleLowerCase("pt-BR")) || low.includes(device.code.toLocaleLowerCase("pt-BR")));
+  const deviceMatch = matchVoiceDevice(text, true);
+  const foundDevice = deviceMatch?.device;
   if (foundDevice && /(?:incluir|inserir|instalar|passar|dispositivo|cateter|sonda|dreno|tubo)/i.test(text)) {
     const side = /\b(?:lado\s+)?direit[oa]\b|\bD\b/i.test(text) ? "D" : /\b(?:lado\s+)?esquerd[oa]\b|\bE\b/i.test(text) ? "E" : undefined;
     const site = foundDevice.sites.find((item) => low.includes(item.toLocaleLowerCase("pt-BR"))) ?? foundDevice.sites.find((item) => side ? item.endsWith(` ${side}`) : true);
     devices.push({ id: `voice_${Date.now()}`, category: foundDevice.category, typeCode: foundDevice.code, site, side, insertedAt: new Date().toISOString(), recommendedMaxDays: foundDevice.recommendedMaxDays });
-    proposals.push({ label: "Dispositivo invasivo", detail: `${foundDevice.label}${site ? ` · ${site}` : ""}` });
+    proposals.push({ label: "Dispositivo invasivo", detail: `${deviceMatch?.clinicalName ?? foundDevice.label} → ${foundDevice.label}${site ? ` · ${site}` : ""}${deviceMatch?.confidence === "inferred" ? " (hipótese a confirmar)" : ""}` });
   }
 
   const diagnoses: TimelineEvent[] = [];
@@ -367,7 +345,7 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
       setAnalysisOptions([]);
     } else {
       const options = activeTab === "med" ? DRUGS.filter((drug) => drug.bic).slice(0, 6).map((drug) => drug.name)
-        : activeTab === "proc" ? DEVICE_TYPES.slice(0, 8).map((device) => device.label) : [];
+        : activeTab === "proc" ? voiceDeviceSuggestions(corrected).map((entry) => entry.clinicalName ?? entry.device.label) : [];
       setAnalysisHint("Não identifiquei uma ação com segurança. Escolha a hipótese mais próxima ou corrija o texto.");
       setAnalysisOptions(options);
     }
