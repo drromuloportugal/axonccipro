@@ -50,6 +50,9 @@ const editDistance = (a: string, b: string) => {
 /** Corrige somente termos de catálogo próximos; não cria dados clínicos. */
 function correctVoiceIntent(text: string, activeTab: string) {
   let corrected = text.replace(/\bi[\s.-]*o[\s.-]*t\b/gi, "IOT");
+  // Dentro de Invasões, “IT” isolado costuma ser uma transcrição abreviada de
+  // IOT; ainda assim o resultado segue para confirmação do profissional.
+  if (activeTab === "proc") corrected = corrected.replace(/\bIT\b/gi, "IOT");
   if (activeTab === "med") {
     const canonical = medicationNameFromSpeech(corrected);
     if (canonical) corrected = `${corrected} ${canonical}`;
@@ -136,11 +139,12 @@ export function applyVoiceTranscript(patient: Patient, transcript: string) {
   const draft = proposalFromTranscript(patient, transcript);
   const at = new Date().toISOString();
   const series = { ...(patient.state.vitalSeries ?? {}) };
-  const readings: { key: "glicemia" | "fc" | "temp" | "spo2" | "fr" | "pas" | "pad" | "pam"; value?: number }[] = [
+  const readings: { key: "glicemia" | "fc" | "temp" | "spo2" | "fr" | "pas" | "pad" | "pam" | "bh"; value?: number }[] = [
     { key: "glicemia", value: draft.state.glicemia }, { key: "fc", value: draft.state.fcMax },
     { key: "temp", value: draft.state.temp }, { key: "spo2", value: draft.state.spo2 },
     { key: "fr", value: draft.state.fr }, { key: "pas", value: draft.state.pas },
     { key: "pad", value: draft.state.pad }, { key: "pam", value: draft.state.pam },
+    { key: "bh", value: draft.state.balancoHidrico },
   ];
   readings.forEach(({ key, value }) => {
     if (typeof value !== "number" || !Number.isFinite(value)) return;
