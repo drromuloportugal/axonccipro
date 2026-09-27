@@ -137,6 +137,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
   const recognitionRef = useRef<BrowserRecognition | null>(null);
+  const lastTapRef = useRef(0);
 
   useEffect(() => {
     setPos((p) => ({
@@ -187,7 +188,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     return { text, pid: host?.dataset.patientId ?? currentPatientId };
   };
 
-  const provoke = async () => {
+  /** Abre sem consultar a IA. A consulta só ocorre pela opção explícita do usuário. */
+  const provoke = async (loadAnalysis = false) => {
     if (dragRef.current?.moved) return;
     const { text, pid } = readPointedInfo();
     setPatientId(pid);
@@ -209,6 +211,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     setRenalExpanded(false);
     setError(null);
     setInfo(text);
+
+    if (!loadAnalysis) return;
 
     const p = patients.find((x) => x.id === pid) ?? patients.find((x) => x.id === currentPatientId);
     if (!text || !p) {
@@ -416,7 +420,12 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
       onPointerUp={() => {
         const moved = dragRef.current?.moved;
         dragRef.current = null;
-        if (!moved) void provoke();
+        if (moved) return;
+        const now = Date.now();
+        const doubleTap = now - lastTapRef.current < 350;
+        lastTapRef.current = doubleTap ? 0 : now;
+        void provoke(false);
+        if (doubleTap) toggleVoiceCommand();
       }}
     >
       <div
@@ -459,18 +468,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
               variant="ghost"
               size="icon"
               onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => { e.stopPropagation(); toggleVoiceCommand(); }}
-              className={`ml-auto h-7 w-7 rounded-full ${voiceListening ? "animate-pulse bg-clinical-critical/15 text-clinical-critical" : "text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"}`}
-              title={voiceListening ? "Ouvindo comando… clique para parar" : "Registrar comando por voz"}
-              aria-label={voiceListening ? "Parar escuta" : "Registrar comando por voz"}
-            >
-              <Mic className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onPointerDown={(e) => e.stopPropagation()}
               onPointerUp={(e) => {
                 e.stopPropagation();
                 setOpen(false);
@@ -495,6 +492,16 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
               <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
                 {patient.bed} · {patient.name}
               </p>
+            )}
+            {!voiceListening && !loading && !fhLoading && angles.length === 0 && fhItems.length === 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={toggleVoiceCommand} className="h-auto min-h-14 flex-col gap-1 text-[10px]">
+                  <Mic className="h-4 w-4" /> Comando por voz
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => void provoke(true)} className="h-auto min-h-14 flex-col gap-1 text-[10px]">
+                  <Stethoscope className="h-4 w-4" /> Outras funções
+                </Button>
+              </div>
             )}
             {voiceListening && <p className="rounded-md bg-clinical-critical/10 px-2 py-1 text-[10px] font-medium text-clinical-critical">● Ouvindo comando…</p>}
 
