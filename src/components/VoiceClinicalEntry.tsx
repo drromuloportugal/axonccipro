@@ -48,7 +48,7 @@ export function proposalFromTranscript(patient: Patient, transcript: string) {
     { key: "spo2", label: "Saturação", expression: /(?:satura[cç][aã]o|spo2|sat)\s*(?:de|=)?\s*(\d{2,3})/i, unit: "%" },
     { key: "temp", label: "Temperatura", expression: /(?:temperatura|temp)\s*(?:de|=)?\s*(\d{2}(?:[,.]\d+)?)/i, unit: "°C" },
     { key: "fio2", label: "FiO₂", expression: /(?:fio2|fi o2)\s*(?:de|=)?\s*(\d{1,3})/i, unit: "%" },
-    { key: "glicemia", label: "Glicemia", expression: /(?:glicemia|hgt)\s*(?:de|=)?\s*(\d{2,3})/i, unit: "mg/dL" },
+    { key: "glicemia", label: "Glicemia", expression: /(?:glicemia|glicose|hgt)\s*(?:de|=)?\s*(\d{2,3})/i, unit: "mg/dL" },
     { key: "diurese24", label: "Diurese 24h", expression: /(?:diurese 24h|diurese total)\s*(?:de|=)?\s*(\d{1,5})/i, unit: "mL" },
     { key: "balancoHidrico", label: "Balanço hídrico", expression: /balan[cç]o h[ií]drico\s*(?:de|=)?\s*([+-]?\d{1,5})/i, unit: "mL" },
   ];
@@ -99,6 +99,19 @@ export function proposalFromTranscript(patient: Patient, transcript: string) {
 /** Aplica somente os campos explicitamente reconhecidos no comando de voz. */
 export function applyVoiceTranscript(patient: Patient, transcript: string) {
   const draft = proposalFromTranscript(patient, transcript);
+  const at = new Date().toISOString();
+  const series = { ...(patient.state.vitalSeries ?? {}) };
+  const readings: { key: "glicemia" | "fc" | "temp" | "spo2" | "fr" | "pas" | "pad" | "pam"; value?: number }[] = [
+    { key: "glicemia", value: draft.state.glicemia }, { key: "fc", value: draft.state.fcMax },
+    { key: "temp", value: draft.state.temp }, { key: "spo2", value: draft.state.spo2 },
+    { key: "fr", value: draft.state.fr }, { key: "pas", value: draft.state.pas },
+    { key: "pad", value: draft.state.pad }, { key: "pam", value: draft.state.pam },
+  ];
+  readings.forEach(({ key, value }) => {
+    if (typeof value !== "number" || !Number.isFinite(value)) return;
+    const existing = series[key] ?? [];
+    series[key] = [...existing, { id: `voice_${Date.now()}_${key}`, value, at }];
+  });
   return {
     proposals: draft.proposals,
     patient: {
@@ -106,6 +119,7 @@ export function applyVoiceTranscript(patient: Patient, transcript: string) {
       state: {
         ...patient.state,
         ...draft.state,
+        vitalSeries: series,
         notes: [patient.state.notes, `[Ditado ${new Date().toLocaleString("pt-BR")}]: ${transcript.trim()}`]
           .filter(Boolean)
           .join("\n"),
@@ -124,7 +138,20 @@ export type VoiceCommandReview = {
   suggestedColumn: "Estado atual" | "Medicações" | "Invasões" | "Plano" | "História";
   canApply: boolean;
   requiresConfirmation: boolean;
+  requestedColumn?: "Estado atual" | "Medicações" | "Invasões" | "Plano" | "História";
 };
+
+const COLUMN_ALIASES: { target: VoiceCommandReview["suggestedColumn"]; patterns: RegExp[] }[] = [
+  { target: "Estado atual", patterns: [/\bcoluna\s*6\b/i, /estado atual/i, /sinais vitais/i] },
+  { target: "Medicações", patterns: [/\bcoluna\s*4\b/i, /medica[cç][oõ]es/i] },
+  { target: "Invasões", patterns: [/\bcoluna\s*3\b/i, /invas[oõ]es|dispositivos invasivos/i] },
+  { target: "Plano", patterns: [/\bcoluna\s*7\b/i, /plano|condutas?/i] },
+  { target: "História", patterns: [/\bcoluna\s*2\b/i, /hist[oó]ria/i] },
+];
+
+function requestedColumn(text: string) {
+  return COLUMN_ALIASES.find((entry) => entry.patterns.some((pattern) => pattern.test(text)))?.target;
+}
 
 /** Interpretação local, baseada nos catálogos e dados já existentes do paciente. */
 export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceCommandReview {
@@ -136,6 +163,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
   const planIntent = /conduta|meta|plano|reavaliar|solicitar/i.test(transcript);
   const missing: string[] = [];
   let suggestedColumn: VoiceCommandReview["suggestedColumn"] = "Estado atual";
+  const requested = requestedColumn(transcript);
 
   if (medicationIntent) {
     suggestedColumn = "Medicações";
@@ -152,6 +180,8 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
     suggestedColumn = knownMedication ? "Medicações" : "História";
     missing.push(knownMedication ? `dose, via ou frequência para ${knownMedication.name}` : "qual dado clínico deve ser registrado e seu valor");
   }
+  if (!requested) missing.unshift("informe a coluna de destino (por exemplo: “coluna 6” ou “Estado atual”)");
+  else if (requested !== suggestedColumn) missing.unshift(`o comando indica ${requested}, mas a informação parece pertencer a ${suggestedColumn}`);
   return {
     proposals: draft.proposals,
     missing,
@@ -160,6 +190,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
     // Inserção/alteração de dispositivo é exibida para conferência mesmo quando
     // a sigla e o sítio foram identificados pelo catálogo clínico.
     requiresConfirmation: deviceIntent,
+    requestedColumn: requested,
   };
 }
 
