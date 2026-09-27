@@ -15,6 +15,7 @@ import {
   Loader2,
   Check,
   Mic,
+  Pause,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -503,7 +504,11 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
                 </Button>
               </div>
             )}
-            {voiceListening && <p className="rounded-md bg-clinical-critical/10 px-2 py-1 text-[10px] font-medium text-clinical-critical">● Ouvindo comando…</p>}
+            {voiceListening && (
+              <Button type="button" variant="outline" size="sm" onClick={toggleVoiceCommand} className="h-auto min-h-14 w-full flex-col gap-1 border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical hover:bg-clinical-critical/15">
+                <Pause className="h-4 w-4" /> Pausar comando de voz · ouvindo…
+              </Button>
+            )}
 
             {loading && (
               <Shimmer className="text-[11px] text-neto-muted">
