@@ -207,6 +207,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
   const [p, setP] = useState<Patient>(initial ?? emptyPatient());
   const [allergiesTxt, setAllergiesTxt] = useState("");
   const [tab, setTab] = useState(initialTab ?? "id");
+  const [voicePendingTab, setVoicePendingTab] = useState<string | null>(null);
 
   const pRef = useRef<Patient>(p);
   const pastRef = useRef<Patient[]>([]);
@@ -283,9 +284,9 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
           <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
         </DialogHeader>
 
-        <VoiceClinicalEntry patient={p} onApply={(next) => { commit(next); onPersist?.(next); }} />
+        <VoiceClinicalEntry patient={p} activeTab={tab} onPendingChange={setVoicePendingTab} onApply={(next) => { commit(next); onPersist?.(next); }} />
 
-        <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <Tabs value={tab} onValueChange={(nextTab) => { setTab(nextTab); setVoicePendingTab(null); }} className="w-full">
           <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="id">1 · Identif.</TabsTrigger>
             <TabsTrigger value="hist">2 · História</TabsTrigger>
@@ -747,7 +748,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
           {/* 3 — Procedimentos e Dispositivos */}
           <TabsContent value="proc">
             <Section title="Dispositivos invasivos">
-              <DevicesList items={p.devices ?? []} onChange={(v) => upd("devices", v)} />
+              <DevicesList items={p.devices ?? []} voicePending={voicePendingTab === "proc"} onChange={(v) => upd("devices", v)} />
             </Section>
             <div className="mt-3">
               <Section title="Procedimentos / eventos">
@@ -1134,9 +1135,11 @@ function PastMedicationsList({
 function DevicesList({
   items,
   onChange,
+  voicePending = false,
 }: {
   items: InvasiveDevice[];
   onChange: (v: InvasiveDevice[]) => void;
+  voicePending?: boolean;
 }) {
   const [category, setCategory] = useState<DeviceCategory>("venous_central");
   const types = deviceTypesByCategory(category);
@@ -1217,7 +1220,7 @@ function DevicesList({
           <div>
             <L>Categoria *</L>
             <select
-              className={inputCls}
+              className={`${inputCls} ${voicePending ? "border-destructive ring-1 ring-destructive/30" : ""}`}
               value={category}
               onChange={(e) => onCat(e.target.value as DeviceCategory)}
             >
@@ -1231,7 +1234,7 @@ function DevicesList({
           </div>
           <div>
             <L>Tipo *</L>
-            <select className={inputCls} value={typeCode} onChange={(e) => onType(e.target.value)}>
+            <select className={`${inputCls} ${voicePending ? "border-destructive ring-1 ring-destructive/30" : ""}`} value={typeCode} onChange={(e) => onType(e.target.value)}>
               {" "}
               {types.map((t) => (
                 <option key={t.code} value={t.code}>
@@ -1242,7 +1245,7 @@ function DevicesList({
           </div>
           <div>
             <L>Sítio anatômico</L>
-            <select className={inputCls} value={site} onChange={(e) => setSite(e.target.value)}>
+            <select className={`${inputCls} ${voicePending ? "border-destructive ring-1 ring-destructive/30" : ""}`} value={site} onChange={(e) => setSite(e.target.value)}>
               {" "}
               {def?.sites.map((s) => (
                 <option key={s} value={s}>
