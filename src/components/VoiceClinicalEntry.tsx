@@ -31,7 +31,7 @@ const b64 = async (blob: Blob) => {
   return btoa(binary);
 };
 
-function proposalFromTranscript(patient: Patient, transcript: string) {
+export function proposalFromTranscript(patient: Patient, transcript: string) {
   const text = transcript.trim();
   const low = text.toLocaleLowerCase("pt-BR");
   const state: Partial<Patient["state"]> = {};
@@ -92,6 +92,28 @@ function proposalFromTranscript(patient: Patient, transcript: string) {
   // não mapeadas em campo estruturado não se perdem nem são interpretadas como fato.
   if (text) proposals.push({ label: "Evolução ditada", detail: text });
   return { state, medications, devices, diagnoses, conducts, proposals };
+}
+
+/** Aplica somente os campos explicitamente reconhecidos no comando de voz. */
+export function applyVoiceTranscript(patient: Patient, transcript: string) {
+  const draft = proposalFromTranscript(patient, transcript);
+  return {
+    proposals: draft.proposals,
+    patient: {
+      ...patient,
+      state: {
+        ...patient.state,
+        ...draft.state,
+        notes: [patient.state.notes, `[Ditado ${new Date().toLocaleString("pt-BR")}]: ${transcript.trim()}`]
+          .filter(Boolean)
+          .join("\n"),
+      },
+      medications: [...patient.medications, ...draft.medications],
+      devices: [...(patient.devices ?? []), ...draft.devices],
+      diagnoses: [...patient.diagnoses, ...draft.diagnoses],
+      conducts: [...patient.conducts, ...draft.conducts],
+    },
+  };
 }
 
 export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onApply: (next: Patient) => void }) {
@@ -162,20 +184,7 @@ export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onA
 
   const apply = () => {
     if (!draft.proposals.length) return;
-    onApply({
-      ...patient,
-      state: {
-        ...patient.state,
-        ...draft.state,
-        notes: [patient.state.notes, `[Ditado ${new Date().toLocaleString("pt-BR")}]: ${transcript.trim()}`]
-          .filter(Boolean)
-          .join("\n"),
-      },
-      medications: [...patient.medications, ...draft.medications],
-      devices: [...(patient.devices ?? []), ...draft.devices],
-      diagnoses: [...patient.diagnoses, ...draft.diagnoses],
-      conducts: [...patient.conducts, ...draft.conducts],
-    });
+    onApply(applyVoiceTranscript(patient, transcript).patient);
     setTranscript("");
     setApplied(true);
   };

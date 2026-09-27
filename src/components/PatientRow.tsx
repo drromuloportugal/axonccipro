@@ -18,6 +18,7 @@ import {
   Archive,
   FileText,
   History,
+  Undo2,
 } from "lucide-react";
 import { generateFamilyReport } from "@/lib/familyReport";
 import { exportPatient } from "@/lib/patientIO";
@@ -242,6 +243,7 @@ export function PatientRow({
   onEdit,
   onPrint,
   onUpdate,
+  onUndoVoice,
   onDelete,
   onArchive,
   onDischarge,
@@ -251,6 +253,7 @@ export function PatientRow({
   onEdit?: (p: Patient, tab?: string) => void;
   onPrint?: (p: Patient) => void;
   onUpdate?: (p: Patient) => void;
+  onUndoVoice?: () => void;
   onDelete?: (p: Patient) => void;
   onArchive?: (p: Patient) => void;
   onDischarge?: (p: Patient) => void;
@@ -519,6 +522,11 @@ export function PatientRow({
                     title="Imprimir paciente"
                   >
                     <Printer className="h-3 w-3" />
+                  </button>
+                )}
+                {onUndoVoice && (
+                  <button type="button" onClick={(e) => { e.stopPropagation(); onUndoVoice(); }} className="rounded p-0.5 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Desfazer último comando de voz">
+                    <Undo2 className="h-3 w-3" />
                   </button>
                 )}
                 <button
@@ -1233,6 +1241,11 @@ export function PatientRow({
                   title="Imprimir"
                 >
                   <Printer className="h-3.5 w-3.5" />
+                </button>
+              )}
+              {onUndoVoice && (
+                <button type="button" onClick={onUndoVoice} className="rounded p-1 text-muted-foreground hover:bg-surface-3 hover:text-foreground" title="Desfazer último comando de voz">
+                  <Undo2 className="h-3.5 w-3.5" />
                 </button>
               )}
               <button
