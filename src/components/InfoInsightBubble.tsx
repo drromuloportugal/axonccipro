@@ -18,6 +18,7 @@ import {
   Pause,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Conversation,
   ConversationContent,
@@ -47,7 +48,7 @@ import {
 } from "@/lib/renalDosing";
 
 import netoAvatar from "@/assets/neto-avatar.png";
-import { applyVoiceTranscript } from "@/components/VoiceClinicalEntry";
+import { applyVoiceTranscript, reviewVoiceCommand, type VoiceCommandReview } from "@/components/VoiceClinicalEntry";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
 type Msg = { role: "user" | "assistant"; content: string };
@@ -134,6 +135,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
   const [renalApplied, setRenalApplied] = useState(0);
   const [renalExpanded, setRenalExpanded] = useState(false);
   const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceReview, setVoiceReview] = useState<{ before: Patient; transcript: string; review: VoiceCommandReview } | null>(null);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
@@ -358,6 +360,11 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results).map((item) => item[0]?.transcript ?? "").join(" ").trim();
       if (!transcript) return;
+      const review = reviewVoiceCommand(p, transcript);
+      if (!review.canApply) {
+        setVoiceReview({ before: p, transcript, review });
+        return;
+      }
       const result = applyVoiceTranscript(p, transcript);
       onVoiceApplied?.(p);
       onPatientChange(result.patient);
@@ -411,6 +418,45 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
   };
 
   return (
+    <>
+    <Dialog open={Boolean(voiceReview)} onOpenChange={(openReview) => { if (!openReview) setVoiceReview(null); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Confirmar comando de voz</DialogTitle></DialogHeader>
+        {voiceReview && <div className="space-y-3 text-sm">
+          <p className="rounded-md bg-muted p-2 text-xs italic">“{voiceReview.transcript}”</p>
+          <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Coluna sugerida</p>
+            <p className="mt-1 font-semibold">{voiceReview.review.suggestedColumn}</p>
+            <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Informação a alocar</p>
+            <ul className="mt-1 list-disc pl-4 text-xs">
+              {voiceReview.review.proposals.filter((proposal) => proposal.label !== "Evolução ditada").length
+                ? voiceReview.review.proposals.filter((proposal) => proposal.label !== "Evolução ditada").map((proposal, index) => <li key={index}>{proposal.label}: {proposal.detail}</li>)
+                : <li>Não foi possível extrair um campo estruturado.</li>}
+            </ul>
+          </div>
+          <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 p-3">
+            <p className="text-xs font-semibold text-clinical-attention">Pendências para confirmar</p>
+            <ul className="mt-1 list-disc pl-4 text-xs">{voiceReview.review.missing.map((item) => <li key={item}>{item}</li>)}</ul>
+            <textarea autoFocus value={voiceReview.transcript} onChange={(event) => {
+              const transcript = event.target.value;
+              setVoiceReview((previous) => previous ? { ...previous, transcript, review: reviewVoiceCommand(previous.before, transcript) } : null);
+            }} className="mt-2 min-h-20 w-full rounded border bg-background p-2 text-xs" />
+            <p className="mt-1 text-[11px] text-muted-foreground">Complete ou corrija a frase acima; a confirmação é liberada assim que os dados necessários forem reconhecidos.</p>
+          </div>
+        </div>}
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => setVoiceReview(null)}>Cancelar</Button>
+          <Button type="button" disabled={!voiceReview?.review.canApply} onClick={() => {
+            if (!voiceReview) return;
+            const result = applyVoiceTranscript(voiceReview.before, voiceReview.transcript);
+            onVoiceApplied?.(voiceReview.before);
+            onPatientChange?.(result.patient);
+            setChat((previous) => [...previous, { role: "user", content: `🎙️ ${voiceReview.transcript}` }, { role: "assistant", content: "Comando confirmado e registrado no paciente." }]);
+            setVoiceReview(null);
+          }}>Confirmar e incluir</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     <div
       ref={rootRef}
       data-neto-root=""
@@ -905,5 +951,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
         )}
       </div>
     </div>
+    </>
   );
 }

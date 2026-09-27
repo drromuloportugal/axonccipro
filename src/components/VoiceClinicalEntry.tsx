@@ -116,6 +116,42 @@ export function applyVoiceTranscript(patient: Patient, transcript: string) {
   };
 }
 
+export type VoiceCommandReview = {
+  proposals: Proposal[];
+  missing: string[];
+  suggestedColumn: "Estado atual" | "Medicações" | "Invasões" | "Plano" | "História";
+  canApply: boolean;
+};
+
+/** Interpretação local, baseada nos catálogos e dados já existentes do paciente. */
+export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceCommandReview {
+  const draft = proposalFromTranscript(patient, transcript);
+  const low = transcript.toLocaleLowerCase("pt-BR");
+  const explicitCount = Object.keys(draft.state).length + draft.medications.length + draft.devices.length + draft.diagnoses.length + draft.conducts.length;
+  const medicationIntent = /medica[cç][aã]o|medicamento|iniciar|administrar/i.test(transcript);
+  const deviceIntent = /dispositivo|cateter|sonda|dreno|tubo|inserir|instalar|passar/i.test(transcript);
+  const planIntent = /conduta|meta|plano|reavaliar|solicitar/i.test(transcript);
+  const missing: string[] = [];
+  let suggestedColumn: VoiceCommandReview["suggestedColumn"] = "Estado atual";
+
+  if (medicationIntent) {
+    suggestedColumn = "Medicações";
+    if (!draft.medications.length) missing.push("nome, dose e via da medicação");
+  } else if (deviceIntent) {
+    suggestedColumn = "Invasões";
+    if (!draft.devices.length) missing.push("tipo do dispositivo e sítio anatômico");
+    else if (!draft.devices[0].site) missing.push("sítio anatômico do dispositivo");
+  } else if (planIntent) {
+    suggestedColumn = "Plano";
+    if (!draft.conducts.length) missing.push("descrição da conduta ou da meta");
+  } else if (explicitCount === 0) {
+    const knownMedication = patient.medications.find((med) => low.includes(med.name.toLocaleLowerCase("pt-BR")));
+    suggestedColumn = knownMedication ? "Medicações" : "História";
+    missing.push(knownMedication ? `dose, via ou frequência para ${knownMedication.name}` : "qual dado clínico deve ser registrado e seu valor");
+  }
+  return { proposals: draft.proposals, missing, suggestedColumn, canApply: explicitCount > 0 && missing.length === 0 };
+}
+
 export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onApply: (next: Patient) => void }) {
   const runTranscribe = useServerFn(transcribeVoice);
   const recorderRef = useRef<MediaRecorder | null>(null);
