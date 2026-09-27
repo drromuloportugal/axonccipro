@@ -88,7 +88,13 @@ export function proposalFromTranscript(patient: Patient, transcript: string) {
     { key: "fio2", label: "FiO₂", expression: /(?:fio2|fi o2)\s*(?:de|=)?\s*(\d{1,3})/i, unit: "%" },
     { key: "glicemia", label: "Glicemia", expression: /(?:glicemia|glicose|hgt)\s*(?:de|=)?\s*(\d{2,3})/i, unit: "mg/dL" },
     { key: "diurese24", label: "Diurese 24h", expression: /(?:diurese 24h|diurese total)\s*(?:de|=)?\s*(\d{1,5})/i, unit: "mL" },
-    { key: "balancoHidrico", label: "Balanço hídrico", expression: /balan[cç]o h[ií]drico\s*(?:de|=)?\s*([+-]?\d{1,5})/i, unit: "mL" },
+    {
+      key: "balancoHidrico",
+      label: "Balanço hídrico",
+      // Aceita: "BH 215", "balanço hídrico de 215 mL", "balanço em +215".
+      expression: /(?:\bbh\b|balan[cç]o(?:\s+h[ií]drico)?)(?:\s+(?:de|em|para))?\s*[:=]?\s*([+-]?\d{1,5})(?:\s*m[lL])?/i,
+      unit: "mL",
+    },
   ];
   fields.forEach(({ key, label, expression, unit }) => {
     const value = numberAfter(text, expression);
@@ -253,6 +259,7 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisHint, setAnalysisHint] = useState<string | null>(null);
   const [analysisOptions, setAnalysisOptions] = useState<string[]>([]);
+  const [appliedDetail, setAppliedDetail] = useState<string | null>(null);
   const draft = proposalFromTranscript(patient, transcript);
   const spokenMedication = medicationNameFromSpeech(transcript);
   const voicedPumpDrug = activeTab === "med" && /(?:adicionar|incluir|iniciar)\b/i.test(transcript)
@@ -338,6 +345,7 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
     onPendingChange?.(null);
     setTranscript("");
     setApplied(true);
+    setAppliedDetail(draft.proposals.filter((item) => item.label !== "Evolução ditada").map((item) => `${item.label}: ${item.detail}`).join(" · "));
     setAnalyzing(false);
   };
 
@@ -373,9 +381,9 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
         {transcribing ? "Transcrevendo" : recording ? "Parar ditado" : "Ditar"}
       </Button>
     </div>
-    <textarea value={transcript} onChange={(e) => { setTranscript(e.target.value); setApplied(false); setAnalyzing(false); setAnalysisHint(null); setAnalysisOptions([]); onPendingChange?.(null); }} placeholder={`Comando para ${tabLabel}. Ex.: adicionar IOT`} className="mt-3 min-h-20 w-full rounded-md border bg-background p-2 text-sm" />
+    <textarea value={transcript} onChange={(e) => { setTranscript(e.target.value); setApplied(false); setAppliedDetail(null); setAnalyzing(false); setAnalysisHint(null); setAnalysisOptions([]); onPendingChange?.(null); }} placeholder={`Comando para ${tabLabel}. Ex.: adicionar IOT`} className="mt-3 min-h-20 w-full rounded-md border bg-background p-2 text-sm" />
     {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-    {applied && <p className="mt-2 text-xs font-medium text-emerald-700">Alterações confirmadas e aplicadas ao paciente.</p>}
+    {applied && <p className="mt-2 text-xs font-medium text-emerald-700">Alterações confirmadas e aplicadas ao paciente.{appliedDetail ? ` ${appliedDetail}` : ""}</p>}
     {analysisHint && <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-2 text-xs"><p>{analysisHint}</p>{analysisOptions.length > 0 && <div className="mt-2 flex flex-wrap gap-1">{analysisOptions.map((option) => <Button key={option} type="button" size="sm" variant="outline" onClick={() => { setTranscript(`adicionar ${option}`); setAnalysisHint(`Hipótese selecionada: ${option}. Clique em Análise para preparar a ação.`); setAnalysisOptions([]); }}>{option}</Button>)}</div>}</div>}
     {!!transcript.trim() && <div className={`mt-3 rounded-lg border bg-background/80 p-2 ${analyzing && !tabActions ? "border-destructive" : ""}`}>
       <p className="flex items-center gap-1 text-xs font-semibold"><ClipboardCheck className="h-3.5 w-3.5" /> Proposta para revisão</p>
