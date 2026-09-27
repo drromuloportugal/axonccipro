@@ -181,8 +181,13 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
     suggestedColumn = knownMedication ? "Medicações" : "História";
     missing.push(knownMedication ? `dose, via ou frequência para ${knownMedication.name}` : "qual dado clínico deve ser registrado e seu valor");
   }
-  if (!requested) missing.unshift("informe a coluna de destino (por exemplo: “coluna 6” ou “Estado atual”)");
-  else if (requested !== suggestedColumn) missing.unshift(`o comando indica ${requested}, mas a informação parece pertencer a ${suggestedColumn}`);
+  if (!requested) {
+    missing.unshift("informe a coluna de destino (por exemplo: “coluna 6” ou “Estado atual”)");
+  } else {
+    // A coluna explicitamente ditada é soberana. O assistente pode sugerir a
+    // atividade dentro dela, mas não cria conflito mudando o destino escolhido.
+    suggestedColumn = requested;
+  }
   return {
     proposals: draft.proposals,
     missing,

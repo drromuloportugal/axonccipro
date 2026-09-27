@@ -390,6 +390,12 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     setVoiceReview(null);
   };
 
+  const reanalyzeVoiceReview = () => {
+    setVoiceReview((previous) => previous
+      ? { ...previous, review: reviewVoiceCommand(previous.before, previous.transcript) }
+      : null);
+  };
+
   const selectedCount = Object.values(fhChecked).filter(Boolean).length;
 
   /** Aplica as sugestões marcadas como anotações nas condutas do paciente. */
@@ -540,7 +546,11 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button type="button" size="sm" variant="outline" onPointerDown={(event) => event.stopPropagation()} onClick={() => setVoiceReview(null)}>Cancelar</Button>
-                  <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} disabled={!voiceReview.review.canConfirmSuggestion} title={voiceReview.review.canConfirmSuggestion ? "Incluir a sugestão reconhecida no dashboard" : "Diga ou complete um dado clínico que possa ser incluído"} onClick={confirmVoiceReview}>Confirmar e incluir</Button>
+                  {voiceReview.review.canConfirmSuggestion ? (
+                    <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} title="Incluir a sugestão reconhecida no dashboard" onClick={confirmVoiceReview}>Confirmar e incluir</Button>
+                  ) : (
+                    <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} title="Analisar novamente o comando corrigido" onClick={reanalyzeVoiceReview}>Analisar</Button>
+                  )}
                 </div>
               </div>
             )}
