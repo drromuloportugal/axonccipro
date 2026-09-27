@@ -7,6 +7,17 @@ import type { Conduct, InvasiveDevice, Medication, Patient, TimelineEvent } from
 import { DEVICE_TYPES } from "@/data/devices";
 
 type Proposal = { label: string; detail: string };
+type BrowserRecognition = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: { results: ArrayLike<{ 0: { transcript: string } }> }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+};
+type BrowserRecognitionConstructor = new () => BrowserRecognition;
 
 const numberAfter = (text: string, expression: RegExp) => {
   const value = expression.exec(text)?.[1]?.replace(",", ".");
@@ -86,6 +97,7 @@ function proposalFromTranscript(patient: Patient, transcript: string) {
 export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onApply: (next: Patient) => void }) {
   const runTranscribe = useServerFn(transcribeVoice);
   const recorderRef = useRef<MediaRecorder | null>(null);
+  const recognitionRef = useRef<BrowserRecognition | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -94,7 +106,37 @@ export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onA
   const draft = proposalFromTranscript(patient, transcript);
 
   const toggleRecording = async () => {
-    if (recording) { recorderRef.current?.stop(); setRecording(false); return; }
+    if (recording) {
+      recognitionRef.current?.stop();
+      recorderRef.current?.stop();
+      setRecording(false);
+      return;
+    }
+    // Chrome oferece reconhecimento de fala nativo. Ele evita enviar áudio ou
+    // depender de uma chave de provedor apenas para registrar o ditado.
+    const browser = window as typeof window & {
+      SpeechRecognition?: BrowserRecognitionConstructor;
+      webkitSpeechRecognition?: BrowserRecognitionConstructor;
+    };
+    const Recognition = browser.SpeechRecognition ?? browser.webkitSpeechRecognition;
+    if (Recognition) {
+      setError(null);
+      const recognition = new Recognition();
+      recognitionRef.current = recognition;
+      recognition.lang = "pt-BR";
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.onresult = (event) => {
+        const spoken = Array.from(event.results).map((result) => result[0]?.transcript ?? "").join(" ").trim();
+        if (spoken) setTranscript((current) => current ? `${current} ${spoken}` : spoken);
+      };
+      recognition.onerror = (event) => {
+        if (event.error !== "aborted") setError("O reconhecimento de fala do navegador falhou. Tente novamente ou digite o texto.");
+      };
+      recognition.onend = () => { setRecording(false); recognitionRef.current = null; };
+      try { recognition.start(); setRecording(true); return; }
+      catch { recognitionRef.current = null; }
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       chunksRef.current = [];
