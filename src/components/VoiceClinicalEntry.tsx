@@ -247,6 +247,8 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
   const [error, setError] = useState<string | null>(null);
   const [applied, setApplied] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisHint, setAnalysisHint] = useState<string | null>(null);
+  const [analysisOptions, setAnalysisOptions] = useState<string[]>([]);
   const draft = proposalFromTranscript(patient, transcript);
   const spokenMedication = medicationNameFromSpeech(transcript);
   const voicedPumpDrug = activeTab === "med" && /(?:adicionar|incluir|iniciar)\b/i.test(transcript)
@@ -342,6 +344,20 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
     // A reavaliação acontece na próxima renderização com o texto corrigido.
     const candidate = proposalFromTranscript(patient, corrected);
     const found = activeTab === "proc" ? candidate.devices.length : activeTab === "med" ? candidate.medications.length || Boolean(DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(corrected))) : activeTab === "sup" ? Object.keys(candidate.state).length : activeTab === "hist" ? candidate.diagnoses.length : activeTab === "plan" ? candidate.conducts.length : 0;
+    if (found) {
+      const suggestion = activeTab === "proc"
+        ? candidate.devices.map((device) => `${DEVICE_TYPES.find((item) => item.code === device.typeCode)?.label ?? device.typeCode}${device.site ? ` · ${device.site}` : ""}`).join(", ")
+        : activeTab === "med"
+          ? (DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(corrected))?.name ?? candidate.medications[0]?.name ?? "medicação")
+          : candidate.proposals.filter((item) => item.label !== "Evolução ditada").map((item) => item.detail).join(", ");
+      setAnalysisHint(`Sugestão encontrada: ${suggestion}. Revise e confirme.`);
+      setAnalysisOptions([]);
+    } else {
+      const options = activeTab === "med" ? DRUGS.filter((drug) => drug.bic).slice(0, 6).map((drug) => drug.name)
+        : activeTab === "proc" ? DEVICE_TYPES.slice(0, 8).map((device) => device.label) : [];
+      setAnalysisHint("Não identifiquei uma ação com segurança. Escolha a hipótese mais próxima ou corrija o texto.");
+      setAnalysisOptions(options);
+    }
     onPendingChange?.(found ? null : activeTab);
   };
 
@@ -353,9 +369,10 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
         {transcribing ? "Transcrevendo" : recording ? "Parar ditado" : "Ditar"}
       </Button>
     </div>
-    <textarea value={transcript} onChange={(e) => { setTranscript(e.target.value); setApplied(false); setAnalyzing(false); onPendingChange?.(null); }} placeholder={`Comando para ${tabLabel}. Ex.: adicionar IOT`} className="mt-3 min-h-20 w-full rounded-md border bg-background p-2 text-sm" />
+    <textarea value={transcript} onChange={(e) => { setTranscript(e.target.value); setApplied(false); setAnalyzing(false); setAnalysisHint(null); setAnalysisOptions([]); onPendingChange?.(null); }} placeholder={`Comando para ${tabLabel}. Ex.: adicionar IOT`} className="mt-3 min-h-20 w-full rounded-md border bg-background p-2 text-sm" />
     {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
     {applied && <p className="mt-2 text-xs font-medium text-emerald-700">Alterações confirmadas e aplicadas ao paciente.</p>}
+    {analysisHint && <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-2 text-xs"><p>{analysisHint}</p>{analysisOptions.length > 0 && <div className="mt-2 flex flex-wrap gap-1">{analysisOptions.map((option) => <Button key={option} type="button" size="sm" variant="outline" onClick={() => { setTranscript(`adicionar ${option}`); setAnalysisHint(`Hipótese selecionada: ${option}. Clique em Análise para preparar a ação.`); setAnalysisOptions([]); }}>{option}</Button>)}</div>}</div>}
     {!!transcript.trim() && <div className={`mt-3 rounded-lg border bg-background/80 p-2 ${analyzing && !tabActions ? "border-destructive" : ""}`}>
       <p className="flex items-center gap-1 text-xs font-semibold"><ClipboardCheck className="h-3.5 w-3.5" /> Proposta para revisão</p>
       {tabActions ? <ul className="mt-1 space-y-1 text-xs">{voicedPumpDrug && <li><b>Medicação em bomba:</b> {voicedPumpDrug.name} · BIC · informar dose mínima e máxima</li>}{draft.proposals.filter((item) => activeTab === "proc" ? item.label === "Dispositivo invasivo" : activeTab === "med" ? item.label === "Medicação" : activeTab === "sup" ? !["Dispositivo invasivo", "Medicação", "Diagnóstico atual", "Conduta / plano", "Evolução ditada"].includes(item.label) : true).map((item, index) => <li key={`${item.label}-${index}`}><b>{item.label}:</b> {item.detail}</li>)}</ul> : <p className="mt-1 text-xs text-muted-foreground">Não encontrei uma ação aplicável em <b>{tabLabel}</b>. Clique em Análise para destacar os campos necessários nesta aba.</p>}
