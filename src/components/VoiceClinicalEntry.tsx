@@ -200,7 +200,7 @@ function requestedColumn(text: string) {
 }
 
 /** Interpretação local, baseada nos catálogos e dados já existentes do paciente. */
-export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceCommandReview {
+export function reviewVoiceCommand(patient: Patient, transcript: string, requireSpokenColumn = true): VoiceCommandReview {
   const draft = proposalFromTranscript(patient, transcript);
   const low = transcript.toLocaleLowerCase("pt-BR");
   const explicitCount = Object.keys(draft.state).length + draft.medications.length + draft.devices.length + draft.diagnoses.length + draft.conducts.length;
@@ -226,7 +226,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string): VoiceC
     suggestedColumn = knownMedication ? "Medicações" : "História";
     missing.push(knownMedication ? `dose, via ou frequência para ${knownMedication.name}` : "qual dado clínico deve ser registrado e seu valor");
   }
-  if (!requested) {
+  if (!requested && requireSpokenColumn) {
     missing.unshift("informe a coluna de destino (por exemplo: “coluna 6” ou “Estado atual”)");
   } else {
     // A coluna explicitamente ditada é soberana. O assistente pode sugerir a

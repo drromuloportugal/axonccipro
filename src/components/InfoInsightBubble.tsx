@@ -359,7 +359,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results).map((item) => item[0]?.transcript ?? "").join(" ").trim();
       if (!transcript) return;
-      const review = reviewVoiceCommand(p, transcript);
+      // No assistente flutuante, o motor infere a coluna pelo tipo de dado.
+      const review = reviewVoiceCommand(p, transcript, false);
       if (!review.canApply || review.requiresConfirmation) {
         setVoiceReview({ before: p, transcript, review });
         return;
@@ -392,7 +393,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
 
   const reanalyzeVoiceReview = () => {
     setVoiceReview((previous) => previous
-      ? { ...previous, review: reviewVoiceCommand(previous.before, previous.transcript) }
+      ? { ...previous, review: reviewVoiceCommand(previous.before, previous.transcript, false) }
       : null);
   };
 
@@ -540,7 +541,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
                   <ul className="mt-1 list-disc pl-4">{voiceReview.review.missing.map((item) => <li key={item}>{item}</li>)}</ul>
                   <textarea autoFocus value={voiceReview.transcript} onChange={(event) => {
                     const transcript = event.target.value;
-                    setVoiceReview((previous) => previous ? { ...previous, transcript, review: reviewVoiceCommand(previous.before, transcript) } : null);
+                    setVoiceReview((previous) => previous ? { ...previous, transcript, review: reviewVoiceCommand(previous.before, transcript, false) } : null);
                   }} className="mt-2 min-h-16 w-full rounded border bg-background p-1.5 text-xs" />
                 </div>}
                 </div>
