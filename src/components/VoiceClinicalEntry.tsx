@@ -6,6 +6,7 @@ import { transcribeVoice } from "@/lib/live/voice.functions";
 import type { Conduct, InvasiveDevice, Medication, Patient, TimelineEvent } from "@/data/patients";
 import { DEVICE_TYPES } from "@/data/devices";
 import { DRUGS } from "@/lib/clinical";
+import { medicationNameFromSpeech } from "@/data/medicationAliases";
 
 type Proposal = { label: string; detail: string };
 type BrowserRecognition = {
@@ -214,8 +215,9 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
   const [applied, setApplied] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const draft = proposalFromTranscript(patient, transcript);
+  const spokenMedication = medicationNameFromSpeech(transcript);
   const voicedPumpDrug = activeTab === "med" && /(?:adicionar|incluir|iniciar)\b/i.test(transcript)
-    ? DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(transcript))
+    ? DRUGS.find((drug) => drug.bic && (new RegExp(`\\b${drug.name}\\b`, "i").test(transcript) || drug.name === spokenMedication))
     : undefined;
   const tabActions = activeTab === "proc" ? draft.devices.length
     : activeTab === "med" ? draft.medications.length + (voicedPumpDrug ? 1 : 0)
