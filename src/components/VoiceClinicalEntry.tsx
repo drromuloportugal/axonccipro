@@ -33,6 +33,39 @@ const b64 = async (blob: Blob) => {
   return btoa(binary);
 };
 
+const fold = (value: string) => value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const editDistance = (a: string, b: string) => {
+  const row = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = row[0]; row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const above = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diagonal = above;
+    }
+  }
+  return row[b.length];
+};
+
+/** Corrige somente termos de catálogo próximos; não cria dados clínicos. */
+function correctVoiceIntent(text: string, activeTab: string) {
+  let corrected = text.replace(/\bi[\s.-]*o[\s.-]*t\b/gi, "IOT");
+  if (activeTab === "med") {
+    const canonical = medicationNameFromSpeech(corrected);
+    if (canonical) corrected = `${corrected} ${canonical}`;
+    const tokens = fold(corrected).match(/[a-z]{4,}/g) ?? [];
+    const nearest = tokens
+      .map((token) => ({ token, drug: DRUGS.find((candidate) => editDistance(token, fold(candidate.name)) <= 2) }))
+      .find((item) => item.drug)?.drug;
+    if (nearest && !new RegExp(`\\b${nearest.name}\\b`, "i").test(corrected)) corrected = `${corrected} ${nearest.name}`;
+  }
+  if (activeTab === "proc") {
+    const device = DEVICE_TYPES.find((candidate) => (fold(corrected).match(/[a-z]{3,}/g) ?? []).some((token) => editDistance(token, fold(candidate.code)) <= 1 || editDistance(token, fold(candidate.label)) <= 3));
+    if (device && !new RegExp(`\\b${device.code}\\b`, "i").test(corrected)) corrected = `${corrected} incluir ${device.code}`;
+  }
+  return corrected.replace(/\s+/g, " ").trim();
+}
+
 export function proposalFromTranscript(patient: Patient, transcript: string) {
   const text = transcript.trim();
   const low = text.toLocaleLowerCase("pt-BR");
@@ -302,6 +335,16 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
     setAnalyzing(false);
   };
 
+  const analyze = () => {
+    const corrected = correctVoiceIntent(transcript, activeTab);
+    setTranscript(corrected);
+    setAnalyzing(true);
+    // A reavaliação acontece na próxima renderização com o texto corrigido.
+    const candidate = proposalFromTranscript(patient, corrected);
+    const found = activeTab === "proc" ? candidate.devices.length : activeTab === "med" ? candidate.medications.length || Boolean(DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(corrected))) : activeTab === "sup" ? Object.keys(candidate.state).length : activeTab === "hist" ? candidate.diagnoses.length : activeTab === "plan" ? candidate.conducts.length : 0;
+    onPendingChange?.(found ? null : activeTab);
+  };
+
   return <section className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <div><p className="text-sm font-semibold">Registro clínico por voz</p><p className="text-[11px] text-muted-foreground">Dite os dados; revise cada proposta antes de confirmar. O áudio não é armazenado.</p></div>
@@ -316,7 +359,7 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
     {!!transcript.trim() && <div className={`mt-3 rounded-lg border bg-background/80 p-2 ${analyzing && !tabActions ? "border-destructive" : ""}`}>
       <p className="flex items-center gap-1 text-xs font-semibold"><ClipboardCheck className="h-3.5 w-3.5" /> Proposta para revisão</p>
       {tabActions ? <ul className="mt-1 space-y-1 text-xs">{voicedPumpDrug && <li><b>Medicação em bomba:</b> {voicedPumpDrug.name} · BIC · informar dose mínima e máxima</li>}{draft.proposals.filter((item) => activeTab === "proc" ? item.label === "Dispositivo invasivo" : activeTab === "med" ? item.label === "Medicação" : activeTab === "sup" ? !["Dispositivo invasivo", "Medicação", "Diagnóstico atual", "Conduta / plano", "Evolução ditada"].includes(item.label) : true).map((item, index) => <li key={`${item.label}-${index}`}><b>{item.label}:</b> {item.detail}</li>)}</ul> : <p className="mt-1 text-xs text-muted-foreground">Não encontrei uma ação aplicável em <b>{tabLabel}</b>. Clique em Análise para destacar os campos necessários nesta aba.</p>}
-      <div className="mt-2 flex justify-end"><Button type="button" size="sm" onClick={tabActions ? apply : () => { setAnalyzing(true); onPendingChange?.(activeTab); }}>{tabActions ? <><Check className="mr-1 h-4 w-4" />Confirmar e aplicar</> : "Análise"}</Button></div>
+      <div className="mt-2 flex justify-end"><Button type="button" size="sm" onClick={tabActions ? apply : analyze}>{tabActions ? <><Check className="mr-1 h-4 w-4" />Confirmar e aplicar</> : "Análise"}</Button></div>
     </div>}
   </section>;
 }
