@@ -336,6 +336,9 @@ function Passometro() {
     setEditorOpen(false);
     setEditing(null);
   };
+  const persistPatientWithoutClosing = (p: Patient) => {
+    setPatients((prev) => prev.map((current) => current.id === p.id ? p : current));
+  };
 
   // Print: render hidden #print-area then trigger window.print(); clean up after.
   useEffect(() => {
@@ -741,6 +744,7 @@ function Passometro() {
           setEditingTab(undefined);
         }}
         onSave={handleSave}
+        onPersist={persistPatientWithoutClosing}
       />
 
       <DilutionCenter

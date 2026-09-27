@@ -121,6 +121,8 @@ type Props = {
   initialTab?: string;
   onClose: () => void;
   onSave: (p: Patient) => void;
+  /** Persiste uma alteração sem fechar a janela de edição. */
+  onPersist?: (p: Patient) => void;
 };
 
 const emptyPatient = (): Patient => ({
@@ -201,7 +203,7 @@ const isoToLocalInput = (iso?: string) => {
 };
 const localInputToISO = (s: string) => (s ? new Date(s).toISOString() : "");
 
-export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Props) {
+export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPersist }: Props) {
   const [p, setP] = useState<Patient>(initial ?? emptyPatient());
   const [allergiesTxt, setAllergiesTxt] = useState("");
   const [tab, setTab] = useState(initialTab ?? "id");
@@ -281,7 +283,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
           <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
         </DialogHeader>
 
-        <VoiceClinicalEntry patient={p} onApply={commit} />
+        <VoiceClinicalEntry patient={p} onApply={(next) => { commit(next); onPersist?.(next); }} />
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="grid w-full grid-cols-9">

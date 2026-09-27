@@ -103,6 +103,7 @@ export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onA
   const [transcribing, setTranscribing] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [applied, setApplied] = useState(false);
   const draft = proposalFromTranscript(patient, transcript);
 
   const toggleRecording = async () => {
@@ -176,6 +177,7 @@ export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onA
       conducts: [...patient.conducts, ...draft.conducts],
     });
     setTranscript("");
+    setApplied(true);
   };
 
   return <section className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3">
@@ -186,8 +188,9 @@ export function VoiceClinicalEntry({ patient, onApply }: { patient: Patient; onA
         {transcribing ? "Transcrevendo" : recording ? "Parar ditado" : "Ditar"}
       </Button>
     </div>
-    <textarea value={transcript} onChange={(e) => setTranscript(e.target.value)} placeholder="Ex.: PA 120 por 70, FC 86, saturação 96, temperatura 37, Glasgow 15. Conduta: reavaliar em duas horas." className="mt-3 min-h-20 w-full rounded-md border bg-background p-2 text-sm" />
+    <textarea value={transcript} onChange={(e) => { setTranscript(e.target.value); setApplied(false); }} placeholder="Ex.: PA 120 por 70, FC 86, saturação 96, temperatura 37, Glasgow 15. Conduta: reavaliar em duas horas." className="mt-3 min-h-20 w-full rounded-md border bg-background p-2 text-sm" />
     {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+    {applied && <p className="mt-2 text-xs font-medium text-emerald-700">Alterações confirmadas e aplicadas ao paciente.</p>}
     {!!transcript.trim() && <div className="mt-3 rounded-lg border bg-background/80 p-2">
       <p className="flex items-center gap-1 text-xs font-semibold"><ClipboardCheck className="h-3.5 w-3.5" /> Proposta para revisão</p>
       {draft.proposals.length ? <ul className="mt-1 space-y-1 text-xs">{draft.proposals.map((item, index) => <li key={`${item.label}-${index}`}><b>{item.label}:</b> {item.detail}</li>)}</ul> : <p className="mt-1 text-xs text-muted-foreground">Nenhum comando estruturado reconhecido. Ajuste o texto antes de confirmar.</p>}
