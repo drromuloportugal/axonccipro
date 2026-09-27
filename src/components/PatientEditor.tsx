@@ -84,6 +84,7 @@ import {
   stripAnnotationMarkup,
 } from "@/lib/clinical";
 import { AnnotationEditor } from "@/components/AnnotationEditor";
+import { VoiceClinicalEntry } from "@/components/VoiceClinicalEntry";
 
 import {
   CULTURE_SOURCES,
@@ -279,6 +280,8 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
         <DialogHeader>
           <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
         </DialogHeader>
+
+        <VoiceClinicalEntry patient={p} onApply={commit} />
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="grid w-full grid-cols-9">
