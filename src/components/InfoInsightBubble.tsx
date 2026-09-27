@@ -377,6 +377,19 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     catch { setError("Não foi possível iniciar o microfone."); }
   };
 
+  const confirmVoiceReview = () => {
+    if (!voiceReview || voiceReview.review.missing.length > 0) return;
+    const result = applyVoiceTranscript(voiceReview.before, voiceReview.transcript);
+    onVoiceApplied?.(voiceReview.before);
+    onPatientChange?.(result.patient);
+    setChat((previous) => [
+      ...previous,
+      { role: "user", content: `🎙️ ${voiceReview.transcript}` },
+      { role: "assistant", content: "Comando confirmado e registrado no paciente." },
+    ]);
+    setVoiceReview(null);
+  };
+
   const selectedCount = Object.values(fhChecked).filter(Boolean).length;
 
   /** Aplica as sugestões marcadas como anotações nas condutas do paciente. */
@@ -524,14 +537,8 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
                   }} className="mt-2 min-h-16 w-full rounded border bg-background p-1.5 text-xs" />
                 </div>}
                 <div className="flex justify-end gap-2">
-                  <Button type="button" size="sm" variant="outline" onClick={() => setVoiceReview(null)}>Cancelar</Button>
-                  <Button type="button" size="sm" disabled={voiceReview.review.missing.length > 0} onClick={() => {
-                    const result = applyVoiceTranscript(voiceReview.before, voiceReview.transcript);
-                    onVoiceApplied?.(voiceReview.before);
-                    onPatientChange?.(result.patient);
-                    setChat((previous) => [...previous, { role: "user", content: `🎙️ ${voiceReview.transcript}` }, { role: "assistant", content: "Comando confirmado e registrado no paciente." }]);
-                    setVoiceReview(null);
-                  }}>Confirmar</Button>
+                  <Button type="button" size="sm" variant="outline" onPointerDown={(event) => event.stopPropagation()} onClick={() => setVoiceReview(null)}>Cancelar</Button>
+                  <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} disabled={voiceReview.review.missing.length > 0} title={voiceReview.review.missing.length ? "Complete as pendências listadas antes de confirmar" : "Incluir a informação sugerida no dashboard"} onClick={confirmVoiceReview}>Confirmar e incluir</Button>
                 </div>
               </div>
             )}
