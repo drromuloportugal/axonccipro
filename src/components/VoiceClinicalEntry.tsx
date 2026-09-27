@@ -82,6 +82,7 @@ export function proposalFromTranscript(patient: Patient, transcript: string) {
   }
   const fields: { key: keyof Patient["state"]; label: string; expression: RegExp; unit: string }[] = [
     { key: "fcMax", label: "Frequência cardíaca", expression: /(?:fc|frequ[eê]ncia card[ií]aca)\s*(?:de|=)?\s*(\d{2,3})/i, unit: "bpm" },
+    { key: "pam", label: "Pressão arterial média (PAM)", expression: /(?:press[aã]o arterial m[eé]dia|p\.?a\.?m\.?)\s*(?:de|=|em)?\s*(\d{2,3})/i, unit: "mmHg" },
     { key: "fr", label: "Frequência respiratória", expression: /(?:fr|frequ[eê]ncia respirat[oó]ria)\s*(?:de|=)?\s*(\d{1,3})/i, unit: "ipm" },
     { key: "spo2", label: "Saturação", expression: /(?:satura[cç][aã]o|spo2|sat)\s*(?:de|=)?\s*(\d{2,3})/i, unit: "%" },
     { key: "temp", label: "Temperatura", expression: /(?:temperatura|temp)\s*(?:de|=)?\s*(\d{2}(?:[,.]\d+)?)/i, unit: "°C" },
