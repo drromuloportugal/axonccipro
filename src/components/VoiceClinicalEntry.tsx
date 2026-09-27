@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Mic, Square, Loader2, Check, ClipboardCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
-import { transcribeVoice } from "@/lib/live/voice.functions";
+import { interpretVoiceCommand, transcribeVoice } from "@/lib/live/voice.functions";
 import type { Conduct, InvasiveDevice, Medication, Patient, TimelineEvent } from "@/data/patients";
 import { DEVICE_TYPES } from "@/data/devices";
 import { DRUGS } from "@/lib/clinical";
@@ -227,6 +227,7 @@ export function reviewVoiceCommand(patient: Patient, transcript: string, require
 
 export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChange, onPumpDrug }: { patient: Patient; activeTab: string; onApply: (next: Patient) => void; onPendingChange?: (tab: string | null) => void; onPumpDrug?: (name: string | null) => void }) {
   const runTranscribe = useServerFn(transcribeVoice);
+  const runInterpret = useServerFn(interpretVoiceCommand);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<BrowserRecognition | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -328,10 +329,21 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
     setAnalyzing(false);
   };
 
-  const analyze = () => {
-    const corrected = correctVoiceIntent(transcript, activeTab);
-    setTranscript(corrected);
+  const analyze = async () => {
     setAnalyzing(true);
+    let corrected = correctVoiceIntent(transcript, activeTab);
+    let remoteHint = "";
+    try {
+      const interpretation = await runInterpret({ data: { transcript, activeTab } });
+      // O modelo pode orientar a redação, mas a aba aberta é soberana e o
+      // parser local decide se existe ação válida para aplicar.
+      if (interpretation.target === activeTab && interpretation.normalizedTranscript) corrected = interpretation.normalizedTranscript;
+      remoteHint = interpretation.explanation ? ` ${interpretation.explanation}` : "";
+    } catch {
+      // A camada local continua disponível se o provedor estiver instável.
+      remoteHint = " Interpretação remota indisponível; usei o catálogo local.";
+    }
+    setTranscript(corrected);
     // A reavaliação acontece na próxima renderização com o texto corrigido.
     const candidate = proposalFromTranscript(patient, corrected);
     const found = activeTab === "proc" ? candidate.devices.length : activeTab === "med" ? candidate.medications.length || Boolean(DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(corrected))) : activeTab === "sup" ? Object.keys(candidate.state).length : activeTab === "hist" ? candidate.diagnoses.length : activeTab === "plan" ? candidate.conducts.length : 0;
@@ -341,12 +353,12 @@ export function VoiceClinicalEntry({ patient, activeTab, onApply, onPendingChang
         : activeTab === "med"
           ? (DRUGS.find((drug) => drug.bic && new RegExp(`\\b${drug.name}\\b`, "i").test(corrected))?.name ?? candidate.medications[0]?.name ?? "medicação")
           : candidate.proposals.filter((item) => item.label !== "Evolução ditada").map((item) => item.detail).join(", ");
-      setAnalysisHint(`Sugestão encontrada: ${suggestion}. Revise e confirme.`);
+      setAnalysisHint(`Sugestão encontrada: ${suggestion}. Revise e confirme.${remoteHint}`);
       setAnalysisOptions([]);
     } else {
       const options = activeTab === "med" ? DRUGS.filter((drug) => drug.bic).slice(0, 6).map((drug) => drug.name)
         : activeTab === "proc" ? voiceDeviceSuggestions(corrected).map((entry) => entry.clinicalName ?? entry.device.label) : [];
-      setAnalysisHint("Não identifiquei uma ação com segurança. Escolha a hipótese mais próxima ou corrija o texto.");
+      setAnalysisHint(`Não identifiquei uma ação com segurança. Escolha a hipótese mais próxima ou corrija o texto.${remoteHint}`);
       setAnalysisOptions(options);
     }
     onPendingChange?.(found ? null : activeTab);

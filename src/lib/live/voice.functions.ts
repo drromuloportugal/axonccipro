@@ -8,6 +8,9 @@ import type { Patient } from "@/data/patients";
 import { runNetoLiveTool } from "./toolRunner";
 import { detectIntent } from "@/lib/clinicalEngine/intent";
 import type { EngineIntent } from "@/lib/clinicalEngine";
+import { DEVICE_TYPES } from "@/data/devices";
+import { DRUGS } from "@/lib/clinical";
+import { VITAL_VOICE_FIELDS } from "@/lib/voiceClinicalCatalog";
 
 export const VOICE_SESSION_MODEL = "gemini-voice";
 
@@ -97,6 +100,37 @@ export const transcribeVoice = createServerFn({ method: "POST" })
       mimeType: data.mimeType,
     });
     return { text: String(payload.text ?? "").trim(), tooShort: false as const };
+  });
+
+/**
+ * Interpreta o texto de voz no servidor contra os catálogos do Axon. A Edge
+ * Function não recebe dados do paciente: somente o comando e opções válidas.
+ * A gravação continua no cliente após revisão e validação determinística.
+ */
+export const interpretVoiceCommand = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { transcript: string; activeTab: string }) => ({
+    transcript: String(data?.transcript ?? "").trim().slice(0, 2_000),
+    activeTab: String(data?.activeTab ?? ""),
+  }))
+  .handler(async ({ data }) => {
+    if (!data.transcript) throw new Error("Nenhum comando para interpretar.");
+    const payload = await invokeEdgeFunction("axon-command-intent", {
+      transcript: data.transcript,
+      activeTab: data.activeTab,
+      catalog: {
+        devices: DEVICE_TYPES.map(({ code, label, sites }) => ({ code, label, sites })),
+        medications: DRUGS.map(({ name }) => name),
+        fields: VITAL_VOICE_FIELDS.map(({ key, label, aliases }) => ({ key, label, aliases })),
+      },
+    });
+    return {
+      target: String(payload.target ?? data.activeTab),
+      normalizedTranscript: String(payload.normalizedTranscript ?? data.transcript),
+      confidence: String(payload.confidence ?? "review"),
+      missing: Array.isArray(payload.missing) ? payload.missing.map(String) : [],
+      explanation: String(payload.explanation ?? ""),
+    };
   });
 
 const WRITE_INTENT = /\b(registr|anot|crie? (uma )?tarefa|agende|reavalia(r|ção) às)\b/i;
