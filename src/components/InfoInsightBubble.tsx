@@ -123,6 +123,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
+  const lastTapRef = useRef(0);
 
   useEffect(() => {
     setPos((p) => ({
@@ -173,7 +174,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     return { text, pid: host?.dataset.patientId ?? currentPatientId };
   };
 
-  /** Abre sem consultar a IA. A consulta só ocorre pela opção explícita do usuário. */
+  /** Um clique abre o assistente; dois cliques sobre o balão analisam o ponto indicado. */
   const provoke = async (loadAnalysis = false) => {
     if (dragRef.current?.moved) return;
     const { text, pid } = readPointedInfo();
@@ -369,7 +370,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
         const moved = dragRef.current?.moved;
         dragRef.current = null;
         if (moved) return;
-        void provoke(false);
+        const now = Date.now();
+        const isDoubleClick = now - lastTapRef.current < 350;
+        lastTapRef.current = isDoubleClick ? 0 : now;
+        void provoke(isDoubleClick);
       }}
     >
       <div
@@ -437,12 +441,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 {patient.bed} · {patient.name}
               </p>
             )}
-            {!loading && !fhLoading && angles.length === 0 && fhItems.length === 0 && (
-              <Button type="button" variant="outline" size="sm" onClick={() => void provoke(true)} className="h-auto min-h-14 w-full flex-col gap-1 text-[10px]">
-                <Stethoscope className="h-4 w-4" /> Outras funções
-              </Button>
-            )}
-
             {loading && (
               <Shimmer className="text-[11px] text-neto-muted">
                 Estruturando os raciocínios…
