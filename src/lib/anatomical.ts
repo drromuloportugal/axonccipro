@@ -246,7 +246,7 @@ export function deviceMarkers(d: InvasiveDevice, view: AnatView): Marker[] {
     // ── Ostomies ──────────────────────────────────────────────────────
     // Colostomia: quadrante inferior esquerdo, mais medial e cranial no painel
     // anterior para acompanhar a topografia do abdome no manequim.
-    case "COL": return [{ x: 112, y: 210, shape: "ring" }];
+    case "COL": return [{ x: 112, y: 198, shape: "ring" }];
     case "ILE": return [{ x: 82, y: 226, shape: "ring" }];
     case "URO": return [{ x: 82, y: 238, shape: "ring" }];
 
