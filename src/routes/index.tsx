@@ -164,7 +164,6 @@ function Passometro() {
   const [managementOpen, setManagementOpen] = useState(false);
   const [deepOpen, setDeepOpen] = useState(false);
   const [callAxonOpen, setCallAxonOpen] = useState(false);
-  const [lastVoiceCommand, setLastVoiceCommand] = useState<Patient | null>(null);
 
   const router = useRouter();
   const handleSignOut = async () => {
@@ -340,13 +339,6 @@ function Passometro() {
   const persistPatientWithoutClosing = (p: Patient) => {
     setPatients((prev) => prev.map((current) => current.id === p.id ? p : current));
   };
-  const undoLastVoiceCommand = (patientId: string) => {
-    if (!lastVoiceCommand || lastVoiceCommand.id !== patientId) return;
-    setPatients((prev) => prev.map((current) => current.id === patientId ? lastVoiceCommand : current));
-    setLastVoiceCommand(null);
-    toast.success("Último comando de voz desfeito");
-  };
-
   // Print: render hidden #print-area then trigger window.print(); clean up after.
   useEffect(() => {
     if (!printing) return;
@@ -684,7 +676,6 @@ function Passometro() {
                     onEdit={openEdit}
                     onPrint={setPrinting}
                     onUpdate={handleSave}
-                    onUndoVoice={lastVoiceCommand?.id === p.id ? () => undoLastVoiceCommand(p.id) : undefined}
                     onArchive={(pt) => {
                       setPatients((prev) =>
                         prev.map((x) =>
@@ -849,7 +840,6 @@ function Passometro() {
                         onEdit={openEdit}
                         onPrint={setPrinting}
                         onUpdate={handleSave}
-                        onUndoVoice={lastVoiceCommand?.id === p.id ? () => undoLastVoiceCommand(p.id) : undefined}
                       />
                     </div>
                   </li>
@@ -885,7 +875,6 @@ function Passometro() {
         patients={patients}
         currentPatientId={filtered[current]?.id}
         onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
-        onVoiceApplied={setLastVoiceCommand}
       />
 
       {callAxonOpen && <CallAxonPanel patients={patients} onClose={() => setCallAxonOpen(false)} />}

@@ -14,8 +14,6 @@ import {
   ChevronDown,
   Loader2,
   Check,
-  Mic,
-  Pause,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +45,6 @@ import {
 } from "@/lib/renalDosing";
 
 import netoAvatar from "@/assets/neto-avatar.png";
-import { applyVoiceTranscript, reviewVoiceCommand, type VoiceCommandReview } from "@/components/VoiceClinicalEntry";
 
 type Angle = { kind: "case" | "topic"; label: string; question: string };
 type Msg = { role: "user" | "assistant"; content: string };
@@ -88,21 +85,11 @@ interface Props {
   patients: Patient[];
   currentPatientId?: string;
   onPatientChange?: (patient: Patient) => void;
-  onVoiceApplied?: (before: Patient) => void;
 }
-
-type BrowserRecognition = {
-  lang: string; continuous: boolean; interimResults: boolean;
-  start: () => void; stop: () => void;
-  onresult: ((event: { results: ArrayLike<{ 0: { transcript: string } }> }) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
-  onend: (() => void) | null;
-};
-type BrowserRecognitionConstructor = new () => BrowserRecognition;
 
 const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
 
-export function InfoInsightBubble({ patients, currentPatientId, onPatientChange, onVoiceApplied }: Props) {
+export function InfoInsightBubble({ patients, currentPatientId, onPatientChange }: Props) {
   const runAngles = useServerFn(suggestInsightAngles);
   const runAsk = useServerFn(askAboutCase);
   const runFasthug = useServerFn(reviewFasthugMaidens);
@@ -133,13 +120,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
   const [renalAppliedIds, setRenalAppliedIds] = useState<Record<string, boolean>>({});
   const [renalApplied, setRenalApplied] = useState(0);
   const [renalExpanded, setRenalExpanded] = useState(false);
-  const [voiceListening, setVoiceListening] = useState(false);
-  const [voiceReview, setVoiceReview] = useState<{ before: Patient; transcript: string; review: VoiceCommandReview } | null>(null);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
-  const recognitionRef = useRef<BrowserRecognition | null>(null);
-  const lastTapRef = useRef(0);
 
   useEffect(() => {
     setPos((p) => ({
@@ -334,69 +317,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
     }
   };
 
-  const toggleVoiceCommand = () => {
-    if (voiceListening) { recognitionRef.current?.stop(); return; }
-    const p = patient;
-    if (!p || !onPatientChange) {
-      setError("Selecione um paciente antes de registrar um comando por voz.");
-      return;
-    }
-    const browser = window as typeof window & {
-      SpeechRecognition?: BrowserRecognitionConstructor;
-      webkitSpeechRecognition?: BrowserRecognitionConstructor;
-    };
-    const Recognition = browser.SpeechRecognition ?? browser.webkitSpeechRecognition;
-    if (!Recognition) {
-      setError("Reconhecimento de voz não disponível neste navegador. Use o Google Chrome atualizado.");
-      return;
-    }
-    setError(null);
-    const recognition = new Recognition();
-    recognitionRef.current = recognition;
-    recognition.lang = "pt-BR";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results).map((item) => item[0]?.transcript ?? "").join(" ").trim();
-      if (!transcript) return;
-      // No assistente flutuante, o motor infere a coluna pelo tipo de dado.
-      const review = reviewVoiceCommand(p, transcript, false);
-      if (!review.canApply || review.requiresConfirmation) {
-        setVoiceReview({ before: p, transcript, review });
-        return;
-      }
-      const result = applyVoiceTranscript(p, transcript);
-      onVoiceApplied?.(p);
-      onPatientChange(result.patient);
-      setChat((previous) => [...previous, { role: "user", content: `🎙️ ${transcript}` }, { role: "assistant", content: "Comando registrado no paciente." }]);
-    };
-    recognition.onerror = (event) => {
-      if (event.error !== "aborted") setError("Não consegui ouvir o comando. Tente novamente.");
-    };
-    recognition.onend = () => { setVoiceListening(false); recognitionRef.current = null; };
-    try { recognition.start(); setVoiceListening(true); }
-    catch { setError("Não foi possível iniciar o microfone."); }
-  };
-
-  const confirmVoiceReview = () => {
-    if (!voiceReview || !voiceReview.review.canConfirmSuggestion) return;
-    const result = applyVoiceTranscript(voiceReview.before, voiceReview.transcript);
-    onVoiceApplied?.(voiceReview.before);
-    onPatientChange?.(result.patient);
-    setChat((previous) => [
-      ...previous,
-      { role: "user", content: `🎙️ ${voiceReview.transcript}` },
-      { role: "assistant", content: "Comando confirmado e registrado no paciente." },
-    ]);
-    setVoiceReview(null);
-  };
-
-  const reanalyzeVoiceReview = () => {
-    setVoiceReview((previous) => previous
-      ? { ...previous, review: reviewVoiceCommand(previous.before, previous.transcript, false) }
-      : null);
-  };
-
   const selectedCount = Object.values(fhChecked).filter(Boolean).length;
 
   /** Aplica as sugestões marcadas como anotações nas condutas do paciente. */
@@ -449,11 +369,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
         const moved = dragRef.current?.moved;
         dragRef.current = null;
         if (moved) return;
-        const now = Date.now();
-        const doubleTap = now - lastTapRef.current < 350;
-        lastTapRef.current = doubleTap ? 0 : now;
         void provoke(false);
-        if (doubleTap) toggleVoiceCommand();
       }}
     >
       <div
@@ -521,53 +437,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange,
                 {patient.bed} · {patient.name}
               </p>
             )}
-            {voiceReview && (
-              <div className="space-y-2 rounded-[16px] border border-primary/35 bg-primary/[0.06] p-2.5 text-xs">
-                <p className="font-semibold">Confirmar comando de voz</p>
-                <div className="max-h-52 space-y-2 overflow-y-auto pr-1">
-                <p className="rounded-md bg-background/70 p-2 italic">“{voiceReview.transcript}”</p>
-                <div className="rounded-md border bg-background/70 p-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Coluna que será alterada</p>
-                  <p className="mt-0.5 font-semibold">{voiceReview.review.suggestedColumn}</p>
-                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Informação sugerida pelo catálogo clínico</p>
-                  <ul className="mt-1 list-disc pl-4">
-                    {voiceReview.review.proposals.filter((proposal) => proposal.label !== "Evolução ditada").length
-                      ? voiceReview.review.proposals.filter((proposal) => proposal.label !== "Evolução ditada").map((proposal, index) => <li key={index}>{proposal.label}: {proposal.detail}</li>)
-                      : <li>Nenhum campo estruturado identificado.</li>}
-                  </ul>
-                </div>
-                {voiceReview.review.missing.length > 0 && <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 p-2">
-                  <p className="font-semibold text-clinical-attention">Pendências</p>
-                  <ul className="mt-1 list-disc pl-4">{voiceReview.review.missing.map((item) => <li key={item}>{item}</li>)}</ul>
-                  <textarea autoFocus value={voiceReview.transcript} onChange={(event) => {
-                    const transcript = event.target.value;
-                    setVoiceReview((previous) => previous ? { ...previous, transcript, review: reviewVoiceCommand(previous.before, transcript, false) } : null);
-                  }} className="mt-2 min-h-16 w-full rounded border bg-background p-1.5 text-xs" />
-                </div>}
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button type="button" size="sm" variant="outline" onPointerDown={(event) => event.stopPropagation()} onClick={() => setVoiceReview(null)}>Cancelar</Button>
-                  {voiceReview.review.canConfirmSuggestion ? (
-                    <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} title="Incluir a sugestão reconhecida no dashboard" onClick={confirmVoiceReview}>Confirmar e incluir</Button>
-                  ) : (
-                    <Button type="button" size="sm" onPointerDown={(event) => event.stopPropagation()} title="Analisar novamente o comando corrigido" onClick={reanalyzeVoiceReview}>Analisar</Button>
-                  )}
-                </div>
-              </div>
-            )}
-            {!voiceListening && !loading && !fhLoading && angles.length === 0 && fhItems.length === 0 && (
-              <div className="grid grid-cols-2 gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={toggleVoiceCommand} className="h-auto min-h-14 flex-col gap-1 text-[10px]">
-                  <Mic className="h-4 w-4" /> Comando por voz
-                </Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => void provoke(true)} className="h-auto min-h-14 flex-col gap-1 text-[10px]">
-                  <Stethoscope className="h-4 w-4" /> Outras funções
-                </Button>
-              </div>
-            )}
-            {voiceListening && (
-              <Button type="button" variant="outline" size="sm" onClick={toggleVoiceCommand} className="h-auto min-h-14 w-full flex-col gap-1 border-clinical-critical/40 bg-clinical-critical/10 text-clinical-critical hover:bg-clinical-critical/15">
-                <Pause className="h-4 w-4" /> Pausar comando de voz · ouvindo…
+            {!loading && !fhLoading && angles.length === 0 && fhItems.length === 0 && (
+              <Button type="button" variant="outline" size="sm" onClick={() => void provoke(true)} className="h-auto min-h-14 w-full flex-col gap-1 text-[10px]">
+                <Stethoscope className="h-4 w-4" /> Outras funções
               </Button>
             )}
 
