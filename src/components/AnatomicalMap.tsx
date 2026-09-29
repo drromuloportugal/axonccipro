@@ -36,8 +36,9 @@ interface Props {
 
 // ============================================================================
 // Body figure — real anatomical illustration on the green stretcher pad.
-// The bitmap is placed so that crown ≈ y10 and feet ≈ y490 inside the
-// 200x510 viewBox, keeping every landmark in lib/anatomical.ts valid.
+// The bitmap contains a broad white border at both sides. The SVG crops only
+// that unused border, retaining the original coordinate scale so landmarks in
+// lib/anatomical.ts and the displayed mannequin stay perfectly aligned.
 // ============================================================================
 
 function BodyImage({ view }: { view: AnatView }) {
@@ -118,7 +119,7 @@ function BodyPanel({
  <div className="flex flex-col items-center">
  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"> {label}
  </div>
- <svg viewBox="0 0 340 510" className="block h-[440px] w-[292px] shrink-0 max-w-full"> <BodyImage view={view} />
+ <svg viewBox="57 0 226 510" className="block h-[440px] w-[195px] shrink-0"> <BodyImage view={view} />
 
         {/* Infection halos — concentric rings with intensity scaled per status:
             suspeito (yellow, leve), provavel (laranja, médio), confirmado (vermelho, forte).
@@ -376,7 +377,7 @@ export function AnatomicalMap({ devices, previousDevices, patient, lpp, onLPPCha
  </div>
 
 
- <div className="grid items-start gap-2 lg:grid-cols-[minmax(120px,0.9fr)_292px_292px_minmax(120px,0.9fr)]">
+ <div className="grid items-start gap-2 lg:grid-cols-[minmax(180px,1fr)_195px_195px_minmax(180px,1fr)]">
  <EquipmentBoard patient={patient} devices={devices} side="left" />
   <BodyPanel
             label="Anterior" view="anterior"
