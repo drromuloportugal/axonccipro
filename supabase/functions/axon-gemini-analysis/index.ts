@@ -14,6 +14,67 @@ const MODEL = "gemini-3.8-flash";
 const SYSTEM_INSTRUCTION =
   "Você é um assistente de apoio clínico. Analise apenas o texto fornecido, explicite incertezas e sugira pontos para revisão pela equipe de saúde. Não faça diagnósticos definitivos, não prescreva e não substitua avaliação profissional. Em situação de urgência, oriente avaliação imediata por profissional habilitado.";
 
+type PubMedSummary = { pmid: string; title: string; journal: string; pubDate: string };
+
+// A consulta usa apenas um tema clínico extraído localmente do pedido — nunca
+// envia prontuário, identificadores ou valores do paciente a serviços externos.
+const EVIDENCE_TOPICS = [
+  { test: /sepse|sépt|septic|choque sépt|antimicrobian|cultura|infecç/i, term: "sepsis OR septic shock OR antimicrobial stewardship" },
+  { test: /delir|sedação|sedacao|rass|analgesi|padis/i, term: "critical care sedation delirium analgesia" },
+  { test: /ventila|desmame|extuba|fio2|peep|respirat/i, term: "mechanical ventilation weaning intensive care" },
+  { test: /neuro|glasgow|pic|ppc|hemorrag|avc|vasoespasmo|convuls/i, term: "neurocritical care intracranial pressure stroke" },
+  { test: /renal|creatinin|diurese|diali|clearance/i, term: "acute kidney injury critical care renal replacement" },
+  { test: /hemodin|pam|pressão arterial|vasopressor|noradrenalina/i, term: "critical care hemodynamic vasopressor shock" },
+  { test: /nutri|dieta|enteral|gastrostomia|jejunostomia/i, term: "critical care enteral nutrition" },
+] as const;
+
+const evidenceCache = new Map<string, { expiresAt: number; references: PubMedSummary[] }>();
+
+function evidenceTopic(text: string) {
+  return EVIDENCE_TOPICS.find((topic) => topic.test.test(text))?.term;
+}
+
+async function currentPubMedReferences(text: string): Promise<PubMedSummary[]> {
+  const topic = evidenceTopic(text);
+  if (!topic) return [];
+  const cached = evidenceCache.get(topic);
+  if (cached && cached.expiresAt > Date.now()) return cached.references;
+
+  try {
+    const searchUrl = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi");
+    searchUrl.searchParams.set("db", "pubmed");
+    searchUrl.searchParams.set("retmode", "json");
+    searchUrl.searchParams.set("retmax", "3");
+    searchUrl.searchParams.set("sort", "date");
+    searchUrl.searchParams.set("datetype", "pdat");
+    searchUrl.searchParams.set("mindate", "2020");
+    searchUrl.searchParams.set("maxdate", String(new Date().getUTCFullYear()));
+    searchUrl.searchParams.set("term", `(${topic}) AND (guideline OR consensus OR systematic review OR randomized controlled trial)`);
+    const search = await fetch(searchUrl, { signal: AbortSignal.timeout(8_000) });
+    const ids = ((await search.json()) as { esearchresult?: { idlist?: string[] } }).esearchresult?.idlist ?? [];
+    if (!search.ok || !ids.length) return [];
+
+    const summaryUrl = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi");
+    summaryUrl.searchParams.set("db", "pubmed");
+    summaryUrl.searchParams.set("retmode", "json");
+    summaryUrl.searchParams.set("id", ids.join(","));
+    const summary = await fetch(summaryUrl, { signal: AbortSignal.timeout(8_000) });
+    if (!summary.ok) return [];
+    const data = (await summary.json()) as { result?: Record<string, { title?: string; fulljournalname?: string; pubdate?: string }> };
+    const references = ids.map((pmid) => ({
+      pmid,
+      title: data.result?.[pmid]?.title ?? "Título não disponível",
+      journal: data.result?.[pmid]?.fulljournalname ?? "PubMed",
+      pubDate: data.result?.[pmid]?.pubdate ?? "data não disponível",
+    }));
+    evidenceCache.set(topic, { references, expiresAt: Date.now() + 15 * 60_000 });
+    return references;
+  } catch (error) {
+    console.warn("Current PubMed lookup unavailable", error);
+    return [];
+  }
+}
+
 /**
  * Alguns gateways compatíveis com OpenAI devolvem objetos JSON consecutivos
  * (ou linhas `data:`) mesmo sem streaming. `response.json()` falha nesse
@@ -125,6 +186,15 @@ export default {
           { role: "system", content: SYSTEM_INSTRUCTION },
           { role: "user", content: text! },
         ];
+
+    const lastUserText = [...completionMessages].reverse().find((message) => message.role === "user")?.content ?? "";
+    const currentReferences = await currentPubMedReferences(lastUserText);
+    if (currentReferences.length) {
+      completionMessages.unshift({
+        role: "system",
+        content: `REFERÊNCIAS BIBLIOGRÁFICAS RECENTES (consulta PubMed em tempo real, ${new Date().toISOString().slice(0, 10)}):\n${currentReferences.map((reference) => `- ${reference.title} — ${reference.journal}, ${reference.pubDate}. https://pubmed.ncbi.nlm.nih.gov/${reference.pmid}/`).join("\n")}\n\nUse-as apenas como apoio bibliográfico. Elas são títulos/metadata, não substituem a leitura do texto completo. Cite somente uma referência que seja pertinente à conclusão e mantenha o link PubMed fornecido; não invente DOI, ano, título ou URL. Se a busca não cobriu exatamente a pergunta, declare essa limitação e priorize diretrizes da sociedade científica aplicável.`,
+      });
+    }
 
     let response: Response;
     try {
