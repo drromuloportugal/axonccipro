@@ -393,11 +393,6 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       <div
           className={`relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? `neto-panel ${expanded ? "w-[min(720px,calc(100vw-2rem))]" : "w-[330px] max-w-[92vw]"} rounded-[24px] p-3` : "neto-glass h-14 w-14 cursor-pointer rounded-full"}`}
       >
-        <span
-          aria-hidden
-          className={`neto-tail absolute ${open ? "-bottom-2 right-8 h-5 w-5" : "-right-1.5 top-1/2 h-3 w-3 -translate-y-1/2"}`}
-        />
-
         <img
           src={netoAvatar}
           alt="Assistente"
