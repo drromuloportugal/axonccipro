@@ -14,6 +14,8 @@ import {
   ChevronDown,
   Loader2,
   Check,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -97,6 +99,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
   const [pos, setPos] = useState({ x: 24, y: 220 });
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [info, setInfo] = useState("");
   const [patientId, setPatientId] = useState<string | undefined>(currentPatientId);
   const [angles, setAngles] = useState<Angle[]>([]);
@@ -134,6 +137,17 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
   const patient =
     patients.find((p) => p.id === patientId) ?? patients.find((p) => p.id === currentPatientId);
+
+  const toggleExpanded = () => {
+    setExpanded((wasExpanded) => {
+      const next = !wasExpanded;
+      setPos((current) => ({
+        x: clamp(current.x, 8, window.innerWidth - (next ? 720 : 330)),
+        y: clamp(current.y, 8, window.innerHeight - 120),
+      }));
+      return next;
+    });
+  };
 
   const startDrag = (e: React.PointerEvent) => {
     dragRef.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y, moved: false };
@@ -377,7 +391,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       }}
     >
       <div
-        className={`relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? "neto-panel w-[330px] max-w-[92vw] rounded-[24px] p-3" : "neto-glass h-14 w-14 cursor-pointer rounded-full"}`}
+          className={`relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? `neto-panel ${expanded ? "w-[min(720px,calc(100vw-2rem))]" : "w-[330px] max-w-[92vw]"} rounded-[24px] p-3` : "neto-glass h-14 w-14 cursor-pointer rounded-full"}`}
       >
         <span
           aria-hidden
@@ -411,20 +425,35 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
         {open ? (
           <div className="flex min-h-[46px] items-center pl-[64px]">
             <span className="sr-only">Assistente</span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onPointerDown={(e) => e.stopPropagation()}
-              onPointerUp={(e) => {
-                e.stopPropagation();
-                setOpen(false);
-              }}
-              className="ml-auto h-7 w-7 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
-              aria-label="Fechar"
-            >
-              <X className="h-3.5 w-3.5" />
-            </Button>
+            <div className="ml-auto flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+                onClick={toggleExpanded}
+                className="h-7 w-7 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
+                title={expanded ? "Reduzir leitura" : "Ampliar leitura"}
+                aria-label={expanded ? "Reduzir leitura" : "Ampliar leitura"}
+              >
+                {expanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => {
+                  e.stopPropagation();
+                  setOpen(false);
+                }}
+                className="h-7 w-7 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
+                aria-label="Fechar"
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
         ) : (
           <span className="sr-only">Assistente</span>
@@ -434,7 +463,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
           <div
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => e.stopPropagation()}
-            className="mt-2 cursor-default space-y-2.5"
+            className={`mt-2 cursor-default space-y-2.5 ${expanded ? "[zoom:1.12]" : ""}`}
           >
             {patient && (
               <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neto-muted">
