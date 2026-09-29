@@ -32,6 +32,15 @@ export const MEDICATION_ALIASES: Record<string, string> = {
   insulina: "Insulina regular",
   hepa: "Heparina",
   amio: "Amiodarona",
+  atrop: "Atropina",
+  atropina: "Atropina",
+  lido: "Lidocaína",
+  lidocaina: "Lidocaína",
+  magnesio: "Sulfato de magnésio",
+  calcio: "Gluconato de cálcio",
+  bicarb: "Bicarbonato de sódio",
+  txa: "Ácido tranexâmico",
+  tranexamico: "Ácido tranexâmico",
   hidro: "Hidrocortisona",
 };
 

@@ -52,14 +52,14 @@ const CAT: Record<ExamCategory, { section: string; group: ExamGroup }> = {
   img_tc: { section: "Tomografia", group: "img" },
   img_rm: { section: "Ressonância", group: "img" },
   img_eco: { section: "Ecocardiografia", group: "img" },
-  img_hemod: { section: "Hemodinâmica", group: "img" },
+  img_hemod: { section: "Sala de Emergência", group: "img" },
   img_nuclear: { section: "Medicina nuclear", group: "img" },
 };
 
 const raw: [ExamCategory, string[]][] = [
   [
     "lab_hemato",
-    ["Hemograma", "Plaquetas", "Reticulócitos", "TAP", "INR", "TTPA", "Fibrinogênio", "Dímero D"],
+    ["Hemograma", "Plaquetas", "Reticulócitos", "TAP", "INR", "TTPA", "Fibrinogênio", "Dímero D", "Tipagem sanguínea", "Pesquisa de anticorpos irregulares", "Prova cruzada"],
   ],
   [
     "lab_bio",
@@ -83,7 +83,7 @@ const raw: [ExamCategory, string[]][] = [
     ["PCR", "Procalcitonina", "Ferritina", "Troponina", "CK", "CK-MB", "BNP", "Lactato"],
   ],
   ["lab_lip", ["Colesterol total", "HDL", "LDL", "Triglicerídeos"]],
-  ["lab_endo", ["TSH", "T4 livre", "Cortisol"]],
+  ["lab_endo", ["TSH", "T4 livre", "Cortisol", "Beta-hCG"]],
   ["lab_panc", ["Amilase", "Lipase"]],
   ["lab_urina", ["EAS", "Urocultura", "Urina 24h"]],
   [
@@ -115,7 +115,18 @@ const raw: [ExamCategory, string[]][] = [
   ["img_tc", ["TC Crânio", "TC Face", "TC Tórax", "TC Abdome", "TC Pelve", "TC Coluna", "AngioTC"]],
   ["img_rm", ["RM Encéfalo", "RM Coluna", "RM Abdome", "RM Pelve", "RM Articulações", "AngioRM"]],
   ["img_eco", ["Ecocardiograma transtorácico", "Ecocardiograma transesofágico"]],
-  ["img_hemod", ["Coronariografia", "Arteriografia", "Angiografia", "Venografia"]],
+  [
+    "img_hemod",
+    [
+      "ECG 12 derivações",
+      "eFAST / POCUS trauma",
+      "Ecocardiografia focada",
+      "Coronariografia",
+      "Arteriografia",
+      "Angiografia",
+      "Venografia",
+    ],
+  ],
   ["img_nuclear", ["PET CT", "Cintilografia"]],
 ];
 

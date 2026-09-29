@@ -28,11 +28,13 @@ import {
   Sparkles,
   Sun,
   Palette,
+  HeartPulse,
 } from "lucide-react";
 import axonLogo from "@/assets/axon-critical-care-logo-transparent.png";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
 import { CallAxonPanel } from "@/components/CallAxonPanel";
+import { EmergencyRoom } from "@/components/EmergencyRoom";
 
 import { toast } from "sonner";
 import { useRef } from "react";
@@ -164,6 +166,7 @@ function Passometro() {
   const [managementOpen, setManagementOpen] = useState(false);
   const [deepOpen, setDeepOpen] = useState(false);
   const [callAxonOpen, setCallAxonOpen] = useState(false);
+  const [emergencyOpen, setEmergencyOpen] = useState(false);
 
   const router = useRouter();
   const handleSignOut = async () => {
@@ -474,6 +477,18 @@ function Passometro() {
                   Exames
                 </button>
 
+                <button
+                  onClick={() => {
+                    setEmergencyOpen(true);
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-[12px] font-semibold text-red-700 transition-colors hover:bg-red-500/20"
+                  title="Sala de Emergência — fluxos ACLS e ATLS"
+                >
+                  <HeartPulse className="h-3.5 w-3.5" />
+                  Sala de Emergência
+                </button>
+
                 {/* Call Axon — pacote clínico para IA */}
                 <button
                   onClick={() => {
@@ -760,6 +775,16 @@ function Passometro() {
       />
 
       <ExamsMatrix open={examsOpen} onClose={() => setExamsOpen(false)} patients={active} />
+
+      <EmergencyRoom
+        open={emergencyOpen}
+        onClose={() => setEmergencyOpen(false)}
+        patients={active}
+        initialPatientId={filtered[current]?.id}
+        onPatientChange={(p) =>
+          setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))
+        }
+      />
 
       {historyOpen && (
         <div
