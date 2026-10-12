@@ -598,3 +598,13 @@
   background-image: none !important;
   background-color: transparent !important;
 }
+
+
+/* Apresentação global: todos os textos visíveis em caixa alta. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    text-transform: uppercase !important;
+  }
+}
