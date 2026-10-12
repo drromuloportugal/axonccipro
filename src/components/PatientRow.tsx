@@ -1567,11 +1567,57 @@ export function PatientRow({
                 </div>
               )}
 
-              <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
-                {" "}
-                {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
-                {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
-                {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
+              <div className="mt-3 space-y-1.5">
+                {patient.social.tabagismo === "sim" && (
+                  <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-attention">
+                    Tabagista
+                  </div>
+                )}
+                {patient.social.etilismo === "sim" && (
+                  <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-attention">
+                    Etilista
+                  </div>
+                )}
+                {patient.social.adicto === "sim" && (
+                  <div className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-critical">
+                    <span>Adicto</span>
+                    <span className="normal-case tracking-normal">
+                      {": "}
+                      {[
+                        ...(patient.social.substancias ?? []).filter(
+                          (substancia) => substancia !== "Outras",
+                        ),
+                        ...(patient.social.substanciasOutras?.trim()
+                          ? [patient.social.substanciasOutras.trim()]
+                          : []),
+                      ].join(", ") || "Substância não informada"}
+                    </span>
+                  </div>
+                )}
+                {patient.social.tabagismo &&
+                  patient.social.tabagismo !== "sim" &&
+                  patient.social.tabagismo !== "não" && (
+                    <div className="text-[11px] text-muted-foreground">
+                      Tabagismo: {patient.social.tabagismo}
+                    </div>
+                  )}
+                {patient.social.etilismo &&
+                  patient.social.etilismo !== "sim" &&
+                  patient.social.etilismo !== "não" && (
+                    <div className="text-[11px] text-muted-foreground">
+                      Etilismo: {patient.social.etilismo}
+                    </div>
+                  )}
+                {patient.social.ocupacao && (
+                  <div className="text-[11px] text-muted-foreground">
+                    Ocupação: {patient.social.ocupacao}
+                  </div>
+                )}
+                {patient.social.dependencia && (
+                  <div className="text-[11px] text-muted-foreground">
+                    Funcional: {patient.social.dependencia}
+                  </div>
+                )}
               </div>
             </div>{" "}
             {/* 3 - Dispositivos Invasivos */}
