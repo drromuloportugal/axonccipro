@@ -497,6 +497,22 @@ export interface IntubationRecord {
   notes?: string;
 }
 
+/** Dados estruturados para o cálculo de carga tabágica (anos-maço). */
+export interface TabagismoDetalhes {
+  /** Situação atual do tabagismo quando há exposição registrada. */
+  status?: "ativo" | "ex-fumante";
+  /** Média informada de consumo por dia. */
+  quantidadeDia?: number;
+  /** Unidade da quantidade diária informada. */
+  unidadeConsumo?: "cigarros" | "macos";
+  /** Total de anos de tabagismo ativo, descontando interrupções prolongadas. */
+  anosAtivos?: number;
+  /** Tempo desde a cessação, aplicável a ex-fumantes. */
+  anosCessacao?: number;
+  /** Vape, narguilé, cigarro artesanal ou outro padrão, sem conversão automática. */
+  outrosProdutos?: string;
+}
+
 export interface Patient {
   id: string;
   name: string;
@@ -523,7 +539,13 @@ export interface Patient {
   severity: Severity;
 
   diagnoses: TimelineEvent[];
-  social: { tabagismo?: string; etilismo?: string; ocupacao?: string; dependencia?: string };
+  social: {
+    tabagismo?: string;
+    etilismo?: string;
+    ocupacao?: string;
+    dependencia?: string;
+    tabagismoDetalhes?: TabagismoDetalhes;
+  };
   pastMedications?: PastMedication[];
   allergies: string[];
 
