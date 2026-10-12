@@ -261,7 +261,6 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
     upd("social", { ...p.social, ...patch });
 
   const tabagismoSim = p.social.tabagismo === "sim";
-  const etilismoSim = p.social.etilismo === "sim";
   const adictoSim = p.social.adicto === "sim";
   const detalhesTabagismo = p.social.tabagismoDetalhes ?? {};
   const quantidadeTabagismo = detalhesTabagismo.quantidadeDia ?? 0;
