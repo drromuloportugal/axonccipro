@@ -105,6 +105,27 @@ function medDosesLabel(m: Medication): string | null {
   return g === 1 ? "1 dose" : `${g} doses`;
 }
 
+/** Resume a carga tabágica calculada no painel principal. */
+function resumoCargaTabagica(
+  detalhes?: Patient["social"]["tabagismoDetalhes"],
+): { valor: number; classificacao: string } | null {
+  const quantidadeDia = detalhes?.quantidadeDia;
+  const anosAtivos = detalhes?.anosAtivos;
+  if (
+    quantidadeDia == null ||
+    quantidadeDia <= 0 ||
+    anosAtivos == null ||
+    anosAtivos <= 0
+  ) {
+    return null;
+  }
+
+  const cigarrosDia = detalhes.unidade === "macos" ? quantidadeDia * 20 : quantidadeDia;
+  const valor = (cigarrosDia / 20) * anosAtivos;
+  const classificacao = valor < 10 ? "Leve" : valor < 20 ? "Moderada" : "Elevada / alto risco";
+  return { valor, classificacao };
+}
+
 const VITAL_LEVEL_TXT: Record<string, string> = {
   normal: "text-clinical-stable",
   leve: "text-yellow-600",
@@ -1570,7 +1591,21 @@ export function PatientRow({
               <div className="mt-3 space-y-1.5">
                 {patient.social.tabagismo === "sim" && (
                   <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-attention">
-                    Tabagista
+                    <div>Tabagista</div>
+                    {(() => {
+                      const resumo = resumoCargaTabagica(patient.social.tabagismoDetalhes);
+                      if (!resumo) return null;
+                      return (
+                        <div className="mt-0.5 normal-case text-[12px] font-semibold tracking-normal">
+                          Carga tabágica:{" "}
+                          {resumo.valor.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                          })}{" "}
+                          anos-maço · {resumo.classificacao}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 {patient.social.etilismo === "sim" && (
