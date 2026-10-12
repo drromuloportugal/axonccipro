@@ -524,9 +524,9 @@ export interface Patient {
 
   diagnoses: TimelineEvent[];
   social: {
-    tabagismo?: "sim" | "nao";
-    etilismo?: "sim" | "nao";
-    adicto?: "sim" | "nao";
+    tabagismo?: string;
+    etilismo?: string;
+    adicto?: string;
     substancias?: string[];
     substanciasOutras?: string;
     tabagismoDetalhes?: {
