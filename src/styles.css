@@ -203,6 +203,13 @@
   body {
     zoom: var(--app-font-scale, 1);
   }
+
+  /* Interface AXON: toda a tipografia é exibida em caixa alta.
+     O valor em campos de formulário permanece preservado no dado salvo. */
+  body,
+  body * {
+    text-transform: uppercase !important;
+  }
 }
 
 @utility chip {
