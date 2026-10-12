@@ -262,6 +262,35 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
   const bmi = computeBMI(p.weight, p.height);
   const computedAge = computeAge(p.birthDate);
 
+  const atualizarSocial = (patch: Partial<Patient["social"]>) =>
+    upd("social", { ...p.social, ...patch });
+
+  const tabagismoSim = p.social.tabagismo === "sim";
+  const adictoSim = p.social.adicto === "sim";
+  const detalhesTabagismo = p.social.tabagismoDetalhes ?? {};
+  const quantidadeTabagismo = detalhesTabagismo.quantidadeDia ?? 0;
+  const anosTabagismo = detalhesTabagismo.anosAtivos ?? 0;
+  const cigarrosDia =
+    detalhesTabagismo.unidade === "macos" ? quantidadeTabagismo * 20 : quantidadeTabagismo;
+  const cargaTabagica =
+    cigarrosDia > 0 && anosTabagismo > 0 ? (cigarrosDia / 20) * anosTabagismo : null;
+  const classificacaoCarga =
+    cargaTabagica === null
+      ? null
+      : cargaTabagica < 10
+        ? "Leve"
+        : cargaTabagica < 20
+          ? "Moderada"
+          : "Elevada / alto risco";
+  const definirSubstancia = (substancia: string, marcada: boolean) => {
+    const atuais = p.social.substancias ?? [];
+    atualizarSocial({
+      substancias: marcada
+        ? [...new Set([...atuais, substancia])]
+        : atuais.filter((item) => item !== substancia),
+    });
+  };
+
   const save = () => {
     onSave({
       ...p,
@@ -688,45 +717,271 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <L>Tabagismo</L>
-                    <input
-                      className={inputCls}
-                      value={p.social.tabagismo ?? ""}
-                      onChange={(e) =>
-                        upd("social", { ...p.social, tabagismo: e.target.value || undefined })
-                      }
-                    />
+                    <div className="grid grid-cols-2 gap-1" role="radiogroup" aria-label="Tabagismo">
+                      {[
+                        { value: "sim", label: "Sim" },
+                        { value: "nao", label: "Não" },
+                      ].map((opcao) => (
+                        <label
+                          key={opcao.value}
+                          className={`flex cursor-pointer items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold ${
+                            p.social.tabagismo === opcao.value
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border bg-background"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="tabagismo"
+                            className="sr-only"
+                            checked={p.social.tabagismo === opcao.value}
+                            onChange={() =>
+                              atualizarSocial({
+                                tabagismo: opcao.value as "sim" | "nao",
+                                tabagismoDetalhes:
+                                  opcao.value === "sim"
+                                    ? {
+                                        ...detalhesTabagismo,
+                                        status: detalhesTabagismo.status ?? "ativo",
+                                        unidade: detalhesTabagismo.unidade ?? "cigarros",
+                                      }
+                                    : undefined,
+                              })
+                            }
+                          />
+                          {opcao.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <L>Etilismo</L>
-                    <input
-                      className={inputCls}
-                      value={p.social.etilismo ?? ""}
-                      onChange={(e) =>
-                        upd("social", { ...p.social, etilismo: e.target.value || undefined })
-                      }
-                    />
+                    <div className="grid grid-cols-2 gap-1" role="radiogroup" aria-label="Etilismo">
+                      {[
+                        { value: "sim", label: "Sim" },
+                        { value: "nao", label: "Não" },
+                      ].map((opcao) => (
+                        <label
+                          key={opcao.value}
+                          className={`flex cursor-pointer items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold ${
+                            p.social.etilismo === opcao.value
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border bg-background"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="etilismo"
+                            className="sr-only"
+                            checked={p.social.etilismo === opcao.value}
+                            onChange={() => atualizarSocial({ etilismo: opcao.value as "sim" | "nao" })}
+                          />
+                          {opcao.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <L>Adicto</L>
+                    <div className="grid grid-cols-2 gap-1" role="radiogroup" aria-label="Adicto">
+                      {[
+                        { value: "sim", label: "Sim" },
+                        { value: "nao", label: "Não" },
+                      ].map((opcao) => (
+                        <label
+                          key={opcao.value}
+                          className={`flex cursor-pointer items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold ${
+                            p.social.adicto === opcao.value
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border bg-background"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="adicto"
+                            className="sr-only"
+                            checked={p.social.adicto === opcao.value}
+                            onChange={() =>
+                              atualizarSocial({
+                                adicto: opcao.value as "sim" | "nao",
+                                substancias: opcao.value === "sim" ? p.social.substancias ?? [] : undefined,
+                                substanciasOutras: opcao.value === "sim" ? p.social.substanciasOutras : undefined,
+                              })
+                            }
+                          />
+                          {opcao.label}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <L>Ocupação</L>
                     <input
                       className={inputCls}
                       value={p.social.ocupacao ?? ""}
-                      onChange={(e) =>
-                        upd("social", { ...p.social, ocupacao: e.target.value || undefined })
-                      }
+                      onChange={(e) => atualizarSocial({ ocupacao: e.target.value || undefined })}
                     />
                   </div>
-                  <div>
+                  <div className="col-span-2">
                     <L>Funcional prévio</L>
                     <input
                       className={inputCls}
                       value={p.social.dependencia ?? ""}
-                      onChange={(e) =>
-                        upd("social", { ...p.social, dependencia: e.target.value || undefined })
-                      }
+                      onChange={(e) => atualizarSocial({ dependencia: e.target.value || undefined })}
                     />
                   </div>
                 </div>
+
+                {tabagismoSim && (
+                  <div className="mt-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+                      Calculadora de carga tabágica
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                      <div>
+                        <L>Status</L>
+                        <select
+                          className={inputCls}
+                          value={detalhesTabagismo.status ?? "ativo"}
+                          onChange={(e) =>
+                            atualizarSocial({
+                              tabagismoDetalhes: {
+                                ...detalhesTabagismo,
+                                status: e.target.value as "ativo" | "ex-fumante",
+                              },
+                            })
+                          }
+                        >
+                          <option value="ativo">Fumante ativo</option>
+                          <option value="ex-fumante">Ex-fumante</option>
+                        </select>
+                      </div>
+                      <div>
+                        <L>Unidade</L>
+                        <select
+                          className={inputCls}
+                          value={detalhesTabagismo.unidade ?? "cigarros"}
+                          onChange={(e) =>
+                            atualizarSocial({
+                              tabagismoDetalhes: {
+                                ...detalhesTabagismo,
+                                unidade: e.target.value as "cigarros" | "macos",
+                              },
+                            })
+                          }
+                        >
+                          <option value="cigarros">Cigarros/dia</option>
+                          <option value="macos">Maços/dia</option>
+                        </select>
+                      </div>
+                      <div>
+                        <L>{detalhesTabagismo.unidade === "macos" ? "Maços por dia" : "Cigarros por dia"}</L>
+                        <input
+                          type="number"
+                          min="0"
+                          className={inputCls}
+                          value={detalhesTabagismo.quantidadeDia ?? ""}
+                          onChange={(e) =>
+                            atualizarSocial({
+                              tabagismoDetalhes: {
+                                ...detalhesTabagismo,
+                                quantidadeDia: e.target.value ? Number(e.target.value) : undefined,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <L>Anos de tabagismo ativo</L>
+                        <input
+                          type="number"
+                          min="0"
+                          className={inputCls}
+                          value={detalhesTabagismo.anosAtivos ?? ""}
+                          onChange={(e) =>
+                            atualizarSocial({
+                              tabagismoDetalhes: {
+                                ...detalhesTabagismo,
+                                anosAtivos: e.target.value ? Number(e.target.value) : undefined,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                    {detalhesTabagismo.status === "ex-fumante" && (
+                      <div className="mt-3 max-w-[220px]">
+                        <L>Anos desde a cessação</L>
+                        <input
+                          type="number"
+                          min="0"
+                          className={inputCls}
+                          value={detalhesTabagismo.anosCessacao ?? ""}
+                          onChange={(e) =>
+                            atualizarSocial({
+                              tabagismoDetalhes: {
+                                ...detalhesTabagismo,
+                                anosCessacao: e.target.value ? Number(e.target.value) : undefined,
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    )}
+                    <div className="mt-3 rounded-md border border-border bg-background p-2 text-[12px]">
+                      {cargaTabagica === null ? (
+                        <span className="text-muted-foreground">
+                          Informe o consumo diário e os anos de tabagismo ativo para calcular.
+                        </span>
+                      ) : (
+                        <>
+                          <span className="font-semibold">Carga tabágica: {cargaTabagica.toFixed(1)} anos-maço</span>
+                          <span className="ml-2 text-muted-foreground">({classificacaoCarga})</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {adictoSim && (
+                  <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
+                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700">
+                      Substâncias relacionadas à dependência
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+                      {[
+                        "Álcool",
+                        "Tabaco",
+                        "Cannabis",
+                        "Cocaína / crack",
+                        "Opioides",
+                        "Benzodiazepínicos",
+                        "Estimulantes",
+                        "Outras",
+                      ].map((substancia) => (
+                        <label key={substancia} className="flex items-center gap-2 text-[12px]">
+                          <input
+                            type="checkbox"
+                            checked={(p.social.substancias ?? []).includes(substancia)}
+                            onChange={(e) => definirSubstancia(substancia, e.target.checked)}
+                          />
+                          {substancia}
+                        </label>
+                      ))}
+                    </div>
+                    {(p.social.substancias ?? []).includes("Outras") && (
+                      <div className="mt-3">
+                        <L>Outras substâncias</L>
+                        <input
+                          className={inputCls}
+                          value={p.social.substanciasOutras ?? ""}
+                          placeholder="Descreva a substância"
+                          onChange={(e) => atualizarSocial({ substanciasOutras: e.target.value || undefined })}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </Section>
             </div>
             <div className="mt-3">
