@@ -13,8 +13,6 @@ import {
 import { STAGE_META, LPP_SITE_BY_KEY, summarizeLPP } from "@/lib/lpp";
 import { PressureInjuryForm } from "@/components/PressureInjuryForm";
 import { EquipmentBoard } from "@/components/EquipmentBoard";
-import bodyAnterior from "@/assets/body-anterior.jpg.asset.json";
-import bodyPosterior from "@/assets/body-posterior.jpg.asset.json";
 import { Plus, Trash2 } from "lucide-react";
 
 interface Props {
@@ -36,7 +34,7 @@ interface Props {
 // ============================================================================
 
 function BodyImage({ view }: { view: AnatView }) {
-  const href = view === "anterior" ? bodyAnterior.url : bodyPosterior.url;
+  // These illustrations are deployed with the app. The former /__l5e URLs\n  // belonged to the previous hosting platform and return 404 on Vercel.\n  const href =\n    view === "anterior"\n      ? "/anatomical-muscles-anterior.png"\n      : "/anatomical-muscles-posterior.png";
   return (
     <image
       href={href}
