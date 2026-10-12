@@ -12,6 +12,7 @@ import {
   Plus,
   Trash2,
   Calculator,
+  Copy,
   Undo2,
   Redo2,
   CircleCheck,
@@ -52,7 +53,16 @@ import type {
   FluidEntry,
   DrainEntry,
   DerivationEntry,
+  TabagismoDetalhes,
 } from "@/data/patients";
+import {
+  alertaCargaTabagica,
+  calcularCargaTabagica,
+  formatarAnosMaco,
+  respostaSimNao,
+  textoProntuarioCargaTabagica,
+} from "@/lib/tabagismo";
+import { toast } from "sonner";
 import { SITE_META } from "@/lib/infection";
 import {
   LABS,
@@ -165,6 +175,10 @@ const inputCls =
   "w-full rounded-md border border-input bg-background px-2 py-1.5 text-[12px] outline-none focus:border-primary";
 const lblCls =
   "block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1";
+const SIM_NAO = [
+  { value: "sim", label: "Sim" },
+  { value: "não", label: "Não" },
+] as const;
 
 function L({ children }: { children: React.ReactNode }) {
   return <label className={lblCls}>{children}</label>;
@@ -256,6 +270,69 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
 
   const bmi = computeBMI(p.weight, p.height);
   const computedAge = computeAge(p.birthDate);
+  const respostaTabagismo = respostaSimNao(p.social.tabagismo);
+  const respostaEtilismo = respostaSimNao(p.social.etilismo);
+  const detalhesTabagismo = p.social.tabagismoDetalhes;
+  const idadeParaRastreio = computedAge ?? (p.age > 0 ? p.age : undefined);
+  const resultadoCargaTabagica = calcularCargaTabagica(detalhesTabagismo);
+  const alertaTabagismo = alertaCargaTabagica({
+    idade: idadeParaRastreio,
+    detalhes: detalhesTabagismo,
+  });
+  const textoCargaTabagica = textoProntuarioCargaTabagica({
+    idade: idadeParaRastreio,
+    detalhes: detalhesTabagismo,
+  });
+
+  const atualizarDetalhesTabagismo = (patch: Partial<TabagismoDetalhes>) => {
+    const social = pRef.current.social;
+    upd("social", {
+      ...social,
+      tabagismoDetalhes: { ...social.tabagismoDetalhes, ...patch },
+    });
+  };
+
+  const definirTabagismo = (value: "sim" | "não") => {
+    const social = pRef.current.social;
+    upd("social", {
+      ...social,
+      tabagismo: value,
+      tabagismoDetalhes:
+        value === "sim"
+          ? { ...social.tabagismoDetalhes, status: social.tabagismoDetalhes?.status ?? "ativo" }
+          : undefined,
+    });
+  };
+
+  const definirEtilismo = (value: "sim" | "não") => {
+    const social = pRef.current.social;
+    upd("social", { ...social, etilismo: value });
+  };
+
+  const definirUnidadeConsumoTabagico = (unidadeConsumo: "cigarros" | "macos") => {
+    const detalhes = pRef.current.social.tabagismoDetalhes;
+    const unidadeAtual = detalhes?.unidadeConsumo ?? "cigarros";
+    const quantidadeDia = detalhes?.quantidadeDia;
+    atualizarDetalhesTabagismo({
+      unidadeConsumo,
+      quantidadeDia:
+        quantidadeDia === undefined || unidadeAtual === unidadeConsumo
+          ? quantidadeDia
+          : unidadeConsumo === "macos"
+            ? quantidadeDia / 20
+            : quantidadeDia * 20,
+    });
+  };
+
+  const copiarTextoCargaTabagica = async () => {
+    if (!textoCargaTabagica) return;
+    try {
+      await navigator.clipboard.writeText(textoCargaTabagica);
+      toast.success("Avaliação de carga tabágica copiada para o prontuário");
+    } catch {
+      toast.error("Não foi possível copiar a avaliação");
+    }
+  };
 
   const save = () => {
     onSave({
@@ -681,23 +758,55 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <L>Tabagismo</L>
-                    <input
-                      className={inputCls}
-                      value={p.social.tabagismo ?? ""}
-                      onChange={(e) =>
-                        upd("social", { ...p.social, tabagismo: e.target.value || undefined })
-                      }
-                    />
+                    <div
+                      className="grid grid-cols-2 gap-1"
+                      role="radiogroup"
+                      aria-label="Tabagismo"
+                    >
+                      {SIM_NAO.map((option) => (
+                        <label
+                          key={option.value}
+                          className={`flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] transition-colors ${
+                            respostaTabagismo === option.value
+                              ? "border-primary bg-primary/10 font-semibold"
+                              : "border-border hover:bg-surface-3"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="tabagismo"
+                            checked={respostaTabagismo === option.value}
+                            onChange={() => definirTabagismo(option.value)}
+                            className="accent-current"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <L>Etilismo</L>
-                    <input
-                      className={inputCls}
-                      value={p.social.etilismo ?? ""}
-                      onChange={(e) =>
-                        upd("social", { ...p.social, etilismo: e.target.value || undefined })
-                      }
-                    />
+                    <div className="grid grid-cols-2 gap-1" role="radiogroup" aria-label="Etilismo">
+                      {SIM_NAO.map((option) => (
+                        <label
+                          key={option.value}
+                          className={`flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] transition-colors ${
+                            respostaEtilismo === option.value
+                              ? "border-primary bg-primary/10 font-semibold"
+                              : "border-border hover:bg-surface-3"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="etilismo"
+                            checked={respostaEtilismo === option.value}
+                            onChange={() => definirEtilismo(option.value)}
+                            className="accent-current"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <L>Ocupação</L>
@@ -720,6 +829,164 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave }: Pr
                     />
                   </div>
                 </div>
+                {respostaTabagismo === "sim" && (
+                  <div className="mt-3 rounded-md border border-clinical-resp/30 bg-clinical-resp/5 p-3">
+                    <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-clinical-resp">
+                      <Calculator className="h-3.5 w-3.5" /> Calculadora de carga tabágica
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      <div>
+                        <L>Status tabágico</L>
+                        <select
+                          className={inputCls}
+                          value={detalhesTabagismo?.status ?? "ativo"}
+                          onChange={(e) =>
+                            atualizarDetalhesTabagismo({
+                              status: e.target.value as TabagismoDetalhes["status"],
+                            })
+                          }
+                        >
+                          <option value="ativo">Fumante ativo</option>
+                          <option value="ex-fumante">Ex-fumante</option>
+                        </select>
+                      </div>
+                      <div>
+                        <L>Unidade</L>
+                        <select
+                          className={inputCls}
+                          value={detalhesTabagismo?.unidadeConsumo ?? "cigarros"}
+                          onChange={(e) =>
+                            definirUnidadeConsumoTabagico(e.target.value as "cigarros" | "macos")
+                          }
+                        >
+                          <option value="cigarros">Cigarros/dia</option>
+                          <option value="macos">Maços/dia</option>
+                        </select>
+                      </div>
+                      <div>
+                        <L>
+                          {(detalhesTabagismo?.unidadeConsumo ?? "cigarros") === "macos"
+                            ? "Maços/dia"
+                            : "Cigarros/dia"}
+                        </L>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          inputMode="decimal"
+                          className={inputCls}
+                          value={detalhesTabagismo?.quantidadeDia ?? ""}
+                          onChange={(e) =>
+                            atualizarDetalhesTabagismo({
+                              quantidadeDia:
+                                e.target.value === "" ? undefined : Number(e.target.value),
+                            })
+                          }
+                          placeholder="Ex.: 20"
+                        />
+                      </div>
+                      <div>
+                        <L>Anos de tabagismo ativo</L>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          inputMode="decimal"
+                          className={inputCls}
+                          value={detalhesTabagismo?.anosAtivos ?? ""}
+                          onChange={(e) =>
+                            atualizarDetalhesTabagismo({
+                              anosAtivos:
+                                e.target.value === "" ? undefined : Number(e.target.value),
+                            })
+                          }
+                          placeholder="Ex.: 25"
+                        />
+                      </div>
+                      {detalhesTabagismo?.status === "ex-fumante" && (
+                        <div>
+                          <L>Tempo de cessação (anos)</L>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            inputMode="decimal"
+                            className={inputCls}
+                            value={detalhesTabagismo.anosCessacao ?? ""}
+                            onChange={(e) =>
+                              atualizarDetalhesTabagismo({
+                                anosCessacao:
+                                  e.target.value === "" ? undefined : Number(e.target.value),
+                              })
+                            }
+                            placeholder="Ex.: 8"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3">
+                      <L>Vape, narguilé, cigarro artesanal ou outro padrão de uso</L>
+                      <textarea
+                        className={`${inputCls} min-h-16 resize-y`}
+                        value={detalhesTabagismo?.outrosProdutos ?? ""}
+                        onChange={(e) =>
+                          atualizarDetalhesTabagismo({
+                            outrosProdutos: e.target.value || undefined,
+                          })
+                        }
+                        placeholder="Descreva padrão, tempo e concentração de nicotina. Não entra no cálculo clássico de anos-maço."
+                      />
+                    </div>
+                    <div className="mt-3 rounded-md border border-clinical-resp/20 bg-background/70 p-3">
+                      {resultadoCargaTabagica ? (
+                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                          <div>
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                              Carga tabágica
+                            </div>
+                            <div className="text-lg font-bold text-foreground">
+                              {formatarAnosMaco(resultadoCargaTabagica.anosMaco)} anos-maço
+                            </div>
+                          </div>
+                          <div className="rounded-full bg-clinical-resp/10 px-2 py-1 text-[11px] font-semibold text-clinical-resp">
+                            {resultadoCargaTabagica.classificacao}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-[12px] text-muted-foreground">
+                          Informe a média diária e os anos de tabagismo ativo para obter o cálculo.
+                        </div>
+                      )}
+                      <p
+                        className="mt-2 text-[11px] leading-relaxed text-muted-foreground"
+                        aria-live="polite"
+                      >
+                        {alertaTabagismo}
+                      </p>
+                    </div>
+                    {textoCargaTabagica && (
+                      <div className="mt-3">
+                        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                          <L>Texto padrão AXON para prontuário</L>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-7 gap-1 text-[10px]"
+                            onClick={() => void copiarTextoCargaTabagica()}
+                          >
+                            <Copy className="h-3.5 w-3.5" /> Copiar para prontuário
+                          </Button>
+                        </div>
+                        <textarea
+                          readOnly
+                          className={`${inputCls} min-h-48 resize-y font-mono text-[11px] leading-relaxed`}
+                          value={textoCargaTabagica}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </Section>
             </div>
             <div className="mt-3">

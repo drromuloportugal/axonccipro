@@ -79,6 +79,7 @@ import { IchScoreModal, IchScoreButton, computeIch } from "@/components/IchScore
 import { NihssModal, NihssButton, computeNihss } from "@/components/NihssPanel";
 import { VasogradeModal, VasogradeButton } from "@/components/VasogradePanel";
 import { summarizeSofa } from "@/lib/sofa";
+import { resumirTabagismo } from "@/lib/tabagismo";
 import { MedicationAnalysisModal } from "@/components/MedicationAnalysis";
 import { AntibioticHistory } from "@/components/AntibioticHistory";
 import { BloodGasPanel } from "@/components/BloodGasPanel";
@@ -1556,7 +1557,12 @@ export function PatientRow({
 
               <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
                 {" "}
-                {patient.social.tabagismo && <div>Tabagismo: {patient.social.tabagismo}</div>}
+                {patient.social.tabagismo && (
+                  <div>
+                    Tabagismo:{" "}
+                    {resumirTabagismo(patient.social.tabagismo, patient.social.tabagismoDetalhes)}
+                  </div>
+                )}
                 {patient.social.ocupacao && <div>Ocupação: {patient.social.ocupacao}</div>}
                 {patient.social.dependencia && <div>Funcional: {patient.social.dependencia}</div>}
               </div>

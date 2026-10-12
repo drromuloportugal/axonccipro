@@ -28,6 +28,7 @@ import {
 } from "@/lib/clinical";
 import { assessVitals, formatVitalValue, levelLabel } from "@/lib/vitals";
 import { summarizeLPP, STAGE_META } from "@/lib/lpp";
+import { resumirTabagismo } from "@/lib/tabagismo";
 import { DEVICE_CATEGORIES, deviceTypeByCode } from "@/data/devices";
 
 const kindClass: Record<string, string> = {
@@ -220,7 +221,12 @@ export function PatientPrintView({ patient }: { patient: Patient }) {
                 <b>Doação de órgãos:</b> {organDonationLabel[patient.organDonation]}
               </li>
             )}
-            {patient.social.tabagismo && <li>Tabagismo: {patient.social.tabagismo}</li>}
+            {patient.social.tabagismo && (
+              <li>
+                Tabagismo:{" "}
+                {resumirTabagismo(patient.social.tabagismo, patient.social.tabagismoDetalhes)}
+              </li>
+            )}
             {patient.social.ocupacao && <li>Ocup: {patient.social.ocupacao}</li>}
             {patient.social.dependencia && <li>Funcional: {patient.social.dependencia}</li>}
           </ul>{" "}
