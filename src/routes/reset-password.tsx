@@ -2,7 +2,6 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Lock, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import mainLogo from "@/assets/axon-logo.png.asset.json";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
@@ -96,8 +95,8 @@ function ResetPasswordPage() {
           }}
         >
           <img
-            src={mainLogo.url}
-            alt="Passômetro UTI"
+            src="/axon-logo-transparent.png"
+            alt="Axon Critical Care Intelligence"
             className="h-auto w-auto max-w-full object-contain"
             style={{
               maxHeight: "4.5rem",
@@ -189,3 +188,4 @@ function ResetPasswordPage() {
     </div>
   );
 }
+
