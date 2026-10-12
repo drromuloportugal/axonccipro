@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
 import { PatientRow } from "@/components/PatientRow";
 import { PatientEditor } from "@/components/PatientEditor";
@@ -28,14 +28,14 @@ import {
   LayoutDashboard,
   Brain,
   Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
-import { listPatients, savePatients } from "@/lib/patients.functions";
+import { deletePatient, listPatients, savePatients } from "@/lib/patients.functions";
 import { CallAxonPanel } from "@/components/CallAxonPanel";
 
 import { toast } from "sonner";
-import { useRef } from "react";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -67,8 +67,23 @@ type Filter = "all" | Severity | "discharged";
 function Passometro() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
-const [patients, setPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoaded, setPatientsLoaded] = useState(false);
+  const [patientsLoadError, setPatientsLoadError] = useState(false);
+  const [patientsLoadAttempt, setPatientsLoadAttempt] = useState(0);
+  const skipInitialPatientsSync = useRef(false);
+  const patientWriteQueue = useRef<Promise<void>>(Promise.resolve());
+  const autosaveTimer = useRef<number | undefined>(undefined);
+  const deletingPatientIds = useRef(new Set<string>());
+
+  const enqueuePatientWrite = useCallback((operation: () => Promise<unknown>) => {
+    const queued = patientWriteQueue.current.then(operation, operation);
+    patientWriteQueue.current = queued.then(
+      () => undefined,
+      () => undefined,
+    );
+    return queued;
+  }, []);
 
   const [fontScale, setFontScale] = useState<number>(1);
   const [examsOpen, setExamsOpen] = useState(false);
@@ -130,59 +145,76 @@ const [patients, setPatients] = useState<Patient[]>([]);
     }
   }, []);
 
- // Carrega exclusivamente os pacientes persistidos no Supabase.
-// Não cria nem migra pacientes de demonstração.
-useEffect(() => {
-  let cancelled = false;
+  // Carrega exclusivamente os pacientes persistidos no Supabase.
+  // Uma falha de leitura nunca pode substituir a lista atual por uma lista vazia.
+  useEffect(() => {
+    let cancelled = false;
+    setPatientsLoaded(false);
+    setPatientsLoadError(false);
 
-  (async () => {
-    try {
-      const { patients: remote } = await listPatients();
-
-      if (cancelled) return;
-
-      setPatients(remote);
-
-      // O Supabase é a fonte oficial dos dados clínicos.
-      // Remove cópias locais antigas para impedir que pacientes demo
-      // ou dados obsoletos sejam restaurados automaticamente.
+    (async () => {
       try {
-        localStorage.removeItem("passometro:patients");
-      } catch {
-        /* ignore */
-      }
-    } catch {
-      if (cancelled) return;
+        const { patients: remote } = await listPatients();
 
-      setPatients([]);
-      toast.error("Não foi possível carregar os pacientes do banco");
-    } finally {
-      if (!cancelled) {
+        if (cancelled) return;
+
+        // Não regrava os registros logo depois de uma leitura bem-sucedida.
+        skipInitialPatientsSync.current = true;
+        setPatients(remote);
+
+        // O Supabase é a fonte oficial dos dados clínicos.
+        // Remove cópias locais antigas para impedir que pacientes demo
+        // ou dados obsoletos sejam restaurados automaticamente.
+        try {
+          localStorage.removeItem("passometro:patients");
+        } catch {
+          /* ignore */
+        }
+
         setPatientsLoaded(true);
-      }
-    }
-  })();
+      } catch {
+        if (cancelled) return;
 
-  return () => {
-    cancelled = true;
-  };
-}, []);
+        setPatientsLoadError(true);
+        toast.error("Não foi possível carregar os pacientes do banco");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [patientsLoadAttempt]);
 
   // Salva no banco a cada alteração (com debounce) e mantém cópia local de segurança.
   useEffect(() => {
-    if (!patientsLoaded) return;
+    if (!patientsLoaded || patientsLoadError) return;
     try {
       localStorage.setItem("passometro:patients", JSON.stringify(patients));
     } catch {
       /* ignore */
     }
+    if (skipInitialPatientsSync.current) {
+      skipInitialPatientsSync.current = false;
+      return;
+    }
     const id = window.setTimeout(() => {
-      savePatients({ data: { patients } }).catch(() => {
+      if (autosaveTimer.current === id) {
+        autosaveTimer.current = undefined;
+      }
+      enqueuePatientWrite(() => savePatients({ data: { patients } })).catch(() => {
+        setPatientsLoadError(true);
+        setPatientsLoaded(false);
         toast.error("Falha ao salvar no banco de dados");
       });
     }, 600);
-    return () => window.clearTimeout(id);
-  }, [patients, patientsLoaded]);
+    autosaveTimer.current = id;
+    return () => {
+      window.clearTimeout(id);
+      if (autosaveTimer.current === id) {
+        autosaveTimer.current = undefined;
+      }
+    };
+  }, [enqueuePatientWrite, patients, patientsLoaded, patientsLoadError]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--app-font-scale", String(fontScale));
@@ -323,9 +355,35 @@ useEffect(() => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleImportClick = () => fileInputRef.current?.click();
+  const canEditPatients = () => {
+    if (patientsLoaded && !patientsLoadError) return true;
+
+    toast.error(
+      patientsLoadError ? "Conexão com o banco indisponível" : "Carregando os pacientes",
+      {
+        description: patientsLoadError
+          ? "Tente novamente antes de editar para proteger os registros clínicos."
+          : "Aguarde o carregamento seguro dos registros clínicos.",
+      },
+    );
+    return false;
+  };
+
+  const updatePatients = (updater: (previous: Patient[]) => Patient[]) => {
+    if (!canEditPatients()) return;
+    setPatients(updater);
+  };
+
+  const handleImportClick = () => {
+    if (!canEditPatients()) return;
+    fileInputRef.current?.click();
+  };
   const handleImportFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
+    if (!canEditPatients()) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
     let added = 0;
     let updated = 0;
     let failed = 0;
@@ -340,7 +398,7 @@ useEffect(() => {
       }
     }
     if (next.length) {
-      setPatients((prev) => {
+      updatePatients((prev) => {
         const byId = new Map(prev.map((p) => [p.id, p]));
         for (const p of next) {
           if (byId.has(p.id)) updated++;
@@ -361,16 +419,19 @@ useEffect(() => {
   };
 
   const openNew = () => {
+    if (!canEditPatients()) return;
     setEditing(null);
     setEditingTab(undefined);
     setEditorOpen(true);
   };
   const openEdit = (p: Patient, tab?: string) => {
+    if (!canEditPatients()) return;
     setEditing(p);
     setEditingTab(tab);
     setEditorOpen(true);
   };
   const handleSave = (p: Patient) => {
+    if (!canEditPatients()) return;
     const sanitized = p;
     setPatients((prev) => {
       const exists = prev.some((x) => x.id === sanitized.id);
@@ -380,6 +441,35 @@ useEffect(() => {
     });
     setEditorOpen(false);
     setEditing(null);
+  };
+
+  const cancelPendingPatientsAutosave = () => {
+    if (autosaveTimer.current === undefined) return;
+    window.clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = undefined;
+  };
+
+  const handleDeletePatient = async (patient: Patient) => {
+    if (!canEditPatients() || deletingPatientIds.current.has(patient.id)) return;
+
+    deletingPatientIds.current.add(patient.id);
+    cancelPendingPatientsAutosave();
+
+    try {
+      await enqueuePatientWrite(() => deletePatient(patient.id));
+      setPatients((previous) => previous.filter((current) => current.id !== patient.id));
+      toast.success("Paciente removido", {
+        description: `${patient.name} (${patient.bed}) foi removido do sistema.`,
+      });
+    } catch {
+      setPatientsLoadError(true);
+      setPatientsLoaded(false);
+      toast.error("Falha ao remover o paciente no banco", {
+        description: "O registro foi mantido. Verifique a conexão e tente novamente.",
+      });
+    } finally {
+      deletingPatientIds.current.delete(patient.id);
+    }
   };
 
   // Print: render hidden #print-area then trigger window.print(); clean up after.
@@ -566,7 +656,13 @@ useEffect(() => {
                     openNew();
                     setToolsOpen(false);
                   }}
-                  className="inline-flex w-full items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                  disabled={!patientsLoaded || patientsLoadError}
+                  className="inline-flex w-full items-center gap-2 rounded-md bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    patientsLoadError
+                      ? "Reconecte ao banco antes de criar um paciente"
+                      : "Novo paciente"
+                  }
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Novo paciente
@@ -578,8 +674,13 @@ useEffect(() => {
                     handleImportClick();
                     setToolsOpen(false);
                   }}
-                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3"
-                  title="Importar pacientes (JSON)"
+                  disabled={!patientsLoaded || patientsLoadError}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-border bg-white/90 px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-surface-3 disabled:cursor-not-allowed disabled:opacity-50"
+                  title={
+                    patientsLoadError
+                      ? "Reconecte ao banco antes de importar pacientes"
+                      : "Importar pacientes (JSON)"
+                  }
                 >
                   <Upload className="h-3.5 w-3.5" />
                   Importar
@@ -688,7 +789,7 @@ useEffect(() => {
         </div>
 
         {/* Bed navigation — hides together with the header on scroll down */}
-        {filtered.length > 0 && (
+        {patientsLoaded && filtered.length > 0 && (
           <div className="flex items-center gap-3 border-t border-border bg-background/95 px-5 py-2 backdrop-blur">
             <button
               type="button"
@@ -734,7 +835,33 @@ useEffect(() => {
 
       {/* Patient deck — one patient per screen, slide sideways to walk between them */}
       <main className="no-print" style={{ paddingTop: headerHeight || undefined }}>
-        {filtered.length === 0 ? (
+        {patientsLoadError && (
+          <div
+            role="alert"
+            className="mx-6 mt-5 flex flex-wrap items-center gap-3 rounded-lg border border-clinical-critical/40 bg-clinical-critical/10 px-4 py-3 text-sm text-foreground"
+          >
+            <AlertTriangle className="h-4 w-4 shrink-0 text-clinical-critical" />
+            <p className="min-w-0 flex-1">
+              Conexão com o banco de pacientes indisponível. Nenhuma alteração será sincronizada até
+              uma leitura segura ser concluída.
+            </p>
+            <button
+              type="button"
+              onClick={() => setPatientsLoadAttempt((attempt) => attempt + 1)}
+              className="shrink-0 rounded-md border border-clinical-critical/40 bg-background px-3 py-1.5 text-[11px] font-semibold text-clinical-critical transition-colors hover:bg-clinical-critical/10"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
+        {!patientsLoaded ? (
+          <div className="px-6 py-12 text-center text-sm text-muted-foreground">
+            {patientsLoadError
+              ? "Os registros não foram carregados. Tente reconectar ao banco de pacientes."
+              : "Carregando pacientes do banco de dados..."}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="px-6 py-12 text-center text-sm text-muted-foreground">
             Nenhum paciente encontrado.
           </div>
@@ -758,7 +885,7 @@ useEffect(() => {
                     onPrint={setPrinting}
                     onUpdate={handleSave}
                     onArchive={(pt) => {
-                      setPatients((prev) =>
+                      updatePatients((prev) =>
                         prev.map((x) =>
                           x.id === pt.id
                             ? { ...x, archived: true, archivedAt: new Date().toISOString() }
@@ -770,10 +897,7 @@ useEffect(() => {
                       });
                     }}
                     onDelete={(pt) => {
-                      setPatients((prev) => prev.filter((x) => x.id !== pt.id));
-                      toast.success("Paciente removido", {
-                        description: `${pt.name} (${pt.bed}) foi removido do sistema.`,
-                      });
+                      void handleDeletePatient(pt);
                     }}
                     onDischarge={(pt) => {
                       handleSave(pt);
@@ -831,7 +955,7 @@ useEffect(() => {
         onClose={() => setDilutionOpen(false)}
         patients={active.map((p) => ({ id: p.id, name: p.name, bed: p.bed, weight: p.weight }))}
         onAddToPatient={(patientId, med) =>
-          setPatients((prev) =>
+          updatePatients((prev) =>
             prev.map((p) =>
               p.id === patientId ? { ...p, medications: [...p.medications, med] } : p,
             ),
@@ -887,6 +1011,7 @@ useEffect(() => {
                       <button
                         type="button"
                         onClick={() => {
+                          if (!canEditPatients()) return;
                           setPatients((prev) =>
                             prev.map((x) =>
                               x.id === p.id ? { ...x, archived: false, archivedAt: undefined } : x,
@@ -905,7 +1030,7 @@ useEffect(() => {
                         type="button"
                         onClick={() => {
                           if (window.confirm(`Remover ${p.name} (${p.bed}) definitivamente?`)) {
-                            setPatients((prev) => prev.filter((x) => x.id !== p.id));
+                            void handleDeletePatient(p);
                           }
                         }}
                         className="rounded p-1 text-muted-foreground transition-colors hover:bg-clinical-critical/15 hover:text-clinical-critical"
@@ -946,18 +1071,25 @@ useEffect(() => {
         patients={patients}
         initialPatientId={filtered[current]?.id}
         onPersist={(id, deep) =>
-          setPatients((prev) => prev.map((x) => (x.id === id ? { ...x, deepAnalysis: deep } : x)))
+          updatePatients((prev) =>
+            prev.map((x) => (x.id === id ? { ...x, deepAnalysis: deep } : x)),
+          )
         }
-        onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
+        onPatientChange={(p) =>
+          updatePatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))
+        }
       />
 
       <InfoInsightBubble
         patients={patients}
         currentPatientId={filtered[current]?.id}
-        onPatientChange={(p) => setPatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))}
+        onPatientChange={(p) =>
+          updatePatients((prev) => prev.map((x) => (x.id === p.id ? p : x)))
+        }
       />
 
       {callAxonOpen && <CallAxonPanel patients={patients} onClose={() => setCallAxonOpen(false)} />}
     </div>
   );
 }
+
