@@ -2,6 +2,7 @@
 // (relato de caso neurointensivo e chat clínico). Funções puras, client-safe.
 
 import type { Patient } from "@/data/patients";
+import { resumirTabagismo } from "@/lib/tabagismo";
 
 const fmt = (v: unknown) => (v === undefined || v === null || v === "" ? "—" : String(v));
 
@@ -53,7 +54,7 @@ export function buildPassometroContext(p: Patient): string {
     .join("\n");
 
   const antecedentes = [
-    `Tabagismo: ${fmt(p.social?.tabagismo)} · Etilismo: ${fmt(p.social?.etilismo)}`,
+    `Tabagismo: ${fmt(resumirTabagismo(p.social?.tabagismo, p.social?.tabagismoDetalhes))} · Etilismo: ${fmt(p.social?.etilismo)}`,
     `Ocupação: ${fmt(p.social?.ocupacao)} · Dependência funcional basal: ${fmt(p.social?.dependencia)}`,
     `Alergias: ${(p.allergies ?? []).join("; ") || "nenhuma registrada"}`,
     (p.pastMedications ?? []).length
