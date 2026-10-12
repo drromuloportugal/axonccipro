@@ -1,10 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Patient } from "@/data/patients";
 
+const PATIENT_SNAPSHOTS_TABLE = "passometro_patient_snapshots" as const;
+
 /** Lista todos os pacientes salvos no Supabase. */
 export async function listPatients(): Promise<{ patients: Patient[] }> {
   const { data, error } = await supabase
-    .from("patients")
+    .from(PATIENT_SNAPSHOTS_TABLE)
     .select("data, position")
     .order("position", { ascending: true });
 
@@ -19,7 +21,12 @@ export async function listPatients(): Promise<{ patients: Patient[] }> {
   };
 }
 
-/** Persiste a lista de pacientes no Supabase. */
+/**
+ * Persiste os pacientes informados sem reconciliar a tabela inteira.
+ *
+ * Exclusões precisam passar por deletePatient: uma falha de leitura nunca pode
+ * transformar uma lista vazia temporária em uma exclusão em massa.
+ */
 export async function savePatients(
   input: { data: { patients: Patient[] } },
 ): Promise<{ ok: true; count: number }> {
@@ -37,44 +44,22 @@ export async function savePatients(
   );
 
   const rows = sanitized.map((patient, position) => ({
-    id: patient.id,
+    patient_id: patient.id,
     data: patient as unknown as never,
     position,
     updated_at: new Date().toISOString(),
   }));
 
-  // Salva/atualiza os pacientes no Supabase
+  // Salva/atualiza os pacientes no Supabase. Não remove registros ausentes
+  // desta lista: a remoção é sempre uma ação explícita e individual.
   if (rows.length > 0) {
     const { error } = await supabase
-      .from("patients")
-      .upsert(rows, { onConflict: "id" });
+      .from(PATIENT_SNAPSHOTS_TABLE)
+      .upsert(rows, { onConflict: "patient_id" });
 
     if (error) {
       throw new Error(error.message);
     }
-  }
-
-  // Remove do banco pacientes que não existem mais na lista atual
-  const keepIds = rows.map((row) => row.id);
-
-  const { error: deleteError } = keepIds.length
-    ? await supabase
-        .from("patients")
-        .delete()
-        .not(
-          "id",
-          "in",
-          `(${keepIds
-            .map((id) => `"${id.replace(/"/g, '""')}"`)
-            .join(",")})`,
-        )
-    : await supabase
-        .from("patients")
-        .delete()
-        .neq("id", "");
-
-  if (deleteError) {
-    throw new Error(deleteError.message);
   }
 
   return {
@@ -82,3 +67,22 @@ export async function savePatients(
     count: rows.length,
   };
 }
+
+/** Remove somente o paciente escolhido pelo usuário. */
+export async function deletePatient(patientId: string): Promise<void> {
+  const normalizedId = patientId.trim();
+
+  if (!normalizedId) {
+    throw new Error("Identificador do paciente inválido");
+  }
+
+  const { error } = await supabase
+    .from(PATIENT_SNAPSHOTS_TABLE)
+    .delete()
+    .eq("patient_id", normalizedId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
