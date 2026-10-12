@@ -523,7 +523,22 @@ export interface Patient {
   severity: Severity;
 
   diagnoses: TimelineEvent[];
-  social: { tabagismo?: string; etilismo?: string; ocupacao?: string; dependencia?: string };
+  social: {
+    tabagismo?: "sim" | "nao";
+    etilismo?: "sim" | "nao";
+    adicto?: "sim" | "nao";
+    substancias?: string[];
+    substanciasOutras?: string;
+    tabagismoDetalhes?: {
+      status?: "ativo" | "ex-fumante";
+      unidade?: "cigarros" | "macos";
+      quantidadeDia?: number;
+      anosAtivos?: number;
+      anosCessacao?: number;
+    };
+    ocupacao?: string;
+    dependencia?: string;
+  };
   pastMedications?: PastMedication[];
   allergies: string[];
 
