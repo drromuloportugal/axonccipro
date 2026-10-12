@@ -30,7 +30,6 @@ import {
   Sparkles,
   AlertTriangle,
 } from "lucide-react";
-import axonLogo from "@/assets/axon-logo.png.asset.json";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { deletePatient, listPatients, savePatients } from "@/lib/patients.functions";
 import { CallAxonPanel } from "@/components/CallAxonPanel";
@@ -511,7 +510,7 @@ function Passometro() {
           {/* Logo — centered, spans the header width */}
           <div className="flex min-w-0 flex-1 items-center justify-center">
             <img
-              src={axonLogo.url}
+              src="/axon-logo-transparent.png"
               alt="Axon Critical Care Intelligence"
               className="h-auto w-auto max-w-full object-contain"
               style={{
