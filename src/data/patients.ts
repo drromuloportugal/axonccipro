@@ -677,8 +677,12 @@ export interface VitalReading {
   id: string;
   /** Valor máximo registrado naquele momento/dia. */
   value?: number;
+  /** Texto livre quando o sinal não for numérico (ex.: "NÃO AFERIDO"). */
+  text?: string;
   /** Valor mínimo registrado naquele momento/dia (opcional). */
   min?: number;
+  /** Texto livre do valor mínimo, quando aplicável. */
+  minText?: string;
   at?: string; // ISO datetime
 }
 
