@@ -1590,13 +1590,13 @@ export function PatientRow({
 
               <div className="mt-3 space-y-1.5">
                 {patient.social.tabagismo === "sim" && (
-                  <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-attention">
+                  <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[12px] font-bold uppercase tracking-wide text-clinical-attention">
                     <div>Tabagista</div>
                     {(() => {
                       const resumo = resumoCargaTabagica(patient.social.tabagismoDetalhes);
                       if (!resumo) return null;
                       return (
-                        <div className="mt-0.5 normal-case text-[12px] font-semibold tracking-normal">
+                        <div className="mt-0.5 normal-case text-[11px] font-semibold tracking-normal">
                           Carga tabágica:{" "}
                           {resumo.valor.toLocaleString("pt-BR", {
                             minimumFractionDigits: 1,
@@ -1609,12 +1609,12 @@ export function PatientRow({
                   </div>
                 )}
                 {patient.social.etilismo === "sim" && (
-                  <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-attention">
+                  <div className="rounded-md border border-clinical-attention/40 bg-clinical-attention/10 px-2 py-1 text-[12px] font-bold uppercase tracking-wide text-clinical-attention">
                     Etilista
                   </div>
                 )}
                 {patient.social.adicto === "sim" && (
-                  <div className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 px-2 py-1 text-[13px] font-bold uppercase tracking-wide text-clinical-critical">
+                  <div className="rounded-md border border-clinical-critical/40 bg-clinical-critical/10 px-2 py-1 text-[12px] font-bold uppercase tracking-wide text-clinical-critical">
                     <span>Adicto</span>
                     <span className="normal-case tracking-normal">
                       {": "}
