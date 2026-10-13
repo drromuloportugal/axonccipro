@@ -56,7 +56,7 @@ export interface PumpInfusion {
   finalVolumeMl: number; // total bag volume (mL)
   concentrationMcgPerMl?: number; // calculated, mcg/mL (or UI/mL)
   targetDoseValue?: number;
-  targetDoseUnit?: "mcg/kg/min" | "mg/kg/h" | "UI/h" | "mL/h" | "mcg/min" | "mg/h";
+  targetDoseUnit?: "mcg/kg/h" | "mcg/kg/min" | "mg/kg/h" | "UI/h" | "mL/h" | "mcg/min" | "mg/h";
   rateMlPerHour?: number; // calculated or manual
   bagVolumeMl?: number; // bag start volume
   bagStartedAt?: string; // ISO when bag started
