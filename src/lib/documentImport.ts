@@ -1,4 +1,5 @@
 import type { Patient, TimelineEvent } from "@/data/patients";
+import { enrichPatientFromSevenColumns } from "@/lib/sevenColumnImport";
 
 export type DocumentImportSuggestion = {
   label: string;
@@ -160,7 +161,11 @@ export function previewPatientDocumentImport(
     }
   }
 
-  const sourceNote = `[Documento importado em ${new Date().toLocaleString("pt-BR")}]\n${text}`;
+  const sevenColumn = enrichPatientFromSevenColumns(next, text);
+  next = sevenColumn.patient;
+  suggestions.push(...sevenColumn.suggestions);
+
+  const sourceNote = `[Documento importado em ${new Date().toLocaleString("pt-BR")} · Layout 7 colunas]\n${text}`;
   next = {
     ...next,
     priorEvolution: [next.priorEvolution?.trim(), sourceNote].filter(Boolean).join("\n\n"),
