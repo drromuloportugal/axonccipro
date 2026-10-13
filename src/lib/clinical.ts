@@ -316,7 +316,7 @@ export function trendArrow(movement: "up" | "down" | "flat", trend: TrendDirecti
 // DRUGS — UTI catalog with institutional dilutions + infusion calculator
 // ============================================================================
 
-export type DoseUnit = "mcg/kg/min" | "mcg/min" | "mg/kg/h" | "mg/h" | "UI/h";
+export type DoseUnit = "mcg/kg/h" | "mcg/kg/min" | "mcg/min" | "mg/kg/h" | "mg/h" | "UI/h";
 
 export interface DrugProtocol {
   name: string;
@@ -343,10 +343,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Noradrenalina",
     category: "vasoativa",
-    doseUnit: "mcg/kg/min",
-    usual: 0.1,
-    min: 0.02,
-    max: 2,
+    doseUnit: "mcg/kg/h",
+    usual: 6,
+    min: 1.2,
+    max: 120,
     bic: true,
     protocols: {
       Geral: { name: "Padrão (8mg/100mL)", ...ratio(8, 100) },
@@ -357,10 +357,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Adrenalina",
     category: "vasoativa",
-    doseUnit: "mcg/kg/min",
-    usual: 0.05,
-    min: 0.01,
-    max: 1,
+    doseUnit: "mcg/kg/h",
+    usual: 3,
+    min: 0.6,
+    max: 60,
     bic: true,
     protocols: {
       Geral: { name: "Padrão (5mg/100mL)", ...ratio(5, 100) },
@@ -385,10 +385,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Dobutamina",
     category: "vasoativa",
-    doseUnit: "mcg/kg/min",
-    usual: 5,
-    min: 2,
-    max: 20,
+    doseUnit: "mcg/kg/h",
+    usual: 300,
+    min: 120,
+    max: 1200,
     bic: true,
     protocols: {
       Geral: { name: "250mg/250mL", ...ratio(250, 250) },
@@ -399,10 +399,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Nitroprussiato",
     category: "vasoativa",
-    doseUnit: "mcg/kg/min",
-    usual: 1,
-    min: 0.25,
-    max: 8,
+    doseUnit: "mcg/kg/h",
+    usual: 60,
+    min: 15,
+    max: 480,
     bic: true,
     protocols: {
       Geral: { name: "50mg/250mL", ...ratio(50, 250) },
@@ -414,10 +414,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Fentanil",
     category: "analgesico",
-    doseUnit: "mcg/kg/min",
-    usual: 0.03,
-    min: 0.01,
-    max: 0.1,
+    doseUnit: "mcg/kg/h",
+    usual: 1.8,
+    min: 0.6,
+    max: 6,
     bic: true,
     protocols: {
       Geral: { name: "2500mcg/50mL (50mcg/mL)", ...ratio(2.5, 50) },
@@ -457,10 +457,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Dexmedetomidina",
     category: "sedativo",
-    doseUnit: "mcg/kg/min",
-    usual: 0.01,
-    min: 0.003,
-    max: 0.025,
+    doseUnit: "mcg/kg/h",
+    usual: 0.6,
+    min: 0.18,
+    max: 1.5,
     bic: true,
     protocols: {
       Geral: { name: "200mcg/50mL", ...ratio(0.2, 50) },
@@ -471,10 +471,10 @@ export const DRUGS: DrugDef[] = [
   {
     name: "Cisatracúrio",
     category: "sedativo",
-    doseUnit: "mcg/kg/min",
-    usual: 3,
-    min: 1,
-    max: 10,
+    doseUnit: "mcg/kg/h",
+    usual: 180,
+    min: 60,
+    max: 600,
     bic: true,
     protocols: {
       Geral: { name: "20mg/100mL", ...ratio(20, 100) },
@@ -569,6 +569,11 @@ export function computeInfusion(opts: {
   let totalPerMin = 0;
   let totalLabel = "";
   switch (drug.doseUnit) {
+    case "mcg/kg/h":
+      mgPerHour = (dose * weightKg) / 1000;
+      totalPerMin = (dose * weightKg) / 60;
+      totalLabel = `${(dose * weightKg).toFixed(1)} mcg/h`;
+      break;
     case "mcg/kg/min":
       totalPerMin = dose * weightKg; // mcg/min
       mgPerHour = (totalPerMin * 60) / 1000;
