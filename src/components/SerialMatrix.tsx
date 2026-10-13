@@ -132,6 +132,34 @@ const parseNum = (s?: string) => {
   return Number.isNaN(n) ? undefined : n;
 };
 
+/** Aceita valor numérico ou registro textual, como "NÃO AFERIDO". */
+const vitalPatch = (field: MinMax, raw: string): Partial<VitalReading> => {
+  const cleaned = raw.trim();
+  const normalized = cleaned.replace(",", ".");
+  const numeric =
+    /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized) ? Number(normalized) : undefined;
+
+  if (field === "max") {
+    return numeric !== undefined
+      ? { value: numeric, text: undefined }
+      : { value: undefined, text: cleaned || undefined };
+  }
+  return numeric !== undefined
+    ? { min: numeric, minText: undefined }
+    : { min: undefined, minText: cleaned || undefined };
+};
+
+const hasVitalContent = (reading: VitalReading) =>
+  reading.value != null ||
+  reading.min != null ||
+  Boolean(reading.text?.trim()) ||
+  Boolean(reading.minText?.trim());
+
+const readVitalValue = (reading: VitalReading | undefined, field: MinMax) =>
+  field === "max"
+    ? reading?.text ?? reading?.value ?? ""
+    : reading?.minText ?? reading?.min ?? "";
+
 export function SerialMatrix({
   patient,
   onChangeState,
@@ -183,17 +211,16 @@ export function SerialMatrix({
   const shift = (delta: number) => setStartOverride(Math.max(0, Math.min(start + delta, maxStart)));
 
   const setCustom = (id: string, date: string, field: MinMax, raw: string) => {
-    const value = parseNum(raw);
     const next = custom.map((c) => {
       if (c.id !== id) return c;
       const arr = [...(c.readings ?? [])];
       const idx = arr.findIndex((r) => dayKey(r.at) === date);
-      const patch = field === "max" ? { value } : { min: value ?? undefined };
+      const patch = vitalPatch(field, raw);
       if (idx >= 0) {
         const merged = { ...arr[idx], ...patch, at: arr[idx].at ?? atFor(date) } as VitalReading;
-        if (merged.value == null && merged.min == null) arr.splice(idx, 1);
+        if (!hasVitalContent(merged)) arr.splice(idx, 1);
         else arr[idx] = merged;
-      } else if (value != null) {
+      } else if (hasVitalContent(patch as VitalReading)) {
         arr.push({ id: uid(), at: atFor(date), ...patch } as VitalReading);
       }
       arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
@@ -239,15 +266,14 @@ export function SerialMatrix({
   const removeExam = (e: ExamRow) => onChangeExams(exams.filter((x) => x !== e));
 
   const setVital = (key: SeriesKey, date: string, field: MinMax, raw: string) => {
-    const value = parseNum(raw);
     const arr = [...(series[key] ?? [])];
     const idx = arr.findIndex((r) => dayKey(r.at) === date);
-    const patch = field === "max" ? { value } : { min: value ?? undefined };
+    const patch = vitalPatch(field, raw);
     if (idx >= 0) {
       const merged = { ...arr[idx], ...patch, at: arr[idx].at ?? atFor(date) } as VitalReading;
-      if (merged.value == null && merged.min == null) arr.splice(idx, 1);
+      if (!hasVitalContent(merged)) arr.splice(idx, 1);
       else arr[idx] = merged;
-    } else if (value != null) {
+    } else if (hasVitalContent(patch as VitalReading)) {
       arr.push({ id: uid(), at: atFor(date), ...patch } as VitalReading);
     }
     arr.sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""));
@@ -256,8 +282,7 @@ export function SerialMatrix({
 
   const getVital = (key: SeriesKey, date: string, field: MinMax) => {
     const r = (series[key] ?? []).find((x) => dayKey(x.at) === date);
-    const v = field === "max" ? r?.value : r?.min;
-    return v ?? "";
+    return readVitalValue(r, field);
   };
 
   const examPoints = (e: ExamRow) => {
@@ -397,7 +422,8 @@ export function SerialMatrix({
         </div>
       </div>
       <span className="block text-[10px] text-muted-foreground">
-        Deixe a célula vazia para remover o registro daquela data.
+        Deixe a célula vazia para remover o registro daquela data. Sinais vitais também aceitam texto,
+        como “NÃO AFERIDO” ou “EM VENTILAÇÃO”.
       </span>
 
       <div className="max-h-[62vh] overflow-auto rounded-lg border border-border">
@@ -450,20 +476,20 @@ export function SerialMatrix({
                   <Fragment key={d}>
                     <td className="border-l border-border/60 px-1 py-1">
                       <input
-                        type="number"
-                        step={row.step ?? "1"}
+                        type="text"
+                        inputMode="decimal"
                         className={cellCls}
-                        title="Valor máximo"
+                        title="Valor máximo ou texto"
                         value={getVital(row.key, d, "max")}
                         onChange={(e) => setVital(row.key, d, "max", e.target.value)}
                       />
                     </td>
                     <td className="px-1 py-1">
                       <input
-                        type="number"
-                        step={row.step ?? "1"}
+                        type="text"
+                        inputMode="decimal"
                         className={cellCls}
-                        title="Valor mínimo"
+                        title="Valor mínimo ou texto"
                         value={getVital(row.key, d, "min")}
                         onChange={(e) => setVital(row.key, d, "min", e.target.value)}
                       />
@@ -494,21 +520,21 @@ export function SerialMatrix({
                     <Fragment key={d}>
                       <td className="border-l border-border/60 px-1 py-1">
                         <input
-                          type="number"
-                          step="any"
+                          type="text"
+                          inputMode="decimal"
                           className={cellCls}
-                          title="Valor máximo"
-                          value={r?.value ?? ""}
+                          title="Valor máximo ou texto"
+                          value={readVitalValue(r, "max")}
                           onChange={(e) => setCustom(c.id, d, "max", e.target.value)}
                         />
                       </td>
                       <td className="px-1 py-1">
                         <input
-                          type="number"
-                          step="any"
+                          type="text"
+                          inputMode="decimal"
                           className={cellCls}
-                          title="Valor mínimo"
-                          value={r?.min ?? ""}
+                          title="Valor mínimo ou texto"
+                          value={readVitalValue(r, "min")}
                           onChange={(e) => setCustom(c.id, d, "min", e.target.value)}
                         />
                       </td>
