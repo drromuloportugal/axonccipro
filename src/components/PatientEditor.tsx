@@ -2173,19 +2173,75 @@ function MedicationsList({
 
   const bankSel = bankByName.get(drugName);
   const drug = drugByName(drugName) ?? (bankSel ? matchClinical(drugName) : undefined);
+  /**
+   * O banco de diluições declara as unidades permitidas. Quando mcg/kg/h
+   * estiver disponível, a barra usa essa unidade; se houver um perfil clínico
+   * equivalente, convertemos somente para manter o cálculo da BIC coerente.
+   */
+  const bankDoseProfile = useMemo(() => {
+    if (!bankSel?.allowedDoseUnits.includes("mcg/kg/h")) return null;
+
+    const clinical = matchClinical(bankSel.name);
+    const factorToMcgKgHour =
+      clinical?.doseUnit === "mcg/kg/h"
+        ? 1
+        : clinical?.doseUnit === "mcg/kg/min"
+          ? 60
+          : clinical?.doseUnit === "mg/kg/h"
+            ? 1000
+            : null;
+
+    return {
+      min: factorToMcgKgHour ? clinical!.min * factorToMcgKgHour : 0,
+      usual: factorToMcgKgHour ? clinical!.usual * factorToMcgKgHour : 0,
+      max: factorToMcgKgHour ? clinical!.max * factorToMcgKgHour : 100,
+      factorToMcgKgHour,
+      hasClinicalReference: factorToMcgKgHour !== null,
+    };
+  }, [bankSel]);
+
+  const [bankDoseMin, setBankDoseMin] = useState(0);
+  const [bankDoseMax, setBankDoseMax] = useState(100);
+
+  useEffect(() => {
+    if (!bankDoseProfile) return;
+    setBankDoseMin(bankDoseProfile.min);
+    setBankDoseMax(bankDoseProfile.max);
+  }, [bankSel?.code]);
+
+  const selectedDoseMin = bankDoseProfile ? bankDoseMin : doseMin;
+  const selectedDoseMax = bankDoseProfile ? bankDoseMax : doseMax;
+  const selectedDoseUnit = bankDoseProfile ? "mcg/kg/h" : drug?.doseUnit;
+  const toClinicalDose = (value: number) =>
+    bankDoseProfile?.factorToMcgKgHour ? value / bankDoseProfile.factorToMcgKgHour : value;
 
   const calc = useMemo(() => {
     if (!drug || !weightKg) return null;
-    return computeInfusion({ drug, protocol, dose, weightKg });
-  }, [drug, protocol, dose, weightKg]);
+    return computeInfusion({
+      drug,
+      protocol,
+      dose: bankDoseProfile ? toClinicalDose(bankDoseMax) : dose,
+      weightKg,
+    });
+  }, [drug, protocol, dose, weightKg, bankDoseProfile, bankDoseMax]);
   const calcMin = useMemo(() => {
     if (!drug || !weightKg) return null;
-    return computeInfusion({ drug, protocol, dose: doseMin, weightKg });
-  }, [drug, protocol, doseMin, weightKg]);
+    return computeInfusion({
+      drug,
+      protocol,
+      dose: bankDoseProfile ? toClinicalDose(bankDoseMin) : doseMin,
+      weightKg,
+    });
+  }, [drug, protocol, doseMin, bankDoseProfile, bankDoseMin]);
   const calcMax = useMemo(() => {
     if (!drug || !weightKg) return null;
-    return computeInfusion({ drug, protocol, dose: doseMax, weightKg });
-  }, [drug, protocol, doseMax, weightKg]);
+    return computeInfusion({
+      drug,
+      protocol,
+      dose: bankDoseProfile ? toClinicalDose(bankDoseMax) : doseMax,
+      weightKg,
+    });
+  }, [drug, protocol, doseMax, bankDoseProfile, bankDoseMax]);
 
   // autosuggest course days when ATB name changes
   const otherIsAtbAuto = useMemo(() => detectAntibiotic(otherName), [otherName]);
@@ -2203,13 +2259,22 @@ function MedicationsList({
         ...items,
         {
           name: drugName,
-          dose: "",
+          dose: bankDoseProfile
+            ? `${bankDoseMin}–${bankDoseMax} mcg/kg/h`
+            : "",
           route: "EV",
           freq: "BIC",
           start: todayShort(),
           kind: "attention",
           active: true,
           class: "pump",
+          ...(bankDoseProfile
+            ? {
+                doseMinValue: bankDoseMin,
+                doseMaxValue: bankDoseMax,
+                doseRangeUnit: "mcg/kg/h",
+              }
+            : {}),
         },
       ]);
       return;
@@ -2217,7 +2282,7 @@ function MedicationsList({
     const med: Medication = {
       name: bankSel?.name ?? drug.name,
 
-      dose: `${doseMin}–${doseMax} ${drug.doseUnit}`,
+      dose: `${selectedDoseMin}–${selectedDoseMax} ${selectedDoseUnit ?? drug.doseUnit}`,
       route: "EV",
       freq: "BIC",
       start: todayShort(),
@@ -2231,9 +2296,9 @@ function MedicationsList({
       protocol,
       concentrationMgPerMl: calc.concentrationMgPerMl,
       mlPerHour: calc.mlPerHour,
-      doseMinValue: doseMin,
-      doseMaxValue: doseMax,
-      doseRangeUnit: drug.doseUnit,
+      doseMinValue: selectedDoseMin,
+      doseMaxValue: selectedDoseMax,
+      doseRangeUnit: selectedDoseUnit ?? drug.doseUnit,
       mlPerHourMin: calcMin?.mlPerHour,
       mlPerHourMax: calcMax?.mlPerHour,
       class: "pump",
@@ -2623,22 +2688,33 @@ function MedicationsList({
                 ))}
               </optgroup>
             </select>{" "}
-            {drug && (
+            {(drug || bankDoseProfile) && (
               <div className={voiceDosePending ? "rounded-md border border-destructive p-1 ring-1 ring-destructive/20" : ""}>
-              <DoseRangeBar
-                min={drug.min}
-                max={drug.max}
-                unit={drug.doseUnit}
-                valueMin={doseMin}
-                valueMax={doseMax}
-                onChange={(lo, hi) => {
-                  setDoseMin(lo);
-                  setDoseMax(hi);
-                  setDose(hi);
-                  setVoiceDosePending(false);
-                }}
-              />
-              {voiceDosePending && <p className="mt-1 text-[10px] font-medium text-destructive">Informe/ajuste dose mínima e máxima antes de adicionar.</p>}
+                <DoseRangeBar
+                  min={bankDoseProfile?.min ?? drug!.min}
+                  max={bankDoseProfile?.max ?? drug!.max}
+                  unit={bankDoseProfile ? "mcg/kg/h" : drug!.doseUnit}
+                  valueMin={selectedDoseMin}
+                  valueMax={selectedDoseMax}
+                  onChange={(lo, hi) => {
+                    if (bankDoseProfile) {
+                      setBankDoseMin(lo);
+                      setBankDoseMax(hi);
+                    } else {
+                      setDoseMin(lo);
+                      setDoseMax(hi);
+                      setDose(hi);
+                    }
+                    setVoiceDosePending(false);
+                  }}
+                />
+                {bankDoseProfile && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    Dose do banco de diluições em mcg/kg/h.
+                    {!bankDoseProfile.hasClinicalReference && " Ajuste a faixa conforme a prescrição."}
+                  </p>
+                )}
+                {voiceDosePending && <p className="mt-1 text-[10px] font-medium text-destructive">Informe/ajuste dose mínima e máxima antes de adicionar.</p>}
               </div>
             )}
             <Button
@@ -2675,7 +2751,14 @@ function MedicationsList({
           )}
           <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
             {" "}
-            {drug ? (
+            {bankDoseProfile ? (
+              <span>
+                Dose selecionada: mín {selectedDoseMin} · máx {selectedDoseMax} mcg/kg/h
+                {bankDoseProfile.hasClinicalReference
+                  ? " · faixa convertida da referência cadastrada"
+                  : " · sem referência clínica cadastrada"}
+              </span>
+            ) : drug ? (
               <span>
                 Referência: mín {drug.min} · usual {drug.usual} · máx {drug.max} {drug.doseUnit}
               </span>
@@ -2695,7 +2778,7 @@ function MedicationsList({
               <div>
                 Faixa prescrita:{" "}
                 <b>
-                  {doseMin} – {doseMax} {drug.doseUnit}
+                  {selectedDoseMin} – {selectedDoseMax} {selectedDoseUnit ?? drug.doseUnit}
                 </b>
               </div>
               <div className="text-clinical-resp">
