@@ -272,6 +272,9 @@ function PumpEditor({
       const wt = weight || 0;
       let mlh: number | undefined;
       switch (next.targetDoseUnit) {
+        case "mcg/kg/h":
+          mlh = (next.targetDoseValue * wt) / next.concentrationMcgPerMl;
+          break;
         case "mcg/kg/min":
           mlh = (next.targetDoseValue * wt * 60) / next.concentrationMcgPerMl;
           break;
@@ -385,8 +388,8 @@ function PumpEditor({
  </div>
  <div>
  <Label>Unidade</Label>
- <select className={inputCls} value={pump.targetDoseUnit ?? "mcg/kg/min"}
-              onChange={(e) => setPump({ targetDoseUnit: e.target.value as PumpInfusion["targetDoseUnit"] })}> {(["mcg/kg/min", "mcg/min", "mg/h", "mg/kg/h", "UI/h", "mL/h"] as const).map((u) => (
+ <select className={inputCls} value={pump.targetDoseUnit ?? "mcg/kg/h"}
+              onChange={(e) => setPump({ targetDoseUnit: e.target.value as PumpInfusion["targetDoseUnit"] })}> {(["mcg/kg/h", "mcg/kg/min", "mcg/min", "mg/h", "mg/kg/h", "UI/h", "mL/h"] as const).map((u) => (
  <option key={u} value={u}>{u}</option> ))}
  </select>
  </div>
@@ -427,7 +430,7 @@ function PumpEditor({
           className="min-h-[60px] w-full rounded border border-input bg-background p-2 text-[12px] outline-none focus:ring-1 focus:ring-ring"
           value={pump.pumpNotes ?? ""}
           onChange={(e) => setPump({ pumpNotes: e.target.value })}
-          placeholder="Ex.: 14:30 — titulação de 0,2 para 0,3 mcg/kg/min."
+          placeholder="Ex.: 14:30 — titulação de 12 para 18 mcg/kg/h."
         />
  </div>
 
