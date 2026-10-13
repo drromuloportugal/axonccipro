@@ -52,12 +52,12 @@ async function textFromPdf(
   const worker = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default as string;
   pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
-  const document = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+  const pdfDocument = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
   const textPages: string[] = [];
 
-  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
-    onProgress(`Lendo página ${pageNumber} de ${document.numPages}…`);
-    const page = await document.getPage(pageNumber);
+  for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+    onProgress(`Lendo página ${pageNumber} de ${pdfDocument.numPages}…`);
+    const page = await pdfDocument.getPage(pageNumber);
     const content = await page.getTextContent();
     const pageText = content.items
       .map((item) => ("str" in item ? String(item.str ?? "") : ""))
@@ -69,11 +69,11 @@ async function textFromPdf(
 
   if (textPages.join("\n").trim().length >= 30) return textPages.join("\n\n");
 
-  const scannedPages = Math.min(document.numPages, MAX_SCANNED_PDF_PAGES);
+  const scannedPages = Math.min(pdfDocument.numPages, MAX_SCANNED_PDF_PAGES);
   const ocrPages: string[] = [];
   for (let pageNumber = 1; pageNumber <= scannedPages; pageNumber += 1) {
     onProgress(`Reconhecendo página digitalizada ${pageNumber} de ${scannedPages}…`);
-    const page = await document.getPage(pageNumber);
+    const page = await pdfDocument.getPage(pageNumber);
     const viewport = page.getViewport({ scale: 1.6 });
     const canvas = document.createElement("canvas");
     canvas.width = Math.ceil(viewport.width);
