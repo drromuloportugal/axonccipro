@@ -84,7 +84,7 @@ import {
   stripAnnotationMarkup,
 } from "@/lib/clinical";
 import { AnnotationEditor } from "@/components/AnnotationEditor";
-import { VoiceClinicalEntry } from "@/components/VoiceClinicalEntry";
+import { DocumentClinicalImport } from "@/components/DocumentClinicalImport";
 
 import {
   CULTURE_SOURCES,
@@ -207,9 +207,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
   const [p, setP] = useState<Patient>(initial ?? emptyPatient());
   const [allergiesTxt, setAllergiesTxt] = useState("");
   const [tab, setTab] = useState(initialTab ?? "id");
-  const [voicePendingTab, setVoicePendingTab] = useState<string | null>(null);
-  const [voicePumpDrug, setVoicePumpDrug] = useState<string | null>(null);
-
+ 
   const pRef = useRef<Patient>(p);
   const pastRef = useRef<Patient[]>([]);
   const futureRef = useRef<Patient[]>([]);
@@ -314,9 +312,9 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
           <DialogTitle>{initial ? "Editar paciente" : "Novo paciente · assistente"}</DialogTitle>
         </DialogHeader>
 
-        <VoiceClinicalEntry patient={p} activeTab={tab} onPendingChange={setVoicePendingTab} onPumpDrug={setVoicePumpDrug} onApply={(next) => { commit(next); onPersist?.(next); }} />
+        <DocumentClinicalImport patient={p} onApply={(next) => { commit(next); onPersist?.(next); }} />
 
-        <Tabs value={tab} onValueChange={(nextTab) => { setTab(nextTab); setVoicePendingTab(null); }} className="w-full">
+        <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="id">1 · Identif.</TabsTrigger>
             <TabsTrigger value="hist">2 · História</TabsTrigger>
@@ -1004,7 +1002,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
           {/* 3 — Procedimentos e Dispositivos */}
           <TabsContent value="proc">
             <Section title="Dispositivos invasivos">
-              <DevicesList items={p.devices ?? []} voicePending={voicePendingTab === "proc"} onChange={(v) => upd("devices", v)} />
+              <DevicesList items={p.devices ?? []} onChange={(v) => upd("devices", v)} />
             </Section>
             <div className="mt-3">
               <Section title="Procedimentos / eventos">
@@ -1064,8 +1062,7 @@ export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPe
               <MedicationsList
                 items={p.medications}
                 weightKg={p.weight}
-                voicePumpDrug={voicePumpDrug}
-                onChange={(v) => upd("medications", v)}
+                 onChange={(v) => upd("medications", v)}
               />
             </Section>
           </TabsContent>{" "}
