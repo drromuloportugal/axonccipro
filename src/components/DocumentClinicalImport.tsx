@@ -183,7 +183,7 @@ export function DocumentClinicalImport({ patient, onApply }: Props) {
         <div>
           <p className="text-sm font-semibold">Importar documento clínico</p>
           <p className="text-[11px] text-muted-foreground">
-            Envie imagem ou PDF, ou use Ctrl+V após PrintScreen. O texto é revisado antes de ser aplicado.
+            Importe imagem, PDF ou Ctrl+V após PrintScreen. O layout de 7 colunas é reconhecido e tudo é revisado antes de aplicar.
           </p>
         </div>
         <input
