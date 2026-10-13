@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import { Check, FileText, Loader2, Upload, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Check, ClipboardPaste, FileText, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Patient } from "@/data/patients";
 import { previewPatientDocumentImport } from "@/lib/documentImport";
@@ -8,6 +8,23 @@ type Props = {
   patient: Patient;
   onApply: (patient: Patient) => void;
 };
+
+const clipboardImage = (clipboard: DataTransfer | null) => {
+  const item = Array.from(clipboard?.items ?? []).find((entry) =>
+    entry.type.startsWith("image/"),
+  );
+  const image = item?.getAsFile();
+  return image
+    ? new File([image], "captura-de-tela.png", {
+        type: image.type || "image/png",
+      })
+    : null;
+};
+
+const isEditableElement = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable ||
+    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 const MAX_SCANNED_PDF_PAGES = 8;
@@ -105,7 +122,7 @@ export function DocumentClinicalImport({ patient, onApply }: Props) {
     [patient, extractedText],
   );
 
-  const importFile = async (file: File) => {
+  const importFile = useCallback(async (file: File) => {
     if (file.size > MAX_FILE_SIZE) {
       setError("O arquivo deve ter no máximo 15 MB.");
       return;
@@ -136,7 +153,21 @@ export function DocumentClinicalImport({ patient, onApply }: Props) {
     } finally {
       if (inputRef.current) inputRef.current.value = "";
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      if (progress || isEditableElement(event.target)) return;
+      const image = clipboardImage(event.clipboardData);
+      if (!image) return;
+
+      event.preventDefault();
+      void importFile(image);
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [importFile, progress]);
 
   const clear = () => {
     setFileName(null);
@@ -152,7 +183,7 @@ export function DocumentClinicalImport({ patient, onApply }: Props) {
         <div>
           <p className="text-sm font-semibold">Importar documento clínico</p>
           <p className="text-[11px] text-muted-foreground">
-            Envie imagem ou PDF. O texto é extraído no navegador, revisado e só então aplicado.
+            Envie imagem ou PDF, ou use Ctrl+V após PrintScreen. O texto é revisado antes de ser aplicado.
           </p>
         </div>
         <input
@@ -166,8 +197,12 @@ export function DocumentClinicalImport({ patient, onApply }: Props) {
           }}
         />
         <Button type="button" size="sm" variant="outline" disabled={Boolean(progress)} onClick={() => inputRef.current?.click()}>
-          {progress ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Upload className="mr-1 h-4 w-4" />}
-          {progress ? "Lendo documento" : "Selecionar imagem ou PDF"}
+          {progress ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+          ) : (
+            <ClipboardPaste className="mr-1 h-4 w-4" />
+          )}
+          {progress ? "Lendo documento" : "Selecionar imagem, PDF ou colar captura"}
         </Button>
       </div>
 
