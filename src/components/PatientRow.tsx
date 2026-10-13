@@ -1483,6 +1483,13 @@ export function PatientRow({
                 {(
                   [
                     {
+                      cat: "previous",
+                      label: "Diagnósticos pregressos",
+                      box: "pastel-previous",
+                      text: "text-ink",
+                      head: "pastel-previous-head",
+                    },
+                    {
                       cat: "current",
                       label: "Diagnósticos atuais",
                       box: "pastel-current",
@@ -1495,13 +1502,6 @@ export function PatientRow({
                       box: "pastel-inactive",
                       text: "text-ink",
                       head: "pastel-inactive-head",
-                    },
-                    {
-                      cat: "previous",
-                      label: "Diagnósticos pregressos",
-                      box: "pastel-previous",
-                      text: "text-ink",
-                      head: "pastel-previous-head",
                     },
                     {
                       cat: "complication",
