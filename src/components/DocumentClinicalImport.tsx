@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ClipboardPaste, FileText, Loader2, Upload, X } from "lucide-react";
+import { Check, ClipboardPaste, FileText, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Patient } from "@/data/patients";
 import { previewPatientDocumentImport } from "@/lib/documentImport";
