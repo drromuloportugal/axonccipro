@@ -65,7 +65,7 @@ async function resolvePatient(db: PatientsDb, patientId: string): Promise<Patien
 /** Abre a sessão de voz (apenas auditoria — nenhuma conexão externa persistente). */
 export const startVoiceSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  
+  .validator((data: { patientId?: string }) => ({ patientId: data?.patientId ?? "" }))
   .handler(async ({ data, context }) => {
     const { data: row } = await context.supabase
       .from("realtime_sessions")
@@ -82,7 +82,11 @@ export const startVoiceSession = createServerFn({ method: "POST" })
 /** Transcreve um trecho de fala com o Gemini. O áudio não é armazenado. */
 export const transcribeVoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  
+  .validator((data: { audioBase64: string; mimeType?: string }) => {
+    const audioBase64 = String(data?.audioBase64 ?? "");
+    if (!audioBase64) throw new Error("Nenhum áudio recebido.");
+    return { audioBase64, mimeType: data?.mimeType || "audio/wav" };
+  })
   .handler(async ({ data }) => {
     const bytes = Buffer.from(data.audioBase64, "base64");
     if (bytes.byteLength < 2048) return { text: "", tooShort: true as const };
@@ -105,7 +109,10 @@ export const transcribeVoice = createServerFn({ method: "POST" })
  */
 export const interpretVoiceCommand = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  
+  .validator((data: { transcript: string; activeTab: string }) => ({
+    transcript: String(data?.transcript ?? "").trim().slice(0, 2_000),
+    activeTab: String(data?.activeTab ?? ""),
+  }))
   .handler(async ({ data }) => {
     if (!data.transcript) throw new Error("Nenhum comando para interpretar.");
     const payload = await invokeEdgeFunction("axon-command-intent", {
@@ -131,7 +138,11 @@ const WRITE_INTENT = /\b(registr|anot|crie? (uma )?tarefa|agende|reavalia(r|çã
 /** Interpreta a fala, roda o Motor Clínico e devolve texto para chat e para voz. */
 export const askNetoVoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  
+  .validator((data: { question: string; patientId?: string; sessionId?: string | null }) => ({
+    question: String(data?.question ?? "").slice(0, 2000),
+    patientId: String(data?.patientId ?? ""),
+    sessionId: data?.sessionId ?? null,
+  }))
   .handler(async ({ data, context }) => {
     const db = context.supabase;
     if (!data.question.trim()) throw new Error("Nenhuma pergunta reconhecida na fala.");
@@ -238,7 +249,10 @@ export const askNetoVoice = createServerFn({ method: "POST" })
 /** Converte a resposta do NETO em áudio (mp3 em base64). */
 export const speakNetoVoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  
+  .validator((data: { text: string; voice?: string }) => ({
+    text: String(data?.text ?? "").slice(0, 4000),
+    voice: "Kore",
+  }))
   .handler(async ({ data }) => {
     if (!data.text.trim()) return { audioBase64: "", mimeType: "audio/wav" };
     const payload = await invokeEdgeFunction("axon-voice", {
