@@ -1127,8 +1127,7 @@ export function PatientRow({
               const lab = filled.filter((e) => !isGasometryExam(e.code, e.label)).slice(0, 3);
               const gaso = filled
                 .filter((e) => isGasometryExam(e.code, e.label))
-                .sort(compareGasometry)
-                .slice(0, 3);
+                .sort(compareGasometry);
               const rows = (list: typeof patient.exams) =>
                 list.map((e, i) => {
                   const ins = examInsight(e, patient.sex);
