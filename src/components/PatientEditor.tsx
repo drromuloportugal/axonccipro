@@ -2187,6 +2187,7 @@ function MedicationsList({
   const [otherFreq, setOtherFreq] = useState("8/8h");
 
   const [otherClass, setOtherClass] = useState<MedicationClass>("iv");
+  const [otherRoute, setOtherRoute] = useState("");
   const [otherIsAtb, setOtherIsAtb] = useState(false);
   const [otherCourseDays, setOtherCourseDays] = useState(7);
   const [otherDiluent, setOtherDiluent] = useState<DiluentSolution | "">("");
@@ -2363,7 +2364,7 @@ function MedicationsList({
     const med: Medication = {
       name: otherName.trim(),
       dose: otherDose,
-      route: routeFromClass(chosen),
+      route: otherRoute || routeFromClass(chosen),
       freq: otherFreq,
       start: todayShort(),
       kind: "attention",
@@ -2386,6 +2387,7 @@ function MedicationsList({
     setOtherName("");
     setOtherDose("");
     setOtherIsAtb(false);
+    setOtherRoute("");
     setOtherDiluent("");
     setOtherVolumeMl("");
   };
@@ -2659,6 +2661,7 @@ function MedicationsList({
                 if (t.id === "antibiotic") setOtherIsAtb(true);
                 if (t.id === "other") setOtherIsAtb(false);
                 if (t.id === "other") setOtherClass("iv");
+                if (t.id === "antibiotic" || t.id === "other") setOtherRoute("");
               }}
               className={`rounded-md border px-2 py-3 text-[11px] font-semibold transition ${t.cls} ${
                 entryType === t.id ? "ring-2 ring-ring bg-surface-2" : "bg-background"
@@ -2950,7 +2953,7 @@ function MedicationsList({
               })()}
             </div>
           )}
-          <div className="grid grid-cols-[1.5fr_0.8fr_1fr_0.8fr_auto] gap-2">
+          <div className="grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.8fr_auto] gap-2">
             <input
               className={inputCls}
               placeholder="Nome (ex.: Meropenem)"
@@ -2977,6 +2980,18 @@ function MedicationsList({
                   {MEDICATION_CLASS_META[c].icon} {MEDICATION_CLASS_META[c].label}
                 </option>
               ))}
+            </select>
+            <select
+              className={inputCls}
+              value={otherRoute}
+              onChange={(e) => setOtherRoute(e.target.value)}
+              title="Via de administração"
+              aria-label="Via de administração"
+            >
+              <option value="">
+                Via padrão ({routeFromClass(otherIsAtb ? "antibiotic" : otherClass)})
+              </option>
+              <option value="Bomba de infusão">Bomba de infusão</option>
             </select>
             <input
               className={inputCls}
