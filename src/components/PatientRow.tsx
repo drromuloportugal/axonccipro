@@ -90,8 +90,16 @@ import { Pill, CircleCheck, CirclePause, Ban, RotateCcw } from "lucide-react";
 /** Linha secundária da medicação no painel principal: bomba → mL/h; demais → dose · via · intervalo. */
 function medSecondary(m: Medication): string {
   if (medClassOf(m) === "pump") {
-    const r = m.pump?.rateMlPerHour ?? m.mlPerHour;
-    return r != null ? `${r.toFixed(1)} mL/h` : (m.dose ?? "");
+    const rate = m.pump?.rateMlPerHour ?? m.mlPerHour;
+    const min = m.mlPerHourMin ?? rate;
+    const max = m.mlPerHourMax ?? rate;
+
+    if (min != null && max != null) {
+      return min === max
+        ? `${min.toFixed(1)} mL/h`
+        : `${min.toFixed(1)}–${max.toFixed(1)} mL/h`;
+    }
+    return m.dose ?? "";
   }
   return [m.dose, m.route, m.freq].filter(Boolean).join(" · ");
 }
