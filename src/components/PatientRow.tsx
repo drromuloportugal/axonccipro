@@ -113,6 +113,20 @@ function medDosesLabel(m: Medication): string | null {
   return g === 1 ? "1 dose" : `${g} doses`;
 }
 
+const GASOMETRY_CODES = new Set([
+  "PH", "PACO2", "PAO2", "HCO3", "BE", "SATO2A", "GNA", "GCL",
+  "GK", "GCA", "GLAC", "GGLU", "GHB", "GFIO2",
+]);
+
+/** Identifica todos os parâmetros cadastrados na matriz de gasometria. */
+function isGasometryExam(code?: string, label?: string) {
+  const normalizedCode = (code ?? "").trim().toUpperCase();
+  if (GASOMETRY_CODES.has(normalizedCode)) return true;
+  return /\bpH\b|PaO₂?|PaCO₂?|HCO₃?|SatO₂?|Lactato|\bBE\b|Base Excess|P\/F|PaO.*FiO|Na\+.*gasometria|Cl.*gasometria|K\+.*gasometria|Cálcio iônico.*gasometria|Glicose.*gasometria|Hemoglobina.*gasometria|FiO₂.*gasometria/i.test(
+    (code ?? "") + " " + (label ?? ""),
+  );
+}
+
 /** Resume a carga tabágica calculada no painel principal. */
 function resumoCargaTabagica(
   detalhes?: Patient["social"]["tabagismoDetalhes"],
@@ -1084,15 +1098,11 @@ export function PatientRow({
             </div>{" "}
             {/* Laboratoriais + Gasometria (compacto) */}
             {(() => {
-              const isGaso = (code?: string, label?: string) =>
-                /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
-                  code ?? label ?? "",
-                );
               const filled = patient.exams.filter(
                 (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
               );
-              const lab = filled.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
-              const gaso = filled.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
+              const lab = filled.filter((e) => !isGasometryExam(e.code, e.label)).slice(0, 3);
+              const gaso = filled.filter((e) => isGasometryExam(e.code, e.label));
               const rows = (list: typeof patient.exams) =>
                 list.map((e, i) => {
                   const ins = examInsight(e, patient.sex);
@@ -2276,15 +2286,11 @@ export function PatientRow({
               </div>{" "}
               {/* Laboratoriais + Gasometria (movidos da coluna 5) */}
               {(() => {
-                const isGaso = (code?: string, label?: string) =>
-                  /pH|PaO2|PaCO2|HCO3|SatO2|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
-                    code ?? label ?? "",
-                  );
                 const filled = patient.exams.filter(
                   (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
                 );
-                const lab = filled.filter((e) => !isGaso(e.code, e.label));
-                const gaso = filled.filter((e) => isGaso(e.code, e.label));
+                const lab = filled.filter((e) => !isGasometryExam(e.code, e.label));
+                const gaso = filled.filter((e) => isGasometryExam(e.code, e.label));
                 const renderTable = (rows: typeof patient.exams) => (
                   <table className="w-full text-[11px]">
                     <tbody>
