@@ -203,20 +203,6 @@ const isoToLocalInput = (iso?: string) => {
 };
 const localInputToISO = (s: string) => (s ? new Date(s).toISOString() : "");
 
-/** Converte datas antigas (DD/MM/AAAA ou apenas ano) para o seletor nativo. */
-const diagnosisDateToInput = (date?: string) => {
-  if (!date) return "";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-  const br = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(date);
-  if (br) return `${br[3]}-${br[2]}-${br[1]}`;
-  if (/^\d{4}$/.test(date)) return `${date}-01-01`;
-  return "";
-};
-const diagnosisDateFromInput = (value: string) => {
-  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  return iso ? `${iso[3]}/${iso[2]}/${iso[1]}` : value;
-};
-
 export function PatientEditor({ open, initial, initialTab, onClose, onSave, onPersist }: Props) {
   const [p, setP] = useState<Patient>(initial ?? emptyPatient());
   const [allergiesTxt, setAllergiesTxt] = useState("");
@@ -1198,12 +1184,7 @@ function DiagnosesList({
   const add = () =>
     onChange([
       ...items,
-      {
-        date: diagnosisDateFromInput(new Date().toISOString().slice(0, 10)),
-        label: "",
-        kind: "neutral",
-        category: "current",
-      },
+      { date: "", label: "", kind: "neutral", category: "current" },
     ]);
   const updItem = (i: number, patch: Partial<TimelineEvent>) =>
     onChange(items.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
@@ -1221,7 +1202,7 @@ function DiagnosesList({
     <div className="space-y-2">
       {" "}
       {items.map((d, i) => (
-        <div key={i} className="grid grid-cols-[34px_90px_1fr_130px_36px] gap-2">
+        <div key={i} className="grid grid-cols-[34px_132px_1fr_130px_36px] gap-2">
           <div className="flex flex-col justify-center gap-0.5">
             <button
               type="button"
@@ -1243,12 +1224,11 @@ function DiagnosesList({
             </button>
           </div>
           <input
-            type="date"
             className={inputCls}
+            placeholder="Data do evento"
             aria-label="Data do diagnóstico"
-            title={d.date ? `Data registrada: ${d.date}` : "Selecione a data do diagnóstico"}
-            value={diagnosisDateToInput(d.date)}
-            onChange={(e) => updItem(i, { date: diagnosisDateFromInput(e.target.value) })}
+            value={d.date}
+            onChange={(e) => updItem(i, { date: e.target.value })}
           />
           <input
             className={inputCls}
