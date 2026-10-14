@@ -18,7 +18,10 @@ export const listPatients = createServerFn({ method: "GET" })
 /** Substitui a cópia central de pacientes compartilhada pela equipe autenticada. */
 export const savePatients = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  
+  .validator((data: { patients: Patient[] }) => {
+    if (!data || !Array.isArray(data.patients)) throw new Error("Lista inválida");
+    return { patients: data.patients.filter((p) => p && typeof p.id === "string") };
+  })
   .handler(async ({ data, context }) => {
     const db = context.supabase;
 
