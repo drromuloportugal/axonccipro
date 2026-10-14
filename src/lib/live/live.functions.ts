@@ -41,7 +41,7 @@ async function resolvePatient(db: PatientsDb, patientId: string): Promise<Patien
 /** Cria a sessão de voz e devolve apenas o token efêmero (client secret). */
 export const createLiveSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { patientId?: string }) => ({ patientId: data?.patientId ?? "" }))
+  
   .handler(async ({ data, context }) => {
     const apiKey = process.env["OPENAI_API_KEY"];
     if (!apiKey) {
@@ -109,10 +109,7 @@ export const createLiveSession = createServerFn({ method: "POST" })
 /** Encerra a sessão e registra o motivo. */
 export const endLiveSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { sessionId: string; reason?: string }) => ({
-    sessionId: String(data?.sessionId ?? ""),
-    reason: data?.reason ?? "user",
-  }))
+  
   .handler(async ({ data, context }) => {
     if (!data.sessionId) return { ok: false as const };
     await context.supabase
@@ -126,19 +123,7 @@ export const endLiveSession = createServerFn({ method: "POST" })
 /** Guarda a transcrição (texto apenas — nenhum áudio bruto é gravado). */
 export const logVoiceInteraction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: {
-      sessionId?: string | null;
-      patientId?: string | null;
-      role: string;
-      transcript: string;
-    }) => ({
-      sessionId: data?.sessionId ?? null,
-      patientId: data?.patientId ?? null,
-      role: data?.role === "assistant" ? "assistant" : "user",
-      transcript: String(data?.transcript ?? "").slice(0, 4000),
-    }),
-  )
+  
   .handler(async ({ data, context }) => {
     if (!data.transcript.trim()) return { ok: false as const };
     await context.supabase.from("voice_interactions").insert({
@@ -154,25 +139,7 @@ export const logVoiceInteraction = createServerFn({ method: "POST" })
 /** Executa uma ferramenta clínica pedida pela voz, com auditoria. */
 export const runLiveTool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: {
-      name: string;
-      args?: Record<string, unknown>;
-      patientId?: string;
-      sessionId?: string | null;
-    }) => {
-      const name = String(data?.name ?? "");
-      if (!LIVE_TOOL_NAMES.includes(name as LiveToolName)) {
-        throw new Error(`Ferramenta não permitida: ${name}`);
-      }
-      return {
-        name: name as LiveToolName,
-        args: (data?.args ?? {}) as Record<string, unknown>,
-        patientId: String(data?.patientId ?? ""),
-        sessionId: data?.sessionId ?? null,
-      };
-    },
-  )
+  
   .handler(async ({ data, context }) => {
     const db = context.supabase;
     const patientId = String(data.args["patientId"] ?? data.patientId ?? "");
