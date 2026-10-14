@@ -931,18 +931,39 @@ export function PatientRow({
                         : r.label === "Negativa"
                           ? "border border-clinical-stable/70"
                           : "border border-clinical-attention/70";
+                    const observation = c.notes?.trim();
+                    const observationPreview =
+                      observation && observation.length > 88
+                        ? `${observation.slice(0, 88).trimEnd()}…`
+                        : observation;
                     return (
                       <div
                         key={c.id}
-                        className={`flex items-center gap-1 rounded-md px-1 py-0.5 text-[10.5px] leading-snug ${borderCls}`}
+                        className={`rounded-md px-1 py-0.5 text-[10.5px] leading-snug ${borderCls}`}
                         title={`${c.organism ?? c.source} — ${r.label}`}
                       >
-                        <span className="min-w-0 flex-1 truncate">
-                          <span className="font-semibold text-foreground"> {c.source}</span>{" "}
-                          {c.organism ? (
-                            <span className="text-muted-foreground"> · {c.organism}</span>
-                          ) : null}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="min-w-0 flex-1 truncate">
+                            <span className="font-semibold text-foreground"> {c.source}</span>{" "}
+                            {c.organism ? (
+                              <span className="text-muted-foreground"> · {c.organism}</span>
+                            ) : null}
+                          </span>
+                        </div>
+                        {observation && (
+                          <details
+                            className="mt-0.5 text-[9.5px] text-muted-foreground"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <summary className="cursor-pointer select-none hover:text-foreground">
+                              <span className="font-medium">Observações: </span>
+                              {observationPreview} <span className="font-semibold">· expandir</span>
+                            </summary>
+                            <p className="mt-1 whitespace-pre-wrap break-words text-foreground">
+                              {observation}
+                            </p>
+                          </details>
+                        )}
                       </div>
                     );
                   })}
