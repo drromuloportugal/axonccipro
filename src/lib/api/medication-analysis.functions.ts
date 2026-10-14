@@ -74,7 +74,7 @@ Regras:
 - Toda análise em português brasileiro.`;
 
 export const analyzeMedications = createServerFn({ method: "POST" })
-  .inputValidator(InputSchema)
+  
   .handler(async ({ data }) => {
     const supabaseUrl = process.env["SUPABASE_URL"]?.replace(/\/$/, "");
     const authorization = getRequest()?.headers.get("authorization");
