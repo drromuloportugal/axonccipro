@@ -141,11 +141,11 @@ const vitalPatch = (field: MinMax, raw: string): Partial<VitalReading> => {
 
   if (field === "max") {
     return numeric !== undefined
-      ? { value: numeric, text: undefined }
+      ? { value: numeric, text: cleaned || undefined }
       : { value: undefined, text: cleaned || undefined };
   }
   return numeric !== undefined
-    ? { min: numeric, minText: undefined }
+    ? { min: numeric, minText: cleaned || undefined }
     : { min: undefined, minText: cleaned || undefined };
 };
 
