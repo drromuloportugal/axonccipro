@@ -1085,8 +1085,8 @@ export function PatientRow({
             {/* Laboratoriais + Gasometria (compacto) */}
             {(() => {
               const isGaso = (code?: string, label?: string) =>
-                /pH|PaO2|PaCO2|HCO3|SatO2|Lact|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
-                  code ?? label ?? "",
+                /pH|PaO2|PaCO2|HCO3|SatO2|Lact|GLAC|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
+                  `${code ?? ""} ${label ?? ""}`,
                 );
               const filled = patient.exams.filter(
                 (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
@@ -2277,8 +2277,8 @@ export function PatientRow({
               {/* Laboratoriais + Gasometria (movidos da coluna 5) */}
               {(() => {
                 const isGaso = (code?: string, label?: string) =>
-                  /pH|PaO2|PaCO2|HCO3|SatO2|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
-                    code ?? label ?? "",
+                  /pH|PaO2|PaCO2|HCO3|SatO2|Lact|GLAC|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
+                    `${code ?? ""} ${label ?? ""}`,
                   );
                 const filled = patient.exams.filter(
                   (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
