@@ -277,6 +277,10 @@ export interface VitalSummaryEntry {
   min?: number;
   unit?: string;
   dec?: number;
+  /** Valor máximo textual quando o registro não é numérico. */
+  rawMax?: string;
+  /** Valor mínimo textual quando o registro não é numérico. */
+  rawMin?: string;
 }
 export interface VitalSummary {
   temp: VitalSummaryEntry;
@@ -409,10 +413,17 @@ const LATEST_VITAL_DEFS: {
 const dayKeyOf = (iso?: string) => (iso ? iso.slice(0, 10) : "");
 
 /** Último registro de uma série em uma data específica (AAAA-MM-DD). */
-function readingOnDay(arr: VitalReading[] | undefined, day: string): VitalReading | undefined {
-  const hits = (arr ?? []).filter(
-    (r) => typeof r.value === "number" && !Number.isNaN(r.value) && dayKeyOf(r.at) === day,
+function hasReadableVitalValue(r: VitalReading) {
+  return (
+    (typeof r.value === "number" && !Number.isNaN(r.value)) ||
+    (typeof r.min === "number" && !Number.isNaN(r.min)) ||
+    Boolean(r.text?.trim()) ||
+    Boolean(r.minText?.trim())
   );
+}
+
+function readingOnDay(arr: VitalReading[] | undefined, day: string): VitalReading | undefined {
+  const hits = (arr ?? []).filter((r) => hasReadableVitalValue(r) && dayKeyOf(r.at) === day);
   if (!hits.length) return undefined;
   return [...hits].sort((a, b) => (a.at ?? "").localeCompare(b.at ?? ""))[hits.length - 1];
 }
@@ -423,15 +434,29 @@ function entryFrom(
   unit: string,
   dec = 0,
 ): VitalSummaryEntry {
-  const max = r.value;
+  const max = typeof r.value === "number" && !Number.isNaN(r.value) ? r.value : undefined;
   const min = typeof r.min === "number" && !Number.isNaN(r.min) ? r.min : undefined;
-  const lvl: Level = classify ? worst(classify(min).level, classify(max).level) : "na";
+  const rawMax = r.text?.trim() || undefined;
+  const rawMin = r.minText?.trim() || undefined;
+  const hasNumericValue = max != null || min != null;
+  const lvl: Level = classify && hasNumericValue ? worst(classify(min).level, classify(max).level) : "na";
   const fmt = (v?: number) => (v == null ? "—" : v.toFixed(dec));
+  const visibleMax = rawMax ?? (max != null ? fmt(max) : undefined);
+  const visibleMin = rawMin ?? (min != null ? fmt(min) : undefined);
   const txt =
-    min != null && max != null && min !== max
-      ? `${fmt(max)}–${fmt(min)} ${unit}`
-      : `${fmt(max ?? min)} ${unit}`;
-  return { level: lvl, text: txt.trim(), max, min, unit: unit || undefined, dec };
+    visibleMax && visibleMin && visibleMax !== visibleMin
+      ? `${visibleMax}–${visibleMin} ${unit}`
+      : `${visibleMax ?? visibleMin ?? "—"} ${unit}`;
+  return {
+    level: lvl,
+    text: txt.trim(),
+    max,
+    min,
+    unit: unit || undefined,
+    dec,
+    rawMax,
+    rawMin,
+  };
 }
 
 export interface LatestDayVitals {
@@ -452,7 +477,7 @@ export function latestDayVitals(patient: Patient): LatestDayVitals {
   let latest = "";
   const scan = (arr?: VitalReading[]) => {
     for (const r of arr ?? []) {
-      if (typeof r.value !== "number" || Number.isNaN(r.value)) continue;
+      if (!hasReadableVitalValue(r)) continue;
       const d = dayKeyOf(r.at);
       if (d && d > latest) latest = d;
     }
