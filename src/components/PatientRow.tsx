@@ -148,11 +148,48 @@ function vitalMinMax(v: VitalSummaryEntry): { max: string; min: string | null } 
   const unit = v.unit ? ` ${v.unit}` : "";
   const fmt = (n?: number) =>
     typeof n === "number" && Number.isFinite(n) ? `${n.toFixed(dec)}${unit}` : null;
-  const max = fmt(v.max);
-  const min = fmt(v.min);
+  const max = v.rawMax ?? fmt(v.max);
+  const min = v.rawMin ?? fmt(v.min);
   if (!max && !min) return { max: v.text.split("·")[0].trim() || "—", min: null };
   if (max && min && max === min) return { max, min: null };
   return { max: max ?? min ?? "—", min: max ? min : null };
+}
+
+const GASOMETRY_ORDER = [
+  { code: "PH", match: /^p?h$/i },
+  { code: "PACO2", match: /PaCO2|PCO2|PaCO₂/i },
+  { code: "PAO2", match: /PaO2|^PO2$|PaO₂/i },
+  { code: "HCO3", match: /HCO3|HCO₃|bicarbon/i },
+  { code: "BE", match: /base excess|^BE$/i },
+  { code: "SATO2A", match: /SatO2 arterial|SatO₂ arterial|SATO2A/i },
+  { code: "GNA", match: /Na.*gasometria/i },
+  { code: "GCL", match: /Cl.*gasometria/i },
+  { code: "GK", match: /K.*gasometria/i },
+  { code: "GCA", match: /Cálcio iônico.*gasometria/i },
+  { code: "GLAC", match: /Lactato arterial/i },
+  { code: "GGLU", match: /Glicose.*gasometria/i },
+  { code: "GHB", match: /Hemoglobina.*gasometria/i },
+  { code: "GFIO2", match: /FiO2|FiO₂/i },
+] as const;
+
+function gasometryRank(code?: string, label?: string) {
+  const normalizedCode = (code ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const exact = GASOMETRY_ORDER.findIndex((item) => item.code === normalizedCode);
+  if (exact >= 0) return exact;
+  const byLabel = GASOMETRY_ORDER.findIndex((item) => item.match.test(label ?? ""));
+  return byLabel >= 0 ? byLabel : GASOMETRY_ORDER.length;
+}
+
+function isGasometryExam(code?: string, label?: string) {
+  return gasometryRank(code, label) < GASOMETRY_ORDER.length || /gasometria|blood gas/i.test(label ?? "");
+}
+
+function compareGasometry(
+  a: { code?: string; label?: string },
+  b: { code?: string; label?: string },
+) {
+  const rankDiff = gasometryRank(a.code, a.label) - gasometryRank(b.code, b.label);
+  return rankDiff || (a.label ?? "").localeCompare(b.label ?? "", "pt-BR");
 }
 
 const kindClass: Record<string, string> = {
@@ -1084,15 +1121,14 @@ export function PatientRow({
             </div>{" "}
             {/* Laboratoriais + Gasometria (compacto) */}
             {(() => {
-              const isGaso = (code?: string, label?: string) =>
-                /pH|PaO2|PaCO2|HCO3|SatO2|Lact|GLAC|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
-                  `${code ?? ""} ${label ?? ""}`,
-                );
               const filled = patient.exams.filter(
                 (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
               );
-              const lab = filled.filter((e) => !isGaso(e.code, e.label)).slice(0, 3);
-              const gaso = filled.filter((e) => isGaso(e.code, e.label)).slice(0, 3);
+              const lab = filled.filter((e) => !isGasometryExam(e.code, e.label)).slice(0, 3);
+              const gaso = filled
+                .filter((e) => isGasometryExam(e.code, e.label))
+                .sort(compareGasometry)
+                .slice(0, 3);
               const rows = (list: typeof patient.exams) =>
                 list.map((e, i) => {
                   const ins = examInsight(e, patient.sex);
@@ -2276,15 +2312,13 @@ export function PatientRow({
               </div>{" "}
               {/* Laboratoriais + Gasometria (movidos da coluna 5) */}
               {(() => {
-                const isGaso = (code?: string, label?: string) =>
-                  /pH|PaO2|PaCO2|HCO3|SatO2|Lact|GLAC|^BE$|BE \(|Base Excess|P\/F|PaO.*FiO/i.test(
-                    `${code ?? ""} ${label ?? ""}`,
-                  );
                 const filled = patient.exams.filter(
                   (e) => String(e.value ?? "").trim() !== "" && String(e.value).trim() !== "—",
                 );
-                const lab = filled.filter((e) => !isGaso(e.code, e.label));
-                const gaso = filled.filter((e) => isGaso(e.code, e.label));
+                const lab = filled.filter((e) => !isGasometryExam(e.code, e.label));
+                const gaso = filled
+                  .filter((e) => isGasometryExam(e.code, e.label))
+                  .sort(compareGasometry);
                 const renderTable = (rows: typeof patient.exams) => (
                   <table className="w-full text-[11px]">
                     <tbody>
