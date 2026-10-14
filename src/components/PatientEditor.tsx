@@ -2360,11 +2360,14 @@ function MedicationsList({
   const addOther = () => {
     if (!otherName.trim()) return;
     const start = new Date();
-    const chosen: MedicationClass = otherIsAtb ? "antibiotic" : otherClass;
+    const isAntibiotic = entryType === "antibiotic" || otherIsAtb;
+    const chosen: MedicationClass = isAntibiotic ? "antibiotic" : otherClass;
+    const defaultRoute =
+      otherClass === "inhaled" ? routeFromClass(otherClass) : routeFromClass(chosen);
     const med: Medication = {
       name: otherName.trim(),
       dose: otherDose,
-      route: otherRoute || routeFromClass(chosen),
+      route: otherRoute || defaultRoute,
       freq: otherFreq,
       start: todayShort(),
       kind: "attention",
@@ -2377,7 +2380,7 @@ function MedicationsList({
         volumeMl: Math.min(1000, Math.max(1, otherVolumeMl)),
       };
     }
-    if (otherIsAtb) {
+    if (isAntibiotic) {
       med.isAntibiotic = true;
       med.startISO = start.toISOString();
       const end = new Date(start.getTime() + otherCourseDays * 86400000);
@@ -2992,6 +2995,7 @@ function MedicationsList({
                 Via padrão ({routeFromClass(otherIsAtb ? "antibiotic" : otherClass)})
               </option>
               <option value="Bomba de infusão">Bomba de infusão</option>
+              <option value="INAL">Inalatória</option>
             </select>
             <input
               className={inputCls}
