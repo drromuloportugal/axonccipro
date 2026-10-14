@@ -248,7 +248,7 @@ async function callGateway(messages: Array<{ role: string; content: string }>) {
 
 /** Gera relato / passagem de plantão / telas analíticas do motor de análise profunda. */
 export const generateCaseReport = createServerFn({ method: "POST" })
-  .inputValidator(ReportInput)
+  
   .handler(async ({ data }) => {
     const mode = data.mode ?? "report";
     const task =
@@ -270,7 +270,7 @@ export const generateCaseReport = createServerFn({ method: "POST" })
 
 /** Chat clínico sobre o caso, com evidência baseada no OpenEvidence. */
 export const askAboutCase = createServerFn({ method: "POST" })
-  .inputValidator(ChatInput)
+  
   .handler(async ({ data }) => {
     const messages: Array<{ role: string; content: string }> = [
       { role: "system", content: CHAT_SYSTEM },
@@ -338,7 +338,7 @@ Encerre com ⚪ DADOS IMPORTANTES AUSENTES listando o que limita a análise.`;
 
 /** Gera a escala clínica estruturada para a próxima janela de plantão de 12 horas. */
 export const generateShiftSchedule = createServerFn({ method: "POST" })
-  .inputValidator(ShiftInput)
+  
   .handler(async ({ data }) => {
     const user = [
       `JANELA DO PRÓXIMO PLANTÃO: ${data.windowKind.toUpperCase()} (${data.windowHours})`,
@@ -377,7 +377,7 @@ const CloseShiftInput = z.object({
 
 /** Encerramento do plantão: eventos, tarefas concluídas/pendentes e handoff. */
 export const closeShiftReport = createServerFn({ method: "POST" })
-  .inputValidator(CloseShiftInput)
+  
   .handler(async ({ data }) => {
     const tasks = (data.tasks ?? []).map((t) => `${t.done ? "☑" : "☐"} ${t.text}`).join("\n");
     const report = await callGateway([
@@ -401,7 +401,7 @@ const InsightInput = z.object({
 
 /** Sugere 4 ângulos de raciocínio sobre a informação apontada pelo balão. */
 export const suggestInsightAngles = createServerFn({ method: "POST" })
-  .inputValidator(InsightInput)
+  
   .handler(async ({ data }) => {
     const content = await callGateway([
       {
@@ -501,7 +501,7 @@ Em português do Brasil.`;
 
 /** Revisão FASTHUG MAIDENS item por item, com sugestões aplicáveis às condutas. */
 export const reviewFasthugMaidens = createServerFn({ method: "POST" })
-  .inputValidator(FasthugInput)
+  
   .handler(async ({ data }) => {
     const list = FASTHUG_MAIDENS_ITEMS.map((i) => `${i.key} — ${i.title}`).join("\n");
     const content = await callGateway([
@@ -582,7 +582,7 @@ Em português do Brasil.`;
 
 /** Sugere ajuste antimicrobiano conforme a depuração de creatinina calculada. */
 export const suggestRenalAntimicrobialAdjustment = createServerFn({ method: "POST" })
-  .inputValidator(RenalInput)
+  
   .handler(async ({ data }) => {
     const content = await callGateway([
       { role: "system", content: RENAL_SYSTEM },
