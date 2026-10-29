@@ -29,6 +29,7 @@ import {
   Sun,
   Palette,
   HeartPulse,
+  ClipboardList,
 } from "lucide-react";
 import axonLogo from "@/assets/axon-critical-care-logo-transparent.png";
 import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
@@ -556,6 +557,19 @@ function Passometro() {
                 >
                   <LayoutDashboard className="h-3.5 w-3.5" />
                   Gestão
+                </button>
+
+                <button
+                  onClick={() => {
+                    window.localStorage.setItem("axon:professional-role", "enfermeiro");
+                    setProfessionalRole("enfermeiro");
+                    setToolsOpen(false);
+                  }}
+                  className="inline-flex w-full items-center gap-2 rounded-md border border-clinical-stable/40 bg-clinical-stable/10 px-3 py-2 text-[12px] font-semibold text-clinical-stable transition-colors hover:bg-clinical-stable/20"
+                  title="Alternar para o painel de workflow da enfermagem"
+                >
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  Painel de enfermagem
                 </button>
 
                 {/* Dados e sessão */}
