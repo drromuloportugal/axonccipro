@@ -346,8 +346,9 @@ function Passometro() {
     setEditorOpen(false);
     setEditing(null);
   };
-  const persistPatientWithoutClosing = (p: Patient) => {
-    setPatients((prev) => prev.map((current) => current.id === p.id ? p : current));
+  const persistPatientWithoutClosing = (p: Patient, previousId?: string) => {
+    const sourceId = previousId ?? p.id;
+    setPatients((prev) => prev.map((current) => current.id === sourceId ? p : current));
   };
   // Print: render hidden #print-area then trigger window.print(); clean up after.
   useEffect(() => {
