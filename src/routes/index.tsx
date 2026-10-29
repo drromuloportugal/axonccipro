@@ -378,6 +378,9 @@ function Passometro() {
           setProfessionalRole("medico");
         }}
         onSignOut={handleSignOut}
+        onUpdatePatient={(nextPatient) =>
+          setPatients((current) => current.map((patient) => patient.id === nextPatient.id ? nextPatient : patient))
+        }
       />
     );
   }
