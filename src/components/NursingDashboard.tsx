@@ -676,6 +676,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
+  const [timelineZoom, setTimelineZoom] = useState<"compact" | "normal" | "ampliado">("normal");
+  const timelineCellWidth = timelineZoom === "compact" ? 48 : timelineZoom === "ampliado" ? 112 : 84;
+  const timelineCardHeight = timelineZoom === "compact" ? 92 : timelineZoom === "ampliado" ? 174 : 128;
+  const timelineCardSpan = timelineZoom === "compact" ? 2 : timelineZoom === "ampliado" ? 4 : 3;
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -812,6 +816,14 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
+            <label className="flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-neto-foreground">
+              <span className="uppercase tracking-wide text-[10px]">Zoom</span>
+              <select value={timelineZoom} onChange={(event) => setTimelineZoom(event.target.value as "compact" | "normal" | "ampliado")} className="bg-transparent text-xs font-bold text-neto-foreground outline-none">
+                <option value="compact">Compacto</option>
+                <option value="normal">Normal</option>
+                <option value="ampliado">Ampliado</option>
+              </select>
+            </label>
             <div className="relative">
               <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="inline-flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-3 py-2 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20" aria-label="Abrir menu da enfermagem">
                 <Menu className="h-4 w-4" /> Menu
@@ -938,13 +950,13 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </div>
                         </div>
                         <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
-                          <div className="min-w-[2016px]">
-                            <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(84px, 1fr))" }}>
+                          <div style={{ minWidth: `${timelineCellWidth * 24}px` }}>
+                            <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
                               {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
                                 <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
                               ))}
                             </div>
-                            <div className="relative grid min-h-[182px] auto-rows-[170px] grid-flow-row-dense gap-2 rounded-sm border border-white/70 bg-white/35 p-2.5 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: "repeat(24, minmax(84px, 1fr))" }}>
+                            <div className="relative grid min-h-[182px] auto-rows-[170px] grid-flow-row-dense gap-2 rounded-sm border border-white/70 bg-white/35 p-2.5 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: `repeat(24, minmax(${timelineCellWidth}px, 1fr))`, gridAutoRows: `${timelineCardHeight}px`, minHeight: `${timelineCardHeight + 12}px` }}>
                               <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
@@ -954,8 +966,8 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     type="button"
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
-                                    style={{ gridColumnStart: column, gridColumnEnd: "span 3" }}
-                                    className={`relative min-h-[128px] min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    style={{ gridColumnStart: column, gridColumnEnd: `span ${timelineCardSpan}`, minHeight: `${timelineCardHeight}px` }}
+                                    className={`relative min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
                                     <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
