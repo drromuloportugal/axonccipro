@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
-import { CalendarDays, ClipboardList, Clock3, LogOut, Stethoscope, UserRoundCog } from "lucide-react";
+import { CalendarDays, ClipboardList, Clock3, LogOut, Menu, ShieldCheck, Stethoscope, UserRoundCog } from "lucide-react";
 
 type Props = {
   patients: Patient[];
@@ -470,6 +470,30 @@ function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose:
   );
 }
 
+function Rdc36Panel({ onBack }: { onBack: () => void }) {
+  return (
+    <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
+      <div className="ios-card flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3">
+        <div>
+          <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" /><h2 className="title-box !text-[12px]">RDC 36 · Segurança do paciente</h2></div>
+          <p className="mt-1 text-xs text-muted-foreground">Área de indicadores assistenciais da enfermagem.</p>
+        </div>
+        <button type="button" onClick={onBack} className="rounded border border-border bg-background px-3 py-2 text-xs font-bold text-foreground hover:bg-muted">Voltar ao workflow</button>
+      </div>
+      <div className="mt-4 grid gap-4 xl:grid-cols-3">
+        {[1, 2, 3].map((table) => (
+          <section key={table} className="ios-card min-h-64 rounded-lg p-4">
+            <h3 className="title-box !text-[11px]">Tabela {table}</h3>
+            <div className="mt-4 flex min-h-44 items-center justify-center rounded border border-dashed border-border bg-muted/20 p-5 text-center">
+              <div><p className="text-sm font-bold text-foreground">Modelo de tabela pendente</p><p className="mt-2 text-xs font-semibold text-muted-foreground">Envie o arquivo Excel de referência para inserir a tabela {table} com os campos e cálculos corretos.</p></div>
+            </div>
+          </section>
+        ))}
+      </div>
+    </main>
+  );
+}
+
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -477,6 +501,8 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -585,6 +611,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="inline-flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-3 py-2 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20" aria-label="Abrir menu da enfermagem">
+                <Menu className="h-4 w-4" /> Menu
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full z-30 mt-2 w-52 rounded-lg border border-border bg-background p-1 shadow-xl">
+                  <button type="button" onClick={() => { setNursingView("workflow"); setMenuOpen(false); }} className="w-full rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted">Workflow de enfermagem</button>
+                  <button type="button" onClick={() => { setNursingView("rdc36"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><ShieldCheck className="h-4 w-4 text-primary" /> RDC 36</button>
+                </div>
+              )}
+            </div>
             <button
               type="button"
               onClick={onOpenMedicalPanel}
@@ -605,6 +642,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         </div>
       </header>
 
+      {nursingView === "rdc36" ? <Rdc36Panel onBack={() => setNursingView("workflow")} /> : (
       <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
         <div className="ios-card mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3">
           <div>
@@ -747,6 +785,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
           </div>
         )}
       </main>
+      )}
       {selectedPatient && <SbarPanel patient={selectedPatient} onUpdatePatient={onUpdatePatient} onClose={() => setSelectedPatient(null)} />}
 
       {calendarPatientId && (() => {
