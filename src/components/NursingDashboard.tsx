@@ -54,19 +54,19 @@ const fastHugCriteria = [
 const activityMeta: Record<WorkflowActivity["type"], { label: string; className: string }> = {
   monitoring: {
     label: "Monitorização",
-    className: "border-clinical-resp/40 bg-clinical-resp/10 text-ink",
+    className: "border-cyan-700/90 bg-cyan-300/35 text-slate-900",
   },
   medication: {
     label: "Medicação",
-    className: "border-clinical-stable/40 bg-clinical-stable/10 text-ink",
+    className: "border-emerald-700/90 bg-emerald-300/35 text-slate-900",
   },
   device: {
     label: "Dispositivos",
-    className: "border-clinical-device/40 bg-clinical-device/10 text-ink",
+    className: "border-violet-700/90 bg-violet-300/35 text-slate-900",
   },
   care: {
     label: "Cuidados",
-    className: "border-clinical-neuro/40 bg-clinical-neuro/10 text-ink",
+    className: "border-blue-700/90 bg-blue-300/35 text-slate-900",
   },
 };
 
@@ -938,7 +938,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
                                     style={{ gridColumnStart: column, gridColumnEnd: "span 2" }}
-                                    className={`aspect-square min-w-0 rounded-sm border bg-white/70 px-3 py-2.5 text-left shadow-md backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-lg ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    className={`min-h-[132px] min-w-0 rounded-md border-4 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.16)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.22)] ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
                                     <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-80">
