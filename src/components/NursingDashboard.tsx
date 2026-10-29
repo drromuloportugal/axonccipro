@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
-import { ClipboardList, Clock3, LogOut, Stethoscope, UserRoundCog } from "lucide-react";
+import { CalendarDays, ClipboardList, Clock3, LogOut, Stethoscope, UserRoundCog } from "lucide-react";
 
 type Props = {
   patients: Patient[];
@@ -19,6 +19,7 @@ type WorkflowActivity = {
   important?: boolean;
   hidden?: boolean;
   source?: "default" | "custom" | "fasthug";
+  scheduledDate?: string;
 };
 
 type FastHugStatus = "adequado" | "atencao" | "nao_aplicavel";
@@ -78,6 +79,19 @@ function shiftPeriod() {
   const date = (d: Date) =>
     d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   return `07:00 de ${date(start)} até 07:00 de ${date(end)}`;
+}
+
+function localIsoDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function currentShiftDate() {
+  const date = new Date();
+  if (date.getHours() < 7) date.setDate(date.getDate() - 1);
+  return localIsoDate(date);
 }
 
 function activityStartColumn(time: string) {
@@ -397,6 +411,112 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   );
 }
 
+function PatientActivityCalendar({ patient, onClose, onAdd, onRemove }: { patient: Patient; onClose: () => void; onAdd: (activity: WorkflowActivity) => void; onRemove: (activityId: string) => void }) {
+  const today = localIsoDate(new Date());
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [monthDate, setMonthDate] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const [label, setLabel] = useState("");
+  const [time, setTime] = useState("08:00");
+  const [type, setType] = useState<WorkflowActivity["type"]>("care");
+  const activities = ((patient.nursingWorkflow?.activities ?? []) as WorkflowActivity[])
+    .filter((activity) => activity.scheduledDate === selectedDate)
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const days = [
+    ...Array.from({ length: firstWeekday }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
+  ];
+
+  const chooseDate = (date: string) => {
+    setSelectedDate(date);
+    const chosen = new Date(`${date}T12:00:00`);
+    setMonthDate(new Date(chosen.getFullYear(), chosen.getMonth(), 1));
+  };
+
+  const addActivity = () => {
+    if (!label.trim()) return;
+    onAdd({
+      id: `calendar-${Date.now()}`,
+      label: label.trim(),
+      time,
+      type,
+      source: "custom",
+      scheduledDate: selectedDate,
+    });
+    setLabel("");
+    setTime("08:00");
+  };
+
+  return (
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Agenda de ${patient.name}`} onClick={onClose}>
+      <section className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-border bg-soft-blue-gradient shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <header className="neto-glass sticky top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 text-neto-foreground backdrop-blur">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">Agenda do paciente</p>
+            <h2 className="mt-1 text-base font-bold text-neto-foreground">{patient.name} · Leito {patient.bed || "—"}</h2>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Fechar</button>
+        </header>
+        <div className="grid gap-5 p-5 lg:grid-cols-[1.25fr_.75fr]">
+          <section className="ios-card rounded-lg p-4">
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <button type="button" onClick={() => setMonthDate(new Date(year, month - 1, 1))} className="rounded border border-border px-2 py-1 text-xs font-bold" aria-label="Mês anterior">‹</button>
+              <h3 className="text-sm font-bold capitalize text-foreground">{monthDate.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}</h3>
+              <button type="button" onClick={() => setMonthDate(new Date(year, month + 1, 1))} className="rounded border border-border px-2 py-1 text-xs font-bold" aria-label="Próximo mês">›</button>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase text-muted-foreground">
+              {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => <span key={day} className="py-1">{day}</span>)}
+              {days.map((day, index) => {
+                if (!day) return <span key={`empty-${index}`} />;
+                const date = localIsoDate(new Date(year, month, day));
+                const hasActivities = ((patient.nursingWorkflow?.activities ?? []) as WorkflowActivity[]).some((activity) => activity.scheduledDate === date);
+                return (
+                  <button key={date} type="button" onClick={() => chooseDate(date)} className={`relative min-h-10 rounded text-xs font-bold transition-colors ${selectedDate === date ? "bg-primary text-primary-foreground" : date === today ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}>
+                    {day}
+                    {hasActivities && <span className={`absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full ${selectedDate === date ? "bg-white" : "bg-clinical-attention"}`} />}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="ios-card rounded-lg p-4">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Atividades em {new Date(`${selectedDate}T12:00:00`).toLocaleDateString("pt-BR")}</p>
+            <div className="mt-3 space-y-2">
+              {activities.length ? activities.map((activity) => (
+                <div key={activity.id} className="ios-inset flex items-start justify-between gap-2 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold text-foreground">{activity.time} · {activity.label}</p>
+                    <p className="mt-0.5 text-[10px] font-semibold text-muted-foreground">{activityMeta[activity.type].label}</p>
+                  </div>
+                  <button type="button" onClick={() => activity.id && onRemove(activity.id)} className="rounded border border-clinical-critical/35 px-2 py-1 text-[10px] font-bold text-clinical-critical hover:bg-clinical-critical/10">Remover</button>
+                </div>
+              )) : <p className="py-4 text-center text-xs italic text-muted-foreground">Nenhuma atividade agendada nesta data.</p>}
+            </div>
+            <div className="mt-4 border-t border-border pt-4">
+              <p className="text-[11px] font-bold text-foreground">Agendar atividade</p>
+              <div className="mt-2 space-y-2">
+                <input className="w-full rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" placeholder="Descrição da atividade" value={label} onChange={(event) => setLabel(event.target.value)} />
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="time" className="rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={time} onChange={(event) => setTime(event.target.value)} />
+                  <select className="rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={type} onChange={(event) => setType(event.target.value as WorkflowActivity["type"])}>
+                    {Object.entries(activityMeta).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}
+                  </select>
+                </div>
+                <button type="button" onClick={addActivity} className="w-full rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Agendar para esta data</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose: () => void; onSave: (criteria: Record<string, FastHugCriterion>) => void }) {
   const existing = (patient.nursingWorkflow as NursingWorkflowWithFastHug | undefined)?.fastHugReview?.criteria;
   const [criteria, setCriteria] = useState<Record<string, FastHugCriterion>>(() =>
@@ -457,6 +577,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"] } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
+  const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -508,6 +629,32 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       } as Patient["nursingWorkflow"],
     });
     setFastHugActivity(null);
+  };
+
+  const addScheduledActivity = (patientId: string, activity: WorkflowActivity) => {
+    const patient = patients.find((item) => item.id === patientId);
+    if (!patient) return;
+    const current = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+    onUpdatePatient({
+      ...patient,
+      nursingWorkflow: {
+        ...patient.nursingWorkflow,
+        activities: [...current, activity],
+      } as Patient["nursingWorkflow"],
+    });
+  };
+
+  const removeScheduledActivity = (patientId: string, activityId: string) => {
+    const patient = patients.find((item) => item.id === patientId);
+    if (!patient) return;
+    const current = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+    onUpdatePatient({
+      ...patient,
+      nursingWorkflow: {
+        ...patient.nursingWorkflow,
+        activities: current.filter((activity) => activity.id !== activityId),
+      } as Patient["nursingWorkflow"],
+    });
   };
 
   return (
@@ -582,7 +729,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                   ...baseActivities
                     .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
                     .filter((activity) => !activity.hidden),
-                  ...storedActivities.filter((activity) => !baseActivities.some((base) => base.id === activity.id) && !activity.hidden),
+                  ...storedActivities.filter((activity) => !baseActivities.some((base) => base.id === activity.id) && !activity.hidden && (!activity.scheduledDate || activity.scheduledDate === currentShiftDate())),
                 ];
                 return (
                   <article
@@ -627,7 +774,12 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Linha do tempo do plantão
                           </p>
-                          <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care" })} className="shrink-0 rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <button type="button" onClick={() => setCalendarPatientId(patient.id)} className="inline-flex items-center gap-1 rounded border border-border bg-background/75 px-2 py-1 text-[10px] font-bold text-foreground hover:bg-muted">
+                              <CalendarDays className="h-3 w-3" /> Agenda
+                            </button>
+                            <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care" })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
+                          </div>
                         </div>
                         <div className="overflow-x-auto pb-2" aria-label="Linha do tempo de atividades com rolagem horizontal">
                           <div className="min-w-[1440px]">
@@ -684,6 +836,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       </main>
       {selectedPatient && <SbarPanel patient={selectedPatient} onUpdatePatient={onUpdatePatient} onClose={() => setSelectedPatient(null)} />}
 
+      {calendarPatientId && (() => {
+        const patient = patients.find((item) => item.id === calendarPatientId);
+        return patient ? (
+          <PatientActivityCalendar
+            patient={patient}
+            onClose={() => setCalendarPatientId(null)}
+            onAdd={(activity) => addScheduledActivity(patient.id, activity)}
+            onRemove={(activityId) => removeScheduledActivity(patient.id, activityId)}
+          />
+        ) : null;
+      })()}
       {fastHugActivity && (() => {
         const patient = patients.find((item) => item.id === fastHugActivity.patientId);
         return patient ? (
