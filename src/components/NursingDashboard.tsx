@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
 import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
-import { CalendarDays, ClipboardList, Clock3, LogOut, Menu, ShieldCheck, Stethoscope, UserRoundCog } from "lucide-react";
+import { CalendarDays, ClipboardList, LogOut, Menu, ShieldCheck, Stethoscope, UserRoundCog } from "lucide-react";
 
 type Props = {
   patients: Patient[];
@@ -653,22 +653,22 @@ function Rdc36Panel({ onBack }: { onBack: () => void }) {
 }
 
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
-  const shift = shiftPeriod();
   const now = new Date();
   const nowMinute = shiftMinuteFor(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
   const currentTimeMarker = Math.max(0, Math.min(100, (nowMinute / (24 * 60)) * 100));
-  const shiftProgress = patients.reduce(
-    (total, patient) => {
-      const activities = workflowActivitiesForToday(patient);
-      return {
-        completed: total.completed + activities.filter((activity) => activity.completed).length,
-        total: total.total + activities.length,
-        overdue: total.overdue + activities.filter((activity) => !activity.completed && shiftMinuteFor(activity.time) < nowMinute).length,
-      };
-    },
-    { completed: 0, total: 0, overdue: 0 },
-  );
-  const shiftProgressPercent = shiftProgress.total ? Math.round((shiftProgress.completed / shiftProgress.total) * 100) : 0;
+  const workflowActivities = patients.flatMap((patient) => workflowActivitiesForToday(patient));
+  const dayShiftActivities = workflowActivities.filter((activity) => {
+    const [hour] = activity.time.split(":").map(Number);
+    return Number.isFinite(hour) && hour >= 7 && hour < 19;
+  });
+  const nightShiftActivities = workflowActivities.filter((activity) => {
+    const [hour] = activity.time.split(":").map(Number);
+    return Number.isFinite(hour) && (hour >= 19 || hour < 7);
+  });
+  const dayShiftCompleted = dayShiftActivities.filter((activity) => activity.completed).length;
+  const nightShiftCompleted = nightShiftActivities.filter((activity) => activity.completed).length;
+  const dayShiftProgress = dayShiftActivities.length ? Math.round((dayShiftCompleted / dayShiftActivities.length) * 100) : 0;
+  const nightShiftProgress = nightShiftActivities.length ? Math.round((nightShiftCompleted / nightShiftActivities.length) * 100) : 0;
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"]; repeatEveryHours: number } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
@@ -678,7 +678,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
   const [timelineZoom, setTimelineZoom] = useState<"compact" | "normal" | "ampliado">("normal");
   const timelineCellWidth = timelineZoom === "compact" ? 48 : timelineZoom === "ampliado" ? 112 : 84;
-  const timelineCardHeight = timelineZoom === "compact" ? 92 : timelineZoom === "ampliado" ? 174 : 128;
+  const timelineCardHeight = timelineZoom === "compact" ? 74 : timelineZoom === "ampliado" ? 142 : 100;
   const timelineCardSpan = timelineZoom === "compact" ? 2 : timelineZoom === "ampliado" ? 4 : 3;
 
   const addActivity = (patient: Patient) => {
@@ -789,31 +789,30 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               <p className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.08em] text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.65)]">
                 UTI Neurovascular HSJA
               </p>
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-neto-muted">
-                <Clock3 className="h-3.5 w-3.5" />
-                Workflow do plantão: {shift}
-              </p>
+
             </div>
           </div>
-          <div className="w-full justify-self-center rounded-2xl border border-cyan-100/80 bg-gradient-to-br from-white/90 via-cyan-50/85 to-teal-100/75 px-5 py-3 shadow-[0_10px_24px_rgba(14,116,144,0.2)] backdrop-blur-md" title="Atividades concluídas de todos os pacientes do plantão">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-cyan-800">Missão do plantão</p>
-                <p className="mt-0.5 text-[11px] font-bold text-cyan-700/80">Progresso geral das atividades</p>
+          <div className="grid w-full grid-cols-2 gap-2 justify-self-center">
+            <section className="rounded-xl border border-amber-100/80 bg-gradient-to-br from-white/90 via-amber-50/85 to-orange-100/75 px-3 py-2.5 shadow-[0_8px_18px_rgba(180,83,9,0.16)] backdrop-blur-md" title="Atividades previstas entre 07:00 e 19:00">
+              <div className="flex items-end justify-between gap-2">
+                <div>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-amber-800">Plantão dia</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-amber-700/80">07:00 — 19:00</p>
+                </div>
+                <p className="text-2xl font-black leading-none text-amber-800">{dayShiftCompleted}<span className="text-sm text-amber-700/70">/{dayShiftActivities.length}</span></p>
               </div>
-              <div className="text-right">
-                <p className="text-3xl font-black leading-none text-cyan-800 drop-shadow-sm">{shiftProgress.completed}<span className="text-lg text-cyan-700/70">/{shiftProgress.total}</span></p>
-                <p className="mt-1 text-[10px] font-extrabold uppercase tracking-wide text-teal-700">{shiftProgressPercent}% concluído</p>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-amber-950/10"><div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all" style={{ width: `${dayShiftProgress}%` }} /></div>
+            </section>
+            <section className="rounded-xl border border-indigo-100/80 bg-gradient-to-br from-white/90 via-indigo-50/85 to-violet-100/75 px-3 py-2.5 shadow-[0_8px_18px_rgba(79,70,229,0.16)] backdrop-blur-md" title="Atividades previstas entre 19:00 e 07:00">
+              <div className="flex items-end justify-between gap-2">
+                <div>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-indigo-800">Plantão noite</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-indigo-700/80">19:00 — 07:00</p>
+                </div>
+                <p className="text-2xl font-black leading-none text-indigo-800">{nightShiftCompleted}<span className="text-sm text-indigo-700/70">/{nightShiftActivities.length}</span></p>
               </div>
-            </div>
-            <div className="mt-2.5 h-3 w-full overflow-hidden rounded-full bg-cyan-950/10">
-              <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 shadow-[0_0_10px_rgba(20,184,166,0.65)] transition-all" style={{ width: `${shiftProgressPercent}%` }} />
-            </div>
-            <div className="mt-2 flex justify-end">
-              <span className="rounded-md border border-red-300/80 bg-red-50/90 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-red-700 shadow-sm">
-                {shiftProgress.overdue} atrasada{shiftProgress.overdue === 1 ? "" : "s"}
-              </span>
-            </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-indigo-950/10"><div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-500 transition-all" style={{ width: `${nightShiftProgress}%` }} /></div>
+            </section>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <label className="flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-neto-foreground">
@@ -967,7 +966,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
                                     style={{ gridColumnStart: column, gridColumnEnd: `span ${timelineCardSpan}`, minHeight: `${timelineCardHeight}px` }}
-                                    className={`relative min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    className={`relative min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-1.5 py-1 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
                                     <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
