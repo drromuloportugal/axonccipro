@@ -250,6 +250,33 @@ export interface Conduct {
   startedAt?: string;
 }
 
+export type NursingWorkflowActivityType = "monitoring" | "medication" | "device" | "care";
+
+export interface NursingWorkflowActivity {
+  id: string;
+  label: string;
+  time: string;
+  type: NursingWorkflowActivityType;
+  important?: boolean;
+  completed?: boolean;
+  note?: string;
+  hidden?: boolean;
+  source?: "default" | "custom" | "fasthug";
+}
+
+export interface FastHugCheck {
+  status: "pendente" | "adequado" | "reavaliar";
+  note?: string;
+}
+
+export interface NursingWorkflow {
+  activities?: NursingWorkflowActivity[];
+  fastHug?: {
+    date?: string;
+    checks?: Record<string, FastHugCheck>;
+  };
+}
+
 export interface Goal {
   text: string;
   met: boolean;
@@ -565,6 +592,8 @@ export interface Patient {
 
   conducts: Conduct[];
   goals: Goal[];
+  /** Workflow operacional específico do painel de enfermagem. */
+  nursingWorkflow?: NursingWorkflow;
 
   infections?: InfectionFocus[];
   cultures?: Culture[];
