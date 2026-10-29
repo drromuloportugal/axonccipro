@@ -6,6 +6,7 @@ type Props = {
   patients: Patient[];
   onOpenMedicalPanel: () => void;
   onSignOut: () => void;
+  onUpdatePatient: (patient: Patient) => void;
 };
 
 type WorkflowActivity = {
@@ -143,7 +144,40 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="title-box mb-3 !text-[10px]">{children}</h3>;
 }
 
-function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void }) {
+function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; onClose: () => void; onUpdatePatient: (patient: Patient) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [diagnosis, setDiagnosis] = useState(() => currentDiagnosis(patient));
+  const [diet, setDiet] = useState(() => patient.state.dieta ?? "");
+  const [stateNote, setStateNote] = useState(() => patient.state.notes ?? "");
+  const [pendingLab, setPendingLab] = useState(() => patient.dischargeCheck?.pendencies?.lab ?? "");
+  const [pendingImaging, setPendingImaging] = useState(() => patient.dischargeCheck?.pendencies?.imaging ?? "");
+  const [pendingCultures, setPendingCultures] = useState(() => patient.dischargeCheck?.pendencies?.cultures ?? "");
+
+  const saveSbar = () => {
+    const diagnoses = [...patient.diagnoses];
+    let index = -1;
+    for (let i = diagnoses.length - 1; i >= 0; i--) {
+      if (diagnoses[i].category === "current") { index = i; break; }
+    }
+    if (index >= 0) diagnoses[index] = { ...diagnoses[index], label: diagnosis.trim() || diagnoses[index].label };
+    else if (diagnosis.trim()) diagnoses.push({ date: "", label: diagnosis.trim(), kind: "neutral", category: "current" });
+    onUpdatePatient({
+      ...patient,
+      diagnoses,
+      state: { ...patient.state, dieta: diet, notes: stateNote },
+      dischargeCheck: {
+        ...patient.dischargeCheck,
+        pendencies: {
+          ...patient.dischargeCheck?.pendencies,
+          lab: pendingLab,
+          imaging: pendingImaging,
+          cultures: pendingCultures,
+        },
+      },
+    });
+    setEditing(false);
+  };
+
   const baseConditions = patient.diagnoses
     .filter((diagnosis) => diagnosis.category === "previous" || diagnosis.category === "inactive")
     .map((diagnosis) => diagnosis.label);
@@ -209,16 +243,26 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">SBAR · Enfermagem</p>
             <h2 className="mt-1 text-base font-bold text-neto-foreground">{patient.name} · Leito {patient.bed || "—"}</h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20"
-          >
-            Fechar
-          </button>
+          <div className="flex items-center gap-2">
+            {editing ? (
+              <>
+                <button type="button" onClick={() => setEditing(false)} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Cancelar</button>
+                <button type="button" onClick={saveSbar} className="rounded-md bg-white px-3 py-1.5 text-xs font-bold text-primary">Salvar</button>
+              </>
+            ) : (
+              <button type="button" onClick={() => setEditing(true)} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Editar</button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20"
+            >
+              Fechar
+            </button>
+          </div>
         </header>
 
-        <div className="grid gap-3 p-4 xl:grid-cols-5">
+        <div className="grid gap-3 p-4 text-[13px] font-bold xl:grid-cols-5">
           <section className="ios-card rounded-lg p-4">
             <SectionTitle>Identificação</SectionTitle>
             <dl className="space-y-2 text-[11px]">
@@ -233,13 +277,19 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
           <section className="ios-card rounded-lg p-4">
             <SectionTitle>Situação</SectionTitle>
             <p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>
-            <p className="mt-1 text-sm font-bold text-foreground">{currentDiagnosis(patient)}</p>
+            {editing ? (
+              <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diagnosis} onChange={(event) => setDiagnosis(event.target.value)} />
+            ) : (
+              <p className="mt-1 text-sm font-bold text-foreground">{currentDiagnosis(patient)}</p>
+            )}
             <p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-foreground">
-              {[`Ventilação: ${patient.state.vent}`, `FiO₂: ${patient.state.fio2}%`, `PAM: ${patient.state.pam} mmHg`, patient.state.dva ? `DVA: ${patient.state.dva}` : ""]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
+            {editing ? (
+              <textarea rows={3} className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={stateNote} onChange={(event) => setStateNote(event.target.value)} placeholder="Estado atual / observações" />
+            ) : (
+              <p className="mt-1 text-[11px] leading-relaxed text-foreground">
+                {stateNote || [`Ventilação: ${patient.state.vent}`, `FiO₂: ${patient.state.fio2}%`, `PAM: ${patient.state.pam} mmHg`, patient.state.dva ? `DVA: ${patient.state.dva}` : ""].filter(Boolean).join(" · ")}
+              </p>
+            )}
           </section>
 
           <section className="ios-card rounded-lg p-4">
@@ -257,7 +307,11 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
           <section className="ios-card rounded-lg p-4">
             <SectionTitle>Avaliação</SectionTitle>
             <p className="text-[10px] font-semibold uppercase text-muted-foreground">Dieta</p>
-            <p className="mt-1 text-[11px] font-semibold text-foreground">{patient.state.dieta || "Não informada"}</p>
+            {editing ? (
+              <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diet} onChange={(event) => setDiet(event.target.value)} />
+            ) : (
+              <p className="mt-1 text-[11px] font-semibold text-foreground">{patient.state.dieta || "Não informada"}</p>
+            )}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Dispositivos invasivos</p>
             {listItems(devices, "Nenhum dispositivo ativo")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">LPP e curativos</p>
@@ -267,7 +321,13 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
           <section className="ios-card rounded-lg p-4">
             <SectionTitle>Recomendação</SectionTitle>
             <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Pendências</p>
-            {listItems(pendingItems, "Sem pendências registradas")}
+            {editing ? (
+              <div className="space-y-1">
+                <input className="w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={pendingLab} onChange={(event) => setPendingLab(event.target.value)} placeholder="Pendência de laboratório" />
+                <input className="w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={pendingImaging} onChange={(event) => setPendingImaging(event.target.value)} placeholder="Pendência de imagem" />
+                <input className="w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={pendingCultures} onChange={(event) => setPendingCultures(event.target.value)} placeholder="Pendência de cultura" />
+              </div>
+            ) : listItems(pendingItems, "Sem pendências registradas")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cuidados</p>
             {listItems(nursingCare, "Sem cuidados específicos registrados")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>
@@ -283,7 +343,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
   );
 }
 
-export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Props) {
+export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
@@ -430,7 +490,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
           </div>
         )}
       </main>
-      {selectedPatient && <SbarPanel patient={selectedPatient} onClose={() => setSelectedPatient(null)} />}
+      {selectedPatient && <SbarPanel patient={selectedPatient} onUpdatePatient={onUpdatePatient} onClose={() => setSelectedPatient(null)} />}
     </div>
   );
 }
