@@ -1,13 +1,11 @@
 import { useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
 import { ClipboardList, Clock3, LogOut, Stethoscope, UserRoundCog } from "lucide-react";
-import { NursingWorkflow } from "@/components/NursingWorkflow";
 
 type Props = {
   patients: Patient[];
   onOpenMedicalPanel: () => void;
   onSignOut: () => void;
-  onUpdatePatient: (patient: Patient) => void;
 };
 
 type WorkflowActivity = {
@@ -285,7 +283,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
   );
 }
 
-export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
+export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Props) {
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
@@ -389,9 +387,39 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             Diagnóstico atual
                           </div>
                           <div className="mt-0.5 line-clamp-2 text-[11px] font-semibold leading-snug text-foreground">
-                                               <NursingWorkflow patient={patient} onUpdatePatient={onUpdatePatient} />
-                    </div>
-                  </article>     })}
+                            {currentDiagnosis(patient)}
+                          </div>
+                        </div>
+                      </button>
+
+                      <section className="w-4/5 bg-surface/55 p-4">
+                        <div className="mb-2 grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          <span>07:00</span>
+                          <span>11:00</span>
+                          <span>15:00</span>
+                          <span>19:00</span>
+                          <span>23:00</span>
+                          <span>03:00</span>
+                          <span>07:00</span>
+                        </div>
+                        <div className="ios-inset grid min-h-[78px] grid-cols-12 gap-2 p-2">
+                          {activities.map((activity, index) => {
+                            const meta = activityMeta[activity.type];
+                            return (
+                              <div
+                                key={`${patient.id}-${activity.label}-${index}`}
+                                className={`min-w-0 rounded-md border px-2 py-2 shadow-sm ${meta.className} ${activityPositions[index]}`}
+                                title={activity.label}
+                              >
+                                <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
+                                  {activity.time} · {meta.label}
+                                </div>
+                                <div className="mt-0.5 truncate text-[11px] font-semibold">
+                                  {activity.label}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </section>
                     </div>
