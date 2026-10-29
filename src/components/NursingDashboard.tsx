@@ -898,8 +898,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               {patients.map((patient) => {
                 const severity = severityMeta[patient.severity];
                 const activities = workflowActivitiesForToday(patient);
-                const completedActivities = activities.filter((activity) => activity.completed).length;
-                const patientProgressPercent = activities.length ? Math.round((completedActivities / activities.length) * 100) : 0;
+                const patientDayActivities = activities.filter((activity) => {
+                  const [hour] = activity.time.split(":").map(Number);
+                  return Number.isFinite(hour) && hour >= 7 && hour < 19;
+                });
+                const patientNightActivities = activities.filter((activity) => {
+                  const [hour] = activity.time.split(":").map(Number);
+                  return Number.isFinite(hour) && (hour >= 19 || hour < 7);
+                });
+                const patientDayCompleted = patientDayActivities.filter((activity) => activity.completed).length;
+                const patientNightCompleted = patientNightActivities.filter((activity) => activity.completed).length;
+                const patientDayProgress = patientDayActivities.length ? Math.round((patientDayCompleted / patientDayActivities.length) * 100) : 0;
+                const patientNightProgress = patientNightActivities.length ? Math.round((patientNightCompleted / patientNightActivities.length) * 100) : 0;
                 return (
                   <article
                     key={patient.id}
@@ -936,13 +946,20 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             {currentDiagnosis(patient)}
                           </div>
                         </div>
-                        <div className="mt-3 rounded-sm border border-cyan-100/80 bg-gradient-to-r from-cyan-50/90 to-teal-50/80 p-2 shadow-sm">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-extrabold uppercase tracking-wide text-cyan-800">Missões do dia</span>
-                            <span className="text-[15px] font-black text-cyan-800">{completedActivities}<span className="text-[11px] text-cyan-700/70">/{activities.length}</span></span>
+                        <div className="mt-3 grid grid-cols-2 gap-1.5">
+                          <div className="rounded-sm border border-amber-200/80 bg-gradient-to-br from-amber-50 to-orange-100/70 p-1.5 shadow-sm">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-[9px] font-extrabold uppercase tracking-wide text-amber-800">Dia</span>
+                              <span className="text-[13px] font-black text-amber-800">{patientDayCompleted}<span className="text-[9px] text-amber-700/70">/{patientDayActivities.length}</span></span>
+                            </div>
+                            <div className="mt-1 h-1 overflow-hidden rounded-full bg-amber-950/10"><div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style={{ width: `${patientDayProgress}%` }} /></div>
                           </div>
-                          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-cyan-950/10">
-                            <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-all" style={{ width: `${patientProgressPercent}%` }} />
+                          <div className="rounded-sm border border-indigo-200/80 bg-gradient-to-br from-indigo-50 to-violet-100/70 p-1.5 shadow-sm">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-[9px] font-extrabold uppercase tracking-wide text-indigo-800">Noite</span>
+                              <span className="text-[13px] font-black text-indigo-800">{patientNightCompleted}<span className="text-[9px] text-indigo-700/70">/{patientNightActivities.length}</span></span>
+                            </div>
+                            <div className="mt-1 h-1 overflow-hidden rounded-full bg-indigo-950/10"><div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-500" style={{ width: `${patientNightProgress}%` }} /></div>
                           </div>
                         </div>
                       </button>
