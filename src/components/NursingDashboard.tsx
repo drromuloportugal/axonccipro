@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
 import { ClipboardList, Clock3, LogOut, Stethoscope, UserRoundCog } from "lucide-react";
 
@@ -100,8 +101,170 @@ function activitiesFor(patient: Patient): WorkflowActivity[] {
   return activities.slice(0, 4);
 }
 
+function currentDiagnosis(patient: Patient) {
+  const current = patient.diagnoses.filter((diagnosis) => diagnosis.category === "current");
+  return (current.at(-1) ?? patient.diagnoses.at(-1))?.label ?? "Não informado";
+}
+
+function listItems(items: string[], empty = "Não informado") {
+  if (!items.length) return <p className="text-[11px] italic text-muted-foreground">{empty}</p>;
+  return (
+    <ul className="space-y-1 text-[11px] leading-snug text-foreground">
+      {items.map((item, index) => (
+        <li key={`${item}-${index}`} className="border-l-2 border-primary/40 pl-2">
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">{children}</h3>;
+}
+
+function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void }) {
+  const baseConditions = patient.diagnoses
+    .filter((diagnosis) => diagnosis.category === "previous" || diagnosis.category === "inactive")
+    .map((diagnosis) => diagnosis.label);
+  const surgeries = patient.procedures.map((procedure) => procedure.label);
+  const chronicMeds = (patient.pastMedications ?? []).map((medication) =>
+    [medication.name, medication.dose, medication.route].filter(Boolean).join(" · "),
+  );
+  const devices = (patient.devices ?? [])
+    .filter((device) => !device.removedAt)
+    .map((device) =>
+      [device.typeCode, device.site, device.size ? `nº ${device.size}` : ""].filter(Boolean).join(" · "),
+    );
+  const activeLpp = (patient.lpp ?? [])
+    .filter((lesion) => !lesion.resolvedAt)
+    .map((lesion) => `LPP ${lesion.siteLabel ?? lesion.site} · estágio ${lesion.stage}`);
+  const dressingCare = patient.conducts
+    .filter((conduct) => conduct.system === "skin")
+    .flatMap((conduct) => [
+      ...(conduct.text ? [conduct.text] : []),
+      ...(conduct.subItems ?? []).filter((item) => !item.hidden).map((item) => item.text),
+    ]);
+  const nursingCare = patient.conducts
+    .filter((conduct) => conduct.team === "Enfermagem")
+    .flatMap((conduct) => [
+      ...(conduct.text ? [conduct.text] : []),
+      ...(conduct.subItems ?? []).filter((item) => !item.hidden).map((item) => item.text),
+    ]);
+  const pendencies = patient.dischargeCheck?.pendencies;
+  const pendingItems = [
+    pendencies?.lab ? `Laboratório: ${pendencies.lab}` : "",
+    pendencies?.imaging ? `Imagem: ${pendencies.imaging}` : "",
+    pendencies?.cultures ? `Culturas: ${pendencies.cultures}` : "",
+    pendencies?.consults ? `Interconsultas: ${pendencies.consults}` : "",
+  ].filter(Boolean);
+  const laboratory = patient.exams
+    .slice(0, 8)
+    .map((exam) => `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`);
+  const imaging = (patient.imaging ?? [])
+    .slice(0, 5)
+    .map((exam) => [exam.modality, exam.region, exam.summary ?? exam.status].filter(Boolean).join(" · "));
+  const cultures = (patient.cultures ?? [])
+    .slice(0, 5)
+    .map((culture) =>
+      [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "),
+    );
+  const expectedDischarge = patient.dischargeCheck?.expectedTransfer || "Não informada";
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Resumo SBAR de ${patient.name}`}
+      onClick={onClose}
+    >
+      <section
+        className="max-h-[92vh] w-full max-w-[1600px] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-5 py-4 backdrop-blur">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">SBAR · Enfermagem</p>
+            <h2 className="mt-1 text-base font-bold">{patient.name} · Leito {patient.bed || "—"}</h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-surface-3"
+          >
+            Fechar
+          </button>
+        </header>
+
+        <div className="grid gap-3 p-4 xl:grid-cols-5">
+          <section className="rounded-xl border border-border bg-surface/45 p-4">
+            <SectionTitle>Identificação</SectionTitle>
+            <dl className="space-y-2 text-[11px]">
+              <div><dt className="text-muted-foreground">Paciente</dt><dd className="font-semibold">{patient.name || "—"}</dd></div>
+              <div><dt className="text-muted-foreground">Leito</dt><dd>{patient.bed || "—"}</dd></div>
+              <div><dt className="text-muted-foreground">Nº do atendimento</dt><dd className="font-mono">{patient.id}</dd></div>
+              <div><dt className="text-muted-foreground">Admissão UTI</dt><dd>{patient.admissionICU || "Não informada"}</dd></div>
+              <div><dt className="text-muted-foreground">Previsão de alta</dt><dd>{expectedDischarge}</dd></div>
+            </dl>
+          </section>
+
+          <section className="rounded-xl border border-border bg-surface/45 p-4">
+            <SectionTitle>Situação</SectionTitle>
+            <p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>
+            <p className="mt-1 text-sm font-bold text-foreground">{currentDiagnosis(patient)}</p>
+            <p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-foreground">
+              {[`Ventilação: ${patient.state.vent}`, `FiO₂: ${patient.state.fio2}%`, `PAM: ${patient.state.pam} mmHg`, patient.state.dva ? `DVA: ${patient.state.dva}` : ""]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </section>
+
+          <section className="rounded-xl border border-border bg-surface/45 p-4">
+            <SectionTitle>Background</SectionTitle>
+            <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Doenças de base</p>
+            {listItems(baseConditions)}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cirurgias / procedimentos prévios</p>
+            {listItems(surgeries)}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Alergias</p>
+            {listItems(patient.allergies)}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Uso contínuo</p>
+            {listItems(chronicMeds)}
+          </section>
+
+          <section className="rounded-xl border border-border bg-surface/45 p-4">
+            <SectionTitle>Avaliação</SectionTitle>
+            <p className="text-[10px] font-semibold uppercase text-muted-foreground">Dieta</p>
+            <p className="mt-1 text-[11px] font-semibold text-foreground">{patient.state.dieta || "Não informada"}</p>
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Dispositivos invasivos</p>
+            {listItems(devices, "Nenhum dispositivo ativo")}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">LPP e curativos</p>
+            {listItems([...activeLpp, ...dressingCare], "Sem LPP ou curativo registrado")}
+          </section>
+
+          <section className="rounded-xl border border-border bg-surface/45 p-4">
+            <SectionTitle>Recomendação</SectionTitle>
+            <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Pendências</p>
+            {listItems(pendingItems, "Sem pendências registradas")}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cuidados</p>
+            {listItems(nursingCare, "Sem cuidados específicos registrados")}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>
+            {listItems(laboratory, "Sem exames laboratoriais")}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>
+            {listItems(imaging, "Sem exames de imagem")}
+            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>
+            {listItems(cultures, "Sem culturas registradas")}
+          </section>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Props) {
   const shift = shiftPeriod();
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -176,7 +339,12 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                     className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
                   >
                     <div className="flex min-h-[138px]">
-                      <aside className="flex w-1/5 min-w-[196px] flex-col justify-between border-r border-border bg-surface/70 p-4">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPatient(patient)}
+                        className="flex w-1/5 min-w-[196px] flex-col justify-between border-r border-border bg-surface/70 p-4 text-left transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        title="Abrir resumo SBAR do paciente"
+                      >
                         <div>
                           <div className="text-sm font-bold uppercase tracking-wide text-foreground">
                             {patient.name || "Sem identificação"}
@@ -193,7 +361,15 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                             {severity.label}
                           </span>
                         </div>
-                      </aside>
+                        <div className="mt-3 border-t border-border/70 pt-2">
+                          <div className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                            Diagnóstico atual
+                          </div>
+                          <div className="mt-0.5 line-clamp-2 text-[11px] font-semibold leading-snug text-foreground">
+                            {currentDiagnosis(patient)}
+                          </div>
+                        </div>
+                      </button>
 
                       <section className="w-4/5 p-4">
                         <div className="mb-2 grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -233,6 +409,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
           </div>
         )}
       </main>
+      {selectedPatient && <SbarPanel patient={selectedPatient} onClose={() => setSelectedPatient(null)} />}
     </div>
   );
 }
