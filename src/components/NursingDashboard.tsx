@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
+import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
 import { CalendarDays, ClipboardList, Clock3, LogOut, Menu, ShieldCheck, Stethoscope, UserRoundCog } from "lucide-react";
 
 type Props = {
@@ -771,15 +772,23 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-slate-100 text-foreground">
       <header className="neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-neto-foreground" />
-              <h1 className="text-base font-bold uppercase tracking-wide text-neto-foreground">Painel de enfermagem</h1>
+          <div className="flex items-center gap-3">
+            <img
+              src={mainLogo}
+              alt="Axon Critical Care Intelligence"
+              className="h-auto w-36 max-w-[42vw] object-contain"
+              style={{ filter: "drop-shadow(0 4px 10px rgba(0, 0, 0, 0.36))" }}
+            />
+            <div className="border-l border-white/25 pl-3">
+              <h1 className="text-sm font-black uppercase tracking-[0.14em] text-neto-foreground drop-shadow-sm">Enfermagem</h1>
+              <p className="mt-1 text-[11px] font-extrabold uppercase tracking-[0.08em] text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.65)]">
+                UTI Neurovascular HSJA
+              </p>
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-neto-muted">
+                <Clock3 className="h-3.5 w-3.5" />
+                Workflow do plantão: {shift}
+              </p>
             </div>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-neto-muted">
-              <Clock3 className="h-3.5 w-3.5" />
-              Workflow do plantão: {shift}
-            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="rounded-xl border border-cyan-100/70 bg-gradient-to-br from-white/85 via-cyan-50/80 to-teal-100/70 px-4 py-2 shadow-[0_8px_20px_rgba(14,116,144,0.16)] backdrop-blur-md" title="Atividades concluídas de todos os pacientes do plantão">
