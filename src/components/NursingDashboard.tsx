@@ -851,10 +851,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </span>
                         </div>
                         <div className="mt-3 border-t border-border/70 pt-2">
-                          <div className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                          <div className="text-[10px] font-extrabold uppercase tracking-wide text-muted-foreground">
                             Diagnóstico atual
                           </div>
-                          <div className="mt-0.5 line-clamp-2 text-[11px] font-semibold leading-snug text-foreground">
+                          <div className="mt-1 rounded-sm border border-white/70 bg-white/45 px-2 py-1.5 text-[15px] font-extrabold leading-snug text-slate-800 drop-shadow-[0_1px_1px_rgba(15,23,42,0.28)]">
                             {currentDiagnosis(patient)}
                           </div>
                         </div>
@@ -873,13 +873,13 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </div>
                         </div>
                         <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
-                          <div className="min-w-[1104px]">
-                            <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(44px, 1fr))" }}>
+                          <div className="min-w-[2016px]">
+                            <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(84px, 1fr))" }}>
                               {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
                                 <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
                               ))}
                             </div>
-                            <div className="relative grid min-h-[86px] auto-rows-[72px] grid-flow-row-dense gap-1.5 rounded-sm border border-white/70 bg-white/35 p-2 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: "repeat(24, minmax(44px, 1fr))" }}>
+                            <div className="relative grid min-h-[182px] auto-rows-[170px] grid-flow-row-dense gap-2 rounded-sm border border-white/70 bg-white/35 p-2.5 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: "repeat(24, minmax(84px, 1fr))" }}>
                               <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
@@ -889,18 +889,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     type="button"
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
-                                    style={{ gridColumnStart: column, gridColumnEnd: "span 1" }}
-                                    className={`aspect-square min-w-0 overflow-hidden rounded-sm border bg-white/60 px-1.5 py-1.5 text-left shadow-md backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-lg ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    style={{ gridColumnStart: column, gridColumnEnd: "span 2" }}
+                                    className={`aspect-square min-w-0 rounded-sm border bg-white/70 px-3 py-2.5 text-left shadow-md backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-lg ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
-                                    <div className="text-[10px] font-extrabold uppercase leading-tight tracking-wide opacity-80">
-                                      {activity.time}
+                                    <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-80">
+                                      {activity.time} · {meta.label}
                                     </div>
-                                    <div className={`mt-0.5 line-clamp-3 text-[12px] font-bold leading-tight ${activity.completed ? "line-through" : ""}`}>
+                                    <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
                                       {activity.label}
                                     </div>
-                                    {activity.repeatEveryHours && <div className="mt-0.5 text-[9px] font-bold opacity-70">/{activity.repeatEveryHours} h</div>}
-                                    {activity.note && <div className="mt-1 line-clamp-1 text-[9px] font-semibold leading-snug">{activity.note}</div>}
+                                    {activity.repeatEveryHours && <div className="mt-1 text-[10px] font-bold opacity-70">REPETIR /{activity.repeatEveryHours} H</div>}
+                                    {activity.note && <div className="mt-1 break-words text-[10px] font-semibold leading-snug">{activity.note}</div>}
                                   </button>
                                 );
                               })}
