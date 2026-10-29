@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Lock, User, LogIn, UserPlus, Mail, KeyRound } from "lucide-react";
+import { Lock, User, LogIn, UserPlus, Mail, KeyRound, Stethoscope, ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
 
@@ -42,13 +42,18 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showSpecialty, setShowSpecialty] = useState(false);
 
   // Se já existe sessão, segue direto para o painel.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!cancelled && data.session) await goNext();
+      if (!cancelled && data.session) {
+        const savedRole = window.localStorage.getItem("axon:professional-role");
+        if (savedRole === "medico" || savedRole === "enfermeiro") await goNext();
+        else setShowSpecialty(true);
+      }
     })();
     return () => {
       cancelled = true;
@@ -79,7 +84,7 @@ function AuthPage() {
         });
         if (signUpError) throw signUpError;
         if (data.session) {
-          await goNext();
+          setShowSpecialty(true);
           router.invalidate();
         } else {
           setInfo("Conta criada. Confirme o e-mail recebido para entrar.");
@@ -91,7 +96,7 @@ function AuthPage() {
           password,
         });
         if (signInError) throw signInError;
-        await goNext();
+        setShowSpecialty(true);
         router.invalidate();
       }
     } catch (err) {
@@ -106,6 +111,71 @@ function AuthPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  const selectSpecialty = async (role: "medico" | "enfermeiro") => {
+    window.localStorage.setItem("axon:professional-role", role);
+    setLoading(true);
+    await goNext();
+  };
+
+  if (showSpecialty) {
+    return (
+      <div className="axon-auth flex min-h-screen items-center justify-center px-4 py-10">
+        <div className="w-full max-w-2xl">
+          <div className="axon-auth-logo flex items-center justify-center px-6 py-7">
+            <img
+              src={mainLogo}
+              alt="Axon Critical Care Intelligence"
+              className="h-auto w-auto max-w-full rounded-md object-contain"
+              style={{
+                maxHeight: "9rem",
+                filter:
+                  "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
+              }}
+            />
+          </div>
+          <section className="axon-auth-card p-6 shadow-lg sm:p-7">
+            <h1 className="f-fixed text-center text-lg font-bold uppercase tracking-wide text-foreground">
+              Selecione seu perfil
+            </h1>
+            <p className="f-fixed mt-2 text-center text-xs text-muted-foreground">
+              Escolha o painel adequado para iniciar o plantão.
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => void selectSpecialty("medico")}
+                className="group rounded-xl border-2 border-primary/35 bg-primary/5 p-5 text-left transition-colors hover:border-primary hover:bg-primary/10 disabled:opacity-60"
+              >
+                <Stethoscope className="h-7 w-7 text-primary" />
+                <div className="f-fixed mt-4 text-sm font-bold uppercase tracking-wide text-foreground">
+                  Médico
+                </div>
+                <p className="f-var mt-1 text-xs text-muted-foreground">
+                  Acessar o painel clínico geral do Axon.
+                </p>
+              </button>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => void selectSpecialty("enfermeiro")}
+                className="group rounded-xl border-2 border-clinical-stable/35 bg-clinical-stable/5 p-5 text-left transition-colors hover:border-clinical-stable hover:bg-clinical-stable/10 disabled:opacity-60"
+              >
+                <ClipboardList className="h-7 w-7 text-clinical-stable" />
+                <div className="f-fixed mt-4 text-sm font-bold uppercase tracking-wide text-foreground">
+                  Enfermeiro
+                </div>
+                <p className="f-var mt-1 text-xs text-muted-foreground">
+                  Acessar o workflow de pacientes para o plantão.
+                </p>
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
   }
 
   return (
