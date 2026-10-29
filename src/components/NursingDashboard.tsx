@@ -55,19 +55,19 @@ const fastHugCriteria = [
 const activityMeta: Record<WorkflowActivity["type"], { label: string; className: string }> = {
   monitoring: {
     label: "Monitorização",
-    className: "border-cyan-700/90 bg-cyan-300/35 text-slate-900",
+    className: "border-cyan-700/95 bg-gradient-to-br from-cyan-200/30 via-cyan-400/25 to-sky-500/30 text-slate-950",
   },
   medication: {
     label: "Medicação",
-    className: "border-emerald-700/90 bg-emerald-300/35 text-slate-900",
+    className: "border-emerald-700/95 bg-gradient-to-br from-emerald-200/30 via-emerald-400/25 to-teal-500/30 text-slate-950",
   },
   device: {
     label: "Dispositivos",
-    className: "border-violet-700/90 bg-violet-300/35 text-slate-900",
+    className: "border-violet-700/95 bg-gradient-to-br from-violet-200/30 via-violet-400/25 to-indigo-500/30 text-slate-950",
   },
   care: {
     label: "Cuidados",
-    className: "border-blue-700/90 bg-blue-300/35 text-slate-900",
+    className: "border-blue-700/95 bg-gradient-to-br from-blue-200/30 via-blue-400/25 to-cyan-500/30 text-slate-950",
   },
 };
 
@@ -947,10 +947,11 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
                                     style={{ gridColumnStart: column, gridColumnEnd: "span 2" }}
-                                    className={`min-h-[132px] min-w-0 rounded-md border-4 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.16)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(15,23,42,0.22)] ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    className={`relative min-h-[132px] min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
-                                    <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-80">
+                                    <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
+                                    <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-85">
                                       {activity.time} · {meta.label}
                                     </div>
                                     <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
