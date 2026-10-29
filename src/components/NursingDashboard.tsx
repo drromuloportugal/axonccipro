@@ -685,7 +685,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
   const [timelineZoom, setTimelineZoom] = useState<"compact" | "normal" | "ampliado" | "grade12">("normal");
   const timelineCellWidth = timelineZoom === "compact" ? 48 : timelineZoom === "ampliado" ? 112 : 84;
-  const timelineCardHeight = timelineZoom === "compact" ? 74 : timelineZoom === "ampliado" ? 142 : 100;
+  const timelineCardHeight = timelineZoom === "compact" ? 74 : timelineZoom === "ampliado" ? 142 : 132;
   const timelineCardSpan = timelineZoom === "compact" ? 2 : timelineZoom === "ampliado" ? 4 : 3;
   const twelveHourDayPeriod = now.getHours() >= 7 && now.getHours() < 19;
   const twelveHourStart = twelveHourDayPeriod ? 7 : 19;
@@ -1010,19 +1010,39 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                       onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                       key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
                                       style={{ gridColumnStart: column, gridColumnEnd: `span ${timelineCardSpan}`, minHeight: `${timelineCardHeight}px` }}
-                                      className={`relative min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-1.5 py-1 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                      className={`relative min-w-0 text-left transition-all hover:-translate-y-0.5 ${timelineZoom === "normal" ? "overflow-hidden rounded-2xl border-2 bg-white/80 px-3 py-2.5 shadow-[0_6px_16px_rgba(15,23,42,0.12)] hover:shadow-[0_10px_22px_rgba(15,23,42,0.18)]" : "overflow-hidden rounded-md border-4 bg-white/10 px-1.5 py-1 shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)]"} [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                       title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                     >
-                                      <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
-                                      {activity.completed && <span aria-label="Atividade concluída" className="absolute right-1 top-1 z-20 flex h-5 w-5 items-center justify-center rounded-full border border-emerald-600 bg-emerald-500 text-[13px] font-black leading-none text-white shadow-sm">✓</span>}
-                                      <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-85">
-                                        {activity.time} · {meta.label}
-                                      </div>
-                                      <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
-                                        {activity.label}
-                                      </div>
-                                      {activity.repeatEveryHours && <div className="mt-1 text-[10px] font-bold opacity-70">REPETIR /{activity.repeatEveryHours} H</div>}
-                                      {activity.note && <div className="mt-1 break-words text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                                      {timelineZoom !== "normal" && <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />}
+                                      {timelineZoom !== "normal" && activity.completed && <span aria-label="Atividade concluída" className="absolute right-1 top-1 z-20 flex h-5 w-5 items-center justify-center rounded-full border border-emerald-600 bg-emerald-500 text-[13px] font-black leading-none text-white shadow-sm">✓</span>}
+                                      {timelineZoom === "normal" ? (
+                                        <>
+                                          <div className="flex items-center justify-between gap-2 text-[10px] font-extrabold uppercase tracking-wide">
+                                            <span className="truncate">{meta.label}</span>
+                                            <span className="shrink-0 rounded-md bg-white/80 px-1.5 py-0.5 shadow-sm">{activity.time}</span>
+                                          </div>
+                                          <div className={`mt-2 line-clamp-2 text-[14px] font-extrabold leading-[1.2] ${activity.completed ? "line-through" : ""}`}>
+                                            {activity.label}
+                                          </div>
+                                          <div className="mt-2 flex items-center justify-between gap-2">
+                                            <span className="text-[10px] font-bold opacity-75">{activity.repeatEveryHours ? `A CADA ${activity.repeatEveryHours} H` : ""}</span>
+                                            <span className={`rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-extrabold shadow-sm ${activity.completed ? "text-emerald-700" : "text-slate-700"}`}>
+                                              {activity.completed ? "✓ CONCLUÍDA" : "○ PENDENTE"}
+                                            </span>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-85">
+                                            {activity.time} · {meta.label}
+                                          </div>
+                                          <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
+                                            {activity.label}
+                                          </div>
+                                          {activity.repeatEveryHours && <div className="mt-1 text-[10px] font-bold opacity-70">REPETIR /{activity.repeatEveryHours} H</div>}
+                                          {activity.note && <div className="mt-1 break-words text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                                        </>
+                                      )}
                                     </button>
                                   );
                                 })}
