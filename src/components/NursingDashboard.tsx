@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
 import { CalendarDays, ClipboardList, Clock3, LogOut, Menu, ShieldCheck, Stethoscope, UserRoundCog } from "lucide-react";
 
@@ -470,26 +470,127 @@ function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose:
   );
 }
 
+type RdcIndicator = { id: string; label: string; formula?: "quedas" };
+type RdcTable = { id: string; label: string; title: string; indicators: RdcIndicator[] };
+
+const rdcTables: RdcTable[] = [
+  {
+    id: "geral",
+    label: "Indicadores gerais",
+    title: "Levantamento de dados para indicadores RDC 36 e protocolos",
+    indicators: [
+      { id: "internados", label: "Nº de pacientes internados" },
+      { id: "perda-cvc", label: "Perda de CVC" },
+      { id: "acidente-puncao", label: "Acidente de punção" },
+      { id: "sne", label: "Desposicionamento de SNE" },
+      { id: "broncoaspiracao", label: "Broncoaspiração" },
+      { id: "alta", label: "Alta" },
+      { id: "obito", label: "Óbito" },
+      { id: "extubacao", label: "Extubação" },
+    ],
+  },
+  {
+    id: "queda",
+    label: "Protocolo de queda",
+    title: "Levantamento de dados para indicadores RDC 36 · protocolo de queda do paciente",
+    indicators: [
+      { id: "atendidos", label: "Nº de pacientes atendidos" },
+      { id: "avaliacao-risco", label: "Nº de pacientes com avaliação do risco de queda realizada na admissão" },
+      { id: "risco-quedas", label: "Nº de pacientes classificados em risco de queda" },
+      { id: "quedas-com-dano", label: "Nº de quedas com danos" },
+      { id: "quedas-sem-dano", label: "Nº de quedas sem danos" },
+      { id: "indice-quedas", label: "Índice de quedas = [(nº de eventos / nº de pacientes)] × 1000", formula: "quedas" },
+    ],
+  },
+  {
+    id: "upp",
+    label: "Protocolo de UPP",
+    title: "Levantamento de dados para indicadores RDC 36 · protocolo de úlcera por pressão",
+    indicators: [
+      { id: "admitidos", label: "Nº de pacientes admitidos" },
+      { id: "internados", label: "Nº de pacientes internados" },
+      { id: "avaliacao-risco-upp", label: "Nº de pacientes submetidos à avaliação de riscos de UPP na admissão" },
+      { id: "risco-upp", label: "Nº de pacientes total com riscos de UPP" },
+      { id: "preventivo-upp", label: "Nº de pacientes de risco de UPP recebendo cuidado preventivo apropriado" },
+      { id: "avaliacao-diaria-upp", label: "Nº de pacientes recebendo avaliação diária para risco de UPP" },
+      { id: "upp-propria", label: "Incidência de UPP de origem no próprio setor" },
+      { id: "upp-alas", label: "Incidência de UPP de origem alas" },
+      { id: "upp-externa", label: "Incidência de UPP de origem externa" },
+    ],
+  },
+];
+
+type RdcData = { local: string; responsavel: string; month: number; year: number; values: Record<string, string> };
+const rdcStorageKey = "axon:rdc36-indicadores";
+
 function Rdc36Panel({ onBack }: { onBack: () => void }) {
+  const now = new Date();
+  const [activeTable, setActiveTable] = useState("geral");
+  const [data, setData] = useState<RdcData>(() => ({ local: "UTI NEUROVASCULAR", responsavel: "", month: now.getMonth(), year: now.getFullYear(), values: {} }));
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(rdcStorageKey);
+      if (saved) setData((current) => ({ ...current, ...JSON.parse(saved), values: JSON.parse(saved).values ?? {} }));
+    } catch {
+      // Mantém a planilha vazia se um registro antigo estiver inválido.
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(rdcStorageKey, JSON.stringify(data));
+  }, [data]);
+
+  const table = rdcTables.find((item) => item.id === activeTable) ?? rdcTables[0];
+  const daysInMonth = new Date(data.year, data.month + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+  const keyFor = (tableId: string, indicatorId: string, day: number) => `${data.year}-${data.month}-${tableId}-${indicatorId}-${day}`;
+  const numberValue = (value?: string) => {
+    const parsed = Number(String(value ?? "").replace(",", "."));
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const calculated = (indicator: RdcIndicator, day: number) => {
+    if (indicator.formula !== "quedas") return undefined;
+    const numerator = numberValue(data.values[keyFor("queda", "quedas-com-dano", day)]) + numberValue(data.values[keyFor("queda", "quedas-sem-dano", day)]);
+    const denominator = numberValue(data.values[keyFor("queda", "atendidos", day)]);
+    return denominator ? ((numerator / denominator) * 1000).toFixed(1).replace(".", ",") : "0";
+  };
+  const cellValue = (indicator: RdcIndicator, day: number) => calculated(indicator, day) ?? data.values[keyFor(table.id, indicator.id, day)] ?? "";
+  const total = (indicator: RdcIndicator) => {
+    if (indicator.formula) {
+      const numerator = days.reduce((sum, day) => sum + numberValue(data.values[keyFor("queda", "quedas-com-dano", day)]) + numberValue(data.values[keyFor("queda", "quedas-sem-dano", day)]), 0);
+      const denominator = days.reduce((sum, day) => sum + numberValue(data.values[keyFor("queda", "atendidos", day)]), 0);
+      return denominator ? ((numerator / denominator) * 1000).toFixed(1).replace(".", ",") : "0";
+    }
+    return days.reduce((sum, day) => sum + numberValue(data.values[keyFor(table.id, indicator.id, day)]), 0).toLocaleString("pt-BR");
+  };
+  const monthName = new Date(data.year, data.month, 1).toLocaleDateString("pt-BR", { month: "long" });
+
   return (
     <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
       <div className="ios-card flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3">
-        <div>
-          <div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" /><h2 className="title-box !text-[12px]">RDC 36 · Segurança do paciente</h2></div>
-          <p className="mt-1 text-xs text-muted-foreground">Área de indicadores assistenciais da enfermagem.</p>
-        </div>
+        <div><div className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" /><h2 className="title-box !text-[12px]">RDC 36 · Segurança do paciente</h2></div><p className="mt-1 text-xs text-muted-foreground">Indicadores mensais de enfermagem. Os totais são calculados automaticamente.</p></div>
         <button type="button" onClick={onBack} className="rounded border border-border bg-background px-3 py-2 text-xs font-bold text-foreground hover:bg-muted">Voltar ao workflow</button>
       </div>
-      <div className="mt-4 grid gap-4 xl:grid-cols-3">
-        {[1, 2, 3].map((table) => (
-          <section key={table} className="ios-card min-h-64 rounded-lg p-4">
-            <h3 className="title-box !text-[11px]">Tabela {table}</h3>
-            <div className="mt-4 flex min-h-44 items-center justify-center rounded border border-dashed border-border bg-muted/20 p-5 text-center">
-              <div><p className="text-sm font-bold text-foreground">Modelo de tabela pendente</p><p className="mt-2 text-xs font-semibold text-muted-foreground">Envie o arquivo Excel de referência para inserir a tabela {table} com os campos e cálculos corretos.</p></div>
-            </div>
-          </section>
-        ))}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {rdcTables.map((item) => <button key={item.id} type="button" onClick={() => setActiveTable(item.id)} className={`rounded px-3 py-2 text-xs font-bold ${activeTable === item.id ? "bg-primary text-primary-foreground" : "border border-border bg-background text-foreground hover:bg-muted"}`}>{item.label}</button>)}
       </div>
+      <section className="ios-card mt-4 rounded-lg p-4">
+        <div className="flex flex-wrap items-end gap-3 border-b border-border pb-4">
+          <div className="min-w-60 flex-1"><p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Anexo 05</p><h3 className="mt-1 text-sm font-bold uppercase text-foreground">{table.title}</h3></div>
+          <label className="text-[10px] font-bold uppercase text-muted-foreground">Local<input className="mt-1 block w-44 rounded border border-input bg-background px-2 py-1.5 text-xs font-bold text-foreground" value={data.local} onChange={(event) => setData({ ...data, local: event.target.value })}/></label>
+          <label className="text-[10px] font-bold uppercase text-muted-foreground">Responsável<input className="mt-1 block w-44 rounded border border-input bg-background px-2 py-1.5 text-xs font-bold text-foreground" value={data.responsavel} onChange={(event) => setData({ ...data, responsavel: event.target.value })}/></label>
+          <label className="text-[10px] font-bold uppercase text-muted-foreground">Mês<select className="mt-1 block rounded border border-input bg-background px-2 py-1.5 text-xs font-bold text-foreground" value={data.month} onChange={(event) => setData({ ...data, month: Number(event.target.value) })}>{Array.from({ length: 12 }, (_, index) => <option key={index} value={index}>{new Date(2026, index, 1).toLocaleDateString("pt-BR", { month: "long" })}</option>)}</select></label>
+          <label className="text-[10px] font-bold uppercase text-muted-foreground">Ano<input type="number" min="2020" max="2100" className="mt-1 block w-24 rounded border border-input bg-background px-2 py-1.5 text-xs font-bold text-foreground" value={data.year} onChange={(event) => setData({ ...data, year: Number(event.target.value) || now.getFullYear() })}/></label>
+        </div>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[1800px] border-collapse text-[10px]">
+            <thead><tr className="bg-primary text-primary-foreground"><th className="sticky left-0 z-10 w-80 border border-primary/45 bg-primary px-3 py-2 text-left text-[11px]">Indicadores</th>{days.map((day) => <th key={day} className="border border-primary/45 px-1 py-2">{String(day).padStart(2, "0")}</th>)}<th className="border border-primary/45 px-3 py-2">Total</th></tr></thead>
+            <tbody>{table.indicators.map((indicator, rowIndex) => <tr key={indicator.id} className={rowIndex % 2 ? "bg-muted/20" : "bg-background"}><th className="sticky left-0 z-10 border border-border bg-inherit px-3 py-2 text-left font-bold text-foreground">{indicator.label}</th>{days.map((day) => <td key={day} className="border border-border p-0.5"><input readOnly={!!indicator.formula} inputMode="decimal" aria-label={`${indicator.label}, dia ${day}`} className={`h-7 w-full min-w-10 rounded border-0 bg-transparent px-1 text-center text-[11px] font-semibold outline-none focus:bg-primary/10 ${indicator.formula ? "text-muted-foreground" : "text-foreground"}`} value={cellValue(indicator, day)} onChange={(event) => setData({ ...data, values: { ...data.values, [keyFor(table.id, indicator.id, day)]: event.target.value } })}/></td>)}<td className="border border-border bg-primary/5 px-2 text-center text-[11px] font-bold text-primary">{total(indicator)}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-[10px] font-semibold text-muted-foreground">Referência selecionada: {monthName} de {data.year}. Os registros ficam salvos neste navegador.</p>
+      </section>
     </main>
   );
 }
