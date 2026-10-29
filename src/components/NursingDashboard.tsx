@@ -1,13 +1,11 @@
 import { useState } from "react";
 import type { Patient, Severity } from "@/data/patients";
 import { ClipboardList, Clock3, LogOut, Stethoscope, UserRoundCog } from "lucide-react";
-import { NursingWorkflow } from "@/components/NursingWorkflow";
 
 type Props = {
   patients: Patient[];
   onOpenMedicalPanel: () => void;
   onSignOut: () => void;
-  onUpdatePatient: (patient: Patient) => void;
 };
 
 type WorkflowActivity = {
@@ -41,6 +39,13 @@ const activityMeta: Record<WorkflowActivity["type"], { label: string; className:
   },
 };
 
+const activityPositions = [
+  "col-span-3",
+  "col-span-3",
+  "col-span-3",
+  "col-span-3",
+] as const;
+
 function shiftPeriod() {
   const now = new Date();
   const start = new Date(now);
@@ -51,6 +56,49 @@ function shiftPeriod() {
   const date = (d: Date) =>
     d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   return `07:00 de ${date(start)} até 07:00 de ${date(end)}`;
+}
+
+function activitiesFor(patient: Patient): WorkflowActivity[] {
+  const activeMeds = patient.medications.filter((med) => med.active !== false).slice(0, 2);
+  const nurseConducts = patient.conducts
+    .filter((conduct) => conduct.team === "Enfermagem")
+    .flatMap((conduct) => [
+      ...(conduct.text ? [conduct.text] : []),
+      ...(conduct.subItems ?? [])
+        .filter((item) => !item.hidden && item.text)
+        .map((item) => item.text),
+    ])
+    .slice(0, 2);
+  const activeDevices = (patient.devices ?? []).filter((device) => !device.removedAt);
+
+  const activities: WorkflowActivity[] = [
+    { label: "Sinais vitais e avaliação", time: "07:00", type: "monitoring" },
+    ...activeMeds.map((med, index) => ({
+      label: `Administrar ${med.name}`,
+      time: index === 0 ? "09:00" : "15:00",
+      type: "medication" as const,
+    })),
+  ];
+
+  if (activeDevices.length) {
+    activities.push({
+      label: `Checar ${activeDevices.length} invasão(ões)`,
+      time: "19:00",
+      type: "device",
+    });
+  }
+
+  activities.push(
+    ...(nurseConducts.length
+      ? nurseConducts.map((label, index) => ({
+          label,
+          time: index === 0 ? "23:00" : "03:00",
+          type: "care" as const,
+        }))
+      : [{ label: "Balanço hídrico e reavaliação", time: "23:00", type: "care" as const }]),
+  );
+
+  return activities.slice(0, 4);
 }
 
 function currentDiagnosis(patient: Patient) {
@@ -67,34 +115,6 @@ function listItems(items: string[], empty = "Não informado") {
           {item}
         </li>
       ))}
-    </ul>
-  );
-}
-
-type ResultState = "pending" | "changed" | "normal";
-
-const resultStateMeta: Record<ResultState, { label: string; className: string }> = {
-  pending: { label: "Pendente", className: "border-clinical-attention/40 bg-clinical-attention/10 text-ink" },
-  changed: { label: "Alterado", className: "border-clinical-critical/40 bg-clinical-critical/10 text-ink" },
-  normal: { label: "Sem alteração", className: "border-clinical-stable/40 bg-clinical-stable/10 text-ink" },
-};
-
-function resultItems(
-  items: { text: string; state: ResultState }[],
-  empty: string,
-) {
-  if (!items.length) return <p className="text-[11px] italic text-muted-foreground">{empty}</p>;
-  return (
-    <ul className="space-y-1">
-      {items.map((item, index) => {
-        const meta = resultStateMeta[item.state];
-        return (
-          <li key={`${item.text}-${index}`} className={`rounded border px-2 py-1 text-[10px] leading-snug ${meta.className}`}>
-            <span className="mr-1 font-bold uppercase tracking-wide">{meta.label}</span>
-            {item.text}
-          </li>
-        );
-      })}
     </ul>
   );
 }
@@ -138,18 +158,17 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
     pendencies?.cultures ? `Culturas: ${pendencies.cultures}` : "",
     pendencies?.consults ? `Interconsultas: ${pendencies.consults}` : "",
   ].filter(Boolean);
-  const laboratory = patient.exams.slice(0, 8).map((exam) => ({
-    text: `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`,
-    state: !exam.value?.trim() ? "pending" : exam.critical || exam.trend !== "flat" ? "changed" : "normal",
-  }) as { text: string; state: ResultState });
-  const imaging = (patient.imaging ?? []).slice(0, 5).map((exam) => ({
-    text: [exam.modality, exam.region, exam.summary ?? exam.status].filter(Boolean).join(" · "),
-    state: exam.status === "solicitado" ? "pending" : exam.conclusion === "alterado" || exam.conclusion === "critico" ? "changed" : "normal",
-  }) as { text: string; state: ResultState });
-  const cultures = (patient.cultures ?? []).slice(0, 5).map((culture) => ({
-    text: [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "),
-    state: culture.result === "andamento" ? "pending" : culture.result === "positiva" ? "changed" : "normal",
-  }) as { text: string; state: ResultState });
+  const laboratory = patient.exams
+    .slice(0, 8)
+    .map((exam) => `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`);
+  const imaging = (patient.imaging ?? [])
+    .slice(0, 5)
+    .map((exam) => [exam.modality, exam.region, exam.summary ?? exam.status].filter(Boolean).join(" · "));
+  const cultures = (patient.cultures ?? [])
+    .slice(0, 5)
+    .map((culture) =>
+      [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "),
+    );
   const expectedDischarge = patient.dischargeCheck?.expectedTransfer || "Não informada";
 
   return (
@@ -231,11 +250,11 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cuidados</p>
             {listItems(nursingCare, "Sem cuidados específicos registrados")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>
-            {resultItems(laboratory, "Sem exames laboratoriais")}
+            {listItems(laboratory, "Sem exames laboratoriais")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>
-            {resultItems(imaging, "Sem exames de imagem")}
+            {listItems(imaging, "Sem exames de imagem")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>
-            {resultItems(cultures, "Sem culturas registradas")}
+            {listItems(cultures, "Sem culturas registradas")}
           </section>
         </div>
       </section>
@@ -243,7 +262,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
   );
 }
 
-export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
+export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Props) {
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
@@ -352,7 +371,36 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                         </div>
                       </button>
 
-                      <NursingWorkflow patient={patient} onUpdatePatient={onUpdatePatient} />
+                      <section className="w-4/5 bg-surface/55 p-4">
+                        <div className="mb-2 grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          <span>07:00</span>
+                          <span>11:00</span>
+                          <span>15:00</span>
+                          <span>19:00</span>
+                          <span>23:00</span>
+                          <span>03:00</span>
+                          <span>07:00</span>
+                        </div>
+                        <div className="ios-inset grid min-h-[78px] grid-cols-12 gap-2 p-2">
+                          {activities.map((activity, index) => {
+                            const meta = activityMeta[activity.type];
+                            return (
+                              <div
+                                key={`${patient.id}-${activity.label}-${index}`}
+                                className={`min-w-0 rounded-md border px-2 py-2 shadow-sm ${meta.className} ${activityPositions[index]}`}
+                                title={activity.label}
+                              >
+                                <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
+                                  {activity.time} · {meta.label}
+                                </div>
+                                <div className="mt-0.5 truncate text-[11px] font-semibold">
+                                  {activity.label}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </section>
                     </div>
                   </article>
                 );
