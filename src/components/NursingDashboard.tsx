@@ -154,7 +154,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   const [editing, setEditing] = useState(false);
   const [diagnosis, setDiagnosis] = useState(() => currentDiagnosis(patient));
   const [diet, setDiet] = useState(() => patient.state.dieta ?? "");
-  const [stateNote, setStateNote] = useState(() => patient.state.notes ?? "");
+  const [severity, setSeverity] = useState<Severity>(() => patient.severity);
   const [pendingLab, setPendingLab] = useState(() => patient.dischargeCheck?.pendencies?.lab ?? "");
   const [pendingImaging, setPendingImaging] = useState(() => patient.dischargeCheck?.pendencies?.imaging ?? "");
   const [pendingCultures, setPendingCultures] = useState(() => patient.dischargeCheck?.pendencies?.cultures ?? "");
@@ -170,7 +170,8 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
     onUpdatePatient({
       ...patient,
       diagnoses,
-      state: { ...patient.state, dieta: diet, notes: stateNote },
+      severity,
+      state: { ...patient.state, dieta: diet },
       dischargeCheck: {
         ...patient.dischargeCheck,
         pendencies: {
@@ -293,11 +294,15 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
             )}
             <p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>
             {editing ? (
-              <textarea rows={3} className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={stateNote} onChange={(event) => setStateNote(event.target.value)} placeholder="Estado atual / observações" />
+              <select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={severity} onChange={(event) => setSeverity(event.target.value as Severity)}>
+                <option value="stable">Estável</option>
+                <option value="attention">Atenção</option>
+                <option value="critical">Crítico</option>
+              </select>
             ) : (
-              <p className="mt-1 text-[11px] leading-relaxed text-foreground">
-                {stateNote || [`Ventilação: ${patient.state.vent}`, `FiO₂: ${patient.state.fio2}%`, `PAM: ${patient.state.pam} mmHg`, patient.state.dva ? `DVA: ${patient.state.dva}` : ""].filter(Boolean).join(" · ")}
-              </p>
+              <span className={`mt-1 inline-flex rounded px-2 py-1 text-[12px] font-bold ${severityMeta[patient.severity].className}`}>
+                {severityMeta[patient.severity].label}
+              </span>
             )}
           </section>
 
