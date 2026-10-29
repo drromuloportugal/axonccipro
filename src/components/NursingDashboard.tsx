@@ -189,9 +189,12 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   );
   const devices = (patient.devices ?? [])
     .filter((device) => !device.removedAt)
-    .map((device) =>
-      [device.typeCode, device.site, device.size ? `nº ${device.size}` : ""].filter(Boolean).join(" · "),
-    );
+    .map((device) => ({
+      code: device.typeCode,
+      detail: [device.site, device.size ? `nº ${device.size}` : "", device.insertedAt ? `Inserido: ${new Date(device.insertedAt).toLocaleDateString("pt-BR")}` : ""]
+        .filter(Boolean)
+        .join(" · "),
+    }));
   const activeLpp = (patient.lpp ?? [])
     .filter((lesion) => !lesion.resolvedAt)
     .map((lesion) => `LPP ${lesion.siteLabel ?? lesion.site} · estágio ${lesion.stage}`);
@@ -315,7 +318,16 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
               <p className="mt-1 text-[11px] font-semibold text-foreground">{patient.state.dieta || "Não informada"}</p>
             )}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Dispositivos invasivos</p>
-            {listItems(devices, "Nenhum dispositivo ativo")}
+            {devices.length ? (
+              <ul className="space-y-1">
+                {devices.map((device, index) => (
+                  <li key={`${device.code}-${index}`} className="ios-inset px-2 py-1.5">
+                    <div className="text-[11px] font-bold text-foreground">{device.code}</div>
+                    <div className="mt-0.5 text-[10px] font-bold text-muted-foreground">{device.detail || "Sem detalhe adicional"}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-[11px] font-bold italic text-muted-foreground">Nenhum dispositivo ativo</p>}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">LPP e curativos</p>
             {listItems([...activeLpp, ...dressingCare], "Sem LPP ou curativo registrado")}
           </section>
