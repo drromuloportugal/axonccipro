@@ -35,6 +35,7 @@ import { exportPatients, readPatientsFromFile } from "@/lib/patientIO";
 import { listPatients, savePatients } from "@/lib/patients.functions";
 import { CallAxonPanel } from "@/components/CallAxonPanel";
 import { EmergencyRoom } from "@/components/EmergencyRoom";
+import { NursingDashboard } from "@/components/NursingDashboard";
 
 import { toast } from "sonner";
 import { useRef } from "react";
@@ -65,12 +66,17 @@ export const Route = createFileRoute("/")({
 });
 
 type Filter = "all" | Severity | "discharged";
+type ProfessionalRole = "medico" | "enfermeiro";
 
 function Passometro() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [patientsLoaded, setPatientsLoaded] = useState(false);
+  const [professionalRole, setProfessionalRole] = useState<ProfessionalRole>(() => {
+    const stored = typeof window === "undefined" ? null : window.localStorage.getItem("axon:professional-role");
+    return stored === "enfermeiro" ? "enfermeiro" : "medico";
+  });
 
   const [examsOpen, setExamsOpen] = useState(false);
   const [dilutionOpen, setDilutionOpen] = useState(false);
@@ -361,6 +367,19 @@ function Passometro() {
       document.title = prevTitle;
     };
   }, [printing]);
+
+  if (professionalRole === "enfermeiro") {
+    return (
+      <NursingDashboard
+        patients={active}
+        onOpenMedicalPanel={() => {
+          window.localStorage.setItem("axon:professional-role", "medico");
+          setProfessionalRole("medico");
+        }}
+        onSignOut={handleSignOut}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground axon-app-shell">
