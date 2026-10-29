@@ -6,7 +6,7 @@ type Props = {
   patients: Patient[];
   onOpenMedicalPanel: () => void;
   onSignOut: () => void;
-  onUpdatePatient: (patient: Patient) => void;
+  onUpdatePatient: (patient: Patient, previousId?: string) => void;
 };
 
 type WorkflowActivity = {
@@ -195,216 +195,115 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="title-box mb-3 !text-[10px]">{children}</h3>;
 }
 
-function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; onClose: () => void; onUpdatePatient: (patient: Patient) => void }) {
+function splitLines(value: string) {
+  return value.split("\n").map((item) => item.trim()).filter(Boolean);
+}
+
+function ReadLines({ value, empty = "Não informado" }: { value: string; empty?: string }) {
+  const lines = splitLines(value);
+  return lines.length ? <div className="space-y-1 text-[11px] font-semibold text-foreground">{lines.map((line, index) => <p key={`${line}-${index}`} className="ios-inset px-2 py-1">{line}</p>)}</div> : <p className="text-[11px] italic text-muted-foreground">{empty}</p>;
+}
+
+function Field({ label, value, onChange, type = "text" }: { label: string; value: string | number; onChange: (value: string) => void; type?: string }) {
+  return <label className="block text-[10px] font-bold uppercase text-muted-foreground">{label}<input type={type} className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" value={value} onChange={(event) => onChange(event.target.value)} /></label>;
+}
+
+function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; onClose: () => void; onUpdatePatient: (patient: Patient, previousId?: string) => void }) {
   const [editing, setEditing] = useState(false);
+  const [identity, setIdentity] = useState(() => ({ name: patient.name, bed: patient.bed, id: patient.id, age: String(patient.age), sex: patient.sex, admissionICU: patient.admissionICU, expectedDischarge: patient.dischargeCheck?.expectedTransfer ?? "" }));
   const [diagnosis, setDiagnosis] = useState(() => currentDiagnosis(patient));
-  const [diet, setDiet] = useState(() => patient.state.dieta ?? "");
   const [severity, setSeverity] = useState<Severity>(() => patient.severity);
+  const [baseConditions, setBaseConditions] = useState(() => patient.diagnoses.filter((item) => item.category === "previous" || item.category === "inactive").map((item) => item.label).join("\n"));
+  const [surgeries, setSurgeries] = useState(() => patient.procedures.map((item) => item.label).join("\n"));
+  const [allergies, setAllergies] = useState(() => patient.allergies.filter((item) => item !== "—").join("\n"));
+  const [chronicMeds, setChronicMeds] = useState(() => (patient.pastMedications ?? []).map((item) => [item.name, item.dose, item.route].filter(Boolean).join(" · ")).join("\n"));
+  const [diet, setDiet] = useState(() => patient.state.dieta ?? "");
+  const [devices, setDevices] = useState(() => (patient.devices ?? []).filter((item) => !item.removedAt).map((item) => ({ id: item.id, code: item.typeCode, site: item.site ?? "", size: item.size ?? "", lumens: item.lumens ? String(item.lumens) : "", insertedAt: item.insertedAt ? item.insertedAt.slice(0, 10) : "" })));
+  const [skinCare, setSkinCare] = useState(() => patient.conducts.filter((item) => item.system === "skin").flatMap((item) => [item.text, ...(item.subItems ?? []).filter((sub) => !sub.hidden).map((sub) => sub.text)]).filter(Boolean).join("\n"));
   const [pendingLab, setPendingLab] = useState(() => patient.dischargeCheck?.pendencies?.lab ?? "");
   const [pendingImaging, setPendingImaging] = useState(() => patient.dischargeCheck?.pendencies?.imaging ?? "");
   const [pendingCultures, setPendingCultures] = useState(() => patient.dischargeCheck?.pendencies?.cultures ?? "");
+  const [nursingCare, setNursingCare] = useState(() => patient.conducts.filter((item) => item.team === "Enfermagem").flatMap((item) => [item.text, ...(item.subItems ?? []).filter((sub) => !sub.hidden).map((sub) => sub.text)]).filter(Boolean).join("\n"));
+  const [laboratory, setLaboratory] = useState(() => (patient.exams ?? []).map((item) => `${item.label}: ${item.value}${item.unit ? ` ${item.unit}` : ""}`).join("\n"));
+  const [imaging, setImaging] = useState(() => (patient.imaging ?? []).map((item) => [item.modality, item.region, item.summary ?? item.status ?? ""].filter(Boolean).join(" · ")).join("\n"));
+  const [cultures, setCultures] = useState(() => (patient.cultures ?? []).map((item) => [item.source, item.organism, item.result].filter(Boolean).join(" · ")).join("\n"));
 
   const saveSbar = () => {
-    const diagnoses = [...patient.diagnoses];
-    let index = -1;
-    for (let i = diagnoses.length - 1; i >= 0; i--) {
-      if (diagnoses[i].category === "current") { index = i; break; }
-    }
-    if (index >= 0) diagnoses[index] = { ...diagnoses[index], label: diagnosis.trim() || diagnoses[index].label };
-    else if (diagnosis.trim()) diagnoses.push({ date: "", label: diagnosis.trim(), kind: "neutral", category: "current" });
-    onUpdatePatient({
+    const currentDiagnosisIndex = patient.diagnoses.map((item) => item.category).lastIndexOf("current");
+    const diagnoses = patient.diagnoses.filter((_, index) => index !== currentDiagnosisIndex && !["previous", "inactive"].includes(patient.diagnoses[index].category ?? ""));
+    if (diagnosis.trim()) diagnoses.push({ date: "", label: diagnosis.trim(), kind: "neutral", category: "current" });
+    diagnoses.push(...splitLines(baseConditions).map((label) => ({ date: "", label, kind: "neutral" as const, category: "previous" as const })));
+
+    const deviceById = new Map(devices.map((device) => [device.id, device]));
+    const nextDevices = (patient.devices ?? []).map((device) => {
+      const draft = deviceById.get(device.id);
+      if (!draft) return device;
+      const lumens = Number(draft.lumens);
+      return { ...device, typeCode: draft.code.trim() || device.typeCode, site: draft.site.trim() || undefined, size: draft.size.trim() || undefined, lumens: ([1, 2, 3, 4].includes(lumens) ? lumens : undefined) as 1 | 2 | 3 | 4 | undefined, insertedAt: draft.insertedAt || device.insertedAt };
+    });
+
+    const otherConducts = patient.conducts.filter((item) => item.team !== "Enfermagem" && item.system !== "skin");
+    const nextConducts = [
+      ...otherConducts,
+      ...(splitLines(nursingCare).length ? [{ team: "Enfermagem" as const, text: "Cuidados de enfermagem", system: "other" as const, subItems: splitLines(nursingCare).map((text) => ({ text })) }] : []),
+      ...(splitLines(skinCare).length ? [{ team: "Enfermagem" as const, text: "Pele, LPP e curativos", system: "skin" as const, subItems: splitLines(skinCare).map((text) => ({ text })) }] : []),
+    ];
+    const labLines = splitLines(laboratory);
+    const imageLines = splitLines(imaging);
+    const cultureLines = splitLines(cultures);
+    const updated: Patient = {
       ...patient,
-      diagnoses,
+      id: identity.id.trim() || patient.id,
+      name: identity.name.trim() || patient.name,
+      bed: identity.bed.trim(),
+      age: Number(identity.age) || patient.age,
+      sex: identity.sex,
+      admissionICU: identity.admissionICU,
       severity,
+      diagnoses,
+      procedures: splitLines(surgeries).map((label) => ({ date: "", label, kind: "neutral" as const })),
+      allergies: splitLines(allergies),
+      pastMedications: splitLines(chronicMeds).map((name, index) => ({ id: `sbar-med-${index}`, name })),
+      devices: nextDevices,
+      conducts: nextConducts,
       state: { ...patient.state, dieta: diet },
+      exams: patient.exams.map((exam, index) => {
+        const line = labLines[index] ?? "";
+        const [, value = exam.value] = line.split(/:\s*/, 2);
+        return { ...exam, value: value.replace(new RegExp(`\\s*${exam.unit ?? ""}$`), "").trim() || exam.value };
+      }),
+      imaging: (patient.imaging ?? []).map((exam, index) => ({ ...exam, summary: imageLines[index] ?? exam.summary })),
+      cultures: (patient.cultures ?? []).map((culture, index) => ({ ...culture, result: cultureLines[index] ?? culture.result })),
       dischargeCheck: {
         ...patient.dischargeCheck,
-        pendencies: {
-          ...patient.dischargeCheck?.pendencies,
-          lab: pendingLab,
-          imaging: pendingImaging,
-          cultures: pendingCultures,
-        },
+        expectedTransfer: identity.expectedDischarge,
+        pendencies: { ...patient.dischargeCheck?.pendencies, lab: pendingLab, imaging: pendingImaging, cultures: pendingCultures },
       },
-    });
+    };
+    onUpdatePatient(updated, patient.id);
     setEditing(false);
   };
 
-  const baseConditions = patient.diagnoses
-    .filter((diagnosis) => diagnosis.category === "previous" || diagnosis.category === "inactive")
-    .map((diagnosis) => diagnosis.label);
-  const surgeries = patient.procedures.map((procedure) => procedure.label);
-  const chronicMeds = (patient.pastMedications ?? []).map((medication) =>
-    [medication.name, medication.dose, medication.route].filter(Boolean).join(" · "),
+  const area = (label: string, value: string, onChange: (value: string) => void, empty?: string) => (
+    <div>
+      <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">{label}</p>
+      {editing ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={value} onChange={(event) => onChange(event.target.value)} placeholder={empty} /> : <ReadLines value={value} empty={empty} />}
+    </div>
   );
-  const devices = (patient.devices ?? [])
-    .filter((device) => !device.removedAt)
-    .map((device) => ({
-      code: device.typeCode,
-      detail: [device.site, device.size ? `nº ${device.size}` : "", device.lumens ? `${device.lumens} lúmen${device.lumens === 1 ? "" : "s"}` : "", device.insertedAt ? `Inserido: ${new Date(device.insertedAt).toLocaleDateString("pt-BR")}` : ""]
-        .filter(Boolean)
-        .join(" · "),
-    }));
-  const activeLpp = (patient.lpp ?? [])
-    .filter((lesion) => !lesion.resolvedAt)
-    .map((lesion) => `LPP ${lesion.siteLabel ?? lesion.site} · estágio ${lesion.stage}`);
-  const dressingCare = patient.conducts
-    .filter((conduct) => conduct.system === "skin")
-    .flatMap((conduct) => [
-      ...(conduct.text ? [conduct.text] : []),
-      ...(conduct.subItems ?? []).filter((item) => !item.hidden).map((item) => item.text),
-    ]);
-  const nursingCare = patient.conducts
-    .filter((conduct) => conduct.team === "Enfermagem")
-    .flatMap((conduct) => [
-      ...(conduct.text ? [conduct.text] : []),
-      ...(conduct.subItems ?? []).filter((item) => !item.hidden).map((item) => item.text),
-    ]);
-  const pendencies = patient.dischargeCheck?.pendencies;
-  const pendingItems = [
-    pendencies?.lab ? `Laboratório: ${pendencies.lab}` : "",
-    pendencies?.imaging ? `Imagem: ${pendencies.imaging}` : "",
-    pendencies?.cultures ? `Culturas: ${pendencies.cultures}` : "",
-    pendencies?.consults ? `Interconsultas: ${pendencies.consults}` : "",
-  ].filter(Boolean);
-  const laboratory = (patient.exams ?? []).slice(0, 8).map((exam) => ({
-    text: `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`,
-    state: !String(exam.value ?? "").trim() ? "pending" : exam.critical || exam.trend !== "flat" ? "changed" : "normal",
-  }) as { text: string; state: ResultState });
-  const imaging = (patient.imaging ?? []).slice(0, 5).map((exam) => ({
-    text: [exam.modality, exam.region, exam.summary ?? exam.status].filter(Boolean).join(" · "),
-    state: exam.status === "solicitado" ? "pending" : exam.conclusion === "alterado" || exam.conclusion === "critico" ? "changed" : "normal",
-  }) as { text: string; state: ResultState });
-  const cultures = (patient.cultures ?? []).slice(0, 5).map((culture) => ({
-    text: [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "),
-    state: culture.result === "andamento" ? "pending" : culture.result === "positiva" ? "changed" : "normal",
-  }) as { text: string; state: ResultState });
-  const expectedDischarge = patient.dischargeCheck?.expectedTransfer || "Não informada";
 
   return (
-    <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Resumo SBAR de ${patient.name}`}
-      onClick={onClose}
-    >
-      <section
-        className="max-h-[92vh] w-full max-w-[1600px] overflow-y-auto rounded-xl border border-border bg-soft-blue-gradient shadow-2xl"
-        onClick={(event) => event.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Resumo SBAR de ${patient.name}`} onClick={onClose}>
+      <section className="max-h-[92vh] w-full max-w-[1600px] overflow-y-auto rounded-xl border border-border bg-soft-blue-gradient shadow-2xl" onClick={(event) => event.stopPropagation()}>
         <header className="neto-glass sticky top-0 z-10 flex items-center justify-between px-5 py-4 text-neto-foreground backdrop-blur">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">SBAR · Enfermagem</p>
-            <h2 className="mt-1 text-base font-bold text-neto-foreground">{patient.name} · Leito {patient.bed || "—"}</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            {editing ? (
-              <>
-                <button type="button" onClick={() => setEditing(false)} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Cancelar</button>
-                <button type="button" onClick={saveSbar} className="rounded-md bg-white px-3 py-1.5 text-xs font-bold text-primary">Salvar</button>
-              </>
-            ) : (
-              <button type="button" onClick={() => setEditing(true)} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Editar</button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20"
-            >
-              Fechar
-            </button>
-          </div>
+          <div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">SBAR · Enfermagem</p><h2 className="mt-1 text-base font-bold text-neto-foreground">{patient.name} · Leito {patient.bed || "—"}</h2></div>
+          <div className="flex items-center gap-2">{editing ? <><button type="button" onClick={() => setEditing(false)} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Cancelar</button><button type="button" onClick={saveSbar} className="rounded-md bg-white px-3 py-1.5 text-xs font-bold text-primary">Salvar tudo</button></> : <button type="button" onClick={() => setEditing(true)} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Editar SBAR</button>}<button type="button" onClick={onClose} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Fechar</button></div>
         </header>
-
         <div className="grid gap-3 p-4 text-[13px] font-bold xl:grid-cols-5">
-          <section className="ios-card rounded-lg p-4">
-            <SectionTitle>Identificação</SectionTitle>
-            <dl className="space-y-2 text-[11px]">
-              <div><dt className="text-muted-foreground">Paciente</dt><dd className="font-semibold">{patient.name || "—"}</dd></div>
-              <div><dt className="text-muted-foreground">Leito</dt><dd>{patient.bed || "—"}</dd></div>
-              <div><dt className="text-muted-foreground">Nº do atendimento</dt><dd className="font-mono">{patient.id}</dd></div>
-              <div><dt className="text-muted-foreground">Admissão UTI</dt><dd>{patient.admissionICU || "Não informada"}</dd></div>
-              <div><dt className="text-muted-foreground">Previsão de alta</dt><dd>{expectedDischarge}</dd></div>
-            </dl>
-          </section>
-
-          <section className="ios-card rounded-lg p-4">
-            <SectionTitle>Situação</SectionTitle>
-            <p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>
-            {editing ? (
-              <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diagnosis} onChange={(event) => setDiagnosis(event.target.value)} />
-            ) : (
-              <p className="mt-1 text-sm font-bold text-foreground">{currentDiagnosis(patient)}</p>
-            )}
-            <p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>
-            {editing ? (
-              <select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={severity} onChange={(event) => setSeverity(event.target.value as Severity)}>
-                <option value="stable">Estável</option>
-                <option value="attention">Atenção</option>
-                <option value="critical">Crítico</option>
-              </select>
-            ) : (
-              <span className={`mt-1 inline-flex rounded px-2 py-1 text-[12px] font-bold ${severityMeta[patient.severity].className}`}>
-                {severityMeta[patient.severity].label}
-              </span>
-            )}
-          </section>
-
-          <section className="ios-card rounded-lg p-4">
-            <SectionTitle>Background</SectionTitle>
-            <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Doenças de base</p>
-            {listItems(baseConditions)}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cirurgias / procedimentos prévios</p>
-            {listItems(surgeries)}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Alergias</p>
-            {listItems(patient.allergies)}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Uso contínuo</p>
-            {listItems(chronicMeds)}
-          </section>
-
-          <section className="ios-card rounded-lg p-4">
-            <SectionTitle>Avaliação</SectionTitle>
-            <p className="text-[10px] font-semibold uppercase text-muted-foreground">Dieta</p>
-            {editing ? (
-              <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diet} onChange={(event) => setDiet(event.target.value)} />
-            ) : (
-              <p className="mt-1 text-[11px] font-semibold text-foreground">{patient.state.dieta || "Não informada"}</p>
-            )}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Dispositivos invasivos</p>
-            {devices.length ? (
-              <ul className="space-y-1">
-                {devices.map((device, index) => (
-                  <li key={`${device.code}-${index}`} className="ios-inset px-2 py-1.5">
-                    <div className="text-[11px] font-bold text-foreground">{device.code}</div>
-                    <div className="mt-0.5 text-[10px] font-bold text-muted-foreground">{device.detail || "Sem detalhe adicional"}</div>
-                  </li>
-                ))}
-              </ul>
-            ) : <p className="text-[11px] font-bold italic text-muted-foreground">Nenhum dispositivo ativo</p>}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">LPP e curativos</p>
-            {listItems([...activeLpp, ...dressingCare], "Sem LPP ou curativo registrado")}
-          </section>
-
-          <section className="ios-card rounded-lg p-4">
-            <SectionTitle>Recomendação</SectionTitle>
-            <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Pendências</p>
-            {editing ? (
-              <div className="space-y-1">
-                <input className="w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={pendingLab} onChange={(event) => setPendingLab(event.target.value)} placeholder="Pendência de laboratório" />
-                <input className="w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={pendingImaging} onChange={(event) => setPendingImaging(event.target.value)} placeholder="Pendência de imagem" />
-                <input className="w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={pendingCultures} onChange={(event) => setPendingCultures(event.target.value)} placeholder="Pendência de cultura" />
-              </div>
-            ) : listItems(pendingItems, "Sem pendências registradas")}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cuidados</p>
-            {listItems(nursingCare, "Sem cuidados específicos registrados")}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>
-            {resultItems(laboratory, "Sem exames laboratoriais")}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>
-            {resultItems(imaging, "Sem exames de imagem")}
-            <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>
-            {resultItems(cultures, "Sem culturas registradas")}
-          </section>
+          <section className="ios-card rounded-lg p-4"><SectionTitle>Identificação</SectionTitle>{editing ? <div className="grid gap-2"><Field label="Paciente" value={identity.name} onChange={(value) => setIdentity({ ...identity, name: value })}/><Field label="Leito" value={identity.bed} onChange={(value) => setIdentity({ ...identity, bed: value })}/><Field label="Nº do atendimento" value={identity.id} onChange={(value) => setIdentity({ ...identity, id: value })}/><Field label="Idade" type="number" value={identity.age} onChange={(value) => setIdentity({ ...identity, age: value })}/><label className="text-[10px] font-bold uppercase text-muted-foreground">Sexo<select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={identity.sex} onChange={(event) => setIdentity({ ...identity, sex: event.target.value as "M" | "F" })}><option value="M">Masculino</option><option value="F">Feminino</option></select></label><Field label="Admissão UTI" value={identity.admissionICU} onChange={(value) => setIdentity({ ...identity, admissionICU: value })}/><Field label="Previsão de alta" value={identity.expectedDischarge} onChange={(value) => setIdentity({ ...identity, expectedDischarge: value })}/></div> : <dl className="space-y-2 text-[11px]"><div><dt className="text-muted-foreground">Paciente</dt><dd>{identity.name || "—"}</dd></div><div><dt className="text-muted-foreground">Leito</dt><dd>{identity.bed || "—"}</dd></div><div><dt className="text-muted-foreground">Nº do atendimento</dt><dd className="font-mono">{identity.id}</dd></div><div><dt className="text-muted-foreground">Idade / sexo</dt><dd>{identity.age} anos · {identity.sex === "M" ? "Masculino" : "Feminino"}</dd></div><div><dt className="text-muted-foreground">Admissão UTI</dt><dd>{identity.admissionICU || "Não informada"}</dd></div><div><dt className="text-muted-foreground">Previsão de alta</dt><dd>{identity.expectedDischarge || "Não informada"}</dd></div></dl>}</section>
+          <section className="ios-card rounded-lg p-4"><SectionTitle>Situação</SectionTitle><p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>{editing ? <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diagnosis} onChange={(event) => setDiagnosis(event.target.value)}/> : <p className="mt-1 text-sm font-bold text-foreground">{diagnosis || "Não informado"}</p>}<p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>{editing ? <select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={severity} onChange={(event) => setSeverity(event.target.value as Severity)}><option value="stable">Estável</option><option value="attention">Atenção</option><option value="critical">Crítico</option></select> : <span className={`mt-1 inline-flex rounded px-2 py-1 text-[12px] font-bold ${severityMeta[severity].className}`}>{severityMeta[severity].label}</span>}</section>
+          <section className="ios-card space-y-3 rounded-lg p-4"><SectionTitle>Background</SectionTitle>{area("Doenças de base", baseConditions, setBaseConditions, "Uma condição por linha")}{area("Cirurgias / procedimentos prévios", surgeries, setSurgeries, "Um item por linha")}{area("Alergias", allergies, setAllergies, "Uma alergia por linha")}{area("Uso contínuo", chronicMeds, setChronicMeds, "Um medicamento por linha")}</section>
+          <section className="ios-card space-y-3 rounded-lg p-4"><SectionTitle>Avaliação</SectionTitle><p className="text-[10px] font-semibold uppercase text-muted-foreground">Dieta</p>{editing ? <input className="w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diet} onChange={(event) => setDiet(event.target.value)}/> : <p className="text-[11px] font-semibold">{diet || "Não informada"}</p>}<p className="text-[10px] font-semibold uppercase text-muted-foreground">Dispositivos invasivos</p>{devices.length ? devices.map((device) => editing ? <div key={device.id} className="ios-inset grid gap-1 p-2"><Field label="Dispositivo" value={device.code} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, code: value } : item))}/><Field label="Sítio" value={device.site} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, site: value } : item))}/><div className="grid grid-cols-2 gap-1"><Field label="Calibre" value={device.size} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, size: value } : item))}/><Field label="Lúmens" value={device.lumens} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, lumens: value } : item))}/></div><Field label="Inserção" type="date" value={device.insertedAt} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, insertedAt: value } : item))}/></div> : <div key={device.id} className="ios-inset px-2 py-1.5 text-[11px]"><b>{device.code}</b><br/><span className="text-muted-foreground">{[device.site, device.size ? `nº ${device.size}` : "", device.lumens ? `${device.lumens} lúmen(s)` : "", device.insertedAt].filter(Boolean).join(" · ")}</span></div>) : <p className="text-[11px] italic text-muted-foreground">Nenhum dispositivo ativo</p>}{area("LPP e curativos", skinCare, setSkinCare, "Registro de LPP e curativos, uma linha por item")}</section>
+          <section className="ios-card space-y-3 rounded-lg p-4"><SectionTitle>Recomendação</SectionTitle>{area("Pendência de laboratório", pendingLab, setPendingLab)}{area("Pendência de imagem", pendingImaging, setPendingImaging)}{area("Pendência de cultura", pendingCultures, setPendingCultures)}{area("Cuidados", nursingCare, setNursingCare, "Um cuidado por linha")}{area("Laboratório", laboratory, setLaboratory, "Um exame por linha")}{area("Imagem", imaging, setImaging, "Um exame por linha")}{area("Culturas", cultures, setCultures, "Uma cultura por linha")}</section>
         </div>
       </section>
     </div>
@@ -600,6 +499,20 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
     const activities = current.some((item) => item.id === record.id)
       ? current.map((item) => item.id === record.id ? { ...item, ...record } : item)
       : [...current, record];
+    onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, activities } });
+    setEditingActivity(null);
+  };
+
+  const removeWorkflowActivity = (patientId: string, activity: WorkflowActivity) => {
+    const patient = patients.find((item) => item.id === patientId);
+    if (!patient || !activity.id) return;
+    const current = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+    const isStoredCustom = activity.source === "custom" && current.some((item) => item.id === activity.id);
+    const activities = isStoredCustom
+      ? current.filter((item) => item.id !== activity.id)
+      : current.some((item) => item.id === activity.id)
+        ? current.map((item) => item.id === activity.id ? { ...item, hidden: true } : item)
+        : [...current, { ...activity, hidden: true, source: activity.source ?? "default" }];
     onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, activities } });
     setEditingActivity(null);
   };
@@ -871,9 +784,12 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             <label className="mt-4 block text-[11px] font-bold">Observações
               <textarea rows={4} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-2 text-[12px] font-semibold" value={editingActivity.activity.note ?? ""} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, note: event.target.value } })} placeholder="Registrar observações da atividade" />
             </label>
-            <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => setEditingActivity(null)} className="rounded border border-border px-3 py-2 text-xs font-semibold">Cancelar</button>
-              <button type="button" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)} className="rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Salvar</button>
+            <div className="mt-5 flex justify-between gap-2">
+              <button type="button" onClick={() => removeWorkflowActivity(editingActivity.patientId, editingActivity.activity)} className="rounded border border-clinical-critical/45 px-3 py-2 text-xs font-bold text-clinical-critical hover:bg-clinical-critical/10">Remover atividade</button>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setEditingActivity(null)} className="rounded border border-border px-3 py-2 text-xs font-semibold">Cancelar</button>
+                <button type="button" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)} className="rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Salvar</button>
+              </div>
             </div>
           </section>
         </div>
