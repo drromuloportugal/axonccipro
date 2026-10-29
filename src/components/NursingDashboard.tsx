@@ -17,7 +17,8 @@ type WorkflowActivity = {
   completed?: boolean;
   note?: string;
   important?: boolean;
-  source?: "default" | "custom";
+  hidden?: boolean;
+  source?: "default" | "custom" | "fasthug";
 };
 
 const severityMeta: Record<Severity, { label: string; className: string }> = {
