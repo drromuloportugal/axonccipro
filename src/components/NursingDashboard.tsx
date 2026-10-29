@@ -111,7 +111,7 @@ function listItems(items: string[], empty = "Não informado") {
   return (
     <ul className="space-y-1 text-[11px] leading-snug text-foreground">
       {items.map((item, index) => (
-        <li key={`${item}-${index}`} className="border-l-2 border-primary/40 pl-2">
+        <li key={`${item}-${index}`} className="ios-inset border-l-2 border-primary/45 px-2 py-1">
           {item}
         </li>
       ))}
@@ -209,7 +209,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             </dl>
           </section>
 
-          <section className="rounded-xl border border-border bg-surface/45 p-4">
+          <section className="ios-card rounded-lg p-4">
             <SectionTitle>Situação</SectionTitle>
             <p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>
             <p className="mt-1 text-sm font-bold text-foreground">{currentDiagnosis(patient)}</p>
@@ -221,7 +221,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             </p>
           </section>
 
-          <section className="rounded-xl border border-border bg-surface/45 p-4">
+          <section className="ios-card rounded-lg p-4">
             <SectionTitle>Background</SectionTitle>
             <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Doenças de base</p>
             {listItems(baseConditions)}
@@ -233,7 +233,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             {listItems(chronicMeds)}
           </section>
 
-          <section className="rounded-xl border border-border bg-surface/45 p-4">
+          <section className="ios-card rounded-lg p-4">
             <SectionTitle>Avaliação</SectionTitle>
             <p className="text-[10px] font-semibold uppercase text-muted-foreground">Dieta</p>
             <p className="mt-1 text-[11px] font-semibold text-foreground">{patient.state.dieta || "Não informada"}</p>
@@ -243,7 +243,7 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             {listItems([...activeLpp, ...dressingCare], "Sem LPP ou curativo registrado")}
           </section>
 
-          <section className="rounded-xl border border-border bg-surface/45 p-4">
+          <section className="ios-card rounded-lg p-4">
             <SectionTitle>Recomendação</SectionTitle>
             <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Pendências</p>
             {listItems(pendingItems, "Sem pendências registradas")}
@@ -387,7 +387,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                             return (
                               <div
                                 key={`${patient.id}-${activity.label}-${index}`}
-                                className={`min-w-0 rounded-md border px-2 py-2 ${meta.className} ${activityPositions[index]}`}
+                                className={`min-w-0 rounded-md border px-2 py-2 shadow-sm ${meta.className} ${activityPositions[index]}`}
                                 title={activity.label}
                               >
                                 <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
