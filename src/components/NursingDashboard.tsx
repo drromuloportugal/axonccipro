@@ -21,11 +21,33 @@ type WorkflowActivity = {
   source?: "default" | "custom" | "fasthug";
 };
 
+type FastHugStatus = "adequado" | "atencao" | "nao_aplicavel";
+type FastHugCriterion = { status: FastHugStatus; note: string };
+type FastHugReviewData = { criteria: Record<string, FastHugCriterion>; reviewedAt?: string };
+type NursingWorkflowWithFastHug = NonNullable<Patient["nursingWorkflow"]> & { fastHugReview?: FastHugReviewData };
+
 const severityMeta: Record<Severity, { label: string; className: string }> = {
   critical: { label: "Crítico", className: "bg-clinical-critical text-white" },
   attention: { label: "Atenção", className: "bg-clinical-attention text-white" },
   stable: { label: "Estável", className: "bg-clinical-stable text-white" },
 };
+
+const fastHugCriteria = [
+  ["F", "Dieta e suporte nutricional"],
+  ["A", "Analgesia"],
+  ["S", "Sedação"],
+  ["T", "Profilaxia tromboembólica"],
+  ["H", "Delirium hipo ou hiperativo"],
+  ["U", "Profilaxia de úlcera de estresse"],
+  ["G", "Controle glicêmico"],
+  ["M", "Reconciliação medicamentosa"],
+  ["A", "Antimicrobianos / anti-infecciosos"],
+  ["I", "Indicação de cada medicamento"],
+  ["D", "Dose dos medicamentos"],
+  ["E", "Eletrólitos, hematologia e demais exames"],
+  ["N", "Interações, alergias, duplicidades e efeitos adversos"],
+  ["S", "Datas de suspensão"],
+] as const;
 
 const activityMeta: Record<WorkflowActivity["type"], { label: string; className: string }> = {
   monitoring: {
@@ -97,6 +119,13 @@ function activitiesFor(patient: Patient): WorkflowActivity[] {
     });
   }
 
+  activities.push({
+    label: "REVISÃO FASTHUG",
+    time: "17:00",
+    type: "care",
+    source: "fasthug",
+  });
+
   activities.push(
     ...(nurseConducts.length
       ? nurseConducts.map((label, index) => ({
@@ -107,7 +136,7 @@ function activitiesFor(patient: Patient): WorkflowActivity[] {
       : [{ label: "Balanço hídrico e reavaliação", time: "23:00", type: "care" as const }]),
   );
 
-  return activities.slice(0, 4);
+  return activities;
 }
 
 function currentDiagnosis(patient: Patient) {
@@ -368,11 +397,66 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   );
 }
 
+function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose: () => void; onSave: (criteria: Record<string, FastHugCriterion>) => void }) {
+  const existing = (patient.nursingWorkflow as NursingWorkflowWithFastHug | undefined)?.fastHugReview?.criteria;
+  const [criteria, setCriteria] = useState<Record<string, FastHugCriterion>>(() =>
+    fastHugCriteria.reduce<Record<string, FastHugCriterion>>((items, [letter, label], index) => {
+      const key = `${letter}-${index}`;
+      items[key] = existing?.[key] ?? { status: "adequado", note: "" };
+      return items;
+    }, {}),
+  );
+
+  return (
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={`Revisão FASTHUG de ${patient.name}`} onClick={onClose}>
+      <section className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-xl border border-border bg-soft-blue-gradient shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <header className="neto-glass sticky top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 text-neto-foreground backdrop-blur">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">Revisão diária · 17:00</p>
+            <h2 className="mt-1 text-base font-bold text-neto-foreground">FASTHUG-MAIDENS · {patient.name}</h2>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Fechar</button>
+        </header>
+        <div className="p-5">
+          <p className="mb-4 text-xs font-semibold text-muted-foreground">Registre a situação de cada critério e, quando necessário, a observação ou conduta.</p>
+          <div className="grid gap-3 md:grid-cols-2">
+            {fastHugCriteria.map(([letter, label], index) => {
+              const key = `${letter}-${index}`;
+              const item = criteria[key];
+              return (
+                <article key={key} className="ios-card rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary text-xs font-bold text-primary-foreground">{letter}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12px] font-bold text-foreground">{label}</p>
+                      <select className="mt-2 w-full rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={item.status} onChange={(event) => setCriteria({ ...criteria, [key]: { ...item, status: event.target.value as FastHugStatus } })}>
+                        <option value="adequado">Adequado</option>
+                        <option value="atencao">Atenção / requer conduta</option>
+                        <option value="nao_aplicavel">Não aplicável</option>
+                      </select>
+                      <textarea rows={2} className="mt-2 w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={item.note} onChange={(event) => setCriteria({ ...criteria, [key]: { ...item, note: event.target.value } })} placeholder="Observação ou conduta" />
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <div className="mt-5 flex justify-end gap-2">
+            <button type="button" onClick={onClose} className="rounded border border-border px-3 py-2 text-xs font-semibold">Cancelar</button>
+            <button type="button" onClick={() => onSave(criteria)} className="rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Registrar revisão</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"] } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
+  const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -397,6 +481,33 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       : [...current, record];
     onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, activities } });
     setEditingActivity(null);
+  };
+
+  const saveFastHugReview = (patientId: string, activity: WorkflowActivity, criteria: Record<string, FastHugCriterion>) => {
+    const patient = patients.find((item) => item.id === patientId);
+    if (!patient || !activity.id) return;
+    const workflow = patient.nursingWorkflow as NursingWorkflowWithFastHug | undefined;
+    const currentActivities = Array.isArray(workflow?.activities) ? workflow.activities : [];
+    const now = new Date();
+    const reviewedAt = now.toISOString();
+    const record: WorkflowActivity = {
+      ...activity,
+      completed: true,
+      source: "fasthug",
+      note: `Revisão registrada às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+    };
+    const activities = currentActivities.some((item) => item.id === record.id)
+      ? currentActivities.map((item) => item.id === record.id ? { ...item, ...record } : item)
+      : [...currentActivities, record];
+    onUpdatePatient({
+      ...patient,
+      nursingWorkflow: {
+        ...workflow,
+        activities,
+        fastHugReview: { criteria, reviewedAt },
+      } as Patient["nursingWorkflow"],
+    });
+    setFastHugActivity(null);
   };
 
   return (
@@ -466,7 +577,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               {patients.map((patient) => {
                 const severity = severityMeta[patient.severity];
                 const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
-                const baseActivities = activitiesFor(patient).map((activity, index) => ({ ...activity, id: `base-${index}`, source: "default" as const }));
+                const baseActivities = activitiesFor(patient).map((activity, index) => ({ ...activity, id: `base-${index}`, source: activity.source ?? "default" as const }));
                 const activities: WorkflowActivity[] = [
                   ...baseActivities
                     .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
@@ -532,7 +643,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                 return (
                                   <button
                                     type="button"
-                                    onClick={() => setEditingActivity({ patientId: patient.id, activity })}
+                                    onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
                                     style={{ gridColumnStart: column, gridColumnEnd: "span 3" }}
                                     className={`min-w-0 rounded-md border px-2 py-2 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
@@ -572,6 +683,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         )}
       </main>
       {selectedPatient && <SbarPanel patient={selectedPatient} onUpdatePatient={onUpdatePatient} onClose={() => setSelectedPatient(null)} />}
+
+      {fastHugActivity && (() => {
+        const patient = patients.find((item) => item.id === fastHugActivity.patientId);
+        return patient ? (
+          <FastHugPanel
+            patient={patient}
+            onClose={() => setFastHugActivity(null)}
+            onSave={(criteria) => saveFastHugReview(fastHugActivity.patientId, fastHugActivity.activity, criteria)}
+          />
+        ) : null;
+      })()}
       {editingActivity && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm" onClick={() => setEditingActivity(null)}>
           <section className="w-full max-w-md rounded-xl border border-border bg-soft-blue-gradient p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
