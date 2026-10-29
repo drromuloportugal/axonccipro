@@ -15,6 +15,9 @@ type WorkflowActivity = {
   time: string;
   type: "monitoring" | "medication" | "device" | "care";
   completed?: boolean;
+  note?: string;
+  important?: boolean;
+  source?: "default" | "custom";
 };
 
 const severityMeta: Record<Severity, { label: string; className: string }> = {
@@ -361,6 +364,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"] } | null>(null);
+  const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -373,6 +377,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       },
     });
     setActivityDraft(null);
+  };
+
+  const saveActivity = (patientId: string, activity: WorkflowActivity) => {
+    const patient = patients.find((item) => item.id === patientId);
+    if (!patient || !activity.id) return;
+    const current = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+    const record = { ...activity, source: activity.source ?? "default" };
+    const activities = current.some((item) => item.id === record.id)
+      ? current.map((item) => item.id === record.id ? { ...item, ...record } : item)
+      : [...current, record];
+    onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, activities } });
+    setEditingActivity(null);
   };
 
   return (
@@ -442,7 +458,13 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               {patients.map((patient) => {
                 const severity = severityMeta[patient.severity];
                 const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
-                const activities: WorkflowActivity[] = [...activitiesFor(patient), ...storedActivities.filter((activity) => !activity.hidden)];
+                const baseActivities = activitiesFor(patient).map((activity, index) => ({ ...activity, id: `base-${index}`, source: "default" as const }));
+                const activities: WorkflowActivity[] = [
+                  ...baseActivities
+                    .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
+                    .filter((activity) => !activity.hidden),
+                  ...storedActivities.filter((activity) => !baseActivities.some((base) => base.id === activity.id) && !activity.hidden),
+                ];
                 return (
                   <article
                     key={patient.id}
@@ -492,18 +514,21 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           {activities.map((activity, index) => {
                             const meta = activityMeta[activity.type];
                             return (
-                              <div
-                                key={`${patient.id}-${activity.label}-${index}`}
-                                className={`min-w-0 rounded-md border px-2 py-2 shadow-sm ${meta.className} ${activityPositions[index]}`}
-                                title={activity.label}
+                              <button
+                                type="button"
+                                onClick={() => setEditingActivity({ patientId: patient.id, activity })}
+                                key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
+                                className={`min-w-0 rounded-md border px-2 py-2 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${meta.className} ${activityPositions[index]} ${activity.completed ? "opacity-60" : ""}`}
+                                title="Clique para concluir ou registrar observação"
                               >
                                 <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
-                                  {activity.time} · {meta.label}
+                                  {activity.time} · {meta.label} {activity.completed ? "· Concluída" : ""}
                                 </div>
-                                <div className="mt-0.5 truncate text-[11px] font-semibold">
+                                <div className={`mt-0.5 truncate text-[11px] font-semibold ${activity.completed ? "line-through" : ""}`}>
                                   {activity.label}
                                 </div>
-                              </div>
+                                {activity.note && <div className="mt-1 line-clamp-2 text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                              </button>
                             );
                           })}
                         </div>
@@ -528,6 +553,27 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         )}
       </main>
       {selectedPatient && <SbarPanel patient={selectedPatient} onUpdatePatient={onUpdatePatient} onClose={() => setSelectedPatient(null)} />}
+      {editingActivity && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm" onClick={() => setEditingActivity(null)}>
+          <section className="w-full max-w-md rounded-xl border border-border bg-soft-blue-gradient p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex items-center justify-between gap-3">
+              <div><p className="text-[10px] font-bold uppercase tracking-wide text-primary">Atividade do workflow</p><h2 className="mt-1 text-sm font-bold">{editingActivity.activity.label}</h2></div>
+              <button type="button" onClick={() => setEditingActivity(null)} className="rounded border border-border px-2 py-1 text-xs font-semibold">Fechar</button>
+            </div>
+            <label className="mt-5 flex items-center gap-2 text-[12px] font-bold">
+              <input type="checkbox" checked={!!editingActivity.activity.completed} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, completed: event.target.checked } })} />
+              Marcar como concluída
+            </label>
+            <label className="mt-4 block text-[11px] font-bold">Observações
+              <textarea rows={4} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-2 text-[12px] font-semibold" value={editingActivity.activity.note ?? ""} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, note: event.target.value } })} placeholder="Registrar observações da atividade" />
+            </label>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setEditingActivity(null)} className="rounded border border-border px-3 py-2 text-xs font-semibold">Cancelar</button>
+              <button type="button" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)} className="rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Salvar</button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
