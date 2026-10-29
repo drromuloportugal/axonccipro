@@ -663,9 +663,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       return {
         completed: total.completed + activities.filter((activity) => activity.completed).length,
         total: total.total + activities.length,
+        overdue: total.overdue + activities.filter((activity) => !activity.completed && shiftMinuteFor(activity.time) < nowMinute).length,
       };
     },
-    { completed: 0, total: 0 },
+    { completed: 0, total: 0, overdue: 0 },
   );
   const shiftProgressPercent = shiftProgress.total ? Math.round((shiftProgress.completed / shiftProgress.total) * 100) : 0;
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -771,7 +772,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-slate-100 text-foreground">
       <header className="neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
-        <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3">
+        <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(360px,520px)_minmax(0,1fr)]">
           <div className="flex items-center gap-3">
             <img
               src={mainLogo}
@@ -790,20 +791,27 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="rounded-xl border border-cyan-100/70 bg-gradient-to-br from-white/85 via-cyan-50/80 to-teal-100/70 px-4 py-2 shadow-[0_8px_20px_rgba(14,116,144,0.16)] backdrop-blur-md" title="Atividades concluídas de todos os pacientes do plantão">
-              <div className="flex items-end justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-cyan-800">Missão do plantão</p>
-                  <p className="mt-0.5 text-[10px] font-bold text-cyan-700/80">Progresso das atividades</p>
-                </div>
-                <p className="text-xl font-black leading-none text-cyan-800 drop-shadow-sm">{shiftProgress.completed}<span className="text-sm text-cyan-700/70">/{shiftProgress.total}</span></p>
+          <div className="w-full justify-self-center rounded-2xl border border-cyan-100/80 bg-gradient-to-br from-white/90 via-cyan-50/85 to-teal-100/75 px-5 py-3 shadow-[0_10px_24px_rgba(14,116,144,0.2)] backdrop-blur-md" title="Atividades concluídas de todos os pacientes do plantão">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-cyan-800">Missão do plantão</p>
+                <p className="mt-0.5 text-[11px] font-bold text-cyan-700/80">Progresso geral das atividades</p>
               </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-cyan-950/10">
-                <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 shadow-[0_0_10px_rgba(20,184,166,0.65)] transition-all" style={{ width: `${shiftProgressPercent}%` }} />
+              <div className="text-right">
+                <p className="text-3xl font-black leading-none text-cyan-800 drop-shadow-sm">{shiftProgress.completed}<span className="text-lg text-cyan-700/70">/{shiftProgress.total}</span></p>
+                <p className="mt-1 text-[10px] font-extrabold uppercase tracking-wide text-teal-700">{shiftProgressPercent}% concluído</p>
               </div>
-              <p className="mt-1 text-right text-[10px] font-extrabold text-teal-700">{shiftProgressPercent}% concluído</p>
             </div>
+            <div className="mt-2.5 h-3 w-full overflow-hidden rounded-full bg-cyan-950/10">
+              <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 shadow-[0_0_10px_rgba(20,184,166,0.65)] transition-all" style={{ width: `${shiftProgressPercent}%` }} />
+            </div>
+            <div className="mt-2 flex justify-end">
+              <span className="rounded-md border border-red-300/80 bg-red-50/90 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-red-700 shadow-sm">
+                {shiftProgress.overdue} atrasada{shiftProgress.overdue === 1 ? "" : "s"}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <div className="relative">
               <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="inline-flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-3 py-2 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20" aria-label="Abrir menu da enfermagem">
                 <Menu className="h-4 w-4" /> Menu
@@ -946,8 +954,8 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     type="button"
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
-                                    style={{ gridColumnStart: column, gridColumnEnd: "span 2" }}
-                                    className={`relative min-h-[132px] min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    style={{ gridColumnStart: column, gridColumnEnd: "span 3" }}
+                                    className={`relative min-h-[128px] min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-3 py-2.5 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
                                     <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
