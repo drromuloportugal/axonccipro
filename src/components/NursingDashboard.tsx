@@ -23,19 +23,19 @@ const severityMeta: Record<Severity, { label: string; className: string }> = {
 const activityMeta: Record<WorkflowActivity["type"], { label: string; className: string }> = {
   monitoring: {
     label: "Monitorização",
-    className: "border-sky-300 bg-sky-100 text-sky-950",
+    className: "border-clinical-resp/40 bg-clinical-resp/10 text-ink",
   },
   medication: {
     label: "Medicação",
-    className: "border-emerald-300 bg-emerald-100 text-emerald-950",
+    className: "border-clinical-stable/40 bg-clinical-stable/10 text-ink",
   },
   device: {
     label: "Dispositivos",
-    className: "border-amber-300 bg-amber-100 text-amber-950",
+    className: "border-clinical-device/40 bg-clinical-device/10 text-ink",
   },
   care: {
     label: "Cuidados",
-    className: "border-violet-300 bg-violet-100 text-violet-950",
+    className: "border-clinical-neuro/40 bg-clinical-neuro/10 text-ink",
   },
 };
 
@@ -120,7 +120,7 @@ function listItems(items: string[], empty = "Não informado") {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">{children}</h3>;
+  return <h3 className="title-box mb-3 !text-[10px]">{children}</h3>;
 }
 
 function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void }) {
@@ -180,25 +180,25 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
       onClick={onClose}
     >
       <section
-        className="max-h-[92vh] w-full max-w-[1600px] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl"
+        className="max-h-[92vh] w-full max-w-[1600px] overflow-y-auto rounded-xl border border-border bg-soft-blue-gradient shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-5 py-4 backdrop-blur">
+        <header className="neto-glass sticky top-0 z-10 flex items-center justify-between px-5 py-4 text-neto-foreground backdrop-blur">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">SBAR · Enfermagem</p>
-            <h2 className="mt-1 text-base font-bold">{patient.name} · Leito {patient.bed || "—"}</h2>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">SBAR · Enfermagem</p>
+            <h2 className="mt-1 text-base font-bold text-neto-foreground">{patient.name} · Leito {patient.bed || "—"}</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-surface-3"
+            className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20"
           >
             Fechar
           </button>
         </header>
 
         <div className="grid gap-3 p-4 xl:grid-cols-5">
-          <section className="rounded-xl border border-border bg-surface/45 p-4">
+          <section className="ios-card rounded-lg p-4">
             <SectionTitle>Identificação</SectionTitle>
             <dl className="space-y-2 text-[11px]">
               <div><dt className="text-muted-foreground">Paciente</dt><dd className="font-semibold">{patient.name || "—"}</dd></div>
@@ -267,15 +267,15 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-surface/80 px-4 py-4 shadow-sm sm:px-6">
+    <div className="min-h-screen bg-soft-blue-gradient text-foreground">
+      <header className="neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-primary" />
-              <h1 className="text-base font-bold uppercase tracking-wide">Painel de enfermagem</h1>
+              <ClipboardList className="h-5 w-5 text-neto-foreground" />
+              <h1 className="text-base font-bold uppercase tracking-wide text-neto-foreground">Painel de enfermagem</h1>
             </div>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-neto-muted">
               <Clock3 className="h-3.5 w-3.5" />
               Workflow do plantão: {shift}
             </p>
@@ -284,7 +284,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
             <button
               type="button"
               onClick={onOpenMedicalPanel}
-              className="inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+              className="inline-flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-3 py-2 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20"
             >
               <Stethoscope className="h-4 w-4" />
               Painel médico
@@ -292,7 +292,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
             <button
               type="button"
               onClick={onSignOut}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-surface-3"
+              className="inline-flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-3 py-2 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20"
             >
               <LogOut className="h-4 w-4" />
               Sair
@@ -302,9 +302,9 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
       </header>
 
       <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="ios-card mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3">
           <div>
-            <h2 className="text-sm font-semibold">Pacientes ativos</h2>
+            <h2 className="title-box !text-[11px]">Pacientes ativos</h2>
             <p className="text-xs text-muted-foreground">
               Acompanhe as atividades previstas para o período de 07:00 a 07:00.
             </p>
@@ -320,7 +320,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
         </div>
 
         {patients.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border px-5 py-14 text-center">
+          <div className="ios-card rounded-lg border-dashed px-5 py-14 text-center">
             <UserRoundCog className="mx-auto h-7 w-7 text-muted-foreground" />
             <p className="mt-3 text-sm font-semibold">Nenhum paciente ativo</p>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -336,17 +336,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                 return (
                   <article
                     key={patient.id}
-                    className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+                    className="ios-card overflow-hidden rounded-lg"
                   >
                     <div className="flex min-h-[138px]">
                       <button
                         type="button"
                         onClick={() => setSelectedPatient(patient)}
-                        className="flex w-1/5 min-w-[196px] flex-col justify-between border-r border-border bg-surface/70 p-4 text-left transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="flex w-1/5 min-w-[196px] flex-col justify-between border-r border-border bg-soft-blue-gradient p-4 text-left transition-colors hover:brightness-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50"
                         title="Abrir resumo SBAR do paciente"
                       >
                         <div>
-                          <div className="text-sm font-bold uppercase tracking-wide text-foreground">
+                          <div className="border-b-2 border-clinical-stable/70 pb-1 text-sm font-bold uppercase tracking-wide text-foreground">
                             {patient.name || "Sem identificação"}
                           </div>
                           <div className="mt-1 text-xs text-muted-foreground">
@@ -354,7 +354,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                           </div>
                         </div>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="rounded border border-border bg-background px-2 py-1 text-xs font-semibold">
+                          <span className="ios-inset px-2 py-1 text-xs font-semibold">
                             Leito {patient.bed || "—"}
                           </span>
                           <span className={`rounded px-2 py-1 text-xs font-bold ${severity.className}`}>
@@ -371,7 +371,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                         </div>
                       </button>
 
-                      <section className="w-4/5 p-4">
+                      <section className="w-4/5 bg-surface/55 p-4">
                         <div className="mb-2 grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                           <span>07:00</span>
                           <span>11:00</span>
@@ -381,7 +381,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut }: Pr
                           <span>03:00</span>
                           <span>07:00</span>
                         </div>
-                        <div className="grid min-h-[78px] grid-cols-12 gap-2 rounded-lg border border-dashed border-border bg-background/50 p-2">
+                        <div className="ios-inset grid min-h-[78px] grid-cols-12 gap-2 p-2">
                           {activities.map((activity, index) => {
                             const meta = activityMeta[activity.type];
                             return (
