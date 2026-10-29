@@ -46,13 +46,6 @@ const activityMeta: Record<WorkflowActivity["type"], { label: string; className:
   },
 };
 
-const activityPositions = [
-  "col-span-3",
-  "col-span-3",
-  "col-span-3",
-  "col-span-3",
-] as const;
-
 function shiftPeriod() {
   const now = new Date();
   const start = new Date(now);
@@ -63,6 +56,15 @@ function shiftPeriod() {
   const date = (d: Date) =>
     d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   return `07:00 de ${date(start)} até 07:00 de ${date(end)}`;
+}
+
+function activityStartColumn(time: string) {
+  const [rawHour, rawMinute] = time.split(":").map(Number);
+  const hour = Number.isFinite(rawHour) ? rawHour : 7;
+  const minute = Number.isFinite(rawMinute) ? rawMinute : 0;
+  const hourOnShift = hour < 7 ? hour + 24 : hour;
+  const offset = Math.max(0, Math.min(23, hourOnShift - 7 + (minute >= 30 ? 0.5 : 0)));
+  return Math.floor(offset) + 1;
 }
 
 function activitiesFor(patient: Patient): WorkflowActivity[] {
@@ -196,7 +198,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
     .filter((device) => !device.removedAt)
     .map((device) => ({
       code: device.typeCode,
-      detail: [device.site, device.size ? `nº ${device.size}` : "", device.insertedAt ? `Inserido: ${new Date(device.insertedAt).toLocaleDateString("pt-BR")}` : ""]
+      detail: [device.site, device.size ? `nº ${device.size}` : "", device.lumens ? `${device.lumens} lúmen${device.lumens === 1 ? "" : "s"}` : "", device.insertedAt ? `Inserido: ${new Date(device.insertedAt).toLocaleDateString("pt-BR")}` : ""]
         .filter(Boolean)
         .join(" · "),
     }));
@@ -510,33 +512,44 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                       </button>
 
                       <section className="w-4/5 bg-surface/55 p-4">
-                        <div className="mb-2 flex items-center gap-2">
-                          <div className="grid min-w-0 flex-1 grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                            <span>07:00</span><span>11:00</span><span>15:00</span><span>19:00</span><span>23:00</span><span>03:00</span><span>07:00</span>
-                          </div>
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            Linha do tempo do plantão
+                          </p>
                           <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care" })} className="shrink-0 rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
                         </div>
-                        <div className="ios-inset grid min-h-[78px] grid-cols-12 gap-2 p-2">
-                          {activities.map((activity, index) => {
-                            const meta = activityMeta[activity.type];
-                            return (
-                              <button
-                                type="button"
-                                onClick={() => setEditingActivity({ patientId: patient.id, activity })}
-                                key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
-                                className={`min-w-0 rounded-md border px-2 py-2 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${meta.className} ${activityPositions[index]} ${activity.completed ? "opacity-60" : ""}`}
-                                title="Clique para concluir ou registrar observação"
-                              >
-                                <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
-                                  {activity.time} · {meta.label} {activity.completed ? "· Concluída" : ""}
-                                </div>
-                                <div className={`mt-0.5 truncate text-[11px] font-semibold ${activity.completed ? "line-through" : ""}`}>
-                                  {activity.label}
-                                </div>
-                                {activity.note && <div className="mt-1 line-clamp-2 text-[10px] font-semibold leading-snug">{activity.note}</div>}
-                              </button>
-                            );
-                          })}
+                        <div className="overflow-x-auto pb-2" aria-label="Linha do tempo de atividades com rolagem horizontal">
+                          <div className="min-w-[1440px]">
+                            <div className="mb-1 grid text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(56px, 1fr))" }}>
+                              {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
+                                <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
+                              ))}
+                            </div>
+                            <div className="ios-inset grid min-h-[78px] gap-2 p-2" style={{ gridTemplateColumns: "repeat(24, minmax(56px, 1fr))" }}>
+                              {activities.map((activity, index) => {
+                                const meta = activityMeta[activity.type];
+                                const column = activityStartColumn(activity.time);
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingActivity({ patientId: patient.id, activity })}
+                                    key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
+                                    style={{ gridColumnStart: column, gridColumnEnd: "span 3" }}
+                                    className={`min-w-0 rounded-md border px-2 py-2 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    title="Clique para concluir ou registrar observação"
+                                  >
+                                    <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
+                                      {activity.time} · {meta.label} {activity.completed ? "· Concluída" : ""}
+                                    </div>
+                                    <div className={`mt-0.5 truncate text-[11px] font-semibold ${activity.completed ? "line-through" : ""}`}>
+                                      {activity.label}
+                                    </div>
+                                    {activity.note && <div className="mt-1 line-clamp-2 text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
                         </div>
                         {activityDraft?.patientId === patient.id && (
                           <div className="mt-2 grid grid-cols-[1fr_86px_120px_auto_auto] gap-1.5">
