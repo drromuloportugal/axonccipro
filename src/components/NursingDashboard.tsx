@@ -189,6 +189,26 @@ function activitiesFor(patient: Patient): WorkflowActivity[] {
   return activities;
 }
 
+function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
+  const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+  const baseActivities = activitiesFor(patient).map((activity, index) => ({
+    ...activity,
+    id: `base-${index}`,
+    source: activity.source ?? "default" as const,
+  }));
+
+  return expandRepeatedActivities([
+    ...baseActivities
+      .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
+      .filter((activity) => !activity.hidden),
+    ...storedActivities.filter((activity) =>
+      !baseActivities.some((base) => base.id === activity.id)
+      && !activity.hidden
+      && (!activity.scheduledDate || activity.scheduledDate === currentShiftDate()),
+    ),
+  ]);
+}
+
 function currentDiagnosis(patient: Patient) {
   const current = patient.diagnoses.filter((diagnosis) => diagnosis.category === "current");
   return (current.at(-1) ?? patient.diagnoses.at(-1))?.label ?? "Não informado";
@@ -636,6 +656,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const now = new Date();
   const nowMinute = shiftMinuteFor(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
   const currentTimeMarker = Math.max(0, Math.min(100, (nowMinute / (24 * 60)) * 100));
+  const shiftProgress = patients.reduce(
+    (total, patient) => {
+      const activities = workflowActivitiesForToday(patient);
+      return {
+        completed: total.completed + activities.filter((activity) => activity.completed).length,
+        total: total.total + activities.length,
+      };
+    },
+    { completed: 0, total: 0 },
+  );
+  const shiftProgressPercent = shiftProgress.total ? Math.round((shiftProgress.completed / shiftProgress.total) * 100) : 0;
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"]; repeatEveryHours: number } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
@@ -751,6 +782,19 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-xl border border-cyan-100/70 bg-gradient-to-br from-white/85 via-cyan-50/80 to-teal-100/70 px-4 py-2 shadow-[0_8px_20px_rgba(14,116,144,0.16)] backdrop-blur-md" title="Atividades concluídas de todos os pacientes do plantão">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-cyan-800">Missão do plantão</p>
+                  <p className="mt-0.5 text-[10px] font-bold text-cyan-700/80">Progresso das atividades</p>
+                </div>
+                <p className="text-xl font-black leading-none text-cyan-800 drop-shadow-sm">{shiftProgress.completed}<span className="text-sm text-cyan-700/70">/{shiftProgress.total}</span></p>
+              </div>
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-cyan-950/10">
+                <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 shadow-[0_0_10px_rgba(20,184,166,0.65)] transition-all" style={{ width: `${shiftProgressPercent}%` }} />
+              </div>
+              <p className="mt-1 text-right text-[10px] font-extrabold text-teal-700">{shiftProgressPercent}% concluído</p>
+            </div>
             <div className="relative">
               <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="inline-flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-3 py-2 text-xs font-semibold text-neto-foreground transition-colors hover:bg-white/20" aria-label="Abrir menu da enfermagem">
                 <Menu className="h-4 w-4" /> Menu
@@ -814,14 +858,9 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             <div className="min-w-[980px] space-y-3">
               {patients.map((patient) => {
                 const severity = severityMeta[patient.severity];
-                const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
-                const baseActivities = activitiesFor(patient).map((activity, index) => ({ ...activity, id: `base-${index}`, source: activity.source ?? "default" as const }));
-                const activities: WorkflowActivity[] = expandRepeatedActivities([
-                  ...baseActivities
-                    .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
-                    .filter((activity) => !activity.hidden),
-                  ...storedActivities.filter((activity) => !baseActivities.some((base) => base.id === activity.id) && !activity.hidden && (!activity.scheduledDate || activity.scheduledDate === currentShiftDate())),
-                ]);
+                const activities = workflowActivitiesForToday(patient);
+                const completedActivities = activities.filter((activity) => activity.completed).length;
+                const patientProgressPercent = activities.length ? Math.round((completedActivities / activities.length) * 100) : 0;
                 return (
                   <article
                     key={patient.id}
@@ -856,6 +895,15 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </div>
                           <div className="mt-1 rounded-sm border border-white/70 bg-white/45 px-2 py-1.5 text-[15px] font-extrabold leading-snug text-slate-800 drop-shadow-[0_1px_1px_rgba(15,23,42,0.28)]">
                             {currentDiagnosis(patient)}
+                          </div>
+                        </div>
+                        <div className="mt-3 rounded-sm border border-cyan-100/80 bg-gradient-to-r from-cyan-50/90 to-teal-50/80 p-2 shadow-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wide text-cyan-800">Missões do dia</span>
+                            <span className="text-[15px] font-black text-cyan-800">{completedActivities}<span className="text-[11px] text-cyan-700/70">/{activities.length}</span></span>
+                          </div>
+                          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-cyan-950/10">
+                            <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-all" style={{ width: `${patientProgressPercent}%` }} />
                           </div>
                         </div>
                       </button>
