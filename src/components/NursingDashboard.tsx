@@ -119,6 +119,26 @@ function listItems(items: string[], empty = "Não informado") {
   );
 }
 
+type ResultState = "pending" | "changed" | "normal";
+
+const resultStateMeta: Record<ResultState, { label: string; className: string }> = {
+  pending: { label: "Pendente", className: "border-clinical-attention/40 bg-clinical-attention/10 text-ink" },
+  changed: { label: "Alterado", className: "border-clinical-critical/40 bg-clinical-critical/10 text-ink" },
+  normal: { label: "Sem alteração", className: "border-clinical-stable/40 bg-clinical-stable/10 text-ink" },
+};
+
+function resultItems(items: { text: string; state: ResultState }[], empty: string) {
+  if (!items.length) return <p className="text-[11px] italic text-muted-foreground">{empty}</p>;
+  return (
+    <ul className="space-y-1">
+      {items.map((item, index) => {
+        const meta = resultStateMeta[item.state];
+        return <li key={`${item.text}-${index}`} className={`rounded border px-2 py-1 text-[10px] leading-snug ${meta.className}`}><span className="mr-1 font-bold uppercase tracking-wide">{meta.label}</span>{item.text}</li>;
+      })}
+    </ul>
+  );
+}
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h3 className="title-box mb-3 !text-[10px]">{children}</h3>;
 }
@@ -158,17 +178,18 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
     pendencies?.cultures ? `Culturas: ${pendencies.cultures}` : "",
     pendencies?.consults ? `Interconsultas: ${pendencies.consults}` : "",
   ].filter(Boolean);
-  const laboratory = patient.exams
-    .slice(0, 8)
-    .map((exam) => `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`);
-  const imaging = (patient.imaging ?? [])
-    .slice(0, 5)
-    .map((exam) => [exam.modality, exam.region, exam.summary ?? exam.status].filter(Boolean).join(" · "));
-  const cultures = (patient.cultures ?? [])
-    .slice(0, 5)
-    .map((culture) =>
-      [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "),
-    );
+  const laboratory = (patient.exams ?? []).slice(0, 8).map((exam) => ({
+    text: `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`,
+    state: !String(exam.value ?? "").trim() ? "pending" : exam.critical || exam.trend !== "flat" ? "changed" : "normal",
+  }) as { text: string; state: ResultState });
+  const imaging = (patient.imaging ?? []).slice(0, 5).map((exam) => ({
+    text: [exam.modality, exam.region, exam.summary ?? exam.status].filter(Boolean).join(" · "),
+    state: exam.status === "solicitado" ? "pending" : exam.conclusion === "alterado" || exam.conclusion === "critico" ? "changed" : "normal",
+  }) as { text: string; state: ResultState });
+  const cultures = (patient.cultures ?? []).slice(0, 5).map((culture) => ({
+    text: [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "),
+    state: culture.result === "andamento" ? "pending" : culture.result === "positiva" ? "changed" : "normal",
+  }) as { text: string; state: ResultState });
   const expectedDischarge = patient.dischargeCheck?.expectedTransfer || "Não informada";
 
   return (
@@ -250,11 +271,11 @@ function SbarPanel({ patient, onClose }: { patient: Patient; onClose: () => void
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Cuidados</p>
             {listItems(nursingCare, "Sem cuidados específicos registrados")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>
-            {listItems(laboratory, "Sem exames laboratoriais")}
+            {resultItems(laboratory, "Sem exames laboratoriais")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>
-            {listItems(imaging, "Sem exames de imagem")}
+            {resultItems(imaging, "Sem exames de imagem")}
             <p className="mb-1 mt-3 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>
-            {listItems(cultures, "Sem culturas registradas")}
+            {resultItems(cultures, "Sem culturas registradas")}
           </section>
         </div>
       </section>
