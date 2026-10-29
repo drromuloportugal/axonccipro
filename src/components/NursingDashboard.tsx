@@ -10,9 +10,11 @@ type Props = {
 };
 
 type WorkflowActivity = {
+  id?: string;
   label: string;
   time: string;
   type: "monitoring" | "medication" | "device" | "care";
+  completed?: boolean;
 };
 
 const severityMeta: Record<Severity, { label: string; className: string }> = {
@@ -134,7 +136,7 @@ function resultItems(items: { text: string; state: ResultState }[], empty: strin
     <ul className="space-y-1">
       {items.map((item, index) => {
         const meta = resultStateMeta[item.state];
-        return <li key={`${item.text}-${index}`} className={`rounded border px-2 py-1 text-[10px] leading-snug ${meta.className}`}><span className="mr-1 font-bold uppercase tracking-wide">{meta.label}</span>{item.text}</li>;
+        return <li key={`${item.text}-${index}`} className={`rounded border px-2 py-1 text-[10px] leading-snug ${meta.className}`}>{item.text}</li>;
       })}
     </ul>
   );
@@ -346,6 +348,20 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const shift = shiftPeriod();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"] } | null>(null);
+
+  const addActivity = (patient: Patient) => {
+    if (!activityDraft?.label.trim()) return;
+    const existing = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+    onUpdatePatient({
+      ...patient,
+      nursingWorkflow: {
+        ...patient.nursingWorkflow,
+        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", type: activityDraft.type, source: "custom" }],
+      },
+    });
+    setActivityDraft(null);
+  };
 
   return (
     <div className="min-h-screen bg-soft-blue-gradient text-foreground">
@@ -413,7 +429,8 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             <div className="min-w-[980px] space-y-3">
               {patients.map((patient) => {
                 const severity = severityMeta[patient.severity];
-                const activities = activitiesFor(patient);
+                const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+                const activities: WorkflowActivity[] = [...activitiesFor(patient), ...storedActivities.filter((activity) => !activity.hidden)];
                 return (
                   <article
                     key={patient.id}
@@ -453,14 +470,11 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                       </button>
 
                       <section className="w-4/5 bg-surface/55 p-4">
-                        <div className="mb-2 grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                          <span>07:00</span>
-                          <span>11:00</span>
-                          <span>15:00</span>
-                          <span>19:00</span>
-                          <span>23:00</span>
-                          <span>03:00</span>
-                          <span>07:00</span>
+                        <div className="mb-2 flex items-center gap-2">
+                          <div className="grid min-w-0 flex-1 grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            <span>07:00</span><span>11:00</span><span>15:00</span><span>19:00</span><span>23:00</span><span>03:00</span><span>07:00</span>
+                          </div>
+                          <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care" })} className="shrink-0 rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
                         </div>
                         <div className="ios-inset grid min-h-[78px] grid-cols-12 gap-2 p-2">
                           {activities.map((activity, index) => {
@@ -481,6 +495,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             );
                           })}
                         </div>
+                        {activityDraft?.patientId === patient.id && (
+                          <div className="mt-2 grid grid-cols-[1fr_86px_120px_auto_auto] gap-1.5">
+                            <input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-semibold" placeholder="Nova atividade" value={activityDraft.label} onChange={(event) => setActivityDraft({ ...activityDraft, label: event.target.value })} />
+                            <input type="time" className="rounded border border-input bg-background px-2 py-1 text-[11px] font-semibold" value={activityDraft.time} onChange={(event) => setActivityDraft({ ...activityDraft, time: event.target.value })} />
+                            <select className="rounded border border-input bg-background px-2 py-1 text-[11px] font-semibold" value={activityDraft.type} onChange={(event) => setActivityDraft({ ...activityDraft, type: event.target.value as WorkflowActivity["type"] })}>
+                              {Object.entries(activityMeta).map(([type, meta]) => <option key={type} value={type}>{meta.label}</option>)}
+                            </select>
+                            <button type="button" onClick={() => addActivity(patient)} className="rounded bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground">Adicionar</button>
+                            <button type="button" onClick={() => setActivityDraft(null)} className="rounded border border-border px-2 py-1 text-[11px] font-semibold">Cancelar</button>
+                          </div>
+                        )}
                       </section>
                     </div>
                   </article>
