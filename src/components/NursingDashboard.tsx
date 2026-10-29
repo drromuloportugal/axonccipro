@@ -20,6 +20,7 @@ type WorkflowActivity = {
   hidden?: boolean;
   source?: "default" | "custom" | "fasthug";
   scheduledDate?: string;
+  repeatEveryHours?: number;
 };
 
 type FastHugStatus = "adequado" | "atencao" | "nao_aplicavel";
@@ -101,6 +102,41 @@ function activityStartColumn(time: string) {
   const hourOnShift = hour < 7 ? hour + 24 : hour;
   const offset = Math.max(0, Math.min(23, hourOnShift - 7 + (minute >= 30 ? 0.5 : 0)));
   return Math.floor(offset) + 1;
+}
+
+function shiftMinuteFor(time: string) {
+  const [rawHour, rawMinute] = time.split(":").map(Number);
+  const hour = Number.isFinite(rawHour) ? rawHour : 7;
+  const minute = Number.isFinite(rawMinute) ? rawMinute : 0;
+  return ((hour < 7 ? hour + 24 : hour) - 7) * 60 + minute;
+}
+
+function timeForShiftMinute(totalMinutes: number) {
+  const hour = (7 + Math.floor(totalMinutes / 60)) % 24;
+  const minute = totalMinutes % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function expandRepeatedActivities(activities: WorkflowActivity[]) {
+  return activities.flatMap((activity) => {
+    const everyHours = Math.floor(Number(activity.repeatEveryHours ?? 0));
+    if (!Number.isFinite(everyHours) || everyHours < 1) return [activity];
+
+    const startMinute = shiftMinuteFor(activity.time);
+    const occurrences: WorkflowActivity[] = [];
+    for (let minute = startMinute, occurrence = 0; minute < 24 * 60; minute += everyHours * 60, occurrence += 1) {
+      occurrences.push(
+        occurrence === 0
+          ? activity
+          : {
+              ...activity,
+              id: `${activity.id ?? activity.label}-repeat-${occurrence}`,
+              time: timeForShiftMinute(minute),
+            },
+      );
+    }
+    return occurrences;
+  });
 }
 
 function activitiesFor(patient: Patient): WorkflowActivity[] {
@@ -597,8 +633,11 @@ function Rdc36Panel({ onBack }: { onBack: () => void }) {
 
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const shift = shiftPeriod();
+  const now = new Date();
+  const nowMinute = shiftMinuteFor(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
+  const currentTimeMarker = Math.max(0, Math.min(100, (nowMinute / (24 * 60)) * 100));
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-  const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"] } | null>(null);
+  const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"]; repeatEveryHours: number } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
@@ -612,7 +651,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       ...patient,
       nursingWorkflow: {
         ...patient.nursingWorkflow,
-        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", type: activityDraft.type, source: "custom" }],
+        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", type: activityDraft.type, repeatEveryHours: activityDraft.repeatEveryHours || undefined, source: "custom" }],
       },
     });
     setActivityDraft(null);
@@ -698,7 +737,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   };
 
   return (
-    <div className="min-h-screen bg-soft-blue-gradient text-foreground">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-slate-100 text-foreground">
       <header className="neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
         <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-3">
           <div>
@@ -777,12 +816,12 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                 const severity = severityMeta[patient.severity];
                 const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
                 const baseActivities = activitiesFor(patient).map((activity, index) => ({ ...activity, id: `base-${index}`, source: activity.source ?? "default" as const }));
-                const activities: WorkflowActivity[] = [
+                const activities: WorkflowActivity[] = expandRepeatedActivities([
                   ...baseActivities
                     .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
                     .filter((activity) => !activity.hidden),
                   ...storedActivities.filter((activity) => !baseActivities.some((base) => base.id === activity.id) && !activity.hidden && (!activity.scheduledDate || activity.scheduledDate === currentShiftDate())),
-                ];
+                ]);
                 return (
                   <article
                     key={patient.id}
@@ -830,17 +869,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             <button type="button" onClick={() => setCalendarPatientId(patient.id)} className="inline-flex items-center gap-1 rounded border border-border bg-background/75 px-2 py-1 text-[10px] font-bold text-foreground hover:bg-muted">
                               <CalendarDays className="h-3 w-3" /> Agenda
                             </button>
-                            <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care" })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
+                            <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care", repeatEveryHours: 0 })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
                           </div>
                         </div>
-                        <div className="overflow-x-auto pb-2" aria-label="Linha do tempo de atividades com rolagem horizontal">
-                          <div className="min-w-[1440px]">
-                            <div className="mb-1 grid text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(56px, 1fr))" }}>
+                        <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
+                          <div className="min-w-[1104px]">
+                            <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(44px, 1fr))" }}>
                               {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
                                 <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
                               ))}
                             </div>
-                            <div className="ios-inset grid min-h-[78px] gap-2 p-2" style={{ gridTemplateColumns: "repeat(24, minmax(56px, 1fr))" }}>
+                            <div className="relative grid min-h-[86px] auto-rows-[72px] grid-flow-row-dense gap-1.5 rounded-sm border border-white/70 bg-white/35 p-2 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: "repeat(24, minmax(44px, 1fr))" }}>
+                              <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
                                 const column = activityStartColumn(activity.time);
@@ -849,17 +889,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     type="button"
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
-                                    style={{ gridColumnStart: column, gridColumnEnd: "span 3" }}
-                                    className={`min-w-0 rounded-md border px-2 py-2 text-left shadow-sm transition-transform hover:-translate-y-0.5 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
-                                    title="Clique para concluir ou registrar observação"
+                                    style={{ gridColumnStart: column, gridColumnEnd: "span 1" }}
+                                    className={`aspect-square min-w-0 overflow-hidden rounded-sm border bg-white/60 px-1.5 py-1.5 text-left shadow-md backdrop-blur-md transition-all hover:-translate-y-0.5 hover:shadow-lg ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                    title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                   >
-                                    <div className="text-[10px] font-bold uppercase tracking-wide opacity-75">
-                                      {activity.time} · {meta.label} {activity.completed ? "· Concluída" : ""}
+                                    <div className="text-[10px] font-extrabold uppercase leading-tight tracking-wide opacity-80">
+                                      {activity.time}
                                     </div>
-                                    <div className={`mt-0.5 truncate text-[11px] font-semibold ${activity.completed ? "line-through" : ""}`}>
+                                    <div className={`mt-0.5 line-clamp-3 text-[12px] font-bold leading-tight ${activity.completed ? "line-through" : ""}`}>
                                       {activity.label}
                                     </div>
-                                    {activity.note && <div className="mt-1 line-clamp-2 text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                                    {activity.repeatEveryHours && <div className="mt-0.5 text-[9px] font-bold opacity-70">/{activity.repeatEveryHours} h</div>}
+                                    {activity.note && <div className="mt-1 line-clamp-1 text-[9px] font-semibold leading-snug">{activity.note}</div>}
                                   </button>
                                 );
                               })}
@@ -867,14 +908,15 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </div>
                         </div>
                         {activityDraft?.patientId === patient.id && (
-                          <div className="mt-2 grid grid-cols-[1fr_86px_120px_auto_auto] gap-1.5">
-                            <input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-semibold" placeholder="Nova atividade" value={activityDraft.label} onChange={(event) => setActivityDraft({ ...activityDraft, label: event.target.value })} />
-                            <input type="time" className="rounded border border-input bg-background px-2 py-1 text-[11px] font-semibold" value={activityDraft.time} onChange={(event) => setActivityDraft({ ...activityDraft, time: event.target.value })} />
-                            <select className="rounded border border-input bg-background px-2 py-1 text-[11px] font-semibold" value={activityDraft.type} onChange={(event) => setActivityDraft({ ...activityDraft, type: event.target.value as WorkflowActivity["type"] })}>
+                          <div className="mt-2 grid grid-cols-[minmax(160px,1fr)_86px_120px_112px_auto_auto] gap-1.5">
+                            <input className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" placeholder="Nova atividade" value={activityDraft.label} onChange={(event) => setActivityDraft({ ...activityDraft, label: event.target.value })} />
+                            <input type="time" className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" value={activityDraft.time} onChange={(event) => setActivityDraft({ ...activityDraft, time: event.target.value })} />
+                            <select className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" value={activityDraft.type} onChange={(event) => setActivityDraft({ ...activityDraft, type: event.target.value as WorkflowActivity["type"] })}>
                               {Object.entries(activityMeta).map(([type, meta]) => <option key={type} value={type}>{meta.label}</option>)}
                             </select>
-                            <button type="button" onClick={() => addActivity(patient)} className="rounded bg-primary px-2 py-1 text-[11px] font-bold text-primary-foreground">Adicionar</button>
-                            <button type="button" onClick={() => setActivityDraft(null)} className="rounded border border-border px-2 py-1 text-[11px] font-semibold">Cancelar</button>
+                            <input type="number" min="1" max="23" className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" placeholder="Repetir (h)" aria-label="Repetir atividade a cada quantas horas" value={activityDraft.repeatEveryHours || ""} onChange={(event) => setActivityDraft({ ...activityDraft, repeatEveryHours: Math.max(0, Math.min(23, Number(event.target.value) || 0)) })} />
+                            <button type="button" onClick={() => addActivity(patient)} className="rounded bg-primary px-2 py-1.5 text-[12px] font-bold text-primary-foreground shadow-sm">Adicionar</button>
+                            <button type="button" onClick={() => setActivityDraft(null)} className="rounded border border-border bg-white/70 px-2 py-1.5 text-[12px] font-semibold shadow-sm">Cancelar</button>
                           </div>
                         )}
                       </section>
