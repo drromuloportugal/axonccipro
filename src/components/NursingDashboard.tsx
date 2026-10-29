@@ -140,6 +140,13 @@ function expandRepeatedActivities(activities: WorkflowActivity[]) {
   });
 }
 
+function twelveHourColumn(time: string, dayPeriod: boolean) {
+  const [rawHour] = time.split(":").map(Number);
+  const hour = Number.isFinite(rawHour) ? rawHour : 7;
+  if (dayPeriod) return hour >= 7 && hour < 19 ? hour - 7 + 1 : null;
+  const nightHour = hour < 7 ? hour + 24 : hour;
+  return nightHour >= 19 && nightHour < 31 ? nightHour - 19 + 1 : null;
+}
 function activitiesFor(patient: Patient): WorkflowActivity[] {
   const activeMeds = patient.medications.filter((med) => med.active !== false).slice(0, 2);
   const nurseConducts = patient.conducts
@@ -676,10 +683,13 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
-  const [timelineZoom, setTimelineZoom] = useState<"compact" | "normal" | "ampliado">("normal");
+  const [timelineZoom, setTimelineZoom] = useState<"compact" | "normal" | "ampliado" | "grade12">("normal");
   const timelineCellWidth = timelineZoom === "compact" ? 48 : timelineZoom === "ampliado" ? 112 : 84;
   const timelineCardHeight = timelineZoom === "compact" ? 74 : timelineZoom === "ampliado" ? 142 : 100;
   const timelineCardSpan = timelineZoom === "compact" ? 2 : timelineZoom === "ampliado" ? 4 : 3;
+  const twelveHourDayPeriod = now.getHours() >= 7 && now.getHours() < 19;
+  const twelveHourStart = twelveHourDayPeriod ? 7 : 19;
+  const twelveHourMarker = ((twelveHourDayPeriod ? now.getHours() - 7 : (now.getHours() < 7 ? now.getHours() + 24 : now.getHours()) - 19) + now.getMinutes() / 60) / 12 * 100;
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -817,10 +827,11 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
           <div className="flex flex-wrap items-center justify-end gap-2">
             <label className="flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-neto-foreground">
               <span className="uppercase tracking-wide text-[10px]">Zoom</span>
-              <select value={timelineZoom} onChange={(event) => setTimelineZoom(event.target.value as "compact" | "normal" | "ampliado")} className="bg-transparent text-xs font-bold text-neto-foreground outline-none">
+              <select value={timelineZoom} onChange={(event) => setTimelineZoom(event.target.value as "compact" | "normal" | "ampliado" | "grade12")} className="bg-transparent text-xs font-bold text-neto-foreground outline-none">
                 <option value="compact">Compacto</option>
                 <option value="normal">Normal</option>
                 <option value="ampliado">Ampliado</option>
+                <option value="grade12">Grade 12 h</option>
               </select>
             </label>
             <div className="relative">
@@ -948,42 +959,77 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care", repeatEveryHours: 0 })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
                           </div>
                         </div>
-                        <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
-                          <div style={{ minWidth: `${timelineCellWidth * 24}px` }}>
-                            <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
-                              {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
-                                <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
-                              ))}
+                        {timelineZoom === "grade12" ? (
+                          <div className="rounded-md border border-white/70 bg-white/35 p-2 shadow-inner backdrop-blur-md" aria-label="Grade de atividades do período de 12 horas">
+                            <div className="mb-1 grid text-center text-[10px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(13, minmax(26px, 1fr))" }}>
+                              {Array.from({ length: 13 }, (_, index) => {
+                                const hour = (twelveHourStart + index) % 24;
+                                return <span key={index} style={{ gridColumn: String(index + 1) }}>{String(hour).padStart(2, "0")}:00</span>;
+                              })}
                             </div>
-                            <div className="relative grid min-h-[182px] auto-rows-[170px] grid-flow-row-dense gap-2 rounded-sm border border-white/70 bg-white/35 p-2.5 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: `repeat(24, minmax(${timelineCellWidth}px, 1fr))`, gridAutoRows: `${timelineCardHeight}px`, minHeight: `${timelineCardHeight + 12}px` }}>
-                              <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
+                            <div className="relative grid min-h-[34px] auto-rows-[22px] grid-flow-row-dense gap-1 rounded-sm border border-white/60 bg-slate-50/45 p-1.5" style={{ gridTemplateColumns: "repeat(12, minmax(26px, 1fr))" }}>
+                              <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.9)]" style={{ left: `${Math.max(0, Math.min(100, twelveHourMarker))}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
-                                const column = activityStartColumn(activity.time);
+                                const column = twelveHourColumn(activity.time, twelveHourDayPeriod);
+                                if (!column) return null;
                                 return (
                                   <button
                                     type="button"
+                                    key={`${patient.id}-grid-${activity.id ?? activity.label}-${index}`}
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
-                                    key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
-                                    style={{ gridColumnStart: column, gridColumnEnd: `span ${timelineCardSpan}`, minHeight: `${timelineCardHeight}px` }}
-                                    className={`relative min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-1.5 py-1 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
-                                    title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
+                                    style={{ gridColumnStart: column }}
+                                    className={`z-20 flex h-5 w-5 items-center justify-center rounded-full border-2 text-[10px] font-black leading-none shadow-sm transition-transform hover:scale-125 ${meta.className} ${activity.completed ? "ring-2 ring-emerald-500 ring-offset-1" : ""}`}
+                                    title={`${activity.time} · ${activity.label}${activity.completed ? " · Concluída" : ""}`}
                                   >
-                                    <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
-                                    <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-85">
-                                      {activity.time} · {meta.label}
-                                    </div>
-                                    <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
-                                      {activity.label}
-                                    </div>
-                                    {activity.repeatEveryHours && <div className="mt-1 text-[10px] font-bold opacity-70">REPETIR /{activity.repeatEveryHours} H</div>}
-                                    {activity.note && <div className="mt-1 break-words text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                                    {activity.completed ? "✓" : ""}
                                   </button>
                                 );
                               })}
                             </div>
+                            <p className="mt-1 text-center text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                              {twelveHourDayPeriod ? "Grade do plantão dia · 07:00—19:00" : "Grade do plantão noite · 19:00—07:00"}
+                            </p>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
+                            <div style={{ minWidth: `${timelineCellWidth * 24}px` }}>
+                              <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
+                                {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
+                                  <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
+                                ))}
+                              </div>
+                              <div className="relative grid min-h-[182px] auto-rows-[170px] grid-flow-row-dense gap-2 rounded-sm border border-white/70 bg-white/35 p-2.5 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: `repeat(24, minmax(${timelineCellWidth}px, 1fr))`, gridAutoRows: `${timelineCardHeight}px`, minHeight: `${timelineCardHeight + 12}px` }}>
+                                <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
+                                {activities.map((activity, index) => {
+                                  const meta = activityMeta[activity.type];
+                                  const column = activityStartColumn(activity.time);
+                                  return (
+                                    <button
+                                      type="button"
+                                      onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
+                                      key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
+                                      style={{ gridColumnStart: column, gridColumnEnd: `span ${timelineCardSpan}`, minHeight: `${timelineCardHeight}px` }}
+                                      className={`relative min-w-0 overflow-hidden rounded-md border-4 bg-white/10 px-1.5 py-1 text-left shadow-[0_8px_18px_rgba(15,23,42,0.18)] backdrop-blur-2xl ring-1 ring-white/65 transition-all hover:-translate-y-0.5 hover:ring-white/90 hover:shadow-[0_14px_26px_rgba(15,23,42,0.24)] [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
+                                      title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
+                                    >
+                                      <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />
+                                      {activity.completed && <span aria-label="Atividade concluída" className="absolute right-1 top-1 z-20 flex h-5 w-5 items-center justify-center rounded-full border border-emerald-600 bg-emerald-500 text-[13px] font-black leading-none text-white shadow-sm">✓</span>}
+                                      <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-85">
+                                        {activity.time} · {meta.label}
+                                      </div>
+                                      <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
+                                        {activity.label}
+                                      </div>
+                                      {activity.repeatEveryHours && <div className="mt-1 text-[10px] font-bold opacity-70">REPETIR /{activity.repeatEveryHours} H</div>}
+                                      {activity.note && <div className="mt-1 break-words text-[10px] font-semibold leading-snug">{activity.note}</div>}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         {activityDraft?.patientId === patient.id && (
                           <div className="mt-2 grid grid-cols-[minmax(160px,1fr)_86px_120px_112px_auto_auto] gap-1.5">
                             <input className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" placeholder="Nova atividade" value={activityDraft.label} onChange={(event) => setActivityDraft({ ...activityDraft, label: event.target.value })} />
