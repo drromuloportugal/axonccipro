@@ -101,8 +101,7 @@ function currentShiftDate() {
 }
 
 function activityDeadlineTime(activity: WorkflowActivity) {
-  if (activity.dueAt) return activity.dueAt;
-  return timeForShiftMinute(shiftMinuteFor(activity.time) + 60);
+  return activity.dueAt ?? activity.time;
 }
 
 function activityDeadline(activity: WorkflowActivity) {
@@ -1221,7 +1220,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               <div><p className="text-[10px] font-bold uppercase tracking-wide text-primary">Atividade do workflow</p><h2 className="mt-1 text-sm font-bold">{editingActivity.activity.label}</h2></div>
               <button type="button" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)} className="rounded border border-border px-2 py-1 text-xs font-semibold">Fechar</button>
             </div>
-            <label className="mt-5 flex items-center gap-2 text-[12px] font-bold">
+            <label className="mt-5 block text-[11px] font-bold">Título da atividade
+              <input className="mt-1 w-full rounded border border-input bg-background px-2 py-2 text-[12px] font-semibold" value={editingActivity.activity.label} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, label: event.target.value } })} placeholder="Título da atividade" />
+            </label>
+            <label className="mt-4 flex items-center gap-2 text-[12px] font-bold">
               <input type="checkbox" checked={!!editingActivity.activity.completed} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, completed: event.target.checked } })} />
               Marcar como concluída
             </label>
