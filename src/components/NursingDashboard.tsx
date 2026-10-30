@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { bucketBadge, daysSinceAdmission, deviceRisk, examInsight } from "@/lib/clinical";
 import type { Patient, Severity } from "@/data/patients";
 import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
-import { CalendarDays, ClipboardList, LogOut, Menu, ShieldCheck, Stethoscope, UserRoundCog } from "lucide-react";
+import { CalendarDays, CheckCircle2, ClipboardList, LogOut, Menu, Plus, Search, ShieldCheck, Stethoscope, UserRoundCog, X } from "lucide-react";
 
 type Props = {
   patients: Patient[];
@@ -854,6 +854,218 @@ export function NursingHistoryPanel({ patients, onBack }: { patients: Patient[];
     </main>
   );
 }
+
+type DischargeStatus = "solicitada" | "aguardando_nir" | "confirmada" | "concluida";
+type DischargeForm = {
+  patientId: string;
+  encounterNumber: string;
+  medicalResponsible: string;
+  requestedAt: string;
+  nirConfirmedAt: string;
+  transferredAt: string;
+  destination: string;
+  notes: string;
+  status: DischargeStatus;
+};
+
+const dischargeStatusMeta: Record<DischargeStatus, { label: string; className: string }> = {
+  solicitada: { label: "Solicitada", className: "bg-sky-100 text-sky-800 border-sky-200" },
+  aguardando_nir: { label: "Aguardando NIR", className: "bg-amber-100 text-amber-800 border-amber-200" },
+  confirmada: { label: "Confirmada", className: "bg-violet-100 text-violet-800 border-violet-200" },
+  concluida: { label: "Concluída", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+};
+
+function dischargeInputDate(value?: string) {
+  return value ? value.slice(0, 16) : "";
+}
+
+function dischargeDateLabel(value?: string) {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
+function dischargeElapsed(requestedAt?: string, transferredAt?: string) {
+  if (!requestedAt) return "Sem horário";
+  const start = new Date(requestedAt).getTime();
+  const end = transferredAt ? new Date(transferredAt).getTime() : Date.now();
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return "Sem horário";
+  const minutes = Math.max(0, Math.floor((end - start) / 60_000));
+  return String(Math.floor(minutes / 60)) + "h " + String(minutes % 60).padStart(2, "0") + "min";
+}
+
+function NursingDischargePanel({ patients, onBack, onUpdatePatient }: { patients: Patient[]; onBack: () => void; onUpdatePatient: (patient: Patient) => void }) {
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "progress" | "overdue" | "completed">("all");
+  const [form, setForm] = useState<DischargeForm | null>(null);
+  const records = patients
+    .map((patient) => ({ patient, discharge: patient.nursingWorkflow?.discharge }))
+    .filter((item): item is { patient: Patient; discharge: NonNullable<NonNullable<Patient["nursingWorkflow"]>["discharge"]> } => Boolean(item.discharge));
+  const requested = records.length;
+  const completed = records.filter((item) => item.discharge.status === "concluida").length;
+  const pending = records.filter((item) => item.discharge.status !== "concluida").length;
+  const overdue = records.filter((item) => item.discharge.status !== "concluida" && item.discharge.requestedAt && Date.now() - new Date(item.discharge.requestedAt).getTime() > 24 * 60 * 60_000).length;
+  const completedWithTime = records.filter((item) => item.discharge.status === "concluida" && item.discharge.requestedAt && item.discharge.transferredAt);
+  const averageMinutes = completedWithTime.length
+    ? Math.round(completedWithTime.reduce((sum, item) => sum + Math.max(0, new Date(item.discharge.transferredAt!).getTime() - new Date(item.discharge.requestedAt!).getTime()), 0) / completedWithTime.length / 60_000)
+    : 0;
+  const averageLabel = completedWithTime.length ? String(Math.floor(averageMinutes / 60)) + "h " + String(averageMinutes % 60).padStart(2, "0") + "min" : "—";
+  const visible = records.filter((item) => {
+    const searchable = (item.patient.name + " " + item.patient.bed + " " + (item.discharge.encounterNumber ?? "")).toLowerCase();
+    if (query && !searchable.includes(query.toLowerCase())) return false;
+    if (filter === "progress") return item.discharge.status !== "concluida";
+    if (filter === "completed") return item.discharge.status === "concluida";
+    if (filter === "overdue") return item.discharge.status !== "concluida" && !!item.discharge.requestedAt && Date.now() - new Date(item.discharge.requestedAt).getTime() > 24 * 60 * 60_000;
+    return true;
+  });
+
+  const openForm = (patient?: Patient) => {
+    const current = patient?.nursingWorkflow?.discharge;
+    setForm({
+      patientId: patient?.id ?? patients[0]?.id ?? "",
+      encounterNumber: current?.encounterNumber ?? "",
+      medicalResponsible: current?.medicalResponsible ?? patient?.attending ?? "",
+      requestedAt: dischargeInputDate(current?.requestedAt) || new Date().toISOString().slice(0, 16),
+      nirConfirmedAt: dischargeInputDate(current?.nirConfirmedAt),
+      transferredAt: dischargeInputDate(current?.transferredAt),
+      destination: current?.destination ?? "",
+      notes: current?.notes ?? "",
+      status: current?.status ?? "solicitada",
+    });
+  };
+
+  const save = () => {
+    if (!form?.patientId) return;
+    const patient = patients.find((item) => item.id === form.patientId);
+    if (!patient) return;
+    onUpdatePatient({
+      ...patient,
+      nursingWorkflow: {
+        ...patient.nursingWorkflow,
+        discharge: {
+          encounterNumber: form.encounterNumber.trim() || undefined,
+          medicalResponsible: form.medicalResponsible.trim() || undefined,
+          requestedAt: form.requestedAt ? new Date(form.requestedAt).toISOString() : undefined,
+          nirConfirmedAt: form.nirConfirmedAt ? new Date(form.nirConfirmedAt).toISOString() : undefined,
+          transferredAt: form.transferredAt ? new Date(form.transferredAt).toISOString() : undefined,
+          destination: form.destination.trim() || undefined,
+          notes: form.notes.trim() || undefined,
+          status: form.status,
+        },
+      },
+    });
+    setForm(null);
+  };
+
+  const updateStatus = (patient: Patient, status: DischargeStatus) => {
+    const discharge = patient.nursingWorkflow?.discharge;
+    if (!discharge) return;
+    onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, discharge: { ...discharge, status } } });
+  };
+
+  const summaryCards = [
+    { label: "Altas solicitadas", value: requested, caption: "Processos registrados", color: "border-sky-400/70" },
+    { label: "Aguardando transferência", value: pending, caption: "Em acompanhamento", color: "border-amber-400/70" },
+    { label: "Transferências concluídas", value: completed, caption: "Pacientes em novo cuidado", color: "border-emerald-400/70" },
+    { label: "Em atraso · acima de 24h", value: overdue, caption: "Precisam de atenção", color: "border-rose-400/70" },
+    { label: "Tempo médio de transferência", value: averageLabel, caption: "Da solicitação à transferência", color: "border-violet-400/70" },
+  ];
+
+  return (
+    <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
+      <section className="ios-card overflow-hidden rounded-xl border border-border/80">
+        <header className="neto-glass flex flex-wrap items-center justify-between gap-4 px-5 py-5 text-neto-foreground">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-white/75">Visão assistencial</p>
+            <h2 className="mt-1 text-2xl font-black tracking-tight">Gestão de altas</h2>
+            <p className="mt-1 text-xs font-semibold text-white/80">Acompanhe solicitações, confirmações e transferências de pacientes.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={onBack} className="rounded-md border border-white/30 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wide text-white hover:bg-white/20">Workflow</button>
+            <button type="button" onClick={() => openForm()} className="inline-flex items-center gap-2 rounded-md bg-neto-online px-4 py-2 text-xs font-black uppercase tracking-wide text-neto-shell-deep shadow-lg hover:brightness-105"><Plus className="h-4 w-4" /> Nova alta</button>
+          </div>
+        </header>
+
+        <div className="grid gap-3 bg-soft-blue-gradient p-4 md:grid-cols-2 xl:grid-cols-5">
+          {summaryCards.map((card) => (
+            <div key={card.label} className={"rounded-lg border-b-2 bg-white/80 p-4 shadow-sm backdrop-blur-sm " + card.color}>
+              <p className="text-[10px] font-black uppercase tracking-wide text-muted-foreground">{card.label}</p>
+              <p className="mt-3 text-2xl font-black text-foreground">{card.value}</p>
+              <p className="mt-2 text-[11px] font-semibold text-muted-foreground">{card.caption}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 border-y border-border bg-background/75 px-4 py-3">
+          <label className="relative min-w-[240px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar paciente, atendimento ou leito..." className="w-full rounded-md border border-border bg-card py-2 pl-9 pr-3 text-xs font-semibold outline-none focus:border-primary" />
+          </label>
+          {[
+            ["all", "Todos"],
+            ["progress", "Em andamento"],
+            ["overdue", "Em atraso"],
+            ["completed", "Concluídos"],
+          ].map(([value, label]) => (
+            <button key={value} type="button" onClick={() => setFilter(value as typeof filter)} className={"rounded-md border px-3 py-2 text-[11px] font-black uppercase tracking-wide transition-colors " + (filter === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:bg-muted")}>{label}</button>
+          ))}
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-[1080px] w-full text-left">
+            <thead className="bg-muted/50 text-[10px] font-black uppercase tracking-wide text-muted-foreground">
+              <tr><th className="px-4 py-3">Paciente / atendimento</th><th className="px-4 py-3">Solicitação</th><th className="px-4 py-3">Leito UTI</th><th className="px-4 py-3">Médico responsável</th><th className="px-4 py-3">Status / NIR</th><th className="px-4 py-3">Transferência / destino</th><th className="px-4 py-3">Tempo / atraso</th><th className="px-4 py-3"></th></tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {visible.map(({ patient, discharge }) => {
+                const status = dischargeStatusMeta[discharge.status];
+                const delayed = discharge.status !== "concluida" && !!discharge.requestedAt && Date.now() - new Date(discharge.requestedAt).getTime() > 24 * 60 * 60_000;
+                return (
+                  <tr key={patient.id} className="bg-card/55 text-xs hover:bg-soft-blue-gradient">
+                    <td className="px-4 py-4"><p className="font-black uppercase text-foreground">{patient.name}</p><p className="mt-1 text-[10px] font-bold text-muted-foreground">{discharge.encounterNumber ? "#" + discharge.encounterNumber : "Atendimento não informado"}</p></td>
+                    <td className="px-4 py-4 font-semibold text-foreground">{dischargeDateLabel(discharge.requestedAt)}</td>
+                    <td className="px-4 py-4"><span className="rounded-md border border-border bg-muted/50 px-2 py-1 font-black">{patient.bed}</span></td>
+                    <td className="px-4 py-4 font-semibold text-foreground">{discharge.medicalResponsible || patient.attending || "Não informado"}</td>
+                    <td className="px-4 py-4"><select value={discharge.status} onChange={(event) => updateStatus(patient, event.target.value as DischargeStatus)} className={"rounded-full border px-2 py-1 text-[10px] font-black uppercase outline-none " + status.className}><option value="solicitada">Solicitada</option><option value="aguardando_nir">Aguardando NIR</option><option value="confirmada">Confirmada</option><option value="concluida">Concluída</option></select><p className="mt-2 text-[10px] font-semibold text-muted-foreground">{discharge.nirConfirmedAt ? "NIR: " + dischargeDateLabel(discharge.nirConfirmedAt) : "NIR não confirmado"}</p></td>
+                    <td className="px-4 py-4"><p className="font-semibold text-foreground">{dischargeDateLabel(discharge.transferredAt)}</p><p className="mt-1 text-[10px] font-bold text-muted-foreground">{discharge.destination || "Destino não informado"}</p></td>
+                    <td className="px-4 py-4"><p className={delayed ? "font-black text-clinical-critical" : "font-black text-foreground"}>{dischargeElapsed(discharge.requestedAt, discharge.transferredAt)}</p><p className={"mt-1 text-[10px] font-bold " + (delayed ? "text-clinical-critical" : "text-clinical-stable")}>{delayed ? "Atraso acima de 24h" : discharge.status === "concluida" ? "Concluída" : "Em acompanhamento"}</p></td>
+                    <td className="px-4 py-4 text-right"><button type="button" onClick={() => openForm(patient)} className="rounded-md border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-black text-primary hover:bg-primary/20">Editar</button></td>
+                  </tr>
+                );
+              })}
+              {!visible.length && <tr><td colSpan={8} className="px-4 py-12 text-center text-sm font-semibold text-muted-foreground">Nenhum processo de alta encontrado neste filtro.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {form && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" onMouseDown={() => setForm(null)}>
+          <section className="ios-card max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-white/60 bg-background shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
+            <header className="flex items-start justify-between border-b border-border bg-soft-blue-gradient px-5 py-4">
+              <div><h3 className="text-lg font-black text-foreground">Processo de transferência</h3><p className="mt-1 text-xs font-semibold text-muted-foreground">Registre a solicitação, confirmação e destino de alta.</p></div>
+              <button type="button" onClick={() => setForm(null)} className="rounded-md p-2 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+            </header>
+            <div className="grid gap-4 p-5 sm:grid-cols-2">
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground sm:col-span-2">Paciente<select value={form.patientId} onChange={(event) => { const patient = patients.find((item) => item.id === event.target.value); setForm({ ...form, patientId: event.target.value, medicalResponsible: form.medicalResponsible || patient?.attending || "" }); }} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-bold text-foreground outline-none focus:border-primary">{patients.map((patient) => <option key={patient.id} value={patient.id}>{patient.bed} · {patient.name}</option>)}</select></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Nº do atendimento<input value={form.encounterNumber} onChange={(event) => setForm({ ...form, encounterNumber: event.target.value })} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Leito UTI<input value={patients.find((patient) => patient.id === form.patientId)?.bed ?? ""} readOnly className="rounded-md border border-border bg-muted px-3 py-2.5 text-sm font-bold text-muted-foreground" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Médico responsável<input value={form.medicalResponsible} onChange={(event) => setForm({ ...form, medicalResponsible: event.target.value })} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Status<select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as DischargeStatus })} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-bold outline-none focus:border-primary"><option value="solicitada">Solicitada</option><option value="aguardando_nir">Aguardando NIR</option><option value="confirmada">Confirmada</option><option value="concluida">Concluída</option></select></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Solicitação de alta<input type="datetime-local" value={form.requestedAt} onChange={(event) => setForm({ ...form, requestedAt: event.target.value })} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Confirmação pelo NIR<input type="datetime-local" value={form.nirConfirmedAt} onChange={(event) => setForm({ ...form, nirConfirmedAt: event.target.value })} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Transferência efetiva<input type="datetime-local" value={form.transferredAt} onChange={(event) => setForm({ ...form, transferredAt: event.target.value })} className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground">Destino · enfermaria / leito<input value={form.destination} onChange={(event) => setForm({ ...form, destination: event.target.value })} placeholder="Ex.: Neurologia · leito 204" className="rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none placeholder:text-muted-foreground focus:border-primary" /></label>
+              <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-muted-foreground sm:col-span-2">Justificativa · pendências · observações<textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} rows={4} className="resize-y rounded-md border border-border bg-card px-3 py-2.5 text-sm font-semibold outline-none focus:border-primary" /></label>
+            </div>
+            <footer className="flex justify-end gap-2 border-t border-border bg-muted/30 px-5 py-4"><button type="button" onClick={() => setForm(null)} className="rounded-md border border-border bg-card px-4 py-2 text-xs font-black uppercase tracking-wide text-foreground hover:bg-muted">Cancelar</button><button type="button" onClick={save} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-black uppercase tracking-wide text-primary-foreground hover:bg-primary/90"><CheckCircle2 className="h-4 w-4" /> Salvar processo</button></footer>
+          </section>
+        </div>
+      )}
+    </main>
+  );
+}
+
 export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const now = new Date();
   const nowMinute = shiftMinuteFor(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
@@ -878,7 +1090,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [nursingView, setNursingView] = useState<"workflow" | "rdc36" | "history">("workflow");
+  const [nursingView, setNursingView] = useState<"workflow" | "rdc36" | "history" | "discharge">("workflow");
   const [timelineZoom, setTimelineZoom] = useState<"normal" | "grade24">("normal");
   const [patientFilter, setPatientFilter] = useState<"all" | "overdue">("all");
   const timelineScrollRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -1076,6 +1288,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                   <button type="button" onClick={() => { setNursingView("workflow"); setMenuOpen(false); }} className="w-full rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted">Workflow de enfermagem</button>
                   <button type="button" onClick={() => { setNursingView("rdc36"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><ShieldCheck className="h-4 w-4 text-primary" /> RDC 36</button>
                   <button type="button" onClick={() => { setNursingView("history"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><CalendarDays className="h-4 w-4 text-primary" /> Histórico</button>
+                  <button type="button" onClick={() => { setNursingView("discharge"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><ClipboardList className="h-4 w-4 text-clinical-stable" /> Gestão de alta</button>
                 </div>
               )}
             </div>
@@ -1099,7 +1312,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         </div>
       </header>
 
-      {nursingView === "rdc36" ? <Rdc36Panel onBack={() => setNursingView("workflow")} /> : nursingView === "history" ? <NursingHistoryPanel patients={patients} onBack={() => setNursingView("workflow")} /> : (
+      {nursingView === "rdc36" ? <Rdc36Panel onBack={() => setNursingView("workflow")} /> : nursingView === "history" ? <NursingHistoryPanel patients={patients} onBack={() => setNursingView("workflow")} /> : nursingView === "discharge" ? <NursingDischargePanel patients={patients} onBack={() => setNursingView("workflow")} onUpdatePatient={onUpdatePatient} /> : (
       <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
         <div className="ios-card mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3">
           <div>
