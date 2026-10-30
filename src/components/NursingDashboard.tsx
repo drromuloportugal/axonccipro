@@ -119,6 +119,15 @@ function isActivityOverdue(activity: WorkflowActivity) {
   return !activity.completed && !!deadline && deadline.getTime() < Date.now();
 }
 
+function overdueElapsedLabel(activity: WorkflowActivity) {
+  const deadline = activityDeadline(activity);
+  if (!deadline) return "ATRASADA";
+  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - deadline.getTime()) / 60_000));
+  const hours = Math.floor(elapsedMinutes / 60);
+  const minutes = elapsedMinutes % 60;
+  return `ATRASADA HÁ ${hours}H ${String(minutes).padStart(2, "0")}MIN`;
+}
+
 function activityTimelineTime(activity: WorkflowActivity) {
   return activity.dueAt ?? activity.time;
 }
@@ -1133,7 +1142,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                             <span className="truncate">{meta.label}</span>
                                             <span className="shrink-0 rounded-md bg-white/80 px-1.5 py-0.5 shadow-sm">{activityTimelineTime(activity)}</span>
                                           </div>
-                                          {activity.dueAt && <div className={`mt-0.5 text-[9px] font-black uppercase ${overdue ? "text-clinical-critical" : "opacity-70"}`}>{overdue ? "Atrasada · " : "Prazo · "}horário de referência na linha do tempo</div>}
+                                          {overdue ? <div className="mt-0.5 text-[9px] font-black uppercase text-clinical-critical">{overdueElapsedLabel(activity)}</div> : activity.dueAt ? <div className="mt-0.5 text-[9px] font-black uppercase opacity-70">Prazo · {activity.dueAt}</div> : null}
                                           <div className={`mt-1.5 line-clamp-2 text-[12px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
                                             {activity.label}
                                           </div>
