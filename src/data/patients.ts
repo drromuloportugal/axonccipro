@@ -224,7 +224,7 @@ export type ConductSystem =
   | "skin"
   | "other";
 
-export type AnnotationColor = "default" | "green" | "yellow" | "orange" | "red" | "teal" | "purple";
+export type AnnotationColor = "default" | "black" | "green" | "yellow" | "orange" | "red" | "teal" | "purple";
 
 export interface ConductSubItem {
   text: string;
