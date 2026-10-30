@@ -273,6 +273,8 @@ export interface NursingWorkflow {
   activities?: NursingWorkflowActivity[];
   /** Observação livre exibida no resumo do workflow de enfermagem. */
   situationObservation?: string;
+  /** Estado de consciência informado no SBAR de enfermagem. */
+  consciousnessState?: string;
   fastHug?: {
     date?: string;
     checks?: Record<string, FastHugCheck>;
