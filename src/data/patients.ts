@@ -296,6 +296,8 @@ export interface NursingWorkflow {
   };
   /** LPP e curativos registrados exclusivamente pela enfermagem no SBAR. */
   lpp?: LPPLesion[];
+  /** Texto livre com cores para laboratório, imagem e culturas do SBAR. */
+  sbarResults?: { laboratory?: string; imaging?: string; cultures?: string };
   /** Acompanhamento de solicitação e transferência da alta pela enfermagem. */
   discharge?: NursingDischargeProcess;
 }
