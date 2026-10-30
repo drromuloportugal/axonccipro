@@ -133,6 +133,12 @@ function centeredActivityColumn(time: string, span: number) {
   return Math.max(1, Math.min(25 - span, hourColumn - halfWidth));
 }
 
+/** Faz a borda direita do cartão terminar na coluna do prazo. */
+function deadlineActivityColumn(time: string, span: number) {
+  const hourColumn = activityStartColumn(time);
+  return Math.max(1, Math.min(25 - span, hourColumn - span + 1));
+}
+
 function shiftMinuteFor(time: string) {
   const [rawHour, rawMinute] = time.split(":").map(Number);
   const hour = Number.isFinite(rawHour) ? rawHour : 7;
@@ -1102,7 +1108,9 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                 {activities.map((activity, index) => {
                                   const meta = activityMeta[activity.type];
                                   const overdue = isActivityOverdue(activity);
-                                  const column = centeredActivityColumn(activityTimelineTime(activity), timelineCardSpan);
+                                  const column = activity.dueAt
+                                    ? deadlineActivityColumn(activity.dueAt, timelineCardSpan)
+                                    : centeredActivityColumn(activity.time, timelineCardSpan);
                                   return (
                                     <button
                                       type="button"
