@@ -294,6 +294,8 @@ export interface NursingWorkflow {
     date?: string;
     checks?: Record<string, FastHugCheck>;
   };
+  /** LPP e curativos registrados exclusivamente pela enfermagem no SBAR. */
+  lpp?: LPPLesion[];
   /** Acompanhamento de solicitação e transferência da alta pela enfermagem. */
   discharge?: NursingDischargeProcess;
 }
@@ -470,6 +472,8 @@ export interface LPPLesion {
   x?: number; // free position on the SVG (viewBox 200×510)
   y?: number;
   notes?: string;
+  /** Classificação assistencial definida no SBAR de enfermagem. */
+  nursingState?: "pending" | "changed" | "normal";
   evolutions?: LPPEvolution[];
   resolvedAt?: string;
 }
