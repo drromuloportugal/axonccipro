@@ -97,8 +97,9 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const runFasthug = useServerFn(reviewFasthugMaidens);
   const runRenal = useServerFn(suggestRenalAntimicrobialAdjustment);
 
-  const [pos, setPos] = useState({ x: 24, y: 220 });
+  const [pos, setPos] = useState({ x: 24, y: 28 });
   const [open, setOpen] = useState(false);
+  const [atHome, setAtHome] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [info, setInfo] = useState("");
   const [patientId, setPatientId] = useState<string | undefined>(currentPatientId);
@@ -128,11 +129,29 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
   const dragRef = useRef<{ dx: number; dy: number; moved: boolean } | null>(null);
   const lastTapRef = useRef(0);
 
+  const homePosition = () => {
+    const anchor = document.getElementById("neto-home-anchor");
+    if (!anchor) return null;
+    const rect = anchor.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2 - 22, y: rect.top + rect.height / 2 - 22 };
+  };
+
+  const returnHome = () => {
+    setOpen(false);
+    setExpanded(false);
+    setAtHome(true);
+    const home = homePosition();
+    if (home) setPos(home);
+  };
+
   useEffect(() => {
-    setPos((p) => ({
-      x: clamp(p.x, 8, window.innerWidth - 320),
-      y: clamp(p.y, 8, window.innerHeight - 120),
-    }));
+    const placeAtHome = () => {
+      const home = homePosition();
+      if (home) setPos(home);
+    };
+    placeAtHome();
+    window.addEventListener("resize", placeAtHome);
+    return () => window.removeEventListener("resize", placeAtHome);
   }, []);
 
   const patient =
@@ -159,24 +178,26 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     if (!d) return;
     const nx = clamp(e.clientX - d.dx, 4, window.innerWidth - 60);
     const ny = clamp(e.clientY - d.dy, 4, window.innerHeight - 60);
-    if (Math.abs(nx - pos.x) > 2 || Math.abs(ny - pos.y) > 2) d.moved = true;
+    if (Math.abs(nx - pos.x) > 2 || Math.abs(ny - pos.y) > 2) {
+      d.moved = true;
+      setAtHome(false);
+    }
     setPos({ x: nx, y: ny });
   };
 
-  /** Lê a informação que está sob a quina apontadora (lado direito do balão). */
-  const readPointedInfo = () => {
+  /** Lê o bloco sobre o qual o NETO foi solto. */
+  const readPointedInfo = (point?: { x: number; y: number }) => {
     const el = rootRef.current;
     if (!el) return { text: "", pid: currentPatientId };
     const rect = el.getBoundingClientRect();
-    const x = clamp(rect.right + 12, 1, window.innerWidth - 2);
-    const y = clamp(rect.top + 22, 1, window.innerHeight - 2);
+    const x = point?.x ?? clamp(rect.right + 12, 1, window.innerWidth - 2);
+    const y = point?.y ?? clamp(rect.top + 22, 1, window.innerHeight - 2);
     el.style.visibility = "hidden";
     const target = document.elementFromPoint(x, y) as HTMLElement | null;
     el.style.visibility = "";
     if (!target) return { text: "", pid: currentPatientId };
     const host = target.closest("[data-patient-id]") as HTMLElement | null;
     let node: HTMLElement = target;
-    // sobe até um bloco com texto suficiente para dar contexto
     for (
       let i = 0;
       i < 4 && (node.textContent ?? "").trim().length < 24 && node.parentElement;
@@ -188,10 +209,10 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
     return { text, pid: host?.dataset.patientId ?? currentPatientId };
   };
 
-  /** Um clique abre o assistente; dois cliques sobre o balão analisam o ponto indicado. */
-  const provoke = async (loadAnalysis = false) => {
+  /** Soltar o NETO sobre um dado abre o raciocínio estruturado daquele ponto. */
+  const provoke = async (loadAnalysis = false, point?: { x: number; y: number }) => {
     if (dragRef.current?.moved) return;
-    const { text, pid } = readPointedInfo();
+    const { text, pid } = readPointedInfo(point);
     setPatientId(pid);
     setOpen(true);
     setWriting(false);
@@ -216,7 +237,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
 
     const p = patients.find((x) => x.id === pid) ?? patients.find((x) => x.id === currentPatientId);
     if (!text || !p) {
-      setError("Aponte a quina do balão para uma informação do paciente e clique novamente.");
+      setError("Arraste o NETO e solte-o sobre uma informação do paciente para estruturar o raciocínio.");
       return;
     }
 
@@ -380,10 +401,18 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       className="fixed z-[80] select-none print:hidden"
       onPointerDown={startDrag}
       onPointerMove={onMove}
-      onPointerUp={() => {
+      onPointerUp={(event) => {
         const moved = dragRef.current?.moved;
         dragRef.current = null;
-        if (moved) return;
+        if (moved) {
+          void provoke(true, { x: event.clientX, y: event.clientY });
+          return;
+        }
+        if (atHome) {
+          setOpen(true);
+          setAtHome(false);
+          return;
+        }
         const now = Date.now();
         const isDoubleClick = now - lastTapRef.current < 350;
         lastTapRef.current = isDoubleClick ? 0 : now;
@@ -391,18 +420,18 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
       }}
     >
       <div
-          className={`relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? `neto-panel ${expanded ? "w-[min(720px,calc(100vw-2rem))]" : "w-[330px] max-w-[92vw]"} rounded-[24px] p-3` : "neto-glass h-14 w-14 cursor-pointer rounded-full"}`}
+          className={`relative touch-none cursor-grab text-neto-foreground transition-[width,padding,border-radius] duration-300 active:cursor-grabbing ${open ? `neto-panel ${expanded ? "w-[min(720px,calc(100vw-2rem))]" : "w-[330px] max-w-[92vw]"} rounded-[24px] p-3` : atHome ? "h-11 w-11 cursor-grab rounded-full" : "neto-glass h-14 w-14 cursor-grab rounded-full"}`}
       >
         <img
           src={netoAvatar}
           alt="Assistente"
           width={512}
           height={512}
-          className={`pointer-events-none absolute z-10 object-contain drop-shadow-lg transition-all duration-300 ${open ? "-left-3 -top-5 h-[72px] w-[72px]" : "left-1/2 top-1/2 h-[52px] w-[52px] -translate-x-1/2 -translate-y-1/2"}`}
+          className={`pointer-events-none absolute z-10 object-contain drop-shadow-lg transition-all duration-300 ${open ? "-left-3 -top-5 h-[72px] w-[72px]" : atHome ? "left-1/2 top-1/2 h-[42px] w-[42px] -translate-x-1/2 -translate-y-1/2" : "left-1/2 top-1/2 h-[52px] w-[52px] -translate-x-1/2 -translate-y-1/2"}`}
         />
         <span
           aria-hidden
-          className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[45px] top-[38px] h-3.5 w-3.5" : "left-[34px] top-[34px] h-3 w-3"}`}
+          className={`absolute z-20 rounded-full border-2 border-neto-shell-deep bg-neto-online shadow-sm ${open ? "left-[45px] top-[38px] h-3.5 w-3.5" : atHome ? "left-[26px] top-[26px] h-2.5 w-2.5" : "left-[34px] top-[34px] h-3 w-3"}`}
         />
 
         <Button
@@ -441,7 +470,7 @@ export function InfoInsightBubble({ patients, currentPatientId, onPatientChange 
                 onPointerDown={(e) => e.stopPropagation()}
                 onPointerUp={(e) => {
                   e.stopPropagation();
-                  setOpen(false);
+                  returnHome();
                 }}
                 className="h-7 w-7 rounded-full text-neto-muted hover:bg-neto-panel hover:text-neto-foreground"
                 aria-label="Fechar"
