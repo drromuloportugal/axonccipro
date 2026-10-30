@@ -245,24 +245,32 @@ function activitiesFor(patient: Patient): WorkflowActivity[] {
   return activities;
 }
 
-function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
+function workflowActivitiesForDate(patient: Patient, selectedDate: string): WorkflowActivity[] {
   const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+  const isCurrentDate = selectedDate === currentShiftDate();
   const baseActivities = activitiesFor(patient).map((activity, index) => ({
     ...activity,
     id: `base-${index}`,
     source: activity.source ?? "default" as const,
   }));
+  const storedForBase = (activityId?: string) => storedActivities.find((item) =>
+    item.id === activityId && (item.scheduledDate === selectedDate || (!item.scheduledDate && isCurrentDate)),
+  );
 
   return expandRepeatedActivities([
     ...baseActivities
-      .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id && (!item.scheduledDate || item.scheduledDate === currentShiftDate())) ?? {}) }))
+      .map((activity) => ({ ...activity, ...(storedForBase(activity.id) ?? {}) }))
       .filter((activity) => !activity.hidden),
     ...storedActivities.filter((activity) =>
       !baseActivities.some((base) => base.id === activity.id)
       && !activity.hidden
-      && (!activity.scheduledDate || activity.scheduledDate === currentShiftDate()),
+      && (activity.scheduledDate === selectedDate || (!activity.scheduledDate && isCurrentDate)),
     ),
-  ]);
+  ]).sort((first, second) => first.time.localeCompare(second.time));
+}
+
+function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
+  return workflowActivitiesForDate(patient, currentShiftDate());
 }
 
 function icuDays(patient: Patient) {
@@ -780,13 +788,7 @@ export function NursingHistoryPanel({ patients, onBack }: { patients: Patient[];
   const [selectedDate, setSelectedDate] = useState(() => localIsoDate(initialDate));
   const selectedLabel = new Date(selectedDate + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 
-  const activitiesForDate = (patient: Patient) => {
-    if (selectedDate === currentShiftDate()) return workflowActivitiesForToday(patient);
-    const activities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
-    return activities
-      .filter((activity) => !activity.hidden && activity.scheduledDate === selectedDate)
-      .sort((first, second) => first.time.localeCompare(second.time));
-  };
+  const activitiesForDate = (patient: Patient) => workflowActivitiesForDate(patient, selectedDate);
 
   return (
     <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
@@ -795,7 +797,7 @@ export function NursingHistoryPanel({ patients, onBack }: { patients: Patient[];
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/70">Enfermagem</p>
             <h2 className="text-xl font-black uppercase tracking-tight">Histórico de atividades</h2>
-            <p className="mt-1 text-xs font-semibold text-white/80">Consulte as tarefas registradas para cada paciente em dias anteriores.</p>
+            <p className="mt-1 text-xs font-semibold text-white/80">Consulte todas as tarefas previstas e registradas para cada paciente na data selecionada.</p>
           </div>
           <div className="flex flex-wrap items-end gap-3">
             <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-white">
