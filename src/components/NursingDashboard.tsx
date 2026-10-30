@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { bucketBadge, daysSinceAdmission, deviceRisk, examInsight } from "@/lib/clinical";
 import type { Patient, Severity } from "@/data/patients";
 import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
@@ -747,6 +747,21 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [menuOpen, setMenuOpen] = useState(false);
   const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
   const [timelineZoom, setTimelineZoom] = useState<"normal" | "grade24">("normal");
+  const [patientFilter, setPatientFilter] = useState<"all" | "overdue">("all");
+  const timelineScrollRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const timelineScrollLock = useRef(false);
+  const overduePatientCount = patients.filter((patient) => workflowActivitiesForToday(patient).some(isActivityOverdue)).length;
+  const visiblePatients = patientFilter === "overdue"
+    ? patients.filter((patient) => workflowActivitiesForToday(patient).some(isActivityOverdue))
+    : patients;
+  const syncTimelineScroll = (origin: HTMLDivElement) => {
+    if (timelineScrollLock.current) return;
+    timelineScrollLock.current = true;
+    timelineScrollRefs.current.forEach((node) => {
+      if (node && node !== origin) node.scrollLeft = origin.scrollLeft;
+    });
+    window.setTimeout(() => { timelineScrollLock.current = false; }, 0);
+  };
   const timelineCellWidth = 60;
   const timelineCardHeight = 106;
   const timelineCardSpan = 3;
@@ -936,6 +951,15 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
               Acompanhe as atividades previstas para o período de 07:00 a 07:00.
             </p>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-wide text-muted-foreground">Filtros</span>
+            <button type="button" onClick={() => setPatientFilter("all")} className={`rounded-md border px-2.5 py-1.5 text-[11px] font-bold transition-colors ${patientFilter === "all" ? "border-primary bg-primary text-primary-foreground shadow-sm" : "border-border bg-background/70 text-foreground hover:bg-muted"}`}>
+              Todos pacientes ({patients.length})
+            </button>
+            <button type="button" onClick={() => setPatientFilter("overdue")} className={`rounded-md border px-2.5 py-1.5 text-[11px] font-bold transition-colors ${patientFilter === "overdue" ? "border-clinical-critical bg-clinical-critical text-white shadow-sm" : "border-clinical-critical/35 bg-clinical-critical/5 text-clinical-critical hover:bg-clinical-critical/10"}`}>
+              Pacientes atrasados ({overduePatientCount})
+            </button>
+          </div>
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px] font-medium text-muted-foreground">
             {Object.entries(activityMeta).map(([type, meta]) => (
               <span key={type} className="flex items-center gap-1.5">
@@ -946,18 +970,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
           </div>
         </div>
 
-        {patients.length === 0 ? (
+        {visiblePatients.length === 0 ? (
           <div className="ios-card rounded-lg border-dashed px-5 py-14 text-center">
             <UserRoundCog className="mx-auto h-7 w-7 text-muted-foreground" />
-            <p className="mt-3 text-sm font-semibold">Nenhum paciente ativo</p>
+            <p className="mt-3 text-sm font-semibold">{patients.length ? "Nenhum paciente com atividade atrasada" : "Nenhum paciente ativo"}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Os pacientes cadastrados aparecerão aqui como barras de workflow.
+              {patients.length ? "Altere o filtro para visualizar todos os pacientes." : "Os pacientes cadastrados aparecerão aqui como barras de workflow."}
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto pb-3">
             <div className="min-w-[980px] space-y-3">
-              {patients.map((patient) => {
+              {visiblePatients.map((patient, patientIndex) => {
                 const severity = severityMeta[patient.severity];
                 const activities = workflowActivitiesForToday(patient);
                 const patientDayActivities = activities.filter((activity) => {
@@ -1065,7 +1089,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             </div>
                           </div>
                         ) : (
-                          <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
+                          <div ref={(node) => { timelineScrollRefs.current[patientIndex] = node; }} onScroll={(event) => syncTimelineScroll(event.currentTarget)} className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal sincronizada">
                             <div style={{ minWidth: `${timelineCellWidth * 24}px` }}>
                               <div className="mb-1 grid text-center text-[9px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
                                 {Array.from({ length: 25 }, (_, index) => {
