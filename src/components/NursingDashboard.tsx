@@ -105,6 +105,12 @@ function activityStartColumn(time: string) {
   return Math.floor(offset) + 1;
 }
 
+function centeredActivityColumn(time: string, span: number) {
+  const hourColumn = activityStartColumn(time);
+  const halfWidth = Math.floor(span / 2);
+  return Math.max(1, Math.min(25 - span, hourColumn - halfWidth));
+}
+
 function shiftMinuteFor(time: string) {
   const [rawHour, rawMinute] = time.split(":").map(Number);
   const hour = Number.isFinite(rawHour) ? rawHour : 7;
@@ -1003,16 +1009,17 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                         ) : (
                           <div className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal">
                             <div style={{ minWidth: `${timelineCellWidth * 24}px` }}>
-                              <div className="mb-1 grid text-center text-[11px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
-                                {[["07:00", 1], ["11:00", 5], ["15:00", 9], ["19:00", 13], ["23:00", 17], ["03:00", 21], ["07:00", 25]].map(([label, column], index) => (
-                                  <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
-                                ))}
+                              <div className="mb-1 grid text-center text-[9px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
+                                {Array.from({ length: 25 }, (_, index) => {
+                                  const hour = (7 + index) % 24;
+                                  return <span key={index} style={{ gridColumn: String(index + 1) }}>{String(hour).padStart(2, "0")}</span>;
+                                })}
                               </div>
                               <div className="relative grid min-h-[182px] auto-rows-[170px] grid-flow-row-dense gap-2 rounded-sm border border-white/70 bg-white/35 p-2.5 shadow-inner backdrop-blur-md" style={{ gridTemplateColumns: `repeat(24, minmax(${timelineCellWidth}px, 1fr))`, gridAutoRows: `${timelineCardHeight}px`, minHeight: `${timelineCardHeight + 12}px` }}>
                                 <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
                                 {activities.map((activity, index) => {
                                   const meta = activityMeta[activity.type];
-                                  const column = activityStartColumn(activity.time);
+                                  const column = centeredActivityColumn(activity.time, timelineCardSpan);
                                   return (
                                     <button
                                       type="button"
