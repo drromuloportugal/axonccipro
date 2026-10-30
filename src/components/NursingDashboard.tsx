@@ -926,16 +926,21 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                         title="Abrir resumo SBAR do paciente"
                       >
                         <div>
+                          {timelineZoom === "grade24" && (
+                            <div className="mb-0.5 inline-flex rounded-sm bg-primary px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-primary-foreground shadow-sm">
+                              Leito {patient.bed || "—"}
+                            </div>
+                          )}
                           <div className={`border-clinical-stable/70 font-bold uppercase tracking-wide text-foreground ${timelineZoom === "grade24" ? "border-b-0 pb-0 text-[10px]" : "border-b-2 pb-1 text-sm"}`}>
                             {patient.name || "Sem identificação"}
                           </div>
                           {timelineZoom === "grade24" && (
-                            <div className="mt-0.5 flex items-center gap-2 text-[8px] font-extrabold uppercase tracking-wide">
-                              <span className="text-amber-800">D {patientDayCompleted}/{patientDayActivities.length}</span>
-                              <span className="text-indigo-800">N {patientNightCompleted}/{patientNightActivities.length}</span>
+                            <div className="mt-0.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-wide">
+                              <span className="rounded-sm bg-amber-100 px-1 py-0.5 text-amber-800">D {patientDayCompleted}/{patientDayActivities.length}</span>
+                              <span className="rounded-sm bg-indigo-100 px-1 py-0.5 text-indigo-800">N {patientNightCompleted}/{patientNightActivities.length}</span>
                             </div>
                           )}
-                          <div className="mt-1 text-xs text-muted-foreground">
+                          <div className={timelineZoom === "grade24" ? "hidden" : "mt-1 text-xs text-muted-foreground"}>
                             {patient.age} anos · {patient.sex === "M" ? "Masculino" : "Feminino"}
                           </div>
                         </div>
