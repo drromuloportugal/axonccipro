@@ -255,7 +255,7 @@ function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
 
   return expandRepeatedActivities([
     ...baseActivities
-      .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id) ?? {}) }))
+      .map((activity) => ({ ...activity, ...(storedActivities.find((item) => item.id === activity.id && (!item.scheduledDate || item.scheduledDate === currentShiftDate())) ?? {}) }))
       .filter((activity) => !activity.hidden),
     ...storedActivities.filter((activity) =>
       !baseActivities.some((base) => base.id === activity.id)
@@ -741,7 +741,85 @@ function Rdc36Panel({ onBack }: { onBack: () => void }) {
   );
 }
 
-export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
+export function NursingHistoryPanel({ patients, onBack }: { patients: Patient[]; onBack: () => void }) {
+  const initialDate = new Date(currentShiftDate() + "T12:00:00");
+  initialDate.setDate(initialDate.getDate() - 1);
+  const [selectedDate, setSelectedDate] = useState(() => localIsoDate(initialDate));
+  const selectedLabel = new Date(selectedDate + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+
+  const activitiesForDate = (patient: Patient) => {
+    if (selectedDate === currentShiftDate()) return workflowActivitiesForToday(patient);
+    const activities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
+    return activities
+      .filter((activity) => !activity.hidden && activity.scheduledDate === selectedDate)
+      .sort((first, second) => first.time.localeCompare(second.time));
+  };
+
+  return (
+    <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
+      <section className="ios-card overflow-hidden rounded-xl border border-border bg-background shadow-xl">
+        <header className="neto-glass flex flex-wrap items-center justify-between gap-4 border-b border-neto-line px-5 py-4 text-neto-foreground">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/70">Enfermagem</p>
+            <h2 className="text-xl font-black uppercase tracking-tight">Histórico de atividades</h2>
+            <p className="mt-1 text-xs font-semibold text-white/80">Consulte as tarefas registradas para cada paciente em dias anteriores.</p>
+          </div>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="grid gap-1 text-[10px] font-black uppercase tracking-wide text-white">
+              Data
+              <input type="date" value={selectedDate} max={currentShiftDate()} onChange={(event) => setSelectedDate(event.target.value)} className="rounded-md border border-white/30 bg-white/15 px-3 py-2 text-xs font-bold text-white outline-none [color-scheme:dark]" />
+            </label>
+            <button type="button" onClick={onBack} className="rounded-md border border-white/30 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-wide text-white transition-colors hover:bg-white/20">Voltar ao workflow</button>
+          </div>
+        </header>
+        <div className="border-b border-border bg-muted/35 px-5 py-3 text-sm font-black capitalize text-foreground">{selectedLabel}</div>
+        <div className="space-y-3 p-4">
+          {patients.map((patient) => {
+            const activities = activitiesForDate(patient);
+            const completed = activities.filter((activity) => activity.completed).length;
+            const severity = severityMeta[patient.severity];
+            return (
+              <article key={patient.id} className="rounded-lg border border-border bg-card p-4 shadow-sm">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md bg-primary px-2 py-1 text-sm font-black text-primary-foreground">{patient.bed}</span>
+                    <div>
+                      <h3 className="text-base font-black uppercase text-foreground">{patient.name}</h3>
+                      <p className="text-xs font-bold text-muted-foreground">{completed}/{activities.length} atividades concluídas</p>
+                    </div>
+                  </div>
+                  <span className={"rounded-full px-3 py-1 text-[11px] font-black uppercase " + severity.className}>{severity.label}</span>
+                </div>
+                {activities.length === 0 ? (
+                  <p className="rounded-md border border-dashed border-border bg-muted/35 px-3 py-4 text-center text-xs font-semibold text-muted-foreground">Nenhuma atividade registrada para este paciente nesta data.</p>
+                ) : (
+                  <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                    {activities.map((activity) => {
+                      const meta = activityMeta[activity.type];
+                      return (
+                        <div key={activity.id ?? (patient.id + activity.label + activity.time)} className={"rounded-md border p-3 " + meta.className}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <p className="text-xs font-black uppercase text-foreground">{activity.label}</p>
+                              <p className="mt-1 text-[11px] font-bold text-muted-foreground">{activity.time} · prazo: {activityDeadlineTime(activity)}</p>
+                            </div>
+                            <span className={activity.completed ? "rounded-full bg-clinical-stable px-2 py-1 text-[10px] font-black uppercase text-white" : "rounded-full bg-muted px-2 py-1 text-[10px] font-black uppercase text-muted-foreground"}>{activity.completed ? "Concluída" : "Não concluída"}</span>
+                          </div>
+                          {activity.note && <p className="mt-2 rounded bg-white/55 px-2 py-1.5 text-[11px] font-semibold text-foreground">Observação: {activity.note}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </main>
+  );
+}
+function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const now = new Date();
   const nowMinute = shiftMinuteFor(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
   const currentTimeMarker = Math.max(0, Math.min(100, (nowMinute / (24 * 60)) * 100));
@@ -765,7 +843,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
+  const [nursingView, setNursingView] = useState<"workflow" | "rdc36" | "history">("workflow");
   const [timelineZoom, setTimelineZoom] = useState<"normal" | "grade24">("normal");
   const [patientFilter, setPatientFilter] = useState<"all" | "overdue">("all");
   const timelineScrollRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -793,7 +871,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       ...patient,
       nursingWorkflow: {
         ...patient.nursingWorkflow,
-        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", dueAt: activityDraft.dueAt || undefined, type: activityDraft.type, repeatEveryHours: activityDraft.repeatEveryHours || undefined, source: "custom" }],
+        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", dueAt: activityDraft.dueAt || undefined, type: activityDraft.type, repeatEveryHours: activityDraft.repeatEveryHours || undefined, source: "custom", scheduledDate: currentShiftDate() }],
       },
     });
     setActivityDraft(null);
@@ -803,7 +881,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
     const patient = patients.find((item) => item.id === patientId);
     if (!patient || !activity.id) return;
     const current = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
-    const record = { ...activity, source: activity.source ?? "default" };
+    const record = { ...activity, scheduledDate: activity.scheduledDate ?? currentShiftDate(), source: activity.source ?? "default" };
     const activities = current.some((item) => item.id === record.id)
       ? current.map((item) => item.id === record.id ? { ...item, ...record } : item)
       : [...current, record];
@@ -823,8 +901,8 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
     const activities = isStoredCustom
       ? current.filter((item) => item.id !== targetId && item.id !== activity.id)
       : current.some((item) => item.id === targetId)
-        ? current.map((item) => item.id === targetId ? { ...item, hidden: true } : item)
-        : [...current, { ...targetActivity, hidden: true, source: targetActivity.source ?? "default" }];
+        ? current.map((item) => item.id === targetId ? { ...item, hidden: true, scheduledDate: item.scheduledDate ?? currentShiftDate() } : item)
+        : [...current, { ...targetActivity, hidden: true, scheduledDate: currentShiftDate(), source: targetActivity.source ?? "default" }];
     onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, activities } });
     setEditingActivity(null);
   };
@@ -840,6 +918,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       ...activity,
       completed: true,
       source: "fasthug",
+      scheduledDate: activity.scheduledDate ?? currentShiftDate(),
       note: `Revisão registrada às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
     };
     const activities = currentActivities.some((item) => item.id === record.id)
@@ -949,6 +1028,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                 <div className="absolute right-0 top-full z-30 mt-2 w-52 rounded-lg border border-border bg-background p-1 shadow-xl">
                   <button type="button" onClick={() => { setNursingView("workflow"); setMenuOpen(false); }} className="w-full rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted">Workflow de enfermagem</button>
                   <button type="button" onClick={() => { setNursingView("rdc36"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><ShieldCheck className="h-4 w-4 text-primary" /> RDC 36</button>
+                  <button type="button" onClick={() => { setNursingView("history"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><CalendarDays className="h-4 w-4 text-primary" /> Histórico</button>
                 </div>
               )}
             </div>
@@ -972,7 +1052,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         </div>
       </header>
 
-      {nursingView === "rdc36" ? <Rdc36Panel onBack={() => setNursingView("workflow")} /> : (
+      {nursingView === "rdc36" ? <Rdc36Panel onBack={() => setNursingView("workflow")} /> : nursingView === "history" ? <NursingHistoryPanel patients={patients} onBack={() => setNursingView("workflow")} /> : (
       <main className="mx-auto max-w-[1800px] px-4 py-5 sm:px-6">
         <div className="ios-card mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3">
           <div>
