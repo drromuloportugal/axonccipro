@@ -269,6 +269,19 @@ export interface FastHugCheck {
   note?: string;
 }
 
+export type NursingDischargeStatus = "solicitada" | "aguardando_nir" | "confirmada" | "concluida";
+
+export interface NursingDischargeProcess {
+  encounterNumber?: string;
+  medicalResponsible?: string;
+  requestedAt?: string;
+  nirConfirmedAt?: string;
+  transferredAt?: string;
+  destination?: string;
+  notes?: string;
+  status: NursingDischargeStatus;
+}
+
 export interface NursingWorkflow {
   activities?: NursingWorkflowActivity[];
   /** Observação livre exibida no resumo do workflow de enfermagem. */
@@ -279,6 +292,8 @@ export interface NursingWorkflow {
     date?: string;
     checks?: Record<string, FastHugCheck>;
   };
+  /** Acompanhamento de solicitação e transferência da alta pela enfermagem. */
+  discharge?: NursingDischargeProcess;
 }
 
 export interface Goal {
