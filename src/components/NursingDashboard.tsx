@@ -22,6 +22,7 @@ type WorkflowActivity = {
   source?: "default" | "custom" | "fasthug";
   scheduledDate?: string;
   repeatEveryHours?: number;
+  repeatParentId?: string;
 };
 
 type FastHugStatus = "adequado" | "atencao" | "nao_aplicavel";
@@ -138,6 +139,7 @@ function expandRepeatedActivities(activities: WorkflowActivity[]) {
           : {
               ...activity,
               id: `${activity.id ?? activity.label}-repeat-${occurrence}`,
+              repeatParentId: activity.id,
               time: timeForShiftMinute(minute),
             },
       );
@@ -723,12 +725,16 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
     const patient = patients.find((item) => item.id === patientId);
     if (!patient || !activity.id) return;
     const current = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
-    const isStoredCustom = activity.source === "custom" && current.some((item) => item.id === activity.id);
+    const inferredParentId = activity.id.replace(/-repeat-\d+$/, "");
+    const targetId = activity.repeatParentId
+      ?? (inferredParentId !== activity.id && current.some((item) => item.id === inferredParentId) ? inferredParentId : activity.id);
+    const targetActivity = targetId === activity.id ? activity : { ...activity, id: targetId, repeatParentId: undefined };
+    const isStoredCustom = targetActivity.source === "custom" && current.some((item) => item.id === targetId);
     const activities = isStoredCustom
-      ? current.filter((item) => item.id !== activity.id)
-      : current.some((item) => item.id === activity.id)
-        ? current.map((item) => item.id === activity.id ? { ...item, hidden: true } : item)
-        : [...current, { ...activity, hidden: true, source: activity.source ?? "default" }];
+      ? current.filter((item) => item.id !== targetId && item.id !== activity.id)
+      : current.some((item) => item.id === targetId)
+        ? current.map((item) => item.id === targetId ? { ...item, hidden: true } : item)
+        : [...current, { ...targetActivity, hidden: true, source: targetActivity.source ?? "default" }];
     onUpdatePatient({ ...patient, nursingWorkflow: { ...patient.nursingWorkflow, activities } });
     setEditingActivity(null);
   };
@@ -985,7 +991,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </p>
                           <div className="flex shrink-0 items-center gap-1.5">
                             <button type="button" onClick={() => setCalendarPatientId(patient.id)} className="inline-flex items-center gap-1 rounded border border-border bg-background/75 px-2 py-1 text-[10px] font-bold text-foreground hover:bg-muted">
-                              <CalendarDays className="h-3 w-3" /> Agenda
+                              <CalendarDays className="h-4 w-4" /> Agenda
                             </button>
                             <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care", repeatEveryHours: 0 })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
                           </div>
@@ -997,7 +1003,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                 <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
                               ))}
                             </div>
-                            <div className="relative grid min-h-[14px] auto-rows-[11px] grid-flow-row-dense gap-px rounded-sm border border-white/60 bg-slate-50/45 p-0.5" style={{ gridTemplateColumns: "repeat(24, minmax(18px, 1fr))" }}>
+                            <div className="relative grid min-h-[14px] auto-rows-[14px] grid-flow-row-dense gap-px rounded-sm border border-white/60 bg-slate-50/45 p-0.5" style={{ gridTemplateColumns: "repeat(24, minmax(18px, 1fr))" }}>
                               <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.9)]" style={{ left: `${currentTimeMarker}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
@@ -1008,7 +1014,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     key={`${patient.id}-grid-${activity.id ?? activity.label}-${index}`}
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     style={{ gridColumnStart: column }}
-                                    className={`z-20 flex h-3 w-3 items-center justify-center rounded-full border text-[6px] font-black leading-none shadow-sm transition-transform hover:scale-150 ${meta.className} ${activity.completed ? "ring-1 ring-emerald-500 ring-offset-1" : ""}`}
+                                    className={`z-20 flex h-3 w-3 items-center justify-center rounded-full border text-[7px] font-black leading-none shadow-sm transition-transform hover:scale-150 ${meta.className} ${activity.completed ? "ring-1 ring-emerald-500 ring-offset-1" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.completed ? " · Concluída" : ""}`}
                                   >
                                     {activity.completed ? "✓" : ""}
