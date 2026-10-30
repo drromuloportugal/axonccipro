@@ -1118,9 +1118,9 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                         <>
                                           <div className="flex items-center justify-between gap-2 text-[11px] font-extrabold uppercase tracking-wide">
                                             <span className="truncate">{meta.label}</span>
-                                            <span className="shrink-0 rounded-md bg-white/80 px-1.5 py-0.5 shadow-sm">{activity.time}</span>
+                                            <span className="shrink-0 rounded-md bg-white/80 px-1.5 py-0.5 shadow-sm">{activityTimelineTime(activity)}</span>
                                           </div>
-                                          {activity.dueAt && <div className={`mt-0.5 text-[9px] font-black uppercase ${overdue ? "text-clinical-critical" : "opacity-70"}`}>{overdue ? "Atrasada · " : "Prazo · "}{activity.dueAt}</div>}
+                                          {activity.dueAt && <div className={`mt-0.5 text-[9px] font-black uppercase ${overdue ? "text-clinical-critical" : "opacity-70"}`}>{overdue ? "Atrasada · " : "Prazo · "}horário de referência na linha do tempo</div>}
                                           <div className={`mt-1.5 line-clamp-2 text-[12px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
                                             {activity.label}
                                           </div>
@@ -1130,7 +1130,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                       ) : (
                                         <>
                                           <div className="text-[11px] font-extrabold uppercase leading-tight tracking-wide opacity-85">
-                                            {activity.time} · {meta.label}
+                                            {activityTimelineTime(activity)} · {meta.label}
                                           </div>
                                           <div className={`mt-1 break-words text-[13px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
                                             {activity.label}
