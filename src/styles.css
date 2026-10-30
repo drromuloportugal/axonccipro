@@ -759,3 +759,33 @@
   background-image: none !important;
   background-color: transparent !important;
 }
+
+
+/* Workflow de enfermagem: rolagem no mesmo azul translúcido do cabeçalho. */
+.nursing-timeline-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--neto-shell) 76%, white) color-mix(in oklab, var(--neto-panel) 62%, transparent);
+}
+
+.nursing-timeline-scroll::-webkit-scrollbar {
+  height: 11px;
+}
+
+.nursing-timeline-scroll::-webkit-scrollbar-track {
+  margin: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in oklab, var(--neto-panel) 72%, white), color-mix(in oklab, var(--neto-shell) 28%, transparent));
+  box-shadow: inset 0 1px 2px rgb(15 70 105 / 0.12);
+}
+
+.nursing-timeline-scroll::-webkit-scrollbar-thumb {
+  min-width: 46px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--neto-shell) 78%, white), color-mix(in oklab, var(--neto-shell-deep) 82%, #0ea5e9)) padding-box;
+  box-shadow: 0 2px 7px rgb(14 116 144 / 0.32);
+}
+
+.nursing-timeline-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--neto-shell) 92%, white), color-mix(in oklab, var(--neto-shell-deep) 92%, #0284c7)) padding-box;
+}
