@@ -406,16 +406,23 @@ function Passometro() {
         }}
       >
         <div className="relative flex min-h-20 items-center justify-center px-20 py-3 sm:px-24">
-          {/* Logo stays centered and never overlaps the tools button. */}
-          <img
-            src={axonLogo}
-            alt="Axon Critical Care Intelligence"
-            className="block h-auto max-h-16 w-auto max-w-full scale-[1.25] rounded-md object-contain sm:max-h-20"
-            style={{
-              filter:
-                "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
-            }}
-          />
+          {/* O NETO repousa no centro do "O" do logo e pode ser arrastado sobre uma informação. */}
+          <div className="relative inline-flex">
+            <img
+              src={axonLogo}
+              alt="Axon Critical Care Intelligence"
+              className="block h-auto max-h-16 w-auto max-w-full scale-[1.25] rounded-md object-contain sm:max-h-20"
+              style={{
+                filter:
+                  "drop-shadow(0 6px 18px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 22px rgba(74, 222, 128, 0.35))",
+              }}
+            />
+            <span
+              id="neto-home-anchor"
+              aria-label="Posição inicial do assistente NETO"
+              className="pointer-events-none absolute left-[56%] top-[47%] h-1 w-1"
+            />
+          </div>
 
           {/* Circular hamburger — tools drawer */}
           <div className="absolute right-4 top-1/2 z-30 -translate-y-1/2">
