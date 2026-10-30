@@ -1089,7 +1089,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             </div>
                           </div>
                         ) : (
-                          <div ref={(node) => { timelineScrollRefs.current[patientIndex] = node; }} onScroll={(event) => syncTimelineScroll(event.currentTarget)} className="overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal sincronizada">
+                          <div ref={(node) => { timelineScrollRefs.current[patientIndex] = node; }} onScroll={(event) => syncTimelineScroll(event.currentTarget)} className="nursing-timeline-scroll overflow-x-auto pb-3" aria-label="Linha do tempo de atividades com rolagem horizontal sincronizada">
                             <div style={{ minWidth: `${timelineCellWidth * 24}px` }}>
                               <div className="mb-1 grid text-center text-[9px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: `repeat(25, minmax(${timelineCellWidth}px, 1fr))` }}>
                                 {Array.from({ length: 25 }, (_, index) => {
