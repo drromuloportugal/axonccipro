@@ -211,17 +211,31 @@ function twelveHourColumn(time: string, dayPeriod: boolean) {
 function workflowActivitiesForDate(patient: Patient, selectedDate: string): WorkflowActivity[] {
   const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
   const isCurrentDate = selectedDate === currentShiftDate();
+  const belongsToDate = (activity: WorkflowActivity) =>
+    activity.scheduledDate === selectedDate || (!activity.scheduledDate && isCurrentDate);
 
-  // O workflow deve exibir somente atividades registradas manualmente pela equipe.
-  // Itens antigos que eram criados pelo sistema (default ou fasthug) são ignorados.
-  return expandRepeatedActivities(
-    storedActivities.filter((activity) =>
-      activity.source !== "default"
-      && activity.source !== "fasthug"
-      && !activity.hidden
-      && (activity.scheduledDate === selectedDate || (!activity.scheduledDate && isCurrentDate)),
-    ),
-  ).sort((first, second) => first.time.localeCompare(second.time));
+  // A única atividade automática do workflow é a revisão FASTHUG às 17:00.
+  // Se ela já tiver sido preenchida, a versão salva preserva o status e as observações.
+  const savedFastHug = storedActivities.find((activity) => activity.source === "fasthug" && belongsToDate(activity));
+  const fastHugActivity: WorkflowActivity = {
+    id: `fasthug-${selectedDate}`,
+    label: "REVISÃO FASTHUG",
+    time: "17:00",
+    type: "care",
+    source: "fasthug",
+    scheduledDate: selectedDate,
+    ...(savedFastHug ?? {}),
+  };
+
+  const manualActivities = storedActivities.filter((activity) =>
+    activity.source !== "default"
+    && activity.source !== "fasthug"
+    && !activity.hidden
+    && belongsToDate(activity),
+  );
+
+  return expandRepeatedActivities([fastHugActivity, ...manualActivities])
+    .sort((first, second) => first.time.localeCompare(second.time));
 }
 
 function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
