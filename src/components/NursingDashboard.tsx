@@ -918,22 +918,28 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                     key={patient.id}
                     className={`ios-card overflow-hidden rounded-lg ${timelineZoom === "grade24" ? "shadow-sm" : ""}`}
                   >
-                    <div className={`flex ${timelineZoom === "grade24" ? "min-h-[54px]" : "min-h-[138px]"}`}>
+                    <div className={`flex ${timelineZoom === "grade24" ? "min-h-[42px]" : "min-h-[138px]"}`}>
                       <button
                         type="button"
                         onClick={() => setSelectedPatient(patient)}
-                        className={`flex flex-col border-r border-border bg-soft-blue-gradient text-left transition-colors hover:brightness-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50 ${timelineZoom === "grade24" ? "w-[180px] min-w-[180px] justify-center p-2" : "w-1/5 min-w-[196px] justify-between p-4"}`}
+                        className={`flex flex-col border-r border-border bg-soft-blue-gradient text-left transition-colors hover:brightness-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50 ${timelineZoom === "grade24" ? "w-[180px] min-w-[180px] justify-center p-1" : "w-1/5 min-w-[196px] justify-between p-4"}`}
                         title="Abrir resumo SBAR do paciente"
                       >
                         <div>
                           <div className={`border-clinical-stable/70 font-bold uppercase tracking-wide text-foreground ${timelineZoom === "grade24" ? "border-b-0 pb-0 text-[10px]" : "border-b-2 pb-1 text-sm"}`}>
                             {patient.name || "Sem identificação"}
                           </div>
+                          {timelineZoom === "grade24" && (
+                            <div className="mt-0.5 flex items-center gap-2 text-[8px] font-extrabold uppercase tracking-wide">
+                              <span className="text-amber-800">D {patientDayCompleted}/{patientDayActivities.length}</span>
+                              <span className="text-indigo-800">N {patientNightCompleted}/{patientNightActivities.length}</span>
+                            </div>
+                          )}
                           <div className="mt-1 text-xs text-muted-foreground">
                             {patient.age} anos · {patient.sex === "M" ? "Masculino" : "Feminino"}
                           </div>
                         </div>
-                        <div className={timelineZoom === "grade24" ? "mt-1 flex flex-wrap items-center gap-1" : "mt-3 flex flex-wrap items-center gap-2"}>
+                        <div className={timelineZoom === "grade24" ? "hidden" : "mt-3 flex flex-wrap items-center gap-2"}>
                           <span className={timelineZoom === "grade24" ? "ios-inset px-1 py-0.5 text-[9px] font-semibold" : "ios-inset px-2 py-1 text-xs font-semibold"}>
                             Leito {patient.bed || "—"}
                           </span>
@@ -967,7 +973,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                         </div>
                       </button>
 
-                      <section className={`w-4/5 bg-surface/55 ${timelineZoom === "grade24" ? "p-1.5" : "p-4"}`}>
+                      <section className={`w-4/5 bg-surface/55 ${timelineZoom === "grade24" ? "p-0.5" : "p-4"}`}>
                         <div className={timelineZoom === "grade24" ? "hidden" : "mb-2 flex items-center justify-between gap-2"}>
                           <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Linha do tempo do plantão
@@ -980,13 +986,13 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </div>
                         </div>
                         {timelineZoom === "grade24" ? (
-                          <div className="rounded-sm border border-white/70 bg-white/35 p-1 shadow-inner backdrop-blur-md" aria-label="Grade de atividades do período de 24 horas">
-                            <div className="mb-0.5 grid text-center text-[8px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(18px, 1fr))" }}>
+                          <div className="rounded-sm border border-white/70 bg-white/35 p-0.5 shadow-inner backdrop-blur-md" aria-label="Grade de atividades do período de 24 horas">
+                            <div className="mb-0 grid text-center text-[7px] font-bold uppercase tracking-wide text-muted-foreground" style={{ gridTemplateColumns: "repeat(25, minmax(18px, 1fr))" }}>
                               {[["07", 1], ["10", 4], ["13", 7], ["16", 10], ["19", 13], ["22", 16], ["01", 19], ["04", 22], ["07", 25]].map(([label, column], index) => (
                                 <span key={`${label}-${index}`} style={{ gridColumn: String(column) }}>{label}</span>
                               ))}
                             </div>
-                            <div className="relative grid min-h-[18px] auto-rows-[14px] grid-flow-row-dense gap-0.5 rounded-sm border border-white/60 bg-slate-50/45 p-1" style={{ gridTemplateColumns: "repeat(24, minmax(18px, 1fr))" }}>
+                            <div className="relative grid min-h-[14px] auto-rows-[11px] grid-flow-row-dense gap-px rounded-sm border border-white/60 bg-slate-50/45 p-0.5" style={{ gridTemplateColumns: "repeat(24, minmax(18px, 1fr))" }}>
                               <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.9)]" style={{ left: `${currentTimeMarker}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
@@ -997,7 +1003,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                     key={`${patient.id}-grid-${activity.id ?? activity.label}-${index}`}
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     style={{ gridColumnStart: column }}
-                                    className={`z-20 flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[7px] font-black leading-none shadow-sm transition-transform hover:scale-150 ${meta.className} ${activity.completed ? "ring-1 ring-emerald-500 ring-offset-1" : ""}`}
+                                    className={`z-20 flex h-3 w-3 items-center justify-center rounded-full border text-[6px] font-black leading-none shadow-sm transition-transform hover:scale-150 ${meta.className} ${activity.completed ? "ring-1 ring-emerald-500 ring-offset-1" : ""}`}
                                     title={`${activity.time} · ${activity.label}${activity.completed ? " · Concluída" : ""}`}
                                   >
                                     {activity.completed ? "✓" : ""}
