@@ -1748,7 +1748,8 @@ export const ANNOTATION_COLOR_META: Record<
   AnnotationColor,
   { label: string; textClass: string; swatch: string }
 > = {
-  default: { label: "Preto", textClass: "text-ink", swatch: "#000000" },
+  default: { label: "Padrão", textClass: "text-ink", swatch: "#64748b" },
+  black: { label: "Preto", textClass: "text-black", swatch: "#000000" },
   green: { label: "Verde limão", textClass: "text-lime-600 dark:text-lime-400", swatch: "#84cc16" },
   yellow: {
     label: "Amarelo",
@@ -1767,6 +1768,7 @@ export const ANNOTATION_COLOR_META: Record<
 
 export const ANNOTATION_COLOR_ORDER: AnnotationColor[] = [
   "default",
+  "black",
   "green",
   "yellow",
   "orange",
@@ -1779,7 +1781,7 @@ export const ANNOTATION_COLOR_ORDER: AnnotationColor[] = [
  * Marcação inline de cor dentro de uma anotação: `[[red:trecho]]`.
  * Permite cores diferentes em partes distintas do mesmo texto.
  */
-const ANNOTATION_MARKUP_RE = /\[\[(default|green|yellow|orange|red|teal|purple):([\s\S]*?)\]\]/g;
+const ANNOTATION_MARKUP_RE = /\[\[(default|black|green|yellow|orange|red|teal|purple):([\s\S]*?)\]\]/g;
 
 export interface AnnotationSegment {
   text: string;
