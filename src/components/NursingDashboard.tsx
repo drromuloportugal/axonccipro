@@ -195,78 +195,20 @@ function twelveHourColumn(time: string, dayPeriod: boolean) {
   const nightHour = hour < 7 ? hour + 24 : hour;
   return nightHour >= 19 && nightHour < 31 ? nightHour - 19 + 1 : null;
 }
-function activitiesFor(patient: Patient): WorkflowActivity[] {
-  const activeMeds = patient.medications.filter((med) => med.active !== false).slice(0, 2);
-  const nurseConducts = patient.conducts
-    .filter((conduct) => conduct.team === "Enfermagem")
-    .flatMap((conduct) => [
-      ...(conduct.text ? [conduct.text] : []),
-      ...(conduct.subItems ?? [])
-        .filter((item) => !item.hidden && item.text)
-        .map((item) => item.text),
-    ])
-    .slice(0, 2);
-  const activeDevices = (patient.devices ?? []).filter((device) => !device.removedAt);
-
-  const activities: WorkflowActivity[] = [
-    { label: "Sinais vitais e avaliação", time: "07:00", type: "monitoring" },
-    ...activeMeds.map((med, index) => ({
-      label: `Administrar ${med.name}`,
-      time: index === 0 ? "09:00" : "15:00",
-      type: "medication" as const,
-    })),
-  ];
-
-  if (activeDevices.length) {
-    activities.push({
-      label: `Checar ${activeDevices.length} invasão(ões)`,
-      time: "19:00",
-      type: "device",
-    });
-  }
-
-  activities.push({
-    label: "FASTHUG MAIDENS",
-    time: "17:00",
-    type: "care",
-    source: "fasthug",
-  });
-
-  activities.push(
-    ...(nurseConducts.length
-      ? nurseConducts.map((label, index) => ({
-          label,
-          time: index === 0 ? "23:00" : "03:00",
-          type: "care" as const,
-        }))
-      : [{ label: "Balanço hídrico e reavaliação", time: "23:00", type: "care" as const }]),
-  );
-
-  return activities;
-}
-
 function workflowActivitiesForDate(patient: Patient, selectedDate: string): WorkflowActivity[] {
   const storedActivities = Array.isArray(patient.nursingWorkflow?.activities) ? patient.nursingWorkflow.activities : [];
   const isCurrentDate = selectedDate === currentShiftDate();
-  const baseActivities = activitiesFor(patient).map((activity, index) => ({
-    ...activity,
-    id: `base-${index}`,
-    source: activity.source ?? "default" as const,
-  }));
-  const storedForBase = (activityId?: string) => storedActivities.find((item) =>
-    item.id === activityId && (item.scheduledDate === selectedDate || (!item.scheduledDate && isCurrentDate)),
-  );
 
-  return expandRepeatedActivities([
-    ...baseActivities
-      .map((activity) => ({ ...activity, ...(storedForBase(activity.id) ?? {}) }))
-      .filter((activity) => !activity.hidden),
-    ...storedActivities.filter((activity) =>
-      !baseActivities.some((base) => base.id === activity.id)
+  // O workflow deve exibir somente atividades registradas manualmente pela equipe.
+  // Itens antigos que eram criados pelo sistema (default ou fasthug) são ignorados.
+  return expandRepeatedActivities(
+    storedActivities.filter((activity) =>
+      activity.source !== "default"
+      && activity.source !== "fasthug"
       && !activity.hidden
       && (activity.scheduledDate === selectedDate || (!activity.scheduledDate && isCurrentDate)),
     ),
-  ]).sort((first, second) => first.time.localeCompare(second.time));
+  ).sort((first, second) => first.time.localeCompare(second.time));
 }
 
 function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
