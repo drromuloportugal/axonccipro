@@ -13,7 +13,7 @@ const NUMERIC_COLOR_SHORTCUTS: Record<string, AnnotationColor> = {
   "4": "green",
   "5": "teal",
   "6": "purple",
-  "7": "default",
+  "7": "black",
 };
 
 interface Props {
