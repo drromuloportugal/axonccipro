@@ -758,6 +758,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const nightShiftCompleted = nightShiftActivities.filter((activity) => activity.completed).length;
   const dayShiftProgress = dayShiftActivities.length ? Math.round((dayShiftCompleted / dayShiftActivities.length) * 100) : 0;
   const nightShiftProgress = nightShiftActivities.length ? Math.round((nightShiftCompleted / nightShiftActivities.length) * 100) : 0;
+  const overdueActivities = workflowActivities.filter(isActivityOverdue);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; dueAt: string; type: WorkflowActivity["type"]; repeatEveryHours: number } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
@@ -884,7 +885,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-slate-100 text-foreground">
       <header className="neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
-        <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(360px,520px)_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(480px,660px)_minmax(0,1fr)]">
           <div className="flex items-center gap-3">
             <img
               src={mainLogo}
@@ -900,7 +901,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
 
             </div>
           </div>
-          <div className="grid w-full grid-cols-2 gap-2 justify-self-center">
+          <div className="grid w-full grid-cols-3 gap-2 justify-self-center">
             <section className="rounded-xl border border-amber-100/80 bg-gradient-to-br from-white/90 via-amber-50/85 to-orange-100/75 px-3 py-2.5 shadow-[0_8px_18px_rgba(180,83,9,0.16)] backdrop-blur-md" title="Atividades previstas entre 07:00 e 19:00">
               <div className="flex items-end justify-between gap-2">
                 <div>
@@ -920,6 +921,16 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                 <p className="text-2xl font-black leading-none text-indigo-800">{nightShiftCompleted}<span className="text-sm text-indigo-700/70">/{nightShiftActivities.length}</span></p>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-indigo-950/10"><div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-500 transition-all" style={{ width: `${nightShiftProgress}%` }} /></div>
+            </section>
+            <section className="rounded-xl border border-red-200/85 bg-gradient-to-br from-white/90 via-red-50/85 to-rose-100/75 px-3 py-2.5 shadow-[0_8px_18px_rgba(220,38,38,0.16)] backdrop-blur-md" title="Atividades cujo horário já passou e ainda não foram concluídas">
+              <div className="flex items-end justify-between gap-2">
+                <div>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-red-800">Atrasadas</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-red-700/80">Total do plantão</p>
+                </div>
+                <p className="text-2xl font-black leading-none text-red-800">{overdueActivities.length}</p>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-red-950/10"><div className="h-full rounded-full bg-gradient-to-r from-red-400 to-rose-600" style={{ width: overdueActivities.length ? "100%" : "0%" }} /></div>
             </section>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
@@ -1013,6 +1024,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                 });
                 const patientDayCompleted = patientDayActivities.filter((activity) => activity.completed).length;
                 const patientNightCompleted = patientNightActivities.filter((activity) => activity.completed).length;
+                const patientOverdueActivities = activities.filter(isActivityOverdue);
                 const patientDayProgress = patientDayActivities.length ? Math.round((patientDayCompleted / patientDayActivities.length) * 100) : 0;
                 const patientNightProgress = patientNightActivities.length ? Math.round((patientNightCompleted / patientNightActivities.length) * 100) : 0;
                 const consciousness = patient.nursingWorkflow?.consciousnessState ?? "Não informado";
@@ -1038,6 +1050,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             <div className="mt-0.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-wide">
                               <span className="rounded-sm bg-amber-100 px-1 py-0.5 text-amber-800">D {patientDayCompleted}/{patientDayActivities.length}</span>
                               <span className="rounded-sm bg-indigo-100 px-1 py-0.5 text-indigo-800">N {patientNightCompleted}/{patientNightActivities.length}</span>
+                              <span className="rounded-sm bg-red-100 px-1 py-0.5 text-red-800">A {patientOverdueActivities.length}</span>
                             </div>
                           </div>
                         ) : (
@@ -1053,7 +1066,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                               <div className="text-[8px] font-extrabold uppercase tracking-wide text-muted-foreground">Observação</div>
                               <div className="mt-1 min-h-12 whitespace-pre-wrap rounded-sm border border-white/70 bg-white/45 px-2 py-1.5 text-[12px] font-bold leading-snug text-slate-800 drop-shadow-[0_1px_1px_rgba(15,23,42,0.2)]">{patient.nursingWorkflow?.situationObservation}</div>
                             </div>
-                            <div className="mt-3 grid grid-cols-2 gap-1.5">
+                            <div className="mt-3 grid grid-cols-3 gap-1.5">
                               <div className="rounded-xl border border-amber-100/80 bg-gradient-to-br from-white/90 via-amber-50/85 to-orange-100/75 p-2 shadow-[0_6px_14px_rgba(180,83,9,0.14)] backdrop-blur-md">
                                 <div className="flex items-end justify-between gap-1"><span className="text-[9px] font-extrabold uppercase tracking-wide text-amber-800">Dia</span><span className="text-[15px] font-black text-amber-800">{patientDayCompleted}<span className="text-[10px] text-amber-700/70">/{patientDayActivities.length}</span></span></div>
                                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-amber-950/10"><div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style={{ width: `${patientDayProgress}%` }} /></div>
@@ -1061,6 +1074,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                               <div className="rounded-xl border border-indigo-100/80 bg-gradient-to-br from-white/90 via-indigo-50/85 to-violet-100/75 p-2 shadow-[0_6px_14px_rgba(79,70,229,0.14)] backdrop-blur-md">
                                 <div className="flex items-end justify-between gap-1"><span className="text-[9px] font-extrabold uppercase tracking-wide text-indigo-800">Noite</span><span className="text-[15px] font-black text-indigo-800">{patientNightCompleted}<span className="text-[10px] text-indigo-700/70">/{patientNightActivities.length}</span></span></div>
                                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-indigo-950/10"><div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-500" style={{ width: `${patientNightProgress}%` }} /></div>
+                              </div>
+                              <div className="rounded-xl border border-red-100/80 bg-gradient-to-br from-white/90 via-red-50/85 to-rose-100/75 p-2 shadow-[0_6px_14px_rgba(220,38,38,0.14)] backdrop-blur-md">
+                                <div className="flex items-end justify-between gap-1"><span className="text-[9px] font-extrabold uppercase tracking-wide text-red-800">Atrasadas</span><span className="text-[15px] font-black text-red-800">{patientOverdueActivities.length}</span></div>
+                                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-red-950/10"><div className="h-full rounded-full bg-gradient-to-r from-red-400 to-rose-600" style={{ width: patientOverdueActivities.length ? "100%" : "0%" }} /></div>
                               </div>
                             </div>
                           </>
