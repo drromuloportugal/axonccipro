@@ -100,9 +100,13 @@ function currentShiftDate() {
   return localIsoDate(date);
 }
 
+function activityDeadlineTime(activity: WorkflowActivity) {
+  if (activity.dueAt) return activity.dueAt;
+  return timeForShiftMinute(shiftMinuteFor(activity.time) + 60);
+}
+
 function activityDeadline(activity: WorkflowActivity) {
-  const referenceTime = activity.dueAt ?? activity.time;
-  if (!referenceTime) return null;
+  const referenceTime = activityDeadlineTime(activity);
   const date = new Date(`${activity.scheduledDate ?? currentShiftDate()}T${referenceTime}:00`);
   if (Number.isNaN(date.getTime())) return null;
   const [hour] = referenceTime.split(":").map(Number);
