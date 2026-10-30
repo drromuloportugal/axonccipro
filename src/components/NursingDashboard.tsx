@@ -819,7 +819,7 @@ export function NursingHistoryPanel({ patients, onBack }: { patients: Patient[];
     </main>
   );
 }
-function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
+export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUpdatePatient }: Props) {
   const now = new Date();
   const nowMinute = shiftMinuteFor(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`);
   const currentTimeMarker = Math.max(0, Math.min(100, (nowMinute / (24 * 60)) * 100));
