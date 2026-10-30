@@ -1222,7 +1222,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50 to-slate-100 text-foreground">
-      <header className="neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
+      <header className="relative z-[70] isolate neto-glass border-b-0 px-4 py-4 text-neto-foreground shadow-sm sm:px-6">
         <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(480px,660px)_minmax(0,1fr)]">
           <div className="flex items-center gap-3">
             <img
@@ -1284,7 +1284,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                 <Menu className="h-4 w-4" /> Menu
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-full z-30 mt-2 w-52 rounded-lg border border-border bg-background p-1 shadow-xl">
+                <div className="absolute right-0 top-full z-[80] mt-2 w-52 rounded-lg border border-border bg-background p-1 shadow-2xl">
                   <button type="button" onClick={() => { setNursingView("workflow"); setMenuOpen(false); }} className="w-full rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted">Workflow de enfermagem</button>
                   <button type="button" onClick={() => { setNursingView("rdc36"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><ShieldCheck className="h-4 w-4 text-primary" /> RDC 36</button>
                   <button type="button" onClick={() => { setNursingView("history"); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-muted"><CalendarDays className="h-4 w-4 text-primary" /> Histórico</button>
