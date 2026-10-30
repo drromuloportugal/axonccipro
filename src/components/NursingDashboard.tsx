@@ -1059,12 +1059,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                           <div className={`mt-2 line-clamp-2 text-[10px] font-extrabold leading-[1.1] ${activity.completed ? "line-through" : ""}`}>
                                             {activity.label}
                                           </div>
-                                          <div className="mt-2 flex items-center justify-between gap-2">
-                                            <span className="text-[8px] font-bold opacity-75">{activity.repeatEveryHours ? `A CADA ${activity.repeatEveryHours} H` : ""}</span>
-                                            <span className={`rounded-full bg-white/80 px-1.5 py-0.5 text-[8px] font-extrabold shadow-sm ${activity.completed ? "text-emerald-700" : "text-slate-700"}`}>
-                                              {activity.completed ? "✓ CONCLUÍDA" : "○ PENDENTE"}
-                                            </span>
-                                          </div>
+                                          {activity.repeatEveryHours && <div className="mt-2 text-[8px] font-bold opacity-75">A CADA {activity.repeatEveryHours} H</div>}
                                         </>
                                       ) : (
                                         <>
