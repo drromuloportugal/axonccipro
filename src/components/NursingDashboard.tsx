@@ -4,7 +4,7 @@ import { DEVICE_CATEGORIES } from "@/data/devices";
 import type { DeviceCategory } from "@/data/devices";
 import type { Patient, Severity } from "@/data/patients";
 import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
-import { CalendarDays, CheckCircle2, ClipboardList, LogOut, Menu, Plus, Search, ShieldCheck, Stethoscope, UserRoundCog, X } from "lucide-react";
+import { Bandage, CalendarDays, CheckCircle2, ClipboardList, LogOut, Menu, Pill, Plus, Search, ShieldCheck, Stethoscope, Syringe, Thermometer, UserRoundCog, UtensilsCrossed, Wind, X } from "lucide-react";
 
 type Props = {
   patients: Patient[];
@@ -87,6 +87,35 @@ const activityMeta: Record<WorkflowActivity["type"], { label: string; className:
     className: "border-blue-700/95 bg-gradient-to-br from-blue-200/30 via-blue-400/25 to-cyan-500/30 text-slate-950",
   },
 };
+
+function NursingClinicalIndicators({ patient }: { patient: Patient }) {
+  const activeDevices = (patient.devices ?? []).filter((device) => !device.removedAt);
+  const tracheostomies = activeDevices.filter((device) => /TQT|TRAQ|TRAQUEO/i.test(device.typeCode));
+  const centralLines = activeDevices.filter((device) => device.category === "venous_central" || /CVC/i.test(device.typeCode));
+  const antibiotics = patient.medications.filter((medication) =>
+    medication.active !== false && (medication.isAntibiotic || medication.class === "antibiotic" || medication.category === "antimicrobiano"),
+  );
+  const hasEnteralNutrition = /(^|\b)(NE|SNE|CNE|ENTERAL)(\b|$)/i.test(patient.state.dieta ?? "");
+  const activeLpp = (patient.lpp ?? []).filter((lesion) => !lesion.resolvedAt);
+  const temperatures = [
+    patient.state.temp,
+    patient.state.tempMax,
+    ...(patient.state.vitalSeries?.temp ?? []).map((reading) => reading.value),
+  ].filter((value): value is number => Number.isFinite(value));
+  const hasFever = temperatures.some((temperature) => temperature >= 38);
+
+  const indicatorClass = "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide shadow-sm";
+  return (
+    <div className="mt-2 flex flex-wrap gap-1" aria-label="Indicadores clínicos">
+      {tracheostomies.length > 0 && <span className={`${indicatorClass} border-sky-300 bg-sky-50 text-sky-800`} title="Traqueostomia"><Wind className="h-3 w-3" /> TQT{tracheostomies.length > 1 ? ` ${tracheostomies.length}` : ""}</span>}
+      {antibiotics.length > 0 && <span className={`${indicatorClass} border-amber-300 bg-amber-50 text-amber-800`} title="Antimicrobianos ativos"><Pill className="h-3 w-3" /> ATB {antibiotics.length}</span>}
+      {hasEnteralNutrition && <span className={`${indicatorClass} border-emerald-300 bg-emerald-50 text-emerald-800`} title="Nutrição enteral"><UtensilsCrossed className="h-3 w-3" /> NE</span>}
+      {centralLines.length > 0 && <span className={`${indicatorClass} border-orange-300 bg-orange-50 text-orange-800`} title="Cateter venoso central"><Syringe className="h-3 w-3" /> CVC {centralLines.length}</span>}
+      {activeLpp.length > 0 && <span className={`${indicatorClass} border-amber-300 bg-amber-50 text-amber-800`} title="Lesão por pressão"><Bandage className="h-3 w-3" /> LPP {activeLpp.length}</span>}
+      {hasFever && <span className={`${indicatorClass} border-red-300 bg-red-50 text-red-700`} title="Temperatura maior ou igual a 38 °C"><Thermometer className="h-3 w-3" /> Febre</span>}
+    </div>
+  );
+}
 
 function shiftPeriod() {
   const now = new Date();
@@ -1391,6 +1420,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             <div className="mt-3 text-sm font-black uppercase tracking-wide text-foreground">{patient.name || "Sem identificação"}</div>
                             <div className="mt-1 text-xs font-semibold text-muted-foreground">{patient.age} anos · {patient.sex === "M" ? "Masculino" : "Feminino"}</div>
                             <div className="mt-1 text-xs font-bold text-primary">{daysInIcu ? `${daysInIcu}º dia de UTI` : "Dias de UTI não informados"}</div>
+                            <NursingClinicalIndicators patient={patient} />
                             <div className="mt-3 border-t border-border/70 pt-2">
                               <div className="text-[8px] font-extrabold uppercase tracking-wide text-muted-foreground">Observação</div>
                               <div className="mt-1 min-h-12 whitespace-pre-wrap rounded-sm border border-white/70 bg-white/45 px-2 py-1.5 text-[12px] font-bold leading-snug text-slate-800 drop-shadow-[0_1px_1px_rgba(15,23,42,0.2)]">{patient.nursingWorkflow?.situationObservation}</div>
