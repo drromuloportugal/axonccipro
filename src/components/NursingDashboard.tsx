@@ -693,10 +693,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [nursingView, setNursingView] = useState<"workflow" | "rdc36">("workflow");
-  const [timelineZoom, setTimelineZoom] = useState<"compact" | "normal" | "ampliado" | "grade24">("normal");
-  const timelineCellWidth = timelineZoom === "compact" ? 34 : timelineZoom === "ampliado" ? 78 : 60;
-  const timelineCardHeight = timelineZoom === "compact" ? 52 : timelineZoom === "ampliado" ? 100 : 92;
-  const timelineCardSpan = timelineZoom === "compact" ? 2 : timelineZoom === "ampliado" ? 4 : 3;
+  const [timelineZoom, setTimelineZoom] = useState<"normal" | "grade24">("normal");
+  const timelineCellWidth = 60;
+  const timelineCardHeight = 92;
+  const timelineCardSpan = 3;
 
   const addActivity = (patient: Patient) => {
     if (!activityDraft?.label.trim()) return;
@@ -836,13 +836,11 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             </section>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <label className="flex items-center gap-2 rounded-md border border-neto-line bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-neto-foreground">
-              <span className="uppercase tracking-wide text-[10px]">Zoom</span>
-              <select value={timelineZoom} onChange={(event) => setTimelineZoom(event.target.value as "compact" | "normal" | "ampliado" | "grade24")} className="bg-transparent text-xs font-bold text-neto-foreground outline-none">
-                <option value="compact">Compacto</option>
-                <option value="normal">Normal</option>
-                <option value="ampliado">Ampliado</option>
-                <option value="grade24">Grade 24 h</option>
+            <label className="flex items-center gap-2 rounded-lg border border-emerald-200/55 bg-emerald-500/30 px-3 py-2 text-xs font-bold text-white shadow-[0_5px_14px_rgba(16,185,129,0.25)] backdrop-blur-xl">
+              <span className="uppercase tracking-wide text-[10px] text-white">Zoom</span>
+              <select value={timelineZoom} onChange={(event) => setTimelineZoom(event.target.value as "normal" | "grade24")} className="bg-transparent text-xs font-black text-white outline-none">
+                <option value="normal" className="text-slate-900">Normal</option>
+                <option value="grade24" className="text-slate-900">Grade 24 h</option>
               </select>
             </label>
             <div className="relative">
