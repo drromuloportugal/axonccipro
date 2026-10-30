@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { bucketBadge, daysSinceAdmission, deviceRisk, examInsight } from "@/lib/clinical";
 import { DEVICE_CATEGORIES } from "@/data/devices";
 import type { DeviceCategory } from "@/data/devices";
-import type { Patient, Severity } from "@/data/patients";
+import type { CultureResult, ImagingModality, Patient, Severity } from "@/data/patients";
 import mainLogo from "@/assets/axon-critical-care-logo-transparent.png";
 import { Bandage, CalendarDays, CheckCircle2, ClipboardList, LogOut, Menu, Pill, Plus, Search, ShieldCheck, Stethoscope, Syringe, Thermometer, UserRoundCog, UtensilsCrossed, Wind, X } from "lucide-react";
 
@@ -295,6 +295,32 @@ function listItems(items: string[], empty = "Não informado") {
 }
 
 type ResultState = "pending" | "changed" | "normal";
+type LabDraft = {
+  id: string;
+  originalIndex?: number;
+  label: string;
+  value: string;
+  unit: string;
+  state: ResultState;
+};
+
+type ImagingDraft = {
+  id: string;
+  modality: ImagingModality;
+  region: string;
+  summary: string;
+  performedAt: string;
+  state: ResultState;
+};
+
+type CultureDraft = {
+  id: string;
+  source: string;
+  organism: string;
+  notes: string;
+  collectedAt: string;
+  state: ResultState;
+};
 
 const resultStateMeta: Record<ResultState, { label: string; className: string }> = {
   pending: { label: "Pendente", className: "border-clinical-attention/40 bg-clinical-attention/10 text-ink" },
@@ -393,9 +419,30 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   const [pendingImaging, setPendingImaging] = useState(() => patient.dischargeCheck?.pendencies?.imaging ?? "");
   const [pendingCultures, setPendingCultures] = useState(() => patient.dischargeCheck?.pendencies?.cultures ?? "");
   const [nursingCare, setNursingCare] = useState(() => patient.conducts.filter((item) => item.team === "Enfermagem").flatMap((item) => [item.text, ...(item.subItems ?? []).filter((sub) => !sub.hidden).map((sub) => sub.text)]).filter(Boolean).join("\n"));
-  const [laboratory, setLaboratory] = useState(() => (patient.exams ?? []).map((item) => `${item.label}: ${item.value}${item.unit ? ` ${item.unit}` : ""}`).join("\n"));
-  const [imaging, setImaging] = useState(() => (patient.imaging ?? []).map((item) => imagingText(item)).join("\n"));
-  const [cultures, setCultures] = useState(() => (patient.cultures ?? []).map((item) => [item.source, item.organism, item.result].filter(Boolean).join(" · ")).join("\n"));
+  const [laboratoryItems, setLaboratoryItems] = useState<LabDraft[]>(() => (patient.exams ?? []).map((item, index) => ({
+    id: `lab-${index}`,
+    originalIndex: index,
+    label: item.label,
+    value: item.value,
+    unit: item.unit ?? "",
+    state: item.nursingState ?? (item.critical ? "changed" : "normal"),
+  })));
+  const [imagingItems, setImagingItems] = useState<ImagingDraft[]>(() => (patient.imaging ?? []).map((item) => ({
+    id: item.id,
+    modality: item.modality,
+    region: item.region,
+    summary: item.summary ?? "",
+    performedAt: item.performedAt?.slice(0, 10) ?? "",
+    state: item.status === "solicitado" || item.conclusion === "pendente" ? "pending" : item.conclusion === "alterado" || item.conclusion === "critico" ? "changed" : "normal",
+  })));
+  const [cultureItems, setCultureItems] = useState<CultureDraft[]>(() => (patient.cultures ?? []).map((item) => ({
+    id: item.id,
+    source: item.source,
+    organism: item.organism ?? "",
+    notes: item.notes ?? "",
+    collectedAt: item.collectedAt?.slice(0, 10) ?? "",
+    state: item.result === "andamento" ? "pending" : item.result === "positiva" ? "changed" : "normal",
+  })));
   const calculatedIcuDays = icuDays({ ...patient, admissionICU: identity.admissionICU });
   const activeLpp = (patient.lpp ?? []).filter((lesion) => !lesion.resolvedAt);
   const laboratoryCards = uniqueDisplayItems(patient.exams ?? [], (exam) => `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`);
@@ -437,9 +484,41 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
       ...(splitLines(nursingCare).length ? [{ team: "Enfermagem" as const, text: "Cuidados de enfermagem", system: "other" as const, subItems: splitLines(nursingCare).map((text) => ({ text })) }] : []),
       ...(splitLines(skinCare).length ? [{ team: "Enfermagem" as const, text: "Pele, LPP e curativos", system: "skin" as const, subItems: splitLines(skinCare).map((text) => ({ text })) }] : []),
     ];
-    const labLines = splitLines(laboratory);
-    const imageLines = splitLines(imaging);
-    const cultureLines = splitLines(cultures);
+    const nextExams = laboratoryItems
+      .filter((item) => item.label.trim())
+      .map((item) => {
+        const original = item.originalIndex === undefined ? undefined : patient.exams[item.originalIndex];
+        return {
+          ...original,
+          label: item.label.trim(),
+          value: item.value.trim(),
+          unit: item.unit.trim() || undefined,
+          trend: original?.trend ?? "flat" as const,
+          critical: item.state === "changed",
+          nursingState: item.state,
+        };
+      });
+    const nextImaging = imagingItems
+      .filter((item) => item.region.trim() || item.summary.trim())
+      .map((item) => ({
+        id: item.id,
+        modality: item.modality,
+        region: item.region.trim() || "Não informado",
+        summary: item.summary.trim() || undefined,
+        performedAt: item.performedAt || new Date().toISOString().slice(0, 10),
+        status: item.state === "pending" ? "solicitado" as const : "concluido" as const,
+        conclusion: item.state === "pending" ? "pendente" as const : item.state === "changed" ? "alterado" as const : "normal" as const,
+      }));
+    const nextCultures = cultureItems
+      .filter((item) => item.source.trim())
+      .map((item) => ({
+        id: item.id,
+        source: item.source.trim(),
+        collectedAt: item.collectedAt || new Date().toISOString().slice(0, 10),
+        organism: item.organism.trim() || undefined,
+        notes: item.notes.trim() || undefined,
+        result: (item.state === "pending" ? "andamento" : item.state === "changed" ? "positiva" : "negativa") as CultureResult,
+      }));
     const updated: Patient = {
       ...patient,
       id: identity.id.trim() || patient.id,
@@ -457,13 +536,9 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
       devices: nextDevices,
       conducts: nextConducts,
       state: { ...patient.state, dieta: diet },
-      exams: patient.exams.map((exam, index) => {
-        const line = labLines[index] ?? "";
-        const [, value = exam.value] = line.split(/:\s*/, 2);
-        return { ...exam, value: value.replace(new RegExp(`\\s*${exam.unit ?? ""}$`), "").trim() || exam.value };
-      }),
-      imaging: (patient.imaging ?? []).map((exam, index) => ({ ...exam, summary: imagingSummaryFromLine(imageLines[index] ?? "", exam) })),
-      cultures: (patient.cultures ?? []).map((culture, index) => ({ ...culture, result: cultureLines[index] ?? culture.result })),
+      exams: nextExams,
+      imaging: nextImaging,
+      cultures: nextCultures,
       dischargeCheck: {
         ...patient.dischargeCheck,
         expectedTransfer: identity.expectedDischarge,
@@ -502,7 +577,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   }) : <p className="text-[11px] italic text-muted-foreground">Nenhum dispositivo ativo</p>}
   {editingSection === "assessment" && <button type="button" onClick={(event) => { event.stopPropagation(); setDevices([...devices, { id: `sbar-device-${Date.now()}`, code: "", category: "venous_central", site: "", size: "", lumens: "", insertedAt: new Date().toISOString().slice(0, 10), persisted: false }]); }} className="w-full rounded border border-primary/45 bg-primary/10 px-2 py-1.5 text-[11px] font-bold text-primary hover:bg-primary/20">+ Adicionar dispositivo invasivo</button>}
 </div>{activeLpp.length > 0 && <div className="rounded-md border border-clinical-critical/30 bg-clinical-critical/5 p-2"><p className="text-[10px] font-black uppercase text-clinical-critical">LPP espelhadas do painel médico</p><div className="mt-1 space-y-1">{activeLpp.map((lesion) => <div key={lesion.id} className="rounded bg-background/80 px-2 py-1 text-[11px] font-bold text-foreground">{lesion.siteLabel ?? lesion.site} · Estágio {lesion.stage}{lesion.count > 1 ? " · " + lesion.count + " lesões" : ""}{lesion.notes ? " · " + lesion.notes : ""}</div>)}</div></div>}{area("LPP e curativos", skinCare, setSkinCare, "Registro de LPP e curativos, uma linha por item", editingSection === "assessment")}</section>
-          <section className="ios-card cursor-text space-y-3 rounded-lg p-4 transition-shadow hover:ring-1 hover:ring-primary/35" onClick={() => setEditingSection("recommendation")}><SectionTitle>Recomendação</SectionTitle>{area("Pendência de laboratório", pendingLab, setPendingLab, undefined, editingSection === "recommendation")}{area("Pendência de imagem", pendingImaging, setPendingImaging, undefined, editingSection === "recommendation")}{area("Pendência de cultura", pendingCultures, setPendingCultures, undefined, editingSection === "recommendation")}{area("Cuidados", nursingCare, setNursingCare, "Um cuidado por linha", editingSection === "recommendation")}<div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={laboratory} onChange={(event) => setLaboratory(event.target.value)} placeholder="Um exame por linha" /> : (patient.exams?.length ? <div className="space-y-1">{laboratoryCards.map((exam, index) => { const insight = examInsight(exam, identity.sex); const badge = insight.bucket ? bucketBadge(insight.bucket) : null; return <div key={`${exam.code ?? exam.label}-${index}`} className={`rounded border px-2 py-1 text-[11px] font-bold ${labAppearance(insight.bucket, exam.critical)}`} title={badge?.label ?? "Sem faixa de referência"}><span>{exam.label}</span><span className="ml-1">{exam.value}{exam.unit ? ` ${exam.unit}` : ""}</span></div>; })}</div> : <p className="text-[11px] italic text-muted-foreground">Não informado</p>)}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={imaging} onChange={(event) => setImaging(event.target.value)} placeholder="Um exame por linha" /> : resultItems(imagingCards.map((exam) => ({ text: imagingText(exam), state: exam.status === "solicitado" || exam.conclusion === "pendente" ? "pending" as const : exam.conclusion === "alterado" || exam.conclusion === "critico" ? "changed" as const : "normal" as const })), "Não informado")}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={cultures} onChange={(event) => setCultures(event.target.value)} placeholder="Uma cultura por linha" /> : resultItems((patient.cultures ?? []).map((culture) => { const text = [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "); const normalized = text.toLowerCase(); const state: ResultState = /pendente|aguardando|solicitad|em andamento/.test(normalized) ? "pending" : /positivo|crescimento|isolad|resistent|multirresistent/.test(normalized) ? "changed" : "normal"; return { text, state }; }), "Não informado")}</div></section>
+          <section className="ios-card cursor-text space-y-3 rounded-lg p-4 transition-shadow hover:ring-1 hover:ring-primary/35" onClick={() => setEditingSection("recommendation")}><SectionTitle>Recomendação</SectionTitle>{area("Pendência de laboratório", pendingLab, setPendingLab, undefined, editingSection === "recommendation")}{area("Pendência de imagem", pendingImaging, setPendingImaging, undefined, editingSection === "recommendation")}{area("Pendência de cultura", pendingCultures, setPendingCultures, undefined, editingSection === "recommendation")}{area("Cuidados", nursingCare, setNursingCare, "Um cuidado por linha", editingSection === "recommendation")}<div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>{editingSection === "recommendation" ? <div className="space-y-2">{laboratoryItems.map((item) => { const meta = resultStateMeta[item.state]; return <div key={item.id} className={`rounded border p-2 ${meta.className}`}><div className="grid grid-cols-[minmax(0,1fr)_72px_30px] gap-1"><input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Exame" value={item.label} onChange={(event) => setLaboratoryItems(laboratoryItems.map((current) => current.id === item.id ? { ...current, label: event.target.value } : current))}/><select className="rounded border border-input bg-background px-1 py-1 text-[10px] font-bold text-foreground" value={item.state} onChange={(event) => setLaboratoryItems(laboratoryItems.map((current) => current.id === item.id ? { ...current, state: event.target.value as ResultState } : current))}><option value="pending">Pendente</option><option value="changed">Alterado</option><option value="normal">Normal</option></select><button type="button" title="Remover exame" className="rounded border border-clinical-critical/45 text-xs font-bold text-clinical-critical hover:bg-clinical-critical/10" onClick={() => setLaboratoryItems(laboratoryItems.filter((current) => current.id !== item.id))}>×</button></div><div className="mt-1 grid grid-cols-[minmax(0,1fr)_86px] gap-1"><input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Valor" value={item.value} onChange={(event) => setLaboratoryItems(laboratoryItems.map((current) => current.id === item.id ? { ...current, value: event.target.value } : current))}/><input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Unidade" value={item.unit} onChange={(event) => setLaboratoryItems(laboratoryItems.map((current) => current.id === item.id ? { ...current, unit: event.target.value } : current))}/></div></div>; })}<button type="button" onClick={() => setLaboratoryItems([...laboratoryItems, { id: `lab-new-${Date.now()}`, label: "", value: "", unit: "", state: "pending" }])} className="w-full rounded border border-dashed border-primary/50 bg-primary/5 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/10">+ Adicionar exame laboratorial</button></div> : (laboratoryItems.length ? <div className="space-y-1">{laboratoryItems.map((item) => <div key={item.id} className={`rounded border px-2 py-1 text-[11px] font-bold ${resultStateMeta[item.state].className}`}><span>{item.label}</span><span className="ml-1">{item.value}{item.unit ? ` ${item.unit}` : ""}</span></div>)}</div> : <p className="text-[11px] italic text-muted-foreground">Não informado</p>)}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>{editingSection === "recommendation" ? <div className="space-y-2">{imagingItems.map((item) => { const meta = resultStateMeta[item.state]; return <div key={item.id} className={`rounded border p-2 ${meta.className}`}><div className="grid grid-cols-[88px_minmax(0,1fr)_30px] gap-1"><select className="rounded border border-input bg-background px-1 py-1 text-[10px] font-bold text-foreground" value={item.modality} onChange={(event) => setImagingItems(imagingItems.map((current) => current.id === item.id ? { ...current, modality: event.target.value as ImagingModality } : current))}>{["RX", "USG", "TC", "RM", "ECO", "ECODOPPLER", "ANGIO", "MAMO", "PET", "CINTILO", "EEG", "OUTRO"].map((modality) => <option key={modality} value={modality}>{modality}</option>)}</select><input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Região / exame" value={item.region} onChange={(event) => setImagingItems(imagingItems.map((current) => current.id === item.id ? { ...current, region: event.target.value } : current))}/><button type="button" title="Remover exame" className="rounded border border-clinical-critical/45 text-xs font-bold text-clinical-critical hover:bg-clinical-critical/10" onClick={() => setImagingItems(imagingItems.filter((current) => current.id !== item.id))}>×</button></div><textarea rows={2} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Resumo / laudo" value={item.summary} onChange={(event) => setImagingItems(imagingItems.map((current) => current.id === item.id ? { ...current, summary: event.target.value } : current))}/><div className="mt-1 grid grid-cols-2 gap-1"><input type="date" className="rounded border border-input bg-background px-2 py-1 text-[10px] font-bold text-foreground" value={item.performedAt} onChange={(event) => setImagingItems(imagingItems.map((current) => current.id === item.id ? { ...current, performedAt: event.target.value } : current))}/><select className="rounded border border-input bg-background px-1 py-1 text-[10px] font-bold text-foreground" value={item.state} onChange={(event) => setImagingItems(imagingItems.map((current) => current.id === item.id ? { ...current, state: event.target.value as ResultState } : current))}><option value="pending">Pendente</option><option value="changed">Alterado</option><option value="normal">Normal</option></select></div></div>; })}<button type="button" onClick={() => setImagingItems([...imagingItems, { id: `img-new-${Date.now()}`, modality: "OUTRO", region: "", summary: "", performedAt: new Date().toISOString().slice(0, 10), state: "pending" }])} className="w-full rounded border border-dashed border-primary/50 bg-primary/5 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/10">+ Adicionar exame de imagem</button></div> : (imagingItems.length ? <div className="space-y-1">{imagingItems.map((item) => <div key={item.id} className={`rounded border px-2 py-1 text-[11px] font-bold ${resultStateMeta[item.state].className}`}><span>{item.modality} · {item.region}</span>{item.summary && <span className="block text-[10px] font-semibold">{item.summary}</span>}</div>)}</div> : <p className="text-[11px] italic text-muted-foreground">Não informado</p>)}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>{editingSection === "recommendation" ? <div className="space-y-2">{cultureItems.map((item) => { const meta = resultStateMeta[item.state]; return <div key={item.id} className={`rounded border p-2 ${meta.className}`}><div className="grid grid-cols-[minmax(0,1fr)_72px_30px] gap-1"><input className="rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Tipo / fonte da cultura" value={item.source} onChange={(event) => setCultureItems(cultureItems.map((current) => current.id === item.id ? { ...current, source: event.target.value } : current))}/><select className="rounded border border-input bg-background px-1 py-1 text-[10px] font-bold text-foreground" value={item.state} onChange={(event) => setCultureItems(cultureItems.map((current) => current.id === item.id ? { ...current, state: event.target.value as ResultState } : current))}><option value="pending">Pendente</option><option value="changed">Alterada</option><option value="normal">Normal</option></select><button type="button" title="Remover cultura" className="rounded border border-clinical-critical/45 text-xs font-bold text-clinical-critical hover:bg-clinical-critical/10" onClick={() => setCultureItems(cultureItems.filter((current) => current.id !== item.id))}>×</button></div><input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Microrganismo" value={item.organism} onChange={(event) => setCultureItems(cultureItems.map((current) => current.id === item.id ? { ...current, organism: event.target.value } : current))}/><textarea rows={2} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-1 text-[11px] font-bold text-foreground" placeholder="Observações" value={item.notes} onChange={(event) => setCultureItems(cultureItems.map((current) => current.id === item.id ? { ...current, notes: event.target.value } : current))}/><input type="date" className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[10px] font-bold text-foreground" value={item.collectedAt} onChange={(event) => setCultureItems(cultureItems.map((current) => current.id === item.id ? { ...current, collectedAt: event.target.value } : current))}/></div>; })}<button type="button" onClick={() => setCultureItems([...cultureItems, { id: `culture-new-${Date.now()}`, source: "", organism: "", notes: "", collectedAt: new Date().toISOString().slice(0, 10), state: "pending" }])} className="w-full rounded border border-dashed border-primary/50 bg-primary/5 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/10">+ Adicionar cultura</button></div> : (cultureItems.length ? <div className="space-y-1">{cultureItems.map((item) => <div key={item.id} className={`rounded border px-2 py-1 text-[11px] font-bold ${resultStateMeta[item.state].className}`}><span>{item.source}</span>{item.organism && <span className="ml-1">· {item.organism}</span>}{item.notes && <span className="block text-[10px] font-semibold">{item.notes}</span>}</div>)}</div> : <p className="text-[11px] italic text-muted-foreground">Não informado</p>)}</div></section>
         </div>
       </section>
     </div>
