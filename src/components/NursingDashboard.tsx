@@ -926,13 +926,13 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                         title="Abrir resumo SBAR do paciente"
                       >
                         <div>
-                          {timelineZoom === "grade24" && (
-                            <div className="mb-0.5 inline-flex rounded-sm bg-primary px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-primary-foreground shadow-sm">
-                              Leito {patient.bed || "—"}
-                            </div>
-                          )}
-                          <div className={`border-clinical-stable/70 font-bold uppercase tracking-wide text-foreground ${timelineZoom === "grade24" ? "border-b-0 pb-0 text-[10px]" : "border-b-2 pb-1 text-sm"}`}>
-                            {patient.name || "Sem identificação"}
+                          <div className={`flex items-center gap-1.5 border-clinical-stable/70 font-bold uppercase tracking-wide text-foreground ${timelineZoom === "grade24" ? "border-b-0 pb-0 text-[10px]" : "border-b-2 pb-1 text-sm"}`}>
+                            <span className="truncate">{patient.name || "Sem identificação"}</span>
+                            {timelineZoom === "grade24" && (
+                              <span className="shrink-0 rounded-sm bg-primary px-1.5 py-0.5 text-[9px] font-black text-primary-foreground shadow-sm">
+                                {patient.bed || "—"}
+                              </span>
+                            )}
                           </div>
                           {timelineZoom === "grade24" && (
                             <div className="mt-0.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-wide">
