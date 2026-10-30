@@ -1129,11 +1129,11 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         ) : null;
       })()}
       {editingActivity && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm" onClick={() => setEditingActivity(null)}>
-          <section className="w-full max-w-md rounded-xl border border-border bg-soft-blue-gradient p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)}>
+          <section className="w-full max-w-md rounded-xl border border-border bg-soft-blue-gradient p-5 shadow-2xl" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); saveActivity(editingActivity.patientId, editingActivity.activity); } }}>
             <div className="flex items-center justify-between gap-3">
               <div><p className="text-[10px] font-bold uppercase tracking-wide text-primary">Atividade do workflow</p><h2 className="mt-1 text-sm font-bold">{editingActivity.activity.label}</h2></div>
-              <button type="button" onClick={() => setEditingActivity(null)} className="rounded border border-border px-2 py-1 text-xs font-semibold">Fechar</button>
+              <button type="button" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)} className="rounded border border-border px-2 py-1 text-xs font-semibold">Fechar</button>
             </div>
             <label className="mt-5 flex items-center gap-2 text-[12px] font-bold">
               <input type="checkbox" checked={!!editingActivity.activity.completed} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, completed: event.target.checked } })} />
@@ -1142,12 +1142,9 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             <label className="mt-4 block text-[11px] font-bold">Observações
               <textarea rows={4} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-2 text-[12px] font-semibold" value={editingActivity.activity.note ?? ""} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, note: event.target.value } })} placeholder="Registrar observações da atividade" />
             </label>
-            <div className="mt-5 flex justify-between gap-2">
+            <div className="mt-5 flex flex-wrap gap-2">
               <button type="button" onClick={() => removeWorkflowActivity(editingActivity.patientId, editingActivity.activity)} className="rounded border border-clinical-critical/45 px-3 py-2 text-xs font-bold text-clinical-critical hover:bg-clinical-critical/10">Remover atividade</button>
-              <div className="flex gap-2">
-                <button type="button" onClick={() => setEditingActivity(null)} className="rounded border border-border px-3 py-2 text-xs font-semibold">Cancelar</button>
-                <button type="button" onClick={() => saveActivity(editingActivity.patientId, editingActivity.activity)} className="rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Salvar</button>
-              </div>
+              <button type="button" onClick={() => saveActivity(editingActivity.patientId, { ...editingActivity.activity, completed: true })} className="rounded bg-clinical-stable px-3 py-2 text-xs font-bold text-white shadow-sm hover:brightness-95">Concluir atividade</button>
             </div>
           </section>
         </div>
