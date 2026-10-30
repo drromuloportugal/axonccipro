@@ -6,6 +6,16 @@ import {
 } from "@/lib/clinical";
 import type { AnnotationColor } from "@/data/patients";
 
+const NUMERIC_COLOR_SHORTCUTS: Record<string, AnnotationColor> = {
+  "1": "red",
+  "2": "orange",
+  "3": "yellow",
+  "4": "green",
+  "5": "teal",
+  "6": "purple",
+  "7": "default",
+};
+
 interface Props {
   /** Texto com marcação `[[cor:trecho]]`. */
   value: string;
@@ -118,6 +128,17 @@ export function AnnotationEditor({ value, onChange, placeholder }: Props) {
     emit();
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const color = NUMERIC_COLOR_SHORTCUTS[event.key];
+    if (!color || event.ctrlKey || event.metaKey || event.altKey) return;
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+    const range = selection.getRangeAt(0);
+    if (!ref.current?.contains(range.commonAncestorContainer)) return;
+    event.preventDefault();
+    applyColor(color);
+  };
+
   return (
     <div className="flex flex-col gap-1">
       <div
@@ -129,11 +150,12 @@ export function AnnotationEditor({ value, onChange, placeholder }: Props) {
         data-placeholder={placeholder ?? ""}
         onInput={emit}
         onBlur={emit}
+        onKeyDown={handleKeyDown}
         className="ann-editor min-h-[2.5rem] w-full whitespace-pre-wrap break-words rounded border border-border/60 bg-background px-2 py-1 text-[12px] leading-snug outline-none focus:border-primary"
       />
       <div className="flex flex-wrap items-center gap-1">
         <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Colorir seleção
+          Selecione: 1 vermelho · 2 laranja · 3 amarelo · 4 verde · 5 turquesa · 6 roxo · 7 preto
         </span>
         {ANNOTATION_COLOR_ORDER.map((col) => (
           <button
