@@ -271,6 +271,8 @@ export interface FastHugCheck {
 
 export interface NursingWorkflow {
   activities?: NursingWorkflowActivity[];
+  /** Observação livre exibida no resumo do workflow de enfermagem. */
+  situationObservation?: string;
   fastHug?: {
     date?: string;
     checks?: Record<string, FastHugCheck>;
