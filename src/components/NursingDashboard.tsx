@@ -323,7 +323,7 @@ function imagingSummaryFromLine(line: string, exam: { modality?: string; region?
   while (prefix && summary.startsWith(prefix)) {
     summary = summary.slice(prefix.length).replace(/^\s*·\s*/, "").trim();
   }
-  return summary || exam.summary ?? exam.conclusion ?? exam.status;
+  return summary || exam.summary || exam.conclusion || exam.status;
 }
 
 function uniqueDisplayItems<T>(items: T[], textOf: (item: T) => string) {
