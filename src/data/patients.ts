@@ -153,6 +153,8 @@ export interface ExamRow {
   unit?: string;
   trend: "up" | "down" | "flat";
   critical?: boolean;
+  /** Classificação manual utilizada no SBAR de enfermagem. */
+  nursingState?: "pending" | "changed" | "normal";
   code?: string;
   valueNum?: number;
   takenAt?: string;
