@@ -101,10 +101,11 @@ function currentShiftDate() {
 }
 
 function activityDeadline(activity: WorkflowActivity) {
-  if (!activity.dueAt) return null;
-  const date = new Date(`${activity.scheduledDate ?? currentShiftDate()}T${activity.dueAt}:00`);
+  const referenceTime = activity.dueAt ?? activity.time;
+  if (!referenceTime) return null;
+  const date = new Date(`${activity.scheduledDate ?? currentShiftDate()}T${referenceTime}:00`);
   if (Number.isNaN(date.getTime())) return null;
-  const [hour] = activity.dueAt.split(":").map(Number);
+  const [hour] = referenceTime.split(":").map(Number);
   if (Number.isFinite(hour) && hour < 7) date.setDate(date.getDate() + 1);
   return date;
 }
