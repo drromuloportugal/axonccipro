@@ -15,6 +15,8 @@ type WorkflowActivity = {
   id?: string;
   label: string;
   time: string;
+  /** Horário limite para conclusão da atividade neste plantão. */
+  dueAt?: string;
   type: "monitoring" | "medication" | "device" | "care";
   completed?: boolean;
   note?: string;
@@ -96,6 +98,24 @@ function currentShiftDate() {
   const date = new Date();
   if (date.getHours() < 7) date.setDate(date.getDate() - 1);
   return localIsoDate(date);
+}
+
+function activityDeadline(activity: WorkflowActivity) {
+  if (!activity.dueAt) return null;
+  const date = new Date(`${activity.scheduledDate ?? currentShiftDate()}T${activity.dueAt}:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  const [hour] = activity.dueAt.split(":").map(Number);
+  if (Number.isFinite(hour) && hour < 7) date.setDate(date.getDate() + 1);
+  return date;
+}
+
+function isActivityOverdue(activity: WorkflowActivity) {
+  const deadline = activityDeadline(activity);
+  return !activity.completed && !!deadline && deadline.getTime() < Date.now();
+}
+
+function activityTimelineTime(activity: WorkflowActivity) {
+  return activity.dueAt ?? activity.time;
 }
 
 function activityStartColumn(time: string) {
@@ -419,6 +439,7 @@ function PatientActivityCalendar({ patient, onClose, onAdd, onRemove }: { patien
   const [monthDate, setMonthDate] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [label, setLabel] = useState("");
   const [time, setTime] = useState("08:00");
+  const [dueAt, setDueAt] = useState("");
   const [type, setType] = useState<WorkflowActivity["type"]>("care");
   const activities = ((patient.nursingWorkflow?.activities ?? []) as WorkflowActivity[])
     .filter((activity) => activity.scheduledDate === selectedDate)
@@ -445,12 +466,14 @@ function PatientActivityCalendar({ patient, onClose, onAdd, onRemove }: { patien
       id: `calendar-${Date.now()}`,
       label: label.trim(),
       time,
+      dueAt: dueAt || undefined,
       type,
       source: "custom",
       scheduledDate: selectedDate,
     });
     setLabel("");
     setTime("08:00");
+    setDueAt("");
   };
 
   return (
@@ -503,8 +526,9 @@ function PatientActivityCalendar({ patient, onClose, onAdd, onRemove }: { patien
               <p className="text-[11px] font-bold text-foreground">Agendar atividade</p>
               <div className="mt-2 space-y-2">
                 <input className="w-full rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" placeholder="Descrição da atividade" value={label} onChange={(event) => setLabel(event.target.value)} />
-                <div className="grid grid-cols-2 gap-2">
-                  <input type="time" className="rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={time} onChange={(event) => setTime(event.target.value)} />
+                <div className="grid grid-cols-3 gap-2">
+                  <input type="time" aria-label="Horário da atividade" className="rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={time} onChange={(event) => setTime(event.target.value)} />
+                  <input type="time" aria-label="Prazo da atividade" title="Prazo para conclusão" className="rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={dueAt} onChange={(event) => setDueAt(event.target.value)} />
                   <select className="rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={type} onChange={(event) => setType(event.target.value as WorkflowActivity["type"])}>
                     {Object.entries(activityMeta).map(([value, meta]) => <option key={value} value={value}>{meta.label}</option>)}
                   </select>
@@ -716,7 +740,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
   const dayShiftProgress = dayShiftActivities.length ? Math.round((dayShiftCompleted / dayShiftActivities.length) * 100) : 0;
   const nightShiftProgress = nightShiftActivities.length ? Math.round((nightShiftCompleted / nightShiftActivities.length) * 100) : 0;
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-  const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; type: WorkflowActivity["type"]; repeatEveryHours: number } | null>(null);
+  const [activityDraft, setActivityDraft] = useState<{ patientId: string; label: string; time: string; dueAt: string; type: WorkflowActivity["type"]; repeatEveryHours: number } | null>(null);
   const [editingActivity, setEditingActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [fastHugActivity, setFastHugActivity] = useState<{ patientId: string; activity: WorkflowActivity } | null>(null);
   const [calendarPatientId, setCalendarPatientId] = useState<string | null>(null);
@@ -734,7 +758,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
       ...patient,
       nursingWorkflow: {
         ...patient.nursingWorkflow,
-        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", type: activityDraft.type, repeatEveryHours: activityDraft.repeatEveryHours || undefined, source: "custom" }],
+        activities: [...existing, { id: `custom-${Date.now()}`, label: activityDraft.label.trim(), time: activityDraft.time || "12:00", dueAt: activityDraft.dueAt || undefined, type: activityDraft.type, repeatEveryHours: activityDraft.repeatEveryHours || undefined, source: "custom" }],
       },
     });
     setActivityDraft(null);
@@ -1009,7 +1033,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                             <button type="button" onClick={() => setCalendarPatientId(patient.id)} className="inline-flex items-center gap-1 rounded border border-border bg-background/75 px-2 py-1 text-[10px] font-bold text-foreground hover:bg-muted">
                               <CalendarDays className="h-4 w-4" /> Agenda
                             </button>
-                            <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", type: "care", repeatEveryHours: 0 })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
+                            <button type="button" onClick={() => setActivityDraft({ patientId: patient.id, label: "", time: "12:00", dueAt: "", type: "care", repeatEveryHours: 0 })} className="rounded border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary hover:bg-primary/20">+ Atividade</button>
                           </div>
                         </div>
                         {timelineZoom === "grade24" ? (
@@ -1023,15 +1047,16 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                               <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.9)]" style={{ left: `${currentTimeMarker}%` }} />
                               {activities.map((activity, index) => {
                                 const meta = activityMeta[activity.type];
-                                const column = activityStartColumn(activity.time);
+                                const overdue = isActivityOverdue(activity);
+                                const column = activityStartColumn(activityTimelineTime(activity));
                                 return (
                                   <button
                                     type="button"
                                     key={`${patient.id}-grid-${activity.id ?? activity.label}-${index}`}
                                     onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                     style={{ gridColumnStart: column }}
-                                    className={`z-20 flex h-3 w-3 items-center justify-center rounded-full border text-[7px] font-black leading-none shadow-sm transition-transform hover:scale-150 ${meta.className} ${activity.completed ? "ring-1 ring-emerald-500 ring-offset-1" : ""}`}
-                                    title={`${activity.time} · ${activity.label}${activity.completed ? " · Concluída" : ""}`}
+                                    className={`z-20 flex h-3 w-3 items-center justify-center rounded-full border text-[7px] font-black leading-none shadow-sm transition-transform hover:scale-150 ${meta.className} ${activity.completed ? "ring-1 ring-emerald-500 ring-offset-1" : ""} ${overdue ? "!border-clinical-critical !bg-clinical-critical ring-1 ring-clinical-critical/70" : ""}`}
+                                    title={`${activity.time} · ${activity.label}${activity.dueAt ? ` · Prazo ${activity.dueAt}` : ""}${overdue ? " · Atrasada" : ""}${activity.completed ? " · Concluída" : ""}`}
                                   >
                                     {activity.completed ? "✓" : ""}
                                   </button>
@@ -1052,15 +1077,16 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                 <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-10 w-px bg-red-500/85 shadow-[0_0_7px_rgba(239,68,68,0.75)]" style={{ left: `${currentTimeMarker}%` }} />
                                 {activities.map((activity, index) => {
                                   const meta = activityMeta[activity.type];
-                                  const column = centeredActivityColumn(activity.time, timelineCardSpan);
+                                  const overdue = isActivityOverdue(activity);
+                                  const column = centeredActivityColumn(activityTimelineTime(activity), timelineCardSpan);
                                   return (
                                     <button
                                       type="button"
                                       onClick={() => activity.source === "fasthug" ? setFastHugActivity({ patientId: patient.id, activity }) : setEditingActivity({ patientId: patient.id, activity })}
                                       key={`${patient.id}-${activity.id ?? activity.label}-${index}`}
                                       style={{ gridColumnStart: column, gridColumnEnd: `span ${timelineCardSpan}`, minHeight: `${timelineCardHeight}px` }}
-                                      className={`relative min-w-0 text-left transition-all hover:-translate-y-0.5 ${timelineZoom === "normal" ? "overflow-hidden rounded-xl border-2 bg-white/80 px-2 py-1.5 shadow-[0_4px_11px_rgba(15,23,42,0.1)] hover:shadow-[0_7px_16px_rgba(15,23,42,0.16)]" : "overflow-hidden rounded-md border-4 bg-white/10 px-1 py-0.5 shadow-[0_6px_13px_rgba(15,23,42,0.14)] backdrop-blur-2xl ring-1 ring-white/65 hover:ring-white/90 hover:shadow-[0_10px_18px_rgba(15,23,42,0.2)]"} [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""}`}
-                                      title={`${activity.time} · ${activity.label}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
+                                      className={`relative min-w-0 text-left transition-all hover:-translate-y-0.5 ${timelineZoom === "normal" ? "overflow-hidden rounded-xl border-2 bg-white/80 px-2 py-1.5 shadow-[0_4px_11px_rgba(15,23,42,0.1)] hover:shadow-[0_7px_16px_rgba(15,23,42,0.16)]" : "overflow-hidden rounded-md border-4 bg-white/10 px-1 py-0.5 shadow-[0_6px_13px_rgba(15,23,42,0.14)] backdrop-blur-2xl ring-1 ring-white/65 hover:ring-white/90 hover:shadow-[0_10px_18px_rgba(15,23,42,0.2)]"} [&>div]:relative [&>div]:z-10 ${meta.className} ${activity.completed ? "opacity-60" : ""} ${overdue ? "!border-clinical-critical !bg-red-50/95 ring-2 ring-clinical-critical/75 shadow-[0_5px_18px_rgba(220,38,38,0.24)]" : ""}`}
+                                      title={`${activity.time} · ${activity.label}${activity.dueAt ? ` · Prazo ${activity.dueAt}` : ""}${overdue ? " · Atrasada" : ""}${activity.repeatEveryHours ? ` · repetir a cada ${activity.repeatEveryHours} h` : ""}`}
                                     >
                                       {timelineZoom !== "normal" && <span aria-hidden="true" className="pointer-events-none absolute -top-6 left-4 right-4 h-14 rounded-full bg-white/35 blur-xl" />}
                                       {timelineZoom !== "normal" && activity.completed && <span aria-label="Atividade concluída" className="absolute right-1 top-1 z-20 flex h-5 w-5 items-center justify-center rounded-full border border-emerald-600 bg-emerald-500 text-[13px] font-black leading-none text-white shadow-sm">✓</span>}
@@ -1070,6 +1096,7 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                                             <span className="truncate">{meta.label}</span>
                                             <span className="shrink-0 rounded-md bg-white/80 px-1.5 py-0.5 shadow-sm">{activity.time}</span>
                                           </div>
+                                          {activity.dueAt && <div className={`mt-0.5 text-[9px] font-black uppercase ${overdue ? "text-clinical-critical" : "opacity-70"}`}>{overdue ? "Atrasada · " : "Prazo · "}{activity.dueAt}</div>}
                                           <div className={`mt-1.5 line-clamp-2 text-[12px] font-extrabold leading-[1.15] ${activity.completed ? "line-through" : ""}`}>
                                             {activity.label}
                                           </div>
@@ -1096,9 +1123,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                           </div>
                         )}
                         {activityDraft?.patientId === patient.id && (
-                          <div className="mt-2 grid grid-cols-[minmax(160px,1fr)_86px_120px_112px_auto_auto] gap-1.5">
+                          <div className="mt-2 grid grid-cols-[minmax(150px,1fr)_86px_86px_120px_112px_auto_auto] gap-1.5">
                             <input className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" placeholder="Nova atividade" value={activityDraft.label} onChange={(event) => setActivityDraft({ ...activityDraft, label: event.target.value })} />
-                            <input type="time" className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" value={activityDraft.time} onChange={(event) => setActivityDraft({ ...activityDraft, time: event.target.value })} />
+                            <input type="time" aria-label="Horário da atividade" className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" value={activityDraft.time} onChange={(event) => setActivityDraft({ ...activityDraft, time: event.target.value })} />
+                            <input type="time" aria-label="Prazo da atividade" title="Prazo para conclusão" className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" value={activityDraft.dueAt} onChange={(event) => setActivityDraft({ ...activityDraft, dueAt: event.target.value })} />
                             <select className="rounded border border-input bg-white/80 px-2 py-1.5 text-[12px] font-bold shadow-sm" value={activityDraft.type} onChange={(event) => setActivityDraft({ ...activityDraft, type: event.target.value as WorkflowActivity["type"] })}>
                               {Object.entries(activityMeta).map(([type, meta]) => <option key={type} value={type}>{meta.label}</option>)}
                             </select>
@@ -1150,6 +1178,9 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
             <label className="mt-5 flex items-center gap-2 text-[12px] font-bold">
               <input type="checkbox" checked={!!editingActivity.activity.completed} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, completed: event.target.checked } })} />
               Marcar como concluída
+            </label>
+            <label className="mt-4 block text-[11px] font-bold">Prazo para conclusão
+              <input type="time" className="mt-1 w-full rounded border border-input bg-background px-2 py-2 text-[12px] font-semibold" value={editingActivity.activity.dueAt ?? ""} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, dueAt: event.target.value || undefined } })} />
             </label>
             <label className="mt-4 block text-[11px] font-bold">Observações
               <textarea rows={4} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-2 text-[12px] font-semibold" value={editingActivity.activity.note ?? ""} onChange={(event) => setEditingActivity({ ...editingActivity, activity: { ...editingActivity.activity, note: event.target.value } })} placeholder="Registrar observações da atividade" />
