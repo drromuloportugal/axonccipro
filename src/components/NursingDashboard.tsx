@@ -28,7 +28,7 @@ type WorkflowActivity = {
   repeatParentId?: string;
 };
 
-type FastHugStatus = "adequado" | "atencao" | "nao_aplicavel";
+type FastHugStatus = "adequado" | "atencao" | "requer_conduta" | "nao_aplicavel";
 type FastHugCriterion = { status: FastHugStatus; note: string };
 type FastHugReviewData = { criteria: Record<string, FastHugCriterion>; reviewedAt?: string };
 type NursingWorkflowWithFastHug = NonNullable<Patient["nursingWorkflow"]> & { fastHugReview?: FastHugReviewData };
@@ -40,20 +40,20 @@ const severityMeta: Record<Severity, { label: string; className: string }> = {
 };
 
 const fastHugCriteria = [
-  ["F", "Dieta e suporte nutricional"],
-  ["A", "Analgesia"],
-  ["S", "Sedação"],
-  ["T", "Profilaxia tromboembólica"],
-  ["H", "Delirium hipo ou hiperativo"],
-  ["U", "Profilaxia de úlcera de estresse"],
+  ["F", "Nutrição adequada"],
+  ["A", "Controle da dor"],
+  ["S", "Sedação / Delirium"],
+  ["T", "Profilaxia TEV"],
+  ["H", "Cabeceira elevada"],
+  ["U", "Profilaxia GI"],
   ["G", "Controle glicêmico"],
-  ["M", "Reconciliação medicamentosa"],
-  ["A", "Antimicrobianos / anti-infecciosos"],
-  ["I", "Indicação de cada medicamento"],
-  ["D", "Dose dos medicamentos"],
-  ["E", "Eletrólitos, hematologia e demais exames"],
-  ["N", "Interações, alergias, duplicidades e efeitos adversos"],
-  ["S", "Datas de suspensão"],
+  ["S", "Desmame ventilatório"],
+  ["B", "Função intestinal"],
+  ["I", "Dispositivos invasivos e não invasivos"],
+  ["D", "Revisão terapêutica"],
+  ["PELE", "Integridade da pele / LPP"],
+  ["MOB", "Mobilização precoce"],
+  ["METAS", "Metas clínicas e assistenciais"],
 ] as const;
 
 const activityMeta: Record<WorkflowActivity["type"], { label: string; className: string }> = {
@@ -226,7 +226,7 @@ function activitiesFor(patient: Patient): WorkflowActivity[] {
   }
 
   activities.push({
-    label: "REVISÃO FASTHUG",
+    label: "FASTHUG MAIDENS",
     time: "17:00",
     type: "care",
     source: "fasthug",
@@ -308,6 +308,34 @@ function resultItems(items: { text: string; state: ResultState }[], empty: strin
   );
 }
 
+function imagingText(exam: { modality?: string; region?: string; summary?: string; conclusion?: string; status?: string }) {
+  const prefix = [exam.modality, exam.region].filter(Boolean).join(" · ");
+  let summary = (exam.summary ?? exam.conclusion ?? exam.status ?? "").trim();
+  while (prefix && summary.startsWith(prefix)) {
+    summary = summary.slice(prefix.length).replace(/^\s*·\s*/, "").trim();
+  }
+  return [prefix, summary].filter(Boolean).join(" · ");
+}
+
+function imagingSummaryFromLine(line: string, exam: { modality?: string; region?: string; summary?: string; conclusion?: string; status?: string }) {
+  const prefix = [exam.modality, exam.region].filter(Boolean).join(" · ");
+  let summary = line.trim();
+  while (prefix && summary.startsWith(prefix)) {
+    summary = summary.slice(prefix.length).replace(/^\s*·\s*/, "").trim();
+  }
+  return summary || exam.summary ?? exam.conclusion ?? exam.status;
+}
+
+function uniqueDisplayItems<T>(items: T[], textOf: (item: T) => string) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = textOf(item).trim().toLocaleLowerCase().replace(/\s+/g, " ");
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function labAppearance(bucket: string | null, critical?: boolean) {
   if (critical || bucket === "very_low" || bucket === "very_high") {
     return "border-clinical-critical/45 bg-clinical-critical/10 text-clinical-critical";
@@ -360,9 +388,11 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   const [pendingCultures, setPendingCultures] = useState(() => patient.dischargeCheck?.pendencies?.cultures ?? "");
   const [nursingCare, setNursingCare] = useState(() => patient.conducts.filter((item) => item.team === "Enfermagem").flatMap((item) => [item.text, ...(item.subItems ?? []).filter((sub) => !sub.hidden).map((sub) => sub.text)]).filter(Boolean).join("\n"));
   const [laboratory, setLaboratory] = useState(() => (patient.exams ?? []).map((item) => `${item.label}: ${item.value}${item.unit ? ` ${item.unit}` : ""}`).join("\n"));
-  const [imaging, setImaging] = useState(() => (patient.imaging ?? []).map((item) => [item.modality, item.region, item.summary ?? item.status ?? ""].filter(Boolean).join(" · ")).join("\n"));
+  const [imaging, setImaging] = useState(() => (patient.imaging ?? []).map((item) => imagingText(item)).join("\n"));
   const [cultures, setCultures] = useState(() => (patient.cultures ?? []).map((item) => [item.source, item.organism, item.result].filter(Boolean).join(" · ")).join("\n"));
   const calculatedIcuDays = icuDays({ ...patient, admissionICU: identity.admissionICU });
+  const laboratoryCards = uniqueDisplayItems(patient.exams ?? [], (exam) => `${exam.label}: ${exam.value}${exam.unit ? ` ${exam.unit}` : ""}`);
+  const imagingCards = uniqueDisplayItems(patient.imaging ?? [], imagingText);
 
   const saveSbar = () => {
     const currentDiagnosisIndex = patient.diagnoses.map((item) => item.category).lastIndexOf("current");
@@ -409,7 +439,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
         const [, value = exam.value] = line.split(/:\s*/, 2);
         return { ...exam, value: value.replace(new RegExp(`\\s*${exam.unit ?? ""}$`), "").trim() || exam.value };
       }),
-      imaging: (patient.imaging ?? []).map((exam, index) => ({ ...exam, summary: imageLines[index] ?? exam.summary })),
+      imaging: (patient.imaging ?? []).map((exam, index) => ({ ...exam, summary: imagingSummaryFromLine(imageLines[index] ?? "", exam) })),
       cultures: (patient.cultures ?? []).map((culture, index) => ({ ...culture, result: cultureLines[index] ?? culture.result })),
       dischargeCheck: {
         ...patient.dischargeCheck,
@@ -445,7 +475,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   const deviceDays = risk ? Math.max(1, Math.floor(risk.days) + 1) : null;
   return editingSection === "assessment" ? <div key={device.id} className="ios-inset grid gap-1 p-2"><Field label="Dispositivo" value={device.code} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, code: value } : item))}/><Field label="Sítio" value={device.site} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, site: value } : item))}/><div className="grid grid-cols-2 gap-1"><Field label="Calibre" value={device.size} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, size: value } : item))}/><Field label="Lúmens" value={device.lumens} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, lumens: value } : item))}/></div><Field label="Inserção" type="date" value={device.insertedAt} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, insertedAt: value } : item))}/></div> : <div key={device.id} className="ios-inset px-2 py-2 text-[11px]" title={risk?.label}><div className="flex items-baseline justify-between gap-2"><b className="min-w-0 truncate">{device.code}</b><span className={`shrink-0 text-[10px] font-black ${risk?.className ?? "text-muted-foreground"}`}>{deviceDays && risk ? `${deviceDays}/${risk.max}d` : "SEM DATA"}</span></div><div className="mt-0.5 text-[10px] font-semibold text-muted-foreground">{device.lumens ? `${device.lumens} lúmen(s)` : "Lúmens não informados"}</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-3">{risk && <div className={`h-full rounded-full ${deviceBarAppearance(risk.level)}`} style={{ width: `${Math.min(100, Math.max(4, risk.percent))}%` }} />}</div></div>;
 }) : <p className="text-[11px] italic text-muted-foreground">Nenhum dispositivo ativo</p>}{area("LPP e curativos", skinCare, setSkinCare, "Registro de LPP e curativos, uma linha por item", editingSection === "assessment")}</section>
-          <section className="ios-card cursor-text space-y-3 rounded-lg p-4 transition-shadow hover:ring-1 hover:ring-primary/35" onClick={() => setEditingSection("recommendation")}><SectionTitle>Recomendação</SectionTitle>{area("Pendência de laboratório", pendingLab, setPendingLab, undefined, editingSection === "recommendation")}{area("Pendência de imagem", pendingImaging, setPendingImaging, undefined, editingSection === "recommendation")}{area("Pendência de cultura", pendingCultures, setPendingCultures, undefined, editingSection === "recommendation")}{area("Cuidados", nursingCare, setNursingCare, "Um cuidado por linha", editingSection === "recommendation")}<div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={laboratory} onChange={(event) => setLaboratory(event.target.value)} placeholder="Um exame por linha" /> : (patient.exams?.length ? <div className="space-y-1">{patient.exams.map((exam, index) => { const insight = examInsight(exam, identity.sex); const badge = insight.bucket ? bucketBadge(insight.bucket) : null; return <div key={`${exam.code ?? exam.label}-${index}`} className={`rounded border px-2 py-1 text-[11px] font-bold ${labAppearance(insight.bucket, exam.critical)}`} title={badge?.label ?? "Sem faixa de referência"}><span>{exam.label}</span><span className="ml-1">{exam.value}{exam.unit ? ` ${exam.unit}` : ""}</span></div>; })}</div> : <p className="text-[11px] italic text-muted-foreground">Não informado</p>)}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={imaging} onChange={(event) => setImaging(event.target.value)} placeholder="Um exame por linha" /> : resultItems((patient.imaging ?? []).map((exam) => ({ text: [exam.modality, exam.region, exam.summary ?? exam.conclusion ?? exam.status ?? ""].filter(Boolean).join(" · "), state: exam.status === "solicitado" || exam.conclusion === "pendente" ? "pending" as const : exam.conclusion === "alterado" || exam.conclusion === "critico" ? "changed" as const : "normal" as const })), "Não informado")}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={cultures} onChange={(event) => setCultures(event.target.value)} placeholder="Uma cultura por linha" /> : resultItems((patient.cultures ?? []).map((culture) => { const text = [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "); const normalized = text.toLowerCase(); const state: ResultState = /pendente|aguardando|solicitad|em andamento/.test(normalized) ? "pending" : /positivo|crescimento|isolad|resistent|multirresistent/.test(normalized) ? "changed" : "normal"; return { text, state }; }), "Não informado")}</div></section>
+          <section className="ios-card cursor-text space-y-3 rounded-lg p-4 transition-shadow hover:ring-1 hover:ring-primary/35" onClick={() => setEditingSection("recommendation")}><SectionTitle>Recomendação</SectionTitle>{area("Pendência de laboratório", pendingLab, setPendingLab, undefined, editingSection === "recommendation")}{area("Pendência de imagem", pendingImaging, setPendingImaging, undefined, editingSection === "recommendation")}{area("Pendência de cultura", pendingCultures, setPendingCultures, undefined, editingSection === "recommendation")}{area("Cuidados", nursingCare, setNursingCare, "Um cuidado por linha", editingSection === "recommendation")}<div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Laboratório</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={laboratory} onChange={(event) => setLaboratory(event.target.value)} placeholder="Um exame por linha" /> : (patient.exams?.length ? <div className="space-y-1">{laboratoryCards.map((exam, index) => { const insight = examInsight(exam, identity.sex); const badge = insight.bucket ? bucketBadge(insight.bucket) : null; return <div key={`${exam.code ?? exam.label}-${index}`} className={`rounded border px-2 py-1 text-[11px] font-bold ${labAppearance(insight.bucket, exam.critical)}`} title={badge?.label ?? "Sem faixa de referência"}><span>{exam.label}</span><span className="ml-1">{exam.value}{exam.unit ? ` ${exam.unit}` : ""}</span></div>; })}</div> : <p className="text-[11px] italic text-muted-foreground">Não informado</p>)}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Imagem</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={imaging} onChange={(event) => setImaging(event.target.value)} placeholder="Um exame por linha" /> : resultItems(imagingCards.map((exam) => ({ text: imagingText(exam), state: exam.status === "solicitado" || exam.conclusion === "pendente" ? "pending" as const : exam.conclusion === "alterado" || exam.conclusion === "critico" ? "changed" as const : "normal" as const })), "Não informado")}</div><div><p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Culturas</p>{editingSection === "recommendation" ? <textarea rows={3} className="w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={cultures} onChange={(event) => setCultures(event.target.value)} placeholder="Uma cultura por linha" /> : resultItems((patient.cultures ?? []).map((culture) => { const text = [culture.source, culture.organism, culture.result].filter(Boolean).join(" · "); const normalized = text.toLowerCase(); const state: ResultState = /pendente|aguardando|solicitad|em andamento/.test(normalized) ? "pending" : /positivo|crescimento|isolad|resistent|multirresistent/.test(normalized) ? "changed" : "normal"; return { text, state }; }), "Não informado")}</div></section>
         </div>
       </section>
     </div>
@@ -562,7 +592,7 @@ function PatientActivityCalendar({ patient, onClose, onAdd, onRemove }: { patien
   );
 }
 
-function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose: () => void; onSave: (criteria: Record<string, FastHugCriterion>) => void }) {
+function FastHugPanel({ patient, completed, onClose, onSave, onUnmarkCompleted }: { patient: Patient; completed: boolean; onClose: () => void; onSave: (criteria: Record<string, FastHugCriterion>) => void; onUnmarkCompleted: () => void }) {
   const existing = (patient.nursingWorkflow as NursingWorkflowWithFastHug | undefined)?.fastHugReview?.criteria;
   const [criteria, setCriteria] = useState<Record<string, FastHugCriterion>>(() =>
     fastHugCriteria.reduce<Record<string, FastHugCriterion>>((items, [letter, label], index) => {
@@ -578,7 +608,7 @@ function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose:
         <header className="neto-glass sticky top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 text-neto-foreground backdrop-blur">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neto-muted">Revisão diária · 17:00</p>
-            <h2 className="mt-1 text-base font-bold text-neto-foreground">FASTHUG-MAIDENS · {patient.name}</h2>
+            <h2 className="mt-1 text-base font-bold text-neto-foreground">FASTHUG MAIDENS · {patient.name}</h2>
           </div>
           <button type="button" onClick={onClose} className="rounded-md border border-neto-line bg-white/10 px-3 py-1.5 text-xs font-semibold text-neto-foreground hover:bg-white/20">Fechar</button>
         </header>
@@ -596,7 +626,8 @@ function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose:
                       <p className="text-[12px] font-bold text-foreground">{label}</p>
                       <select className="mt-2 w-full rounded border border-input bg-background px-2 py-1.5 text-[11px] font-bold" value={item.status} onChange={(event) => setCriteria({ ...criteria, [key]: { ...item, status: event.target.value as FastHugStatus } })}>
                         <option value="adequado">Adequado</option>
-                        <option value="atencao">Atenção / requer conduta</option>
+                        <option value="atencao">Atenção</option>
+                        <option value="requer_conduta">Requer conduta</option>
                         <option value="nao_aplicavel">Não aplicável</option>
                       </select>
                       <textarea rows={2} className="mt-2 w-full resize-y rounded border border-input bg-background px-2 py-1.5 text-[11px] font-semibold" value={item.note} onChange={(event) => setCriteria({ ...criteria, [key]: { ...item, note: event.target.value } })} placeholder="Observação ou conduta" />
@@ -607,6 +638,7 @@ function FastHugPanel({ patient, onClose, onSave }: { patient: Patient; onClose:
             })}
           </div>
           <div className="mt-5 flex justify-end gap-2">
+            {completed && <button type="button" onClick={onUnmarkCompleted} className="rounded border border-clinical-critical/45 bg-clinical-critical/10 px-3 py-2 text-xs font-bold text-clinical-critical">Desmarcar como concluída</button>}
             <button type="button" onClick={onClose} className="rounded border border-border px-3 py-2 text-xs font-semibold">Cancelar</button>
             <button type="button" onClick={() => onSave(criteria)} className="rounded bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">Registrar revisão</button>
           </div>
@@ -935,6 +967,18 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
     setFastHugActivity(null);
   };
 
+  const unmarkFastHugReview = (patientId: string, activity: WorkflowActivity) => {
+    const patient = patients.find((item) => item.id === patientId);
+    if (!patient || !activity.id) return;
+    const workflow = patient.nursingWorkflow as NursingWorkflowWithFastHug | undefined;
+    const currentActivities = Array.isArray(workflow?.activities) ? workflow.activities : [];
+    const record: WorkflowActivity = { ...activity, completed: false, source: "fasthug", scheduledDate: activity.scheduledDate ?? currentShiftDate(), note: undefined };
+    const activities = currentActivities.some((item) => item.id === record.id)
+      ? currentActivities.map((item) => item.id === record.id ? { ...item, ...record } : item)
+      : [...currentActivities, record];
+    onUpdatePatient({ ...patient, nursingWorkflow: { ...workflow, activities } as Patient["nursingWorkflow"] });
+    setFastHugActivity(null);
+  };
   const addScheduledActivity = (patientId: string, activity: WorkflowActivity) => {
     const patient = patients.find((item) => item.id === patientId);
     if (!patient) return;
@@ -1305,8 +1349,10 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
         return patient ? (
           <FastHugPanel
             patient={patient}
+            completed={Boolean(fastHugActivity.activity.completed)}
             onClose={() => setFastHugActivity(null)}
             onSave={(criteria) => saveFastHugReview(fastHugActivity.patientId, fastHugActivity.activity, criteria)}
+            onUnmarkCompleted={() => unmarkFastHugReview(fastHugActivity.patientId, fastHugActivity.activity)}
           />
         ) : null;
       })()}
