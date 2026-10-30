@@ -225,6 +225,14 @@ function workflowActivitiesForToday(patient: Patient): WorkflowActivity[] {
   ]);
 }
 
+function icuDays(patient: Patient) {
+  if (!patient.admissionICU) return null;
+  const admission = new Date(patient.admissionICU);
+  if (Number.isNaN(admission.getTime())) return null;
+  const elapsed = Date.now() - admission.getTime();
+  return Math.max(1, Math.floor(elapsed / 86_400_000) + 1);
+}
+
 function currentDiagnosis(patient: Patient) {
   const current = patient.diagnoses.filter((diagnosis) => diagnosis.category === "current");
   return (current.at(-1) ?? patient.diagnoses.at(-1))?.label ?? "Não informado";
@@ -285,6 +293,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
   const [identity, setIdentity] = useState(() => ({ name: patient.name, bed: patient.bed, id: patient.id, age: String(patient.age), sex: patient.sex, admissionICU: patient.admissionICU, expectedDischarge: patient.dischargeCheck?.expectedTransfer ?? "" }));
   const [diagnosis, setDiagnosis] = useState(() => currentDiagnosis(patient));
   const [situationObservation, setSituationObservation] = useState(() => patient.nursingWorkflow?.situationObservation ?? "");
+  const [consciousnessState, setConsciousnessState] = useState(() => patient.nursingWorkflow?.consciousnessState ?? "Não informado");
   const [severity, setSeverity] = useState<Severity>(() => patient.severity);
   const [baseConditions, setBaseConditions] = useState(() => patient.diagnoses.filter((item) => item.category === "previous" || item.category === "inactive").map((item) => item.label).join("\n"));
   const [surgeries, setSurgeries] = useState(() => patient.procedures.map((item) => item.label).join("\n"));
@@ -333,7 +342,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
       sex: identity.sex,
       admissionICU: identity.admissionICU,
       severity,
-      nursingWorkflow: { ...patient.nursingWorkflow, situationObservation: situationObservation.trim() || undefined },
+      nursingWorkflow: { ...patient.nursingWorkflow, situationObservation: situationObservation.trim() || undefined, consciousnessState: consciousnessState === "Não informado" ? undefined : consciousnessState },
       diagnoses,
       procedures: splitLines(surgeries).map((label) => ({ date: "", label, kind: "neutral" as const })),
       allergies: splitLines(allergies),
@@ -374,7 +383,7 @@ function SbarPanel({ patient, onClose, onUpdatePatient }: { patient: Patient; on
         </header>
         <div className="grid gap-3 p-4 text-[13px] font-bold xl:grid-cols-5">
           <section className="ios-card rounded-lg p-4"><SectionTitle>Identificação</SectionTitle>{editing ? <div className="grid gap-2"><Field label="Paciente" value={identity.name} onChange={(value) => setIdentity({ ...identity, name: value })}/><Field label="Leito" value={identity.bed} onChange={(value) => setIdentity({ ...identity, bed: value })}/><Field label="Nº do atendimento" value={identity.id} onChange={(value) => setIdentity({ ...identity, id: value })}/><Field label="Idade" type="number" value={identity.age} onChange={(value) => setIdentity({ ...identity, age: value })}/><label className="text-[10px] font-bold uppercase text-muted-foreground">Sexo<select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[11px] font-bold" value={identity.sex} onChange={(event) => setIdentity({ ...identity, sex: event.target.value as "M" | "F" })}><option value="M">Masculino</option><option value="F">Feminino</option></select></label><Field label="Admissão UTI" value={identity.admissionICU} onChange={(value) => setIdentity({ ...identity, admissionICU: value })}/><Field label="Previsão de alta" value={identity.expectedDischarge} onChange={(value) => setIdentity({ ...identity, expectedDischarge: value })}/></div> : <dl className="space-y-2 text-[11px]"><div><dt className="text-muted-foreground">Paciente</dt><dd>{identity.name || "—"}</dd></div><div><dt className="text-muted-foreground">Leito</dt><dd>{identity.bed || "—"}</dd></div><div><dt className="text-muted-foreground">Nº do atendimento</dt><dd className="font-mono">{identity.id}</dd></div><div><dt className="text-muted-foreground">Idade / sexo</dt><dd>{identity.age} anos · {identity.sex === "M" ? "Masculino" : "Feminino"}</dd></div><div><dt className="text-muted-foreground">Admissão UTI</dt><dd>{identity.admissionICU || "Não informada"}</dd></div><div><dt className="text-muted-foreground">Previsão de alta</dt><dd>{identity.expectedDischarge || "Não informada"}</dd></div></dl>}</section>
-          <section className="ios-card rounded-lg p-4"><SectionTitle>Situação</SectionTitle><p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>{editing ? <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diagnosis} onChange={(event) => setDiagnosis(event.target.value)}/> : <p className="mt-1 text-sm font-bold text-foreground">{diagnosis || "Não informado"}</p>}<p className="mt-4 text-[11px] text-muted-foreground">Observação para o workflow</p>{editing ? <textarea rows={3} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={situationObservation} onChange={(event) => setSituationObservation(event.target.value)} placeholder="Registrar observação livre do paciente" /> : <p className="mt-1 min-h-8 whitespace-pre-wrap text-[12px] font-semibold text-foreground">{situationObservation}</p>}<p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>{editing ? <select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={severity} onChange={(event) => setSeverity(event.target.value as Severity)}><option value="stable">Estável</option><option value="attention">Atenção</option><option value="critical">Crítico</option></select> : <span className={`mt-1 inline-flex rounded px-2 py-1 text-[12px] font-bold ${severityMeta[severity].className}`}>{severityMeta[severity].label}</span>}</section>
+          <section className="ios-card rounded-lg p-4"><SectionTitle>Situação</SectionTitle><p className="text-[11px] text-muted-foreground">Diagnóstico principal</p>{editing ? <input className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diagnosis} onChange={(event) => setDiagnosis(event.target.value)}/> : <p className="mt-1 text-sm font-bold text-foreground">{diagnosis || "Não informado"}</p>}<p className="mt-4 text-[11px] text-muted-foreground">Observação para o workflow</p>{editing ? <textarea rows={3} className="mt-1 w-full resize-y rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={situationObservation} onChange={(event) => setSituationObservation(event.target.value)} placeholder="Registrar observação livre do paciente" /> : <p className="mt-1 min-h-8 whitespace-pre-wrap text-[12px] font-semibold text-foreground">{situationObservation}</p>}<p className="mt-4 text-[11px] text-muted-foreground">Estado de consciência</p>{editing ? <select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={consciousnessState} onChange={(event) => setConsciousnessState(event.target.value)}><option>Não informado</option><option>Alerta</option><option>Sonolento</option><option>Obnubilado</option><option>Torporoso</option><option>Comatoso</option><option>Sedado</option></select> : <p className="mt-1 text-[12px] font-bold text-foreground">{consciousnessState}</p>}<p className="mt-4 text-[11px] text-muted-foreground">Estado atual</p>{editing ? <select className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={severity} onChange={(event) => setSeverity(event.target.value as Severity)}><option value="stable">Estável</option><option value="attention">Atenção</option><option value="critical">Crítico</option></select> : <span className={`mt-1 inline-flex rounded px-2 py-1 text-[12px] font-bold ${severityMeta[severity].className}`}>{severityMeta[severity].label}</span>}</section>
           <section className="ios-card space-y-3 rounded-lg p-4"><SectionTitle>Background</SectionTitle>{area("Doenças de base", baseConditions, setBaseConditions, "Uma condição por linha")}{area("Cirurgias / procedimentos prévios", surgeries, setSurgeries, "Um item por linha")}{area("Alergias", allergies, setAllergies, "Uma alergia por linha")}{area("Uso contínuo", chronicMeds, setChronicMeds, "Um medicamento por linha")}</section>
           <section className="ios-card space-y-3 rounded-lg p-4"><SectionTitle>Avaliação</SectionTitle><p className="text-[10px] font-semibold uppercase text-muted-foreground">Dieta</p>{editing ? <input className="w-full rounded border border-input bg-background px-2 py-1 text-[12px] font-bold" value={diet} onChange={(event) => setDiet(event.target.value)}/> : <p className="text-[11px] font-semibold">{diet || "Não informada"}</p>}<p className="text-[10px] font-semibold uppercase text-muted-foreground">Dispositivos invasivos</p>{devices.length ? devices.map((device) => editing ? <div key={device.id} className="ios-inset grid gap-1 p-2"><Field label="Dispositivo" value={device.code} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, code: value } : item))}/><Field label="Sítio" value={device.site} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, site: value } : item))}/><div className="grid grid-cols-2 gap-1"><Field label="Calibre" value={device.size} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, size: value } : item))}/><Field label="Lúmens" value={device.lumens} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, lumens: value } : item))}/></div><Field label="Inserção" type="date" value={device.insertedAt} onChange={(value) => setDevices(devices.map((item) => item.id === device.id ? { ...item, insertedAt: value } : item))}/></div> : <div key={device.id} className="ios-inset px-2 py-1.5 text-[11px]"><b>{device.code}</b><br/><span className="text-muted-foreground">{[device.site, device.size ? `nº ${device.size}` : "", device.lumens ? `${device.lumens} lúmen(s)` : "", device.insertedAt].filter(Boolean).join(" · ")}</span></div>) : <p className="text-[11px] italic text-muted-foreground">Nenhum dispositivo ativo</p>}{area("LPP e curativos", skinCare, setSkinCare, "Registro de LPP e curativos, uma linha por item")}</section>
           <section className="ios-card space-y-3 rounded-lg p-4"><SectionTitle>Recomendação</SectionTitle>{area("Pendência de laboratório", pendingLab, setPendingLab)}{area("Pendência de imagem", pendingImaging, setPendingImaging)}{area("Pendência de cultura", pendingCultures, setPendingCultures)}{area("Cuidados", nursingCare, setNursingCare, "Um cuidado por linha")}{area("Laboratório", laboratory, setLaboratory, "Um exame por linha")}{area("Imagem", imaging, setImaging, "Um exame por linha")}{area("Culturas", cultures, setCultures, "Uma cultura por linha")}</section>
@@ -919,6 +928,8 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                 const patientNightCompleted = patientNightActivities.filter((activity) => activity.completed).length;
                 const patientDayProgress = patientDayActivities.length ? Math.round((patientDayCompleted / patientDayActivities.length) * 100) : 0;
                 const patientNightProgress = patientNightActivities.length ? Math.round((patientNightCompleted / patientNightActivities.length) * 100) : 0;
+                const consciousness = patient.nursingWorkflow?.consciousnessState ?? "Não informado";
+                const daysInIcu = icuDays(patient);
                 return (
                   <article
                     key={patient.id}
@@ -931,57 +942,42 @@ export function NursingDashboard({ patients, onOpenMedicalPanel, onSignOut, onUp
                         className={`flex flex-col border-r border-border bg-soft-blue-gradient text-left transition-colors hover:brightness-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50 ${timelineZoom === "grade24" ? "w-[180px] min-w-[180px] justify-center p-1" : "w-1/5 min-w-[196px] justify-between p-4"}`}
                         title="Abrir resumo SBAR do paciente"
                       >
-                        <div>
-                          <div className={`flex items-center gap-1.5 border-clinical-stable/70 font-bold uppercase tracking-wide text-foreground ${timelineZoom === "grade24" ? "border-b-0 pb-0 text-[10px]" : "border-b-2 pb-1 text-sm"}`}>
-                            {timelineZoom === "grade24" && (
-                              <span className="shrink-0 rounded-sm bg-primary px-1.5 py-0.5 text-[9px] font-black text-primary-foreground shadow-sm">
-                                {patient.bed || "—"}
-                              </span>
-                            )}
-                            <span className="truncate">{patient.name || "Sem identificação"}</span>
-                          </div>
-                          {timelineZoom === "grade24" && (
+                        {timelineZoom === "grade24" ? (
+                          <div>
+                            <div className="flex items-center gap-1.5 border-clinical-stable/70 font-bold uppercase tracking-wide text-foreground">
+                              <span className="shrink-0 rounded-sm bg-primary px-1.5 py-0.5 text-[9px] font-black text-primary-foreground shadow-sm">{patient.bed || "—"}</span>
+                              <span className="truncate text-[10px]">{patient.name || "Sem identificação"}</span>
+                            </div>
                             <div className="mt-0.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-wide">
                               <span className="rounded-sm bg-amber-100 px-1 py-0.5 text-amber-800">D {patientDayCompleted}/{patientDayActivities.length}</span>
                               <span className="rounded-sm bg-indigo-100 px-1 py-0.5 text-indigo-800">N {patientNightCompleted}/{patientNightActivities.length}</span>
                             </div>
-                          )}
-                          <div className={timelineZoom === "grade24" ? "hidden" : "mt-1 text-xs text-muted-foreground"}>
-                            {patient.age} anos · {patient.sex === "M" ? "Masculino" : "Feminino"}
                           </div>
-                        </div>
-                        <div className={timelineZoom === "grade24" ? "hidden" : "mt-3 flex flex-wrap items-center gap-2"}>
-                          <span className={timelineZoom === "grade24" ? "ios-inset px-1 py-0.5 text-[9px] font-semibold" : "ios-inset px-2 py-1 text-xs font-semibold"}>
-                            Leito {patient.bed || "—"}
-                          </span>
-                          <span className={`rounded font-bold ${timelineZoom === "grade24" ? "px-1 py-0.5 text-[8px]" : "px-2 py-1 text-xs"} ${severity.className}`}>
-                            {severity.label}
-                          </span>
-                        </div>
-                        <div className={timelineZoom === "grade24" ? "hidden" : "mt-3 border-t border-border/70 pt-2"}>
-                          <div className="text-[8px] font-extrabold uppercase tracking-wide text-muted-foreground">
-                            Observação
-                          </div>
-                          <div className="mt-1 min-h-12 whitespace-pre-wrap rounded-sm border border-white/70 bg-white/45 px-2 py-1.5 text-[13px] font-bold leading-snug text-slate-800 drop-shadow-[0_1px_1px_rgba(15,23,42,0.2)]">
-                            {patient.nursingWorkflow?.situationObservation}
-                          </div>
-                        </div>
-                        <div className={timelineZoom === "grade24" ? "hidden" : "mt-3 grid grid-cols-2 gap-1.5"}>
-                          <div className="rounded-sm border border-amber-200/80 bg-gradient-to-br from-amber-50 to-orange-100/70 p-1.5 shadow-sm">
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-[9px] font-extrabold uppercase tracking-wide text-amber-800">Dia</span>
-                              <span className="text-[13px] font-black text-amber-800">{patientDayCompleted}<span className="text-[9px] text-amber-700/70">/{patientDayActivities.length}</span></span>
+                        ) : (
+                          <>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-md bg-primary px-2 py-1 text-xs font-black text-primary-foreground shadow-sm">LEITO {patient.bed || "—"}</span>
+                              <span className="rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-extrabold text-cyan-800 shadow-sm">{consciousness}</span>
                             </div>
-                            <div className="mt-1 h-1 overflow-hidden rounded-full bg-amber-950/10"><div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style={{ width: `${patientDayProgress}%` }} /></div>
-                          </div>
-                          <div className="rounded-sm border border-indigo-200/80 bg-gradient-to-br from-indigo-50 to-violet-100/70 p-1.5 shadow-sm">
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-[9px] font-extrabold uppercase tracking-wide text-indigo-800">Noite</span>
-                              <span className="text-[13px] font-black text-indigo-800">{patientNightCompleted}<span className="text-[9px] text-indigo-700/70">/{patientNightActivities.length}</span></span>
+                            <div className="mt-3 text-sm font-black uppercase tracking-wide text-foreground">{patient.name || "Sem identificação"}</div>
+                            <div className="mt-1 text-xs font-semibold text-muted-foreground">{patient.age} anos · {patient.sex === "M" ? "Masculino" : "Feminino"}</div>
+                            <div className="mt-1 text-xs font-bold text-primary">{daysInIcu ? `${daysInIcu}º dia de UTI` : "Dias de UTI não informados"}</div>
+                            <div className="mt-3 border-t border-border/70 pt-2">
+                              <div className="text-[8px] font-extrabold uppercase tracking-wide text-muted-foreground">Observação</div>
+                              <div className="mt-1 min-h-12 whitespace-pre-wrap rounded-sm border border-white/70 bg-white/45 px-2 py-1.5 text-[12px] font-bold leading-snug text-slate-800 drop-shadow-[0_1px_1px_rgba(15,23,42,0.2)]">{patient.nursingWorkflow?.situationObservation}</div>
                             </div>
-                            <div className="mt-1 h-1 overflow-hidden rounded-full bg-indigo-950/10"><div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-500" style={{ width: `${patientNightProgress}%` }} /></div>
-                          </div>
-                        </div>
+                            <div className="mt-3 grid grid-cols-2 gap-1.5">
+                              <div className="rounded-xl border border-amber-100/80 bg-gradient-to-br from-white/90 via-amber-50/85 to-orange-100/75 p-2 shadow-[0_6px_14px_rgba(180,83,9,0.14)] backdrop-blur-md">
+                                <div className="flex items-end justify-between gap-1"><span className="text-[9px] font-extrabold uppercase tracking-wide text-amber-800">Dia</span><span className="text-[15px] font-black text-amber-800">{patientDayCompleted}<span className="text-[10px] text-amber-700/70">/{patientDayActivities.length}</span></span></div>
+                                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-amber-950/10"><div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500" style={{ width: `${patientDayProgress}%` }} /></div>
+                              </div>
+                              <div className="rounded-xl border border-indigo-100/80 bg-gradient-to-br from-white/90 via-indigo-50/85 to-violet-100/75 p-2 shadow-[0_6px_14px_rgba(79,70,229,0.14)] backdrop-blur-md">
+                                <div className="flex items-end justify-between gap-1"><span className="text-[9px] font-extrabold uppercase tracking-wide text-indigo-800">Noite</span><span className="text-[15px] font-black text-indigo-800">{patientNightCompleted}<span className="text-[10px] text-indigo-700/70">/{patientNightActivities.length}</span></span></div>
+                                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-indigo-950/10"><div className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-violet-500" style={{ width: `${patientNightProgress}%` }} /></div>
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </button>
 
                       <section className={`w-4/5 bg-surface/55 ${timelineZoom === "grade24" ? "p-0.5" : "p-4"}`}>
